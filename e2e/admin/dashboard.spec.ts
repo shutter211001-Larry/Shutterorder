@@ -24,14 +24,14 @@ test.describe('Admin Dashboard', () => {
     // Check within the main content area only
     const main = page.locator('main');
     await expect(main.getByText('Orders Today')).toBeVisible();
-    await expect(main.getByText('Revenue')).toBeVisible();
-    await expect(main.getByText('Reservations')).toBeVisible();
-    await expect(main.getByText('Active Items')).toBeVisible();
+    await expect(main.getByText('Revenue Today')).toBeVisible();
+    await expect(main.getByText('Pending Reservations')).toBeVisible();
+    await expect(main.getByText('Active Menu Items')).toBeVisible();
   });
 
   test('metric cards show placeholder values', async ({ page }) => {
     await page.goto('/');
-    const placeholders = page.getByText('--');
+    const placeholders = page.getByText('--', { exact: true });
     await expect(placeholders.first()).toBeVisible();
     expect(await placeholders.count()).toBe(4);
   });
