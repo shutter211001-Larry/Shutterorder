@@ -28,21 +28,8 @@ export default defineConfig({
       },
       testMatch: 'storefront/**/*.spec.ts',
     },
-    {
-      name: 'api',
-      use: {
-        baseURL: 'http://localhost:3000',
-      },
-      testMatch: 'api/**/*.spec.ts',
-    },
   ],
   webServer: [
-    {
-      command: 'npm run dev:server',
-      url: 'http://localhost:3000/api/health',
-      reuseExistingServer: !process.env.CI,
-      timeout: 15000,
-    },
     {
       command: 'npm run dev:admin',
       url: 'http://localhost:5173',

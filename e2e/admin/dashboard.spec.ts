@@ -6,11 +6,10 @@ test.describe('Admin Dashboard', () => {
     await expect(page).toHaveTitle('KitchenAsty Admin');
   });
 
-  test('displays the navigation bar with app name', async ({ page }) => {
+  test('displays sidebar with app name', async ({ page }) => {
     await page.goto('/');
-    const nav = page.locator('nav');
-    await expect(nav).toBeVisible();
-    await expect(nav).toContainText('KitchenAsty Admin');
+    await expect(page.getByText('KitchenAsty')).toBeVisible();
+    await expect(page.getByText('Admin Panel')).toBeVisible();
   });
 
   test('displays the Dashboard heading', async ({ page }) => {
@@ -22,26 +21,27 @@ test.describe('Admin Dashboard', () => {
   test('displays all four metric cards', async ({ page }) => {
     await page.goto('/');
 
-    const cards = ['Orders Today', 'Revenue', 'Reservations', 'Active Items'];
-    for (const cardLabel of cards) {
-      await expect(page.getByText(cardLabel)).toBeVisible();
-    }
+    // Check within the main content area only
+    const main = page.locator('main');
+    await expect(main.getByText('Orders Today')).toBeVisible();
+    await expect(main.getByText('Revenue')).toBeVisible();
+    await expect(main.getByText('Reservations')).toBeVisible();
+    await expect(main.getByText('Active Items')).toBeVisible();
   });
 
   test('metric cards show placeholder values', async ({ page }) => {
     await page.goto('/');
-
-    // All cards should show "--" as placeholder
     const placeholders = page.getByText('--');
     await expect(placeholders.first()).toBeVisible();
     expect(await placeholders.count()).toBe(4);
   });
 
-  test('has correct page structure', async ({ page }) => {
+  test('sidebar has navigation links', async ({ page }) => {
     await page.goto('/');
-
-    // Should have nav and main elements
-    await expect(page.locator('nav')).toBeVisible();
-    await expect(page.locator('main')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Locations' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Menu' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Orders' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Reservations' })).toBeVisible();
   });
 });
