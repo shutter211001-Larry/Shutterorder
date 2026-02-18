@@ -216,6 +216,40 @@ export async function getOrder(req: Request<{ id: string }>, res: Response): Pro
   res.json({ success: true, data: order });
 }
 
+export async function listCustomerOrders(req: Request, res: Response): Promise<void> {
+  const customerId = req.user?.id;
+  if (!customerId) {
+    res.status(401).json({ success: false, error: 'Authentication required' });
+    return;
+  }
+
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const skip = (page - 1) * limit;
+
+  const where = { customerId };
+
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        location: { select: { id: true, name: true } },
+        _count: { select: { items: true } },
+      },
+    }),
+    prisma.order.count({ where }),
+  ]);
+
+  res.json({
+    success: true,
+    data: orders,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
+}
+
 export async function updateOrderStatus(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;
   const { status } = req.body;

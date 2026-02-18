@@ -12,6 +12,8 @@ import Account from './pages/Account.js';
 import Menu from './pages/Menu.js';
 import Checkout from './pages/Checkout.js';
 import OrderConfirmation from './pages/OrderConfirmation.js';
+import OrderHistory from './pages/OrderHistory.js';
+import OrderStatus from './pages/OrderStatus.js';
 import NotFound from './pages/NotFound.js';
 import './index.css';
 
@@ -30,6 +32,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/account/orders" element={<OrderHistory />} />
+            <Route path="/orders/:id" element={<OrderStatus />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

@@ -1,5 +1,5 @@
 import { useAuth } from '../context/AuthContext.js';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 
 export default function Account() {
   const { user, isLoading, logout } = useAuth();
@@ -46,10 +46,10 @@ export default function Account() {
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <Link to="/account/orders" className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
               <h3 className="font-medium text-gray-900">Order History</h3>
               <p className="text-sm text-gray-500 mt-1">View your past orders and reorder.</p>
-            </div>
+            </Link>
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="font-medium text-gray-900">Reservations</h3>
               <p className="text-sm text-gray-500 mt-1">Manage your table reservations.</p>

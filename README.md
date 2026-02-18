@@ -27,13 +27,14 @@ A self-hosted restaurant online ordering, table reservation, and management syst
 - **Menu management** — Category CRUD with nesting, menu item CRUD with options/allergens/mealtimes, stock tracking
 - **Table management** — CRUD for tables per location with capacity tracking and reservation protection
 - **Order management** — Admin order list with status/type filters, order detail view with items/totals, status workflow controls
-- **Full test suite** — Unit, integration, and E2E tests (258 tests)
+- **Order tracking** — Customer order history page, order status page with visual progress tracker, account integration
+- **Full test suite** — Unit, integration, and E2E tests (265 tests)
 - **CI/CD pipeline** — GitHub Actions with lint, test, audit, build, and artifact packaging
 
 ### Planned
 
 - Menu item image upload
-- Kitchen display view and real-time order status updates
+- Real-time order status updates (Socket.IO) and kitchen display view
 - Table reservation system
 - Coupons, reviews, and analytics dashboard
 - Email notifications and multi-language support
@@ -289,6 +290,7 @@ Coupon, Allergen, Mealtime, CustomerGroup
 |--------|----------|------|-------------|
 | POST | `/api/orders` | Optional | Create order (guest or authenticated) |
 | GET | `/api/orders` | Staff | List orders (paginated, filterable) |
+| GET | `/api/orders/my-orders` | Customer | List customer's own orders |
 | GET | `/api/orders/:id` | Any | Get order detail |
 | PATCH | `/api/orders/:id/status` | Staff | Update order status |
 
