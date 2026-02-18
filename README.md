@@ -24,25 +24,23 @@ A self-hosted restaurant online ordering, table reservation, and management syst
 - **Cart & checkout** — Shopping cart drawer with quantity controls, checkout page with delivery/pickup toggle, address entry, scheduling, order notes, coupon code, payment method selection (cash/Stripe), and order summary with tax/fees
 - **Order API** — Order creation with validation, stock tracking, guest checkout support, order listing/detail for staff, status updates
 - **Stripe payments** — Payment intent creation, webhook handler for payment confirmation/failure, cash on delivery option, payment record tracking
-- **Menu management** — Category CRUD with nesting, menu item CRUD with options/allergens/mealtimes, stock tracking
+- **Menu management** — Category CRUD with nesting, menu item CRUD with options/allergens/mealtimes, stock tracking, image upload (JPEG/PNG/WebP/GIF, 5MB max) with preview
 - **Table management** — CRUD for tables per location with capacity tracking and reservation protection
 - **Order management** — Admin order list with status/type filters, order detail view with items/totals, status workflow controls
 - **Order tracking** — Customer order history page, order status page with visual progress tracker, account integration
 - **Reservation system** — Customer booking with time slot availability, admin reservation list with status workflow (pending/confirmed/seated/completed), table assignment, date/status filters
 - **Coupon system** — CRUD for coupons (percentage, fixed, free delivery), validation with min order/usage limits/date restrictions, admin coupon management with create/edit forms
 - **Review system** — Customer review submission (1-5 stars + comment), admin moderation (approve/reject/delete), public approved reviews per location with average rating
-- **Dashboard & reports** — Admin dashboard with real-time metrics (orders today, revenue, reservations, customers), summary stats (weekly/monthly), recent orders list, top selling items
+- **Dashboard & reports** — Admin dashboard with real-time metrics (orders today, revenue, reservations, customers), summary stats (weekly/monthly), recent orders list, top selling items, analytics tab with interactive charts (revenue trend, daily orders, order types, status distribution, hourly patterns, category revenue)
 - **Email notifications** — Branded HTML email templates for order confirmation, status updates, and reservation confirmations via Nodemailer
 - **API documentation** — Interactive Swagger UI at `/api/docs`, OpenAPI 3.0.3 spec at `/api/openapi.json`, rate limiting (100 req/15min per IP)
 - **Multi-language support** — i18n with react-i18next, language switcher in header, English and Spanish translations for all storefront pages
-- **Full test suite** — Unit, integration, and E2E tests (330 tests)
+- **Full test suite** — Unit, integration, and E2E tests (330+ tests)
 - **CI/CD pipeline** — GitHub Actions with lint, test, audit, build, and artifact packaging
 
 ### Planned
 
-- Menu item image upload
 - Real-time order status updates (Socket.IO) and kitchen display view
-- Advanced analytics and reporting charts
 
 See [`PLAN.md`](PLAN.md) for the full roadmap.
 
@@ -58,6 +56,8 @@ See [`PLAN.md`](PLAN.md) for the full roadmap.
 | **Database** | [PostgreSQL](https://www.postgresql.org/) + [Prisma ORM](https://www.prisma.io/) |
 | **Auth** | JWT ([jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)) + [bcrypt](https://github.com/dcodeIO/bcrypt.js) |
 | **Validation** | [Zod](https://zod.dev/) |
+| **Charts** | [Recharts](https://recharts.org/) |
+| **File Upload** | [Multer](https://github.com/expressjs/multer) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
 | **Testing** | [Vitest](https://vitest.dev/) + [Supertest](https://github.com/ladjs/supertest) + [Playwright](https://playwright.dev/) |
 | **CI/CD** | [GitHub Actions](https://github.com/features/actions) |
@@ -305,10 +305,17 @@ Coupon, Allergen, Mealtime, CustomerGroup
 | POST | `/api/payments/webhook` | — | Stripe webhook handler |
 | POST | `/api/payments/cash` | Staff | Record cash payment |
 
+### Menu — Image Upload
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/menu/items/:id/image` | Manager+ | Upload item image (multipart form) |
+| DELETE | `/api/menu/items/:id/image` | Manager+ | Remove item image |
+
 ### Dashboard
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/dashboard/stats` | Staff | Get dashboard metrics, recent orders, top items |
+| GET | `/api/dashboard/analytics` | Staff | Get analytics data (daily stats, distributions, category revenue) |
 
 ### Reviews
 | Method | Endpoint | Auth | Description |
