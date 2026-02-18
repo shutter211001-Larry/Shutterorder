@@ -27,7 +27,8 @@ A self-hosted restaurant online ordering, table reservation, and management syst
 - **Menu management** — Category CRUD with nesting, menu item CRUD with options/allergens/mealtimes, stock tracking, image upload (JPEG/PNG/WebP/GIF, 5MB max) with preview
 - **Table management** — CRUD for tables per location with capacity tracking and reservation protection
 - **Order management** — Admin order list with status/type filters, order detail view with items/totals, status workflow controls
-- **Order tracking** — Customer order history page, order status page with visual progress tracker, account integration
+- **Order tracking** — Customer order history page, order status page with visual progress tracker, real-time status updates via Socket.IO, account integration
+- **Kitchen display** — Real-time Kanban board with 4 status columns (New/Confirmed/Preparing/Ready), live order cards with items and comments, one-click status progression, WebSocket-powered updates
 - **Reservation system** — Customer booking with time slot availability, admin reservation list with status workflow (pending/confirmed/seated/completed), table assignment, date/status filters
 - **Coupon system** — CRUD for coupons (percentage, fixed, free delivery), validation with min order/usage limits/date restrictions, admin coupon management with create/edit forms
 - **Review system** — Customer review submission (1-5 stars + comment), admin moderation (approve/reject/delete), public approved reviews per location with average rating
@@ -37,10 +38,6 @@ A self-hosted restaurant online ordering, table reservation, and management syst
 - **Multi-language support** — i18n with react-i18next, language switcher in header, English and Spanish translations for all storefront pages
 - **Full test suite** — Unit, integration, and E2E tests (330+ tests)
 - **CI/CD pipeline** — GitHub Actions with lint, test, audit, build, and artifact packaging
-
-### Planned
-
-- Real-time order status updates (Socket.IO) and kitchen display view
 
 See [`PLAN.md`](PLAN.md) for the full roadmap.
 
@@ -56,6 +53,7 @@ See [`PLAN.md`](PLAN.md) for the full roadmap.
 | **Database** | [PostgreSQL](https://www.postgresql.org/) + [Prisma ORM](https://www.prisma.io/) |
 | **Auth** | JWT ([jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)) + [bcrypt](https://github.com/dcodeIO/bcrypt.js) |
 | **Validation** | [Zod](https://zod.dev/) |
+| **Real-time** | [Socket.IO](https://socket.io/) |
 | **Charts** | [Recharts](https://recharts.org/) |
 | **File Upload** | [Multer](https://github.com/expressjs/multer) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
