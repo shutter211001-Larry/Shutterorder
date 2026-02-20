@@ -45,6 +45,12 @@ export async function createReview(req: Request, res: Response): Promise<void> {
     },
   });
 
+  // Emit event for automation rules
+  try {
+    const { appEvents } = await import('../lib/events.js');
+    appEvents.emit('review.submitted', { review });
+  } catch {}
+
   res.status(201).json({ success: true, data: review });
 }
 

@@ -19,6 +19,10 @@ import CouponList from './pages/CouponList.js';
 import CouponForm from './pages/CouponForm.js';
 import ReviewList from './pages/ReviewList.js';
 import KitchenDisplay from './pages/KitchenDisplay.js';
+import AutomationRuleList from './pages/AutomationRuleList.js';
+import AutomationRuleForm from './pages/AutomationRuleForm.js';
+import DeliveryZoneList from './pages/DeliveryZoneList.js';
+import CustomerLoyalty from './pages/CustomerLoyalty.js';
 import './index.css';
 
 function App() {
@@ -67,6 +71,11 @@ function App() {
           <Route path="/coupons/:id" element={<CouponForm />} />
           <Route path="/reviews" element={<ReviewList />} />
           <Route path="/kitchen" element={<KitchenDisplay />} />
+          <Route path="/automation" element={<AutomationRuleList />} />
+          <Route path="/automation/new" element={<AutomationRuleForm />} />
+          <Route path="/automation/:id" element={<AutomationRuleForm />} />
+          <Route path="/locations/:locationId/delivery-zones" element={<DeliveryZoneList />} />
+          <Route path="/loyalty" element={<CustomerLoyalty />} />
         </Routes>
       </AdminLayout>
     </BrowserRouter>

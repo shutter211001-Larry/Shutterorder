@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/db.js';
 import { emitNewOrder, emitOrderStatusUpdate } from '../lib/socket.js';
+import { isPointInPolygon } from '../lib/geo.js';
+import { sendEmail, orderConfirmationEmail, orderStatusEmail } from '../lib/email.js';
 
 const orderItemOptionSchema = z.object({
   menuOptionValueId: z.string().min(1),
@@ -29,7 +31,13 @@ const createOrderSchema = z.object({
     city: z.string().min(1),
     state: z.string().min(1),
     zip: z.string().min(1),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
   }).optional(),
+  guestName: z.string().optional(),
+  guestEmail: z.string().email().optional(),
+  guestPhone: z.string().optional(),
+  loyaltyPointsRedeem: z.number().int().min(0).optional(),
 });
 
 function generateOrderNumber(): string {
@@ -46,11 +54,116 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const { orderType, items, comment, scheduledAt, address } = parsed.data;
+  const { orderType, items, comment, scheduledAt, address, guestName, guestEmail, guestPhone, loyaltyPointsRedeem } = parsed.data;
 
   if (orderType === 'DELIVERY' && !address) {
     res.status(400).json({ success: false, error: 'Delivery address is required' });
     return;
+  }
+
+  // Get customer ID from auth if available
+  const customerId = (req as any).user?.type === 'customer' ? (req as any).user.id : null;
+
+  // Guest checkout: require name + email if not authenticated
+  if (!customerId) {
+    if (!guestName || !guestEmail) {
+      res.status(400).json({ success: false, error: 'Guest name and email are required for guest checkout' });
+      return;
+    }
+  }
+
+  // Validate scheduledAt
+  if (scheduledAt) {
+    const scheduled = new Date(scheduledAt);
+    const now = new Date();
+    const minTime = new Date(now.getTime() + 30 * 60 * 1000); // 30 min in future
+    const maxTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days out
+
+    if (isNaN(scheduled.getTime())) {
+      res.status(400).json({ success: false, error: 'Invalid scheduledAt date' });
+      return;
+    }
+    if (scheduled < minTime) {
+      res.status(400).json({ success: false, error: 'Scheduled time must be at least 30 minutes in the future' });
+      return;
+    }
+    if (scheduled > maxTime) {
+      res.status(400).json({ success: false, error: 'Scheduled time cannot be more than 7 days in the future' });
+      return;
+    }
+  }
+
+  // Get first location as default (for now)
+  const location = await prisma.location.findFirst({
+    where: { isActive: true },
+    include: { operatingHours: true },
+  });
+  if (!location) {
+    res.status(400).json({ success: false, error: 'No active location found' });
+    return;
+  }
+
+  // Check busy mode
+  if (location.isBusy) {
+    res.status(400).json({
+      success: false,
+      error: location.busyMessage || 'This location is currently not accepting orders. Please try again later.',
+    });
+    return;
+  }
+
+  // Validate scheduledAt is within operating hours
+  if (scheduledAt && location.operatingHours.length > 0) {
+    const scheduled = new Date(scheduledAt);
+    const dayOfWeek = scheduled.getDay();
+    const timeStr = `${String(scheduled.getHours()).padStart(2, '0')}:${String(scheduled.getMinutes()).padStart(2, '0')}`;
+    const dayHours = location.operatingHours.find((h) => h.dayOfWeek === dayOfWeek);
+    if (!dayHours || dayHours.isClosed) {
+      res.status(400).json({ success: false, error: 'Location is closed on the scheduled day' });
+      return;
+    }
+    if (timeStr < dayHours.openTime || timeStr >= dayHours.closeTime) {
+      res.status(400).json({ success: false, error: `Scheduled time must be within operating hours (${dayHours.openTime} - ${dayHours.closeTime})` });
+      return;
+    }
+  }
+
+  // Delivery zone enforcement
+  let deliveryFee = 0;
+  if (orderType === 'DELIVERY') {
+    if (address?.lat != null && address?.lng != null) {
+      const zones = await prisma.deliveryZone.findMany({
+        where: { locationId: location.id, isActive: true },
+      });
+
+      let matchedZone = null;
+      for (const zone of zones) {
+        if (zone.boundaries && Array.isArray(zone.boundaries)) {
+          if (isPointInPolygon(address.lat, address.lng, zone.boundaries as [number, number][])) {
+            matchedZone = zone;
+            break;
+          }
+        }
+      }
+
+      if (zones.length > 0 && !matchedZone) {
+        res.status(400).json({ success: false, error: 'Delivery address is outside our delivery zones' });
+        return;
+      }
+
+      if (matchedZone) {
+        deliveryFee = matchedZone.charge;
+      } else {
+        deliveryFee = 4.99; // Fallback if no zones configured
+      }
+    } else {
+      // No coordinates provided — use fallback or first zone's charge
+      const defaultZone = await prisma.deliveryZone.findFirst({
+        where: { locationId: location.id, isActive: true },
+        orderBy: { charge: 'asc' },
+      });
+      deliveryFee = defaultZone ? defaultZone.charge : 4.99;
+    }
   }
 
   // Fetch menu items to validate and get prices
@@ -111,20 +224,42 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     };
   });
 
-  const TAX_RATE = 0.08;
-  const DELIVERY_FEE = orderType === 'DELIVERY' ? 4.99 : 0;
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + tax + DELIVERY_FEE;
-
-  // Get first location as default (for now)
-  const location = await prisma.location.findFirst({ where: { isActive: true } });
-  if (!location) {
-    res.status(400).json({ success: false, error: 'No active location found' });
-    return;
+  // Loyalty points redemption
+  let loyaltyDiscount = 0;
+  if (loyaltyPointsRedeem && loyaltyPointsRedeem > 0 && customerId) {
+    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+    if (!customer || customer.loyaltyPoints < loyaltyPointsRedeem) {
+      res.status(400).json({ success: false, error: 'Insufficient loyalty points' });
+      return;
+    }
+    // 100 points = $1
+    loyaltyDiscount = loyaltyPointsRedeem / 100;
   }
 
-  // Get customer ID from auth if available
-  const customerId = (req as any).user?.type === 'customer' ? (req as any).user.id : null;
+  // Check minimum order for delivery zone
+  if (orderType === 'DELIVERY' && address?.lat != null && address?.lng != null) {
+    const zones = await prisma.deliveryZone.findMany({
+      where: { locationId: location.id, isActive: true },
+    });
+    for (const zone of zones) {
+      if (zone.boundaries && Array.isArray(zone.boundaries)) {
+        if (isPointInPolygon(address.lat, address.lng, zone.boundaries as [number, number][])) {
+          if (subtotal < zone.minOrder) {
+            res.status(400).json({
+              success: false,
+              error: `Minimum order for this delivery zone is $${zone.minOrder.toFixed(2)}`,
+            });
+            return;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  const TAX_RATE = 0.08;
+  const tax = subtotal * TAX_RATE;
+  const total = subtotal + tax + deliveryFee - loyaltyDiscount;
 
   const order = await prisma.order.create({
     data: {
@@ -134,14 +269,19 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       orderType,
       subtotal,
       tax,
-      deliveryFee: DELIVERY_FEE,
+      deliveryFee,
+      discount: loyaltyDiscount,
       total,
       comment,
       scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+      guestName: customerId ? undefined : guestName,
+      guestEmail: customerId ? undefined : guestEmail,
+      guestPhone: customerId ? undefined : guestPhone,
       items: { create: orderItemsData },
     },
     include: {
       items: { include: { options: true } },
+      customer: { select: { id: true, name: true, email: true } },
     },
   });
 
@@ -156,12 +296,67 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     }
   }
 
+  // Earn loyalty points (1 point per $1 spent)
+  if (customerId) {
+    const pointsEarned = Math.floor(subtotal);
+    if (pointsEarned > 0) {
+      await prisma.customer.update({
+        where: { id: customerId },
+        data: { loyaltyPoints: { increment: pointsEarned } },
+      });
+      await prisma.loyaltyTransaction.create({
+        data: {
+          customerId,
+          type: 'EARN',
+          points: pointsEarned,
+          description: `Earned from order #${order.orderNumber}`,
+          orderId: order.id,
+        },
+      });
+    }
+
+    // Redeem loyalty points
+    if (loyaltyPointsRedeem && loyaltyPointsRedeem > 0) {
+      await prisma.customer.update({
+        where: { id: customerId },
+        data: { loyaltyPoints: { decrement: loyaltyPointsRedeem } },
+      });
+      await prisma.loyaltyTransaction.create({
+        data: {
+          customerId,
+          type: 'REDEEM',
+          points: -loyaltyPointsRedeem,
+          description: `Redeemed on order #${order.orderNumber}`,
+          orderId: order.id,
+        },
+      });
+    }
+  }
+
+  // Send confirmation email
+  const recipientEmail = order.customer?.email || guestEmail;
+  if (recipientEmail) {
+    const emailContent = orderConfirmationEmail({
+      orderNumber: order.orderNumber,
+      orderType: order.orderType,
+      total: order.total,
+      items: order.items.map((i) => ({ name: i.name, quantity: i.quantity, subtotal: i.subtotal })),
+    });
+    sendEmail({ to: recipientEmail, ...emailContent }).catch(() => {});
+  }
+
   emitNewOrder({
     id: order.id,
     orderNumber: order.orderNumber,
     status: order.status,
     orderType: order.orderType,
   });
+
+  // Emit event for automation rules
+  try {
+    const { appEvents } = await import('../lib/events.js');
+    appEvents.emit('order.created', { order });
+  } catch {}
 
   res.status(201).json({ success: true, data: order });
 }
@@ -274,7 +469,10 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
     return;
   }
 
-  const order = await prisma.order.findUnique({ where: { id } });
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: { customer: { select: { email: true } } },
+  });
   if (!order) {
     res.status(404).json({ success: false, error: 'Order not found' });
     return;
@@ -294,6 +492,19 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
     status: updated.status,
     orderType: updated.orderType,
   });
+
+  // Send status update email
+  const recipientEmail = order.customer?.email || order.guestEmail;
+  if (recipientEmail) {
+    const emailContent = orderStatusEmail({ orderNumber: order.orderNumber, status });
+    sendEmail({ to: recipientEmail, ...emailContent }).catch(() => {});
+  }
+
+  // Emit event for automation rules
+  try {
+    const { appEvents } = await import('../lib/events.js');
+    appEvents.emit('order.statusChanged', { order: updated, previousStatus: order.status });
+  } catch {}
 
   res.json({ success: true, data: updated });
 }

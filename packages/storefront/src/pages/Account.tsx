@@ -1,10 +1,24 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { Navigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export default function Account() {
   const { t } = useTranslation();
-  const { user, isLoading, logout } = useAuth();
+  const { user, token, isLoading, logout } = useAuth();
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch('/api/loyalty/balance', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setLoyaltyPoints(data.data.points);
+      })
+      .catch(() => {});
+  }, [token]);
 
   if (isLoading) {
     return (
@@ -43,6 +57,18 @@ export default function Account() {
             )}
           </div>
         </div>
+
+        {/* Loyalty Points */}
+        {loyaltyPoints !== null && (
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Loyalty Points</h2>
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl font-bold text-primary-600">{loyaltyPoints}</span>
+              <span className="text-sm text-gray-500">points (${(loyaltyPoints / 100).toFixed(2)} value)</span>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">Earn 1 point per $1 spent. 100 points = $1 off your order.</p>
+          </div>
+        )}
 
         {/* Quick Links */}
         <div className="p-6 border-b border-gray-200">

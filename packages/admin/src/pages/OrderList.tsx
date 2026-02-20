@@ -9,6 +9,7 @@ interface Order {
   subtotal: number;
   total: number;
   createdAt: string;
+  scheduledAt: string | null;
   customer: { id: string; name: string; email: string } | null;
   location: { id: string; name: string };
   _count: { items: number };
@@ -131,7 +132,14 @@ export default function OrderList() {
               <tbody>
                 {orders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-mono text-xs">{order.orderNumber}</td>
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {order.orderNumber}
+                      {order.scheduledAt && (
+                        <span className="ml-1.5 inline-flex items-center text-indigo-600" title={`Scheduled: ${new Date(order.scheduledAt).toLocaleString()}`}>
+                          &#128339;
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       {order.customer ? order.customer.name : <span className="text-gray-400">Guest</span>}
                     </td>

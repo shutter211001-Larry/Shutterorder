@@ -1,14 +1,13 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
 import { useAuth } from '../context/AuthContext.js';
 
 type OrderType = 'delivery' | 'pickup';
-type PaymentMethod = 'cash' | 'stripe';
+type PaymentMethod = 'cash' | 'stripe' | 'paypal';
 
 const TAX_RATE = 0.08;
-const DELIVERY_FEE = 4.99;
 
 export default function Checkout() {
   const { t } = useTranslation();
@@ -25,9 +24,55 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Guest checkout fields
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+
+  // Dynamic delivery fee from zone check
+  const [deliveryFee, setDeliveryFee] = useState(4.99);
+  const [zoneError, setZoneError] = useState('');
+
+  // Busy mode
+  const [isBusy, setIsBusy] = useState(false);
+  const [busyMessage, setBusyMessage] = useState('');
+
+  // Loyalty points
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [loyaltyRedeem, setLoyaltyRedeem] = useState(0);
+  const loyaltyDiscount = loyaltyRedeem / 100;
+
   const tax = subtotal * TAX_RATE;
-  const deliveryFee = orderType === 'delivery' ? DELIVERY_FEE : 0;
-  const total = subtotal + tax + deliveryFee;
+  const currentDeliveryFee = orderType === 'delivery' ? deliveryFee : 0;
+  const total = subtotal + tax + currentDeliveryFee - loyaltyDiscount;
+
+  // Check busy mode on mount
+  useEffect(() => {
+    fetch('/api/locations')
+      .then((res) => res.json())
+      .then((data) => {
+        const loc = data.data?.[0];
+        if (loc?.isBusy) {
+          setIsBusy(true);
+          setBusyMessage(loc.busyMessage || 'This location is currently not accepting orders.');
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Fetch loyalty balance for logged-in users
+  useEffect(() => {
+    if (token) {
+      fetch('/api/loyalty/balance', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) setLoyaltyBalance(data.data.points);
+        })
+        .catch(() => {});
+    }
+  }, [token]);
 
   if (items.length === 0) {
     return (
@@ -74,6 +119,18 @@ export default function Checkout() {
         body.address = address;
       }
 
+      // Guest info
+      if (!user) {
+        body.guestName = guestName;
+        body.guestEmail = guestEmail;
+        body.guestPhone = guestPhone || undefined;
+      }
+
+      // Loyalty points
+      if (loyaltyRedeem > 0) {
+        body.loyaltyPointsRedeem = loyaltyRedeem;
+      }
+
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -97,6 +154,13 @@ export default function Checkout() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('checkout.title')}</h1>
+
+      {isBusy && (
+        <div className="bg-amber-50 border border-amber-300 text-amber-800 p-4 rounded-lg mb-6">
+          <p className="font-semibold">Currently Unavailable</p>
+          <p className="text-sm mt-1">{busyMessage}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-8">
         {/* Left: Form */}
@@ -138,6 +202,9 @@ export default function Checkout() {
           {orderType === 'delivery' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.deliveryAddress')}</h2>
+              {zoneError && (
+                <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm mb-3">{zoneError}</div>
+              )}
               <div className="space-y-3">
                 <input
                   type="text"
@@ -249,6 +316,35 @@ export default function Checkout() {
             </div>
           </div>
 
+          {/* Loyalty Points Redemption */}
+          {user && loyaltyBalance > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Loyalty Points</h2>
+              <p className="text-sm text-gray-600 mb-3">
+                You have <span className="font-bold text-primary-600">{loyaltyBalance}</span> points available
+                (100 points = $1.00)
+              </p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min={0}
+                  max={Math.min(loyaltyBalance, Math.floor(subtotal * 100))}
+                  step={100}
+                  value={loyaltyRedeem}
+                  onChange={(e) => setLoyaltyRedeem(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                  placeholder="0"
+                />
+                <span className="text-sm text-gray-600">points to redeem</span>
+                {loyaltyRedeem > 0 && (
+                  <span className="text-sm font-medium text-green-600">
+                    -${loyaltyDiscount.toFixed(2)}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Payment method */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.paymentMethod')}</h2>
@@ -281,12 +377,58 @@ export default function Checkout() {
                 />
                 <span className="text-sm font-medium text-gray-900">{t('checkout.creditCard')}</span>
               </label>
+              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                paymentMethod === 'paypal'
+                  ? 'border-primary-600 bg-primary-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'paypal'}
+                  onChange={() => setPaymentMethod('paypal')}
+                  className="accent-primary-600"
+                />
+                <span className="text-sm font-medium text-gray-900">PayPal</span>
+              </label>
             </div>
           </div>
 
+          {/* Guest info or login prompt */}
           {!user && (
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-blue-700">
-              <Link to="/login" className="font-medium underline">{t('nav.login')}</Link>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+              <p className="text-sm text-gray-600 mb-3">
+                <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium underline">
+                  {t('nav.login')}
+                </Link>{' '}
+                for faster checkout, or continue as guest:
+              </p>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  required
+                  placeholder="Full name *"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                />
+                <input
+                  type="email"
+                  required
+                  placeholder="Email address *"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone number (optional)"
+                  value={guestPhone}
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -330,7 +472,13 @@ export default function Checkout() {
               {orderType === 'delivery' && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('checkout.deliveryFee')}</span>
-                  <span className="text-gray-900">${deliveryFee.toFixed(2)}</span>
+                  <span className="text-gray-900">${currentDeliveryFee.toFixed(2)}</span>
+                </div>
+              )}
+              {loyaltyDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Loyalty Discount</span>
+                  <span>-${loyaltyDiscount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-gray-200 pt-2 font-bold text-base">
@@ -341,10 +489,14 @@ export default function Checkout() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isBusy}
               className="w-full mt-4 bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
             >
-              {loading ? t('checkout.processing') : `${t('checkout.placeOrder')} — $${total.toFixed(2)}`}
+              {isBusy
+                ? 'Currently Unavailable'
+                : loading
+                  ? t('checkout.processing')
+                  : `${t('checkout.placeOrder')} — $${total.toFixed(2)}`}
             </button>
           </div>
         </div>

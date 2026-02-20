@@ -13,7 +13,9 @@ vi.mock('../../lib/db.js', () => {
     table: { findMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     reservation: { count: vi.fn() },
     user: { findUnique: vi.fn() },
-    customer: { findUnique: vi.fn() },
+    customer: { findUnique: vi.fn(), update: vi.fn() },
+    loyaltyTransaction: { create: vi.fn() },
+    automationRule: { findMany: vi.fn() },
     category: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
   };
   return { default: mockPrisma, prisma: mockPrisma };
@@ -28,7 +30,7 @@ const adminToken = generateToken({ id: '1', email: 'admin@test.com', type: 'staf
 const staffToken = generateToken({ id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
 const customerToken = generateToken({ id: 'cust-1', email: 'customer@test.com', type: 'customer' });
 
-const sampleLocation = { id: 'loc-1', name: 'Downtown Kitchen', isActive: true };
+const sampleLocation = { id: 'loc-1', name: 'Downtown Kitchen', isActive: true, isBusy: false, busyMessage: null, operatingHours: [] };
 const sampleMenuItem = {
   id: 'item-1',
   name: 'Margherita Pizza',
@@ -49,6 +51,8 @@ const sampleMenuItemWithStock = {
 const validOrderBody = {
   orderType: 'PICKUP',
   items: [{ menuItemId: 'item-1', quantity: 2 }],
+  guestName: 'Test Guest',
+  guestEmail: 'guest@test.com',
 };
 
 const sampleOrder = {
@@ -79,6 +83,7 @@ describe('Order API - Integration Tests', () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([sampleMenuItem] as any);
       mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
       mockedPrisma.order.create.mockResolvedValue(sampleOrder as any);
+      mockedPrisma.automationRule.findMany.mockResolvedValue([]);
 
       const res = await request(app).post('/api/orders').send(validOrderBody);
 
@@ -89,12 +94,15 @@ describe('Order API - Integration Tests', () => {
     it('creates an order as authenticated customer', async () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([sampleMenuItem] as any);
       mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
-      mockedPrisma.order.create.mockResolvedValue({ ...sampleOrder, customerId: 'cust-1' } as any);
+      mockedPrisma.order.create.mockResolvedValue({ ...sampleOrder, customerId: 'cust-1', customer: { email: 'customer@test.com' } } as any);
+      mockedPrisma.customer.update.mockResolvedValue({ id: 'cust-1', loyaltyPoints: 14 } as any);
+      mockedPrisma.loyaltyTransaction.create.mockResolvedValue({} as any);
+      mockedPrisma.automationRule.findMany.mockResolvedValue([]);
 
       const res = await request(app)
         .post('/api/orders')
         .set('Authorization', `Bearer ${customerToken}`)
-        .send(validOrderBody);
+        .send({ orderType: 'PICKUP', items: [{ menuItemId: 'item-1', quantity: 2 }] });
 
       expect(res.status).toBe(201);
     });
@@ -131,6 +139,7 @@ describe('Order API - Integration Tests', () => {
 
     it('returns 400 for non-existent menu item', async () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([]);
+      mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
 
       const res = await request(app).post('/api/orders').send(validOrderBody);
 
@@ -140,6 +149,7 @@ describe('Order API - Integration Tests', () => {
 
     it('returns 400 for inactive menu item', async () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([{ ...sampleMenuItem, isActive: false }] as any);
+      mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
 
       const res = await request(app).post('/api/orders').send(validOrderBody);
 
@@ -149,10 +159,13 @@ describe('Order API - Integration Tests', () => {
 
     it('returns 400 when insufficient stock', async () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([{ ...sampleMenuItemWithStock, stockQty: 1 }] as any);
+      mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
 
       const res = await request(app).post('/api/orders').send({
         orderType: 'PICKUP',
         items: [{ menuItemId: 'item-2', quantity: 5 }],
+        guestName: 'Test Guest',
+        guestEmail: 'guest@test.com',
       });
 
       expect(res.status).toBe(400);
@@ -172,12 +185,16 @@ describe('Order API - Integration Tests', () => {
     it('creates delivery order with address', async () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([sampleMenuItem] as any);
       mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
+      mockedPrisma.deliveryZone.findFirst.mockResolvedValue(null);
       mockedPrisma.order.create.mockResolvedValue({ ...sampleOrder, orderType: 'DELIVERY' } as any);
+      mockedPrisma.automationRule.findMany.mockResolvedValue([]);
 
       const res = await request(app).post('/api/orders').send({
         orderType: 'DELIVERY',
         items: [{ menuItemId: 'item-1', quantity: 1 }],
         address: { line1: '123 Main St', city: 'Springfield', state: 'IL', zip: '62701' },
+        guestName: 'Test Guest',
+        guestEmail: 'guest@test.com',
       });
 
       expect(res.status).toBe(201);
@@ -260,8 +277,9 @@ describe('Order API - Integration Tests', () => {
     });
 
     it('updates order status', async () => {
-      mockedPrisma.order.findUnique.mockResolvedValue(sampleOrder as any);
+      mockedPrisma.order.findUnique.mockResolvedValue({ ...sampleOrder, customer: null } as any);
       mockedPrisma.order.update.mockResolvedValue({ ...sampleOrder, status: 'CONFIRMED' } as any);
+      mockedPrisma.automationRule.findMany.mockResolvedValue([]);
 
       const res = await request(app)
         .patch('/api/orders/order-1/status')

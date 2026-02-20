@@ -10,6 +10,8 @@ interface Location {
   city: string;
   state: string | null;
   isActive: boolean;
+  isBusy: boolean;
+  busyMessage: string | null;
   deliveryEnabled: boolean;
   pickupEnabled: boolean;
   _count: { deliveryZones: number; tables: number; orders: number };
@@ -25,6 +27,7 @@ export default function LocationList() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [togglingBusy, setTogglingBusy] = useState<string | null>(null);
 
   useEffect(() => {
     api.get<LocationResponse>('/locations')
@@ -37,6 +40,20 @@ export default function LocationList() {
         setLoading(false);
       });
   }, []);
+
+  const toggleBusy = async (loc: Location) => {
+    setTogglingBusy(loc.id);
+    try {
+      await api.patch(`/locations/${loc.id}`, { isBusy: !loc.isBusy });
+      setLocations((prev) =>
+        prev.map((l) => l.id === loc.id ? { ...l, isBusy: !l.isBusy } : l)
+      );
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setTogglingBusy(null);
+    }
+  };
 
   return (
     <div>
@@ -130,6 +147,17 @@ export default function LocationList() {
                     {loc._count.deliveryZones} zones
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-3">
+                    <button
+                      onClick={() => toggleBusy(loc)}
+                      disabled={togglingBusy === loc.id}
+                      className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                        loc.isBusy
+                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      } disabled:opacity-50`}
+                    >
+                      {loc.isBusy ? 'Busy ON' : 'Busy OFF'}
+                    </button>
                     <Link
                       to={`/locations/${loc.id}/tables`}
                       className="text-gray-600 hover:text-gray-900 font-medium"

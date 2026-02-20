@@ -25,7 +25,8 @@
       "Bash(DATABASE_URL=postgresql://kitchenasty:kitchenasty@localhost:5432/kitchenasty npx prisma db seed:*)",
       "mcp__plugin_playwright_playwright__browser_fill_form",
       "mcp__plugin_playwright_playwright__browser_click",
-      "Skill(commit-commands:commit)"
+      "Skill(commit-commands:commit)",
+      "WebFetch(domain:www.getapp.com)"
     ]
   }
 }

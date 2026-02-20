@@ -54,10 +54,13 @@ model Customer {
   groupId String?
   group   CustomerGroup? @relation(fields: [groupId], references: [id])
 
-  addresses    Address[]
-  orders       Order[]
-  reservations Reservation[]
-  reviews      Review[]
+  loyaltyPoints Int @default(0)
+
+  addresses             Address[]
+  orders                Order[]
+  reservations          Reservation[]
+  reviews               Review[]
+  loyaltyTransactions   LoyaltyTransaction[]
 
   @@map("customers")
 }
@@ -123,6 +126,10 @@ model Location {
   minOrderPickup    Float   @default(0)
   deliveryLeadTime  Int     @default(30) // minutes
   pickupLeadTime    Int     @default(15) // minutes
+
+  // Busy mode
+  isBusy       Boolean @default(false)
+  busyMessage  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -376,9 +383,10 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items    OrderItem[]
-  payments Payment[]
-  reviews  Review[]
+  items               OrderItem[]
+  payments            Payment[]
+  reviews             Review[]
+  loyaltyTransactions LoyaltyTransaction[]
 
   @@map("orders")
 }
@@ -536,4 +544,45 @@ model Review {
   updatedAt  DateTime @updatedAt
 
   @@map("reviews")
+}
+
+// ============================================================
+// LOYALTY
+// ============================================================
+
+enum LoyaltyTransactionType {
+  EARN
+  REDEEM
+  ADJUST
+}
+
+model LoyaltyTransaction {
+  id          String                 @id @default(cuid())
+  customerId  String
+  customer    Customer               @relation(fields: [customerId], references: [id])
+  type        LoyaltyTransactionType
+  points      Int
+  description String?
+  orderId     String?
+  order       Order?                 @relation(fields: [orderId], references: [id])
+  createdAt   DateTime               @default(now())
+
+  @@map("loyalty_transactions")
+}
+
+// ============================================================
+// AUTOMATION
+// ============================================================
+
+model AutomationRule {
+  id         String   @id @default(cuid())
+  name       String
+  event      String   // 'order.created', 'order.statusChanged', 'reservation.created', 'review.submitted'
+  conditions Json?    // e.g. { "status": "CONFIRMED" }
+  actions    Json     // [{ "type": "email", "template": "orderConfirmation", "to": "customer" }]
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("automation_rules")
 }

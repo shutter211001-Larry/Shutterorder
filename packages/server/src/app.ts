@@ -15,7 +15,14 @@ import reservationRoutes from './routes/reservation.routes.js';
 import couponRoutes from './routes/coupon.routes.js';
 import reviewRoutes from './routes/review.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
+import automationRoutes from './routes/automation.routes.js';
+import loyaltyRoutes from './routes/loyalty.routes.js';
 import { openApiSpec } from './lib/openapi.js';
+import { initPassport } from './lib/passport.js';
+import passport from 'passport';
+
+// Initialize automation event listeners
+import './lib/events.js';
 
 dotenv.config();
 
@@ -48,6 +55,10 @@ export function createApp() {
   app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Initialize passport for social login
+  initPassport();
+  app.use(passport.initialize());
 
   // Serve uploaded files
   app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
@@ -85,6 +96,8 @@ export function createApp() {
   app.use('/api/coupons', couponRoutes);
   app.use('/api/reviews', reviewRoutes);
   app.use('/api/dashboard', dashboardRoutes);
+  app.use('/api/automation-rules', automationRoutes);
+  app.use('/api/loyalty', loyaltyRoutes);
 
   // 404 handler
   app.use((_req, res) => {

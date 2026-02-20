@@ -17,6 +17,7 @@ interface KitchenOrder {
   status: string;
   comment: string | null;
   createdAt: string;
+  scheduledAt: string | null;
   customer: { name: string } | null;
   items: OrderItem[];
 }
@@ -126,10 +127,16 @@ export default function KitchenDisplay() {
     return `${Math.floor(mins / 60)}h ${mins % 60}m ago`;
   };
 
+  // Separate scheduled vs immediate orders
+  const scheduledOrders = orders
+    .filter((o) => o.scheduledAt && new Date(o.scheduledAt) > new Date())
+    .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime());
+  const immediateOrders = orders.filter((o) => !o.scheduledAt || new Date(o.scheduledAt) <= new Date());
+
   const ordersByStatus = KITCHEN_STATUSES.map((status) => ({
     status,
     config: STATUS_CONFIG[status],
-    orders: orders.filter((o) => o.status === status).sort(
+    orders: immediateOrders.filter((o) => o.status === status).sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     ),
   }));
@@ -165,6 +172,32 @@ export default function KitchenDisplay() {
           <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
         </div>
       ) : (
+        <>
+        {/* Scheduled orders banner */}
+        {scheduledOrders.length > 0 && (
+          <div className="mx-4 mt-4 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+            <h3 className="text-sm font-bold text-indigo-800 mb-2">
+              Scheduled Orders ({scheduledOrders.length})
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {scheduledOrders.map((order) => (
+                <div key={order.id} className="bg-white rounded-lg border border-indigo-200 px-3 py-2 text-xs">
+                  <span className="font-mono font-bold text-gray-900">#{order.orderNumber}</span>
+                  <span className={`ml-2 px-1.5 py-0.5 rounded font-medium ${
+                    order.orderType === 'DELIVERY' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                  }`}>
+                    {order.orderType}
+                  </span>
+                  <span className="ml-2 text-indigo-600 font-medium">
+                    {new Date(order.scheduledAt!).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  {order.customer && <span className="ml-2 text-gray-500">{order.customer.name}</span>}
+                  <span className="ml-2 text-gray-400">{order.items.length} items</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-4 gap-4 p-4 h-[calc(100vh-52px)] overflow-hidden">
           {ordersByStatus.map(({ status, config, orders: statusOrders }) => (
             <div key={status} className="flex flex-col min-h-0">
@@ -277,6 +310,7 @@ export default function KitchenDisplay() {
             </div>
           ))}
         </div>
+        </>
       )}
     </div>
   );

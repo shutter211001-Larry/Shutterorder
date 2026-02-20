@@ -11,6 +11,7 @@ import {
   createDeliveryZone,
   updateDeliveryZone,
   deleteDeliveryZone,
+  checkDeliveryZone,
 } from '../controllers/delivery-zone.controller.js';
 import {
   listTables,
@@ -31,6 +32,7 @@ router.patch('/:id', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MAN
 router.delete('/:id', authenticate, requireStaff, requireRole('SUPER_ADMIN'), deleteLocation);
 
 // Delivery zones - nested under locations
+router.get('/:locationId/delivery-zones/check', checkDeliveryZone);
 router.get('/:locationId/delivery-zones', listDeliveryZones);
 router.post('/:locationId/delivery-zones', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), createDeliveryZone);
 router.patch('/:locationId/delivery-zones/:zoneId', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), updateDeliveryZone);

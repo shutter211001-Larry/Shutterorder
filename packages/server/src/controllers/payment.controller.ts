@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import stripe from '../lib/stripe.js';
 import prisma from '../lib/db.js';
+import { createPayPalOrder, capturePayPalOrder } from '../lib/paypal.js';
 
 export async function createPaymentIntent(req: Request, res: Response): Promise<void> {
   const { orderId } = req.body;
@@ -130,4 +131,79 @@ export async function markCashPayment(req: Request, res: Response): Promise<void
   });
 
   res.status(201).json({ success: true, data: payment });
+}
+
+export async function createPayPalPayment(req: Request, res: Response): Promise<void> {
+  const { orderId } = req.body;
+
+  if (!orderId) {
+    res.status(400).json({ success: false, error: 'orderId is required' });
+    return;
+  }
+
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) {
+    res.status(404).json({ success: false, error: 'Order not found' });
+    return;
+  }
+
+  const existingPayment = await prisma.payment.findFirst({
+    where: { orderId, status: 'COMPLETED' },
+  });
+  if (existingPayment) {
+    res.status(409).json({ success: false, error: 'Order already paid' });
+    return;
+  }
+
+  try {
+    const paypalOrder = await createPayPalOrder(order.total, order.orderNumber);
+
+    await prisma.payment.create({
+      data: {
+        orderId: order.id,
+        method: 'PAYPAL',
+        status: 'PENDING',
+        amount: order.total,
+        transactionId: paypalOrder.id,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: { paypalOrderId: paypalOrder.id, approvalUrl: paypalOrder.approvalUrl },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'PayPal order creation failed' });
+  }
+}
+
+export async function capturePayPalPayment(req: Request, res: Response): Promise<void> {
+  const { paypalOrderId, orderId } = req.body;
+
+  if (!paypalOrderId || !orderId) {
+    res.status(400).json({ success: false, error: 'paypalOrderId and orderId are required' });
+    return;
+  }
+
+  try {
+    const result = await capturePayPalOrder(paypalOrderId);
+
+    if (result.status === 'COMPLETED') {
+      await prisma.payment.updateMany({
+        where: { transactionId: paypalOrderId },
+        data: { status: 'COMPLETED' },
+      });
+
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: 'CONFIRMED' },
+      });
+
+      res.json({ success: true, data: { status: 'COMPLETED' } });
+    } else {
+      res.status(400).json({ success: false, error: 'PayPal capture failed', data: result });
+    }
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || 'PayPal capture failed' });
+  }
 }
