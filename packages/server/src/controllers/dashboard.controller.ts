@@ -124,7 +124,7 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
         TO_CHAR("createdAt"::date, 'YYYY-MM-DD') AS date,
         COUNT(*)::bigint AS orders,
         COALESCE(SUM(CASE WHEN status != 'CANCELLED' THEN total ELSE 0 END), 0) AS revenue
-      FROM "Order"
+      FROM "orders"
       WHERE "createdAt" >= ${startDate}
       GROUP BY "createdAt"::date
       ORDER BY "createdAt"::date
@@ -151,7 +151,7 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
       SELECT
         EXTRACT(HOUR FROM "createdAt")::int AS hour,
         COUNT(*)::bigint AS orders
-      FROM "Order"
+      FROM "orders"
       WHERE "createdAt" >= ${startDate}
       GROUP BY EXTRACT(HOUR FROM "createdAt")
       ORDER BY hour
@@ -165,10 +165,10 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
         c.name,
         COALESCE(SUM(oi.subtotal), 0) AS revenue,
         COUNT(DISTINCT o.id)::bigint AS orders
-      FROM "OrderItem" oi
-      JOIN "MenuItem" mi ON oi."menuItemId" = mi.id
-      JOIN "Category" c ON mi."categoryId" = c.id
-      JOIN "Order" o ON oi."orderId" = o.id
+      FROM "order_items" oi
+      JOIN "menu_items" mi ON oi."menuItemId" = mi.id
+      JOIN "categories" c ON mi."categoryId" = c.id
+      JOIN "orders" o ON oi."orderId" = o.id
       WHERE o."createdAt" >= ${startDate} AND o.status != 'CANCELLED'
       GROUP BY c.id, c.name
       ORDER BY revenue DESC
