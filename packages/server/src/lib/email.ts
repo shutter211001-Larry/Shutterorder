@@ -1,16 +1,64 @@
 import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
+import prisma from './db.js';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'localhost',
-  port: parseInt(process.env.SMTP_PORT || '1025'),
-  secure: false,
-  auth: process.env.SMTP_USER ? {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  } : undefined,
-});
+let cachedTransporter: Transporter | null = null;
+let cachedFrom: string = '';
+let cacheExpiry = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-const FROM = process.env.EMAIL_FROM || 'KitchenAsty <noreply@kitchenasty.com>';
+async function getMailConfig(): Promise<{ transporter: Transporter; from: string }> {
+  const now = Date.now();
+  if (cachedTransporter && now < cacheExpiry) {
+    return { transporter: cachedTransporter, from: cachedFrom };
+  }
+
+  let host = process.env.SMTP_HOST || 'localhost';
+  let port = parseInt(process.env.SMTP_PORT || '1025');
+  let secure = false;
+  let user = process.env.SMTP_USER;
+  let pass = process.env.SMTP_PASS;
+  let senderName = 'KitchenAsty';
+  let senderEmail = 'noreply@kitchenasty.com';
+  let requireTLS = false;
+
+  try {
+    const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    const mail = (settings?.mailSettings as Record<string, any>) || {};
+    if (mail.smtpHost) host = mail.smtpHost;
+    if (mail.smtpPort) port = mail.smtpPort;
+    if (mail.smtpUser) user = mail.smtpUser;
+    if (mail.smtpPass) pass = mail.smtpPass;
+    if (mail.senderName) senderName = mail.senderName;
+    if (mail.senderEmail) senderEmail = mail.senderEmail;
+    if (mail.encryption === 'ssl') secure = true;
+    if (mail.encryption === 'tls') requireTLS = true;
+  } catch {
+    // DB unavailable — fall back to env vars
+  }
+
+  const from = process.env.EMAIL_FROM || `${senderName} <${senderEmail}>`;
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: user ? { user, pass } : undefined,
+    ...(requireTLS ? { requireTLS: true } : {}),
+  });
+
+  cachedTransporter = transporter;
+  cachedFrom = from;
+  cacheExpiry = now + CACHE_TTL;
+
+  return { transporter, from };
+}
+
+/** Invalidate the cached transporter (e.g. after settings update). */
+export function invalidateMailCache(): void {
+  cachedTransporter = null;
+  cacheExpiry = 0;
+}
 
 interface EmailOptions {
   to: string;
@@ -22,8 +70,9 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
   if (process.env.NODE_ENV === 'test') return;
 
   try {
+    const { transporter, from } = await getMailConfig();
     await transporter.sendMail({
-      from: FROM,
+      from,
       to: options.to,
       subject: options.subject,
       html: options.html,

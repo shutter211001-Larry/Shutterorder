@@ -1,16 +1,36 @@
-const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
-const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
-const PAYPAL_BASE_URL = process.env.PAYPAL_SANDBOX === 'true'
-  ? 'https://api-m.sandbox.paypal.com'
-  : 'https://api-m.paypal.com';
+import prisma from './db.js';
 
-async function getAccessToken(): Promise<string> {
-  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+async function getPayPalConfig(): Promise<{ clientId: string; clientSecret: string; baseUrl: string }> {
+  let clientId = process.env.PAYPAL_CLIENT_ID || '';
+  let clientSecret = process.env.PAYPAL_CLIENT_SECRET || '';
+  let sandbox = process.env.PAYPAL_SANDBOX === 'true';
+
+  try {
+    const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    const payment = (settings?.paymentSettings as Record<string, any>) || {};
+    if (payment.paypalClientId) clientId = payment.paypalClientId;
+    if (payment.paypalClientSecret) clientSecret = payment.paypalClientSecret;
+    if (payment.paypalSandbox !== undefined) sandbox = payment.paypalSandbox;
+  } catch {
+    // DB unavailable — fall back to env vars
+  }
+
+  const baseUrl = sandbox
+    ? 'https://api-m.sandbox.paypal.com'
+    : 'https://api-m.paypal.com';
+
+  return { clientId, clientSecret, baseUrl };
+}
+
+async function getAccessToken(): Promise<{ token: string; baseUrl: string }> {
+  const { clientId, clientSecret, baseUrl } = await getPayPalConfig();
+
+  if (!clientId || !clientSecret) {
     throw new Error('PayPal credentials not configured');
   }
 
-  const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
-  const res = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  const res = await fetch(`${baseUrl}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${auth}`,
@@ -20,13 +40,13 @@ async function getAccessToken(): Promise<string> {
   });
 
   const data = await res.json() as { access_token: string };
-  return data.access_token;
+  return { token: data.access_token, baseUrl };
 }
 
 export async function createPayPalOrder(amount: number, orderNumber: string): Promise<{ id: string; approvalUrl: string }> {
-  const accessToken = await getAccessToken();
+  const { token: accessToken, baseUrl } = await getAccessToken();
 
-  const res = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
+  const res = await fetch(`${baseUrl}/v2/checkout/orders`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -51,9 +71,9 @@ export async function createPayPalOrder(amount: number, orderNumber: string): Pr
 }
 
 export async function capturePayPalOrder(paypalOrderId: string): Promise<{ status: string; id: string }> {
-  const accessToken = await getAccessToken();
+  const { token: accessToken, baseUrl } = await getAccessToken();
 
-  const res = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${paypalOrderId}/capture`, {
+  const res = await fetch(`${baseUrl}/v2/checkout/orders/${paypalOrderId}/capture`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,

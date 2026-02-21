@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import stripe from '../lib/stripe.js';
+import { getStripe } from '../lib/stripe.js';
 import prisma from '../lib/db.js';
 import { createPayPalOrder, capturePayPalOrder } from '../lib/paypal.js';
 
@@ -27,6 +27,7 @@ export async function createPaymentIntent(req: Request, res: Response): Promise<
   }
 
   try {
+    const stripe = await getStripe();
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(order.total * 100), // cents
       currency: 'usd',
@@ -67,6 +68,7 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
 
   let event;
   try {
+    const stripe = await getStripe();
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err: any) {
     res.status(400).json({ success: false, error: `Webhook error: ${err.message}` });

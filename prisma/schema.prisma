@@ -589,6 +589,16 @@ model SiteSettings {
   heroSection     Json?    // { title, subtitle, ctaPrimaryText, ctaPrimaryLink, ctaSecondaryText, ctaSecondaryLink, backgroundImage }
   featuresSection Json?    // [{ icon, title, description }]
   ctaSection      Json?    // { title, description, buttonText, buttonLink }
+
+  // Operational settings
+  generalSettings     Json?  // { timezone, distanceUnit, googleMapsApiKey, defaultCurrency, currencySymbol, currencyPosition, contactEmail, contactPhone }
+  orderSettings       Json?  // { enabled, minOrderDelivery, minOrderPickup, deliveryLeadTime, pickupLeadTime, enableFutureOrdering, enableTipping, tipOptions, taxRate }
+  reservationSettings Json?  // { enabled, timeInterval, stayTime, maxAdvanceBookingDays, minCancellationNoticeHours, autoConfirm }
+  mailSettings        Json?  // { smtpHost, smtpPort, smtpUser, smtpPass, senderName, senderEmail, encryption }
+  paymentSettings     Json?  // { stripeEnabled, stripePublishableKey, stripeSecretKey, stripeWebhookSecret, paypalEnabled, paypalClientId, paypalClientSecret, paypalSandbox, cashEnabled }
+  reviewSettings      Json?  // { enabled, requireOrder, autoApprove, minimumRating }
+  advancedSettings    Json?  // { maintenanceMode, maintenanceMessage, enableRateLimiting }
+
   updatedAt       DateTime @updatedAt
   createdAt       DateTime @default(now())
 

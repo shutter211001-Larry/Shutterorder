@@ -36,6 +36,14 @@ import StaffList from './pages/StaffList.js';
 import StaffInvite from './pages/StaffInvite.js';
 import StaffEdit from './pages/StaffEdit.js';
 import AcceptInvite from './pages/AcceptInvite.js';
+import Settings from './pages/Settings.js';
+import SettingsGeneral from './pages/SettingsGeneral.js';
+import SettingsOrder from './pages/SettingsOrder.js';
+import SettingsReservation from './pages/SettingsReservation.js';
+import SettingsMail from './pages/SettingsMail.js';
+import SettingsPayments from './pages/SettingsPayments.js';
+import SettingsReviews from './pages/SettingsReviews.js';
+import SettingsAdvanced from './pages/SettingsAdvanced.js';
 import './index.css';
 
 function AppRoutes() {
@@ -99,6 +107,16 @@ function AppRoutes() {
         <Route path="/legal/pages/:slug" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LegalPageForm /></RequireRole>} />
         <Route path="/legal/cookies" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CookieCategoryList /></RequireRole>} />
         <Route path="/legal/consent" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><ConsentLog /></RequireRole>} />
+
+        {/* Settings — MANAGER+ (sub-pages have their own role checks) */}
+        <Route path="/settings" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><Settings /></RequireRole>} />
+        <Route path="/settings/general" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><SettingsGeneral /></RequireRole>} />
+        <Route path="/settings/order" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><SettingsOrder /></RequireRole>} />
+        <Route path="/settings/reservation" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><SettingsReservation /></RequireRole>} />
+        <Route path="/settings/mail" element={<RequireRole roles={['SUPER_ADMIN']}><SettingsMail /></RequireRole>} />
+        <Route path="/settings/payment" element={<RequireRole roles={['SUPER_ADMIN']}><SettingsPayments /></RequireRole>} />
+        <Route path="/settings/review" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><SettingsReviews /></RequireRole>} />
+        <Route path="/settings/advanced" element={<RequireRole roles={['SUPER_ADMIN']}><SettingsAdvanced /></RequireRole>} />
 
         {/* SUPER_ADMIN only */}
         <Route path="/staff" element={<RequireRole roles={['SUPER_ADMIN']}><StaffList /></RequireRole>} />

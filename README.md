@@ -73,6 +73,15 @@ KitchenAsty enables restaurants, cafes, and takeaways to accept online orders fo
 - Role-based admin navigation — each role sees only their permitted pages
 - Staff CRUD: list, search, filter by role, edit, activate/deactivate
 
+### Settings & Configuration
+
+- Centralized admin settings dashboard with clickable card grid
+- 7 settings groups: General, Orders, Reservations, Mail, Payments, Reviews, Advanced
+- DB-first config resolution for email, Stripe, and PayPal with env var fallback
+- Secret masking for sensitive fields (API keys, passwords) in the UI and API
+- Role-based settings access (MANAGER vs SUPER_ADMIN)
+- Test email functionality to verify SMTP configuration
+
 ### Analytics & Automation
 
 - Dashboard with real-time metrics: orders, revenue, reservations, customers

@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 
@@ -12,29 +13,29 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'Dashboard', icon: '□', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/orders', label: 'Orders', icon: '📋', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/reservations', label: 'Reservations', icon: '🗓', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/reviews', label: 'Reviews', icon: '⭐', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/kitchen', label: 'Kitchen', icon: '🍳', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/locations', label: 'Locations', icon: '◎', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/', label: 'Dashboard', icon: '\u25A1', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/orders', label: 'Orders', icon: '\uD83D\uDCCB', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/reservations', label: 'Reservations', icon: '\uD83D\uDDD3', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/reviews', label: 'Reviews', icon: '\u2B50', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/kitchen', label: 'Kitchen', icon: '\uD83C\uDF73', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/locations', label: 'Locations', icon: '\u25CE', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/menu',
     label: 'Menu',
-    icon: '☰',
+    icon: '\u2630',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
       { path: '/menu/items', label: 'Items' },
       { path: '/menu/categories', label: 'Categories' },
     ],
   },
-  { path: '/coupons', label: 'Coupons', icon: '🏷', roles: ['SUPER_ADMIN', 'MANAGER'] },
-  { path: '/automation', label: 'Automation', icon: '⚡', roles: ['SUPER_ADMIN', 'MANAGER'] },
-  { path: '/loyalty', label: 'Loyalty', icon: '🎁', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/coupons', label: 'Coupons', icon: '\uD83C\uDFF7', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/automation', label: 'Automation', icon: '\u26A1', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/loyalty', label: 'Loyalty', icon: '\uD83C\uDF81', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/design',
     label: 'Design',
-    icon: '🎨',
+    icon: '\uD83C\uDFA8',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
       { path: '/design/landing', label: 'Landing Page' },
@@ -45,7 +46,7 @@ const navItems: NavItem[] = [
   {
     path: '/legal',
     label: 'Legal',
-    icon: '⚖',
+    icon: '\u2696',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
       { path: '/legal/pages', label: 'Pages' },
@@ -53,7 +54,8 @@ const navItems: NavItem[] = [
       { path: '/legal/consent', label: 'Consent Log' },
     ],
   },
-  { path: '/staff', label: 'Staff', icon: '👥', roles: ['SUPER_ADMIN'] },
+  { path: '/settings', label: 'Settings', icon: '\u2699', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/staff', label: 'Staff', icon: '\uD83D\uDC65', roles: ['SUPER_ADMIN'] },
 ];
 
 const ROLE_COLORS: Record<Role, string> = {
@@ -70,11 +72,48 @@ const ROLE_LABELS: Record<Role, string> = {
 
 export default function AdminLayout({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const filteredNav = user
     ? navItems.filter((item) => item.roles.includes(user.role))
     : [];
+
+  // Poll pending order count
+  useEffect(() => {
+    if (!token) return;
+
+    async function fetchPending() {
+      try {
+        const res = await fetch('/api/dashboard', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setPendingCount(data.data.pendingOrders ?? 0);
+        }
+      } catch { /* ignore */ }
+    }
+
+    fetchPending();
+    const interval = setInterval(fetchPending, 60000);
+    return () => clearInterval(interval);
+  }, [token]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const isManagerPlus = user && (user.role === 'SUPER_ADMIN' || user.role === 'MANAGER');
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -138,19 +177,83 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
           <div />
-          <div className="flex items-center gap-4">
-            {user && (
-              <span className="text-sm text-gray-500">{user.name}</span>
-            )}
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          <div className="flex items-center gap-3">
+            {/* Notifications bell */}
+            <Link
+              to="/orders?status=PENDING"
+              className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Pending orders"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {pendingCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                  {pendingCount > 99 ? '99+' : pendingCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Settings gear */}
+            {isManagerPlus && (
+              <Link
+                to="/settings"
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Settings"
               >
-                Logout
-              </button>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </Link>
+            )}
+
+            {/* Separator */}
+            <div className="w-px h-6 bg-gray-200" />
+
+            {/* User avatar + dropdown */}
+            {user && (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-sm font-semibold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm text-gray-700 font-medium hidden sm:block">{user.name}</span>
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    {isManagerPlus && (
+                      <Link
+                        to="/settings"
+                        onClick={() => setDropdownOpen(false)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Settings
+                      </Link>
+                    )}
+                    {onLogout && (
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          onLogout();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Logout
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </header>
