@@ -641,6 +641,18 @@ model CookieConsent {
   @@map("cookie_consents")
 }
 
+model InviteToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  email     String
+  role      Role      @default(STAFF)
+  invitedBy String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  @@map("invite_tokens")
+}
+
 model AutomationRule {
   id         String   @id @default(cuid())
   name       String

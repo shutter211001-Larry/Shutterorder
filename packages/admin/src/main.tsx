@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext.js';
 import AdminLayout from './components/AdminLayout.js';
+import RequireRole from './components/RequireRole.js';
 import Login from './pages/Login.js';
 import Dashboard from './pages/Dashboard.js';
 import LocationList from './pages/LocationList.js';
@@ -30,70 +32,89 @@ import ConsentLog from './pages/ConsentLog.js';
 import DesignLanding from './pages/DesignLanding.js';
 import DesignBranding from './pages/DesignBranding.js';
 import DesignTheme from './pages/DesignTheme.js';
+import StaffList from './pages/StaffList.js';
+import StaffInvite from './pages/StaffInvite.js';
+import StaffEdit from './pages/StaffEdit.js';
+import AcceptInvite from './pages/AcceptInvite.js';
 import './index.css';
 
-function App() {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || '');
+function AppRoutes() {
+  const { token, user, loading, login, logout } = useAuth();
 
-  function handleLogin(newToken: string) {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-  }
-
-  function handleLogout() {
-    localStorage.removeItem('token');
-    setToken('');
-  }
-
-  if (!token) {
+  if (loading) {
     return (
-      <BrowserRouter>
-        <Login onLogin={handleLogin} />
-      </BrowserRouter>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!token || !user) {
+    return (
+      <Routes>
+        <Route path="/accept-invite" element={<AcceptInvite />} />
+        <Route path="*" element={<Login onLogin={login} />} />
+      </Routes>
     );
   }
 
   return (
+    <AdminLayout onLogout={logout}>
+      <Routes>
+        {/* All roles */}
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/orders" element={<OrderList />} />
+        <Route path="/orders/:id" element={<OrderDetailPage />} />
+        <Route path="/reservations" element={<ReservationList />} />
+        <Route path="/reservations/:id" element={<ReservationDetail />} />
+        <Route path="/reviews" element={<ReviewList />} />
+        <Route path="/kitchen" element={<KitchenDisplay />} />
+
+        {/* MANAGER+ */}
+        <Route path="/locations" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LocationList /></RequireRole>} />
+        <Route path="/locations/new" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LocationForm /></RequireRole>} />
+        <Route path="/locations/:id" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LocationForm /></RequireRole>} />
+        <Route path="/locations/:locationId/tables" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><TableList /></RequireRole>} />
+        <Route path="/locations/:locationId/delivery-zones" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><DeliveryZoneList /></RequireRole>} />
+        <Route path="/menu" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><Navigate to="/menu/items" replace /></RequireRole>} />
+        <Route path="/menu/categories" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CategoryList /></RequireRole>} />
+        <Route path="/menu/categories/new" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CategoryForm /></RequireRole>} />
+        <Route path="/menu/categories/:id" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CategoryForm /></RequireRole>} />
+        <Route path="/menu/items" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><MenuItemList /></RequireRole>} />
+        <Route path="/menu/items/new" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><MenuItemForm /></RequireRole>} />
+        <Route path="/menu/items/:id" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><MenuItemForm /></RequireRole>} />
+        <Route path="/coupons" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CouponList /></RequireRole>} />
+        <Route path="/coupons/new" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CouponForm /></RequireRole>} />
+        <Route path="/coupons/:id" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CouponForm /></RequireRole>} />
+        <Route path="/automation" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><AutomationRuleList /></RequireRole>} />
+        <Route path="/automation/new" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><AutomationRuleForm /></RequireRole>} />
+        <Route path="/automation/:id" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><AutomationRuleForm /></RequireRole>} />
+        <Route path="/loyalty" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CustomerLoyalty /></RequireRole>} />
+        <Route path="/design" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><Navigate to="/design/landing" replace /></RequireRole>} />
+        <Route path="/design/landing" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><DesignLanding /></RequireRole>} />
+        <Route path="/design/branding" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><DesignBranding /></RequireRole>} />
+        <Route path="/design/theme" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><DesignTheme /></RequireRole>} />
+        <Route path="/legal" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><Navigate to="/legal/pages" replace /></RequireRole>} />
+        <Route path="/legal/pages" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LegalPageList /></RequireRole>} />
+        <Route path="/legal/pages/:slug" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LegalPageForm /></RequireRole>} />
+        <Route path="/legal/cookies" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CookieCategoryList /></RequireRole>} />
+        <Route path="/legal/consent" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><ConsentLog /></RequireRole>} />
+
+        {/* SUPER_ADMIN only */}
+        <Route path="/staff" element={<RequireRole roles={['SUPER_ADMIN']}><StaffList /></RequireRole>} />
+        <Route path="/staff/invite" element={<RequireRole roles={['SUPER_ADMIN']}><StaffInvite /></RequireRole>} />
+        <Route path="/staff/:id" element={<RequireRole roles={['SUPER_ADMIN']}><StaffEdit /></RequireRole>} />
+      </Routes>
+    </AdminLayout>
+  );
+}
+
+function App() {
+  return (
     <BrowserRouter>
-      <AdminLayout onLogout={handleLogout}>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/locations" element={<LocationList />} />
-          <Route path="/locations/new" element={<LocationForm />} />
-          <Route path="/locations/:id" element={<LocationForm />} />
-          <Route path="/locations/:locationId/tables" element={<TableList />} />
-          <Route path="/menu" element={<Navigate to="/menu/items" replace />} />
-          <Route path="/menu/categories" element={<CategoryList />} />
-          <Route path="/menu/categories/new" element={<CategoryForm />} />
-          <Route path="/menu/categories/:id" element={<CategoryForm />} />
-          <Route path="/menu/items" element={<MenuItemList />} />
-          <Route path="/menu/items/new" element={<MenuItemForm />} />
-          <Route path="/menu/items/:id" element={<MenuItemForm />} />
-          <Route path="/orders" element={<OrderList />} />
-          <Route path="/orders/:id" element={<OrderDetailPage />} />
-          <Route path="/reservations" element={<ReservationList />} />
-          <Route path="/reservations/:id" element={<ReservationDetail />} />
-          <Route path="/coupons" element={<CouponList />} />
-          <Route path="/coupons/new" element={<CouponForm />} />
-          <Route path="/coupons/:id" element={<CouponForm />} />
-          <Route path="/reviews" element={<ReviewList />} />
-          <Route path="/kitchen" element={<KitchenDisplay />} />
-          <Route path="/automation" element={<AutomationRuleList />} />
-          <Route path="/automation/new" element={<AutomationRuleForm />} />
-          <Route path="/automation/:id" element={<AutomationRuleForm />} />
-          <Route path="/locations/:locationId/delivery-zones" element={<DeliveryZoneList />} />
-          <Route path="/loyalty" element={<CustomerLoyalty />} />
-          <Route path="/legal" element={<Navigate to="/legal/pages" replace />} />
-          <Route path="/legal/pages" element={<LegalPageList />} />
-          <Route path="/legal/pages/:slug" element={<LegalPageForm />} />
-          <Route path="/legal/cookies" element={<CookieCategoryList />} />
-          <Route path="/legal/consent" element={<ConsentLog />} />
-          <Route path="/design" element={<Navigate to="/design/landing" replace />} />
-          <Route path="/design/landing" element={<DesignLanding />} />
-          <Route path="/design/branding" element={<DesignBranding />} />
-          <Route path="/design/theme" element={<DesignTheme />} />
-        </Routes>
-      </AdminLayout>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

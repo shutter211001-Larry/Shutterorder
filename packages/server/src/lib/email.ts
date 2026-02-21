@@ -102,6 +102,31 @@ export function orderStatusEmail(order: {
   };
 }
 
+export function staffInvitationEmail(invite: {
+  email: string;
+  role: string;
+  inviteLink: string;
+}): { subject: string; html: string } {
+  return {
+    subject: 'You\'re Invited to Join KitchenAsty',
+    html: `
+      <div style="max-width:600px;margin:0 auto;font-family:sans-serif">
+        <div style="background:#f97316;color:white;padding:20px;text-align:center;border-radius:8px 8px 0 0">
+          <h1 style="margin:0;font-size:24px">KitchenAsty</h1>
+        </div>
+        <div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
+          <h2 style="margin:0 0 8px">You're Invited!</h2>
+          <p style="color:#6b7280;margin:0 0 16px">You've been invited to join the KitchenAsty team as <strong>${invite.role.replace(/_/g, ' ')}</strong>.</p>
+          <div style="text-align:center;margin:24px 0">
+            <a href="${invite.inviteLink}" style="display:inline-block;background:#f97316;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">Accept Invitation</a>
+          </div>
+          <p style="color:#6b7280;font-size:14px">This invitation expires in 7 days. If you didn't expect this invitation, you can safely ignore this email.</p>
+        </div>
+      </div>
+    `,
+  };
+}
+
 export function reservationConfirmationEmail(reservation: {
   date: string;
   time: string;

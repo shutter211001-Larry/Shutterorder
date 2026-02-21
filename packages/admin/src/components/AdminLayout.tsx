@@ -1,35 +1,41 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.js';
+
+type Role = 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
 
 interface NavItem {
   path: string;
   label: string;
   icon: string;
+  roles: Role[];
   children?: { path: string; label: string }[];
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'Dashboard', icon: '□' },
-  { path: '/locations', label: 'Locations', icon: '◎' },
+  { path: '/', label: 'Dashboard', icon: '□', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/orders', label: 'Orders', icon: '📋', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/reservations', label: 'Reservations', icon: '🗓', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/reviews', label: 'Reviews', icon: '⭐', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/kitchen', label: 'Kitchen', icon: '🍳', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/locations', label: 'Locations', icon: '◎', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/menu',
     label: 'Menu',
     icon: '☰',
+    roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
       { path: '/menu/items', label: 'Items' },
       { path: '/menu/categories', label: 'Categories' },
     ],
   },
-  { path: '/orders', label: 'Orders', icon: '📋' },
-  { path: '/reservations', label: 'Reservations', icon: '🗓' },
-  { path: '/coupons', label: 'Coupons', icon: '🏷' },
-  { path: '/reviews', label: 'Reviews', icon: '⭐' },
-  { path: '/kitchen', label: 'Kitchen', icon: '🍳' },
-  { path: '/automation', label: 'Automation', icon: '⚡' },
-  { path: '/loyalty', label: 'Loyalty', icon: '🎁' },
+  { path: '/coupons', label: 'Coupons', icon: '🏷', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/automation', label: 'Automation', icon: '⚡', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/loyalty', label: 'Loyalty', icon: '🎁', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/design',
     label: 'Design',
     icon: '🎨',
+    roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
       { path: '/design/landing', label: 'Landing Page' },
       { path: '/design/branding', label: 'Branding' },
@@ -40,16 +46,35 @@ const navItems: NavItem[] = [
     path: '/legal',
     label: 'Legal',
     icon: '⚖',
+    roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
       { path: '/legal/pages', label: 'Pages' },
       { path: '/legal/cookies', label: 'Cookie Categories' },
       { path: '/legal/consent', label: 'Consent Log' },
     ],
   },
+  { path: '/staff', label: 'Staff', icon: '👥', roles: ['SUPER_ADMIN'] },
 ];
+
+const ROLE_COLORS: Record<Role, string> = {
+  SUPER_ADMIN: 'bg-red-500/20 text-red-300',
+  MANAGER: 'bg-blue-500/20 text-blue-300',
+  STAFF: 'bg-gray-500/20 text-gray-300',
+};
+
+const ROLE_LABELS: Record<Role, string> = {
+  SUPER_ADMIN: 'Super Admin',
+  MANAGER: 'Manager',
+  STAFF: 'Staff',
+};
 
 export default function AdminLayout({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
   const location = useLocation();
+  const { user } = useAuth();
+
+  const filteredNav = user
+    ? navItems.filter((item) => item.roles.includes(user.role))
+    : [];
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -60,7 +85,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
           <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
         </div>
         <nav className="flex-1 py-4">
-          {navItems.map((item) => {
+          {filteredNav.map((item) => {
             const isActive =
               item.path === '/'
                 ? location.pathname === '/'
@@ -99,6 +124,16 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
             );
           })}
         </nav>
+
+        {/* User info at bottom of sidebar */}
+        {user && (
+          <div className="px-6 py-4 border-t border-gray-700">
+            <p className="text-sm font-medium text-white truncate">{user.name}</p>
+            <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[user.role]}`}>
+              {ROLE_LABELS[user.role]}
+            </span>
+          </div>
+        )}
       </aside>
 
       {/* Main content */}
@@ -106,7 +141,9 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
         <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <div />
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">Admin</span>
+            {user && (
+              <span className="text-sm text-gray-500">{user.name}</span>
+            )}
             {onLogout && (
               <button
                 onClick={onLogout}
