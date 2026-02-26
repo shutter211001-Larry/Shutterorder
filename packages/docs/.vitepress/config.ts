@@ -7,6 +7,10 @@ export default defineConfig({
   description: 'Self-hosted restaurant ordering platform — documentation',
   base,
 
+  sitemap: {
+    hostname: 'https://kitchenasty.com',
+  },
+
   ignoreDeadLinks: [
     /localhost/,
   ],
