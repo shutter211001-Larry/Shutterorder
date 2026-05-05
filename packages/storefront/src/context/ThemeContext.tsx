@@ -148,7 +148,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       .then((res) => res.json())
       .then((json) => {
         if (json.success && json.data) {
-          setSettings(json.data);
+          setSettings(prev => ({ ...prev, ...json.data }));
         }
       })
       .catch(() => {});
