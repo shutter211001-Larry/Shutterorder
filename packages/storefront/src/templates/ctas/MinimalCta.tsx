@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext.js';
 
 interface CtaProps {
   cta: { title?: string; description?: string; buttonText?: string; buttonLink?: string } | null;
@@ -6,10 +7,15 @@ interface CtaProps {
 }
 
 export default function MinimalCta({ cta, t }: CtaProps) {
+  const { settings } = useTheme();
   const title = cta?.title || t('home.readyToOrder');
   const description = cta?.description || t('home.readyToOrderDesc');
   const buttonText = cta?.buttonText || t('home.createAccount');
   const buttonLink = cta?.buttonLink || '/register';
+
+  if ((settings.showMembership === false || settings.showMembership === 'false') && buttonLink === '/register') {
+    return null;
+  }
 
   return (
     <section className="py-20">

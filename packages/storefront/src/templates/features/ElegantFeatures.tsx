@@ -1,3 +1,5 @@
+import { useTheme } from '../../context/ThemeContext.js';
+
 interface FeaturesProps {
   features: Array<{ icon: string; title: string; description: string }> | null;
   t: (key: string) => string;
@@ -9,16 +11,14 @@ const defaultIcons: Record<string, React.ReactNode> = {
   calendar: <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
 };
 
-function getDefaultFeatures(t: (key: string) => string) {
-  return [
-    { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
-    { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
-    { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
-  ];
-}
-
 export default function ElegantFeatures({ features, t }: FeaturesProps) {
-  const items = features?.length ? features : getDefaultFeatures(t);
+  const { settings } = useTheme();
+
+  const items = features?.length ? features : [
+    (settings.navShowMenu !== false && settings.navShowMenu !== 'false') && { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
+    (settings.navShowLocations !== false && settings.navShowLocations !== 'false') && { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
+    (settings.navShowReservations !== false && settings.navShowReservations !== 'false') && { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
+  ].filter(Boolean) as Array<{ icon: string; title: string; description: string }>;
 
   return (
     <section className="py-20 px-4 bg-white dark:bg-gray-950">
