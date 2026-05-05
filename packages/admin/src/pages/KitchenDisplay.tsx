@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api.js';
 
 interface OrderItem {
@@ -20,6 +20,7 @@ interface KitchenOrder {
   scheduledAt: string | null;
   customer: { name: string } | null;
   items: OrderItem[];
+  isRemote?: boolean;
 }
 
 const KITCHEN_STATUSES = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY'];
@@ -38,6 +39,7 @@ const NEXT_ACTION: Record<string, string> = {
 };
 
 export default function KitchenDisplay() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -122,9 +124,9 @@ export default function KitchenDisplay() {
 
   const getTimeSince = (dateStr: string) => {
     const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
-    return `${Math.floor(mins / 60)}h ${mins % 60}m ago`;
+    if (mins < 1) return t('kitchen.justNow') || '剛剛';
+    if (mins < 60) return `${mins}m ${t('kitchen.ago') || '前'}`;
+    return `${Math.floor(mins / 60)}h ${mins % 60}m ${t('kitchen.ago') || '前'}`;
   };
 
   // Separate scheduled vs immediate orders
@@ -146,7 +148,7 @@ export default function KitchenDisplay() {
       {/* Header */}
       <div className="bg-gray-900 text-white px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-bold text-primary-400">Kitchen Display</h1>
+          <h1 className="text-lg font-bold text-primary-400">{t('kitchen.title')}</h1>
           <div className="flex items-center gap-2" role="status">
             <div className={`w-2 h-2 rounded-full ${socket?.connected ? 'bg-green-400' : 'bg-red-400'}`} />
             <span className="text-xs text-gray-400">
@@ -163,7 +165,7 @@ export default function KitchenDisplay() {
             className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded transition-colors"
             aria-label="Refresh orders"
           >
-            Refresh
+            {t('common.refresh') || '重新整理'}
           </button>
         </div>
       </div>
@@ -234,6 +236,11 @@ export default function KitchenDisplay() {
                             }`}>
                             {order.orderType}
                           </span>
+                          {order.isRemote !== undefined && (
+                            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded font-bold ${order.isRemote ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                              {order.isRemote ? t('orders.remote') : t('orders.onSite')}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs text-gray-400">{getTimeSince(order.createdAt)}</span>
                       </div>

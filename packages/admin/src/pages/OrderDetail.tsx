@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface OrderItem {
   id: string;
@@ -27,6 +27,8 @@ interface OrderDetail {
   customer: { id: string; name: string; email: string; phone: string | null } | null;
   location: { id: string; name: string };
   items: OrderItem[];
+  isRemote?: boolean;
+  distance?: number | null;
 }
 
 const STATUSES = [
@@ -46,6 +48,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrderDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +104,7 @@ export default function OrderDetailPage() {
       <div>
         <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">{error || 'Order not found'}</div>
         <Link to="/orders" className="text-primary-600 hover:text-primary-700 text-sm">
-          Back to Orders
+          {t('orders.backToOrders')}
         </Link>
       </div>
     );
@@ -116,7 +119,7 @@ export default function OrderDetailPage() {
           </svg>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Order {order.orderNumber}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('orders.orderDetail')} {order.orderNumber}</h1>
           <p className="text-sm text-gray-500">
             {new Date(order.createdAt).toLocaleString()}
           </p>
@@ -131,7 +134,7 @@ export default function OrderDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Items */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Items</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('orders.items')}</h2>
             <div className="space-y-3">
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
@@ -156,27 +159,27 @@ export default function OrderDetailPage() {
 
             <div className="border-t border-gray-200 mt-4 pt-4 space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
+                <span className="text-gray-600">{t('orders.subtotal')}</span>
                 <span>${order.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
+                <span className="text-gray-600">{t('orders.tax')}</span>
                 <span>${order.tax.toFixed(2)}</span>
               </div>
               {order.deliveryFee > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Delivery Fee</span>
+                  <span className="text-gray-600">{t('orders.deliveryFee')}</span>
                   <span>${order.deliveryFee.toFixed(2)}</span>
                 </div>
               )}
               {order.discount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
+                  <span>{t('orders.discount')}</span>
                   <span>-${order.discount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-base pt-2 border-t border-gray-200">
-                <span>Total</span>
+                <span>{t('orders.total')}</span>
                 <span className="text-primary-600">${order.total.toFixed(2)}</span>
               </div>
             </div>
@@ -185,7 +188,7 @@ export default function OrderDetailPage() {
           {/* Notes */}
           {order.comment && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Order Notes</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">{t('checkout.orderNotes') || '訂單備註'}</h2>
               <p className="text-gray-600 text-sm">{order.comment}</p>
             </div>
           )}
@@ -216,18 +219,29 @@ export default function OrderDetailPage() {
 
           {/* Order info */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Details</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('orders.orderDetail')}</h2>
             <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-gray-500">Order Type</dt>
+                <dt className="text-gray-500">{t('orders.type')}</dt>
                 <dd className="font-medium text-gray-900">{order.orderType}</dd>
               </div>
+              {order.isRemote !== undefined && (
+                <div>
+                  <dt className="text-gray-500">{t('orders.remote') || '遠端/現場'}</dt>
+                  <dd className="font-medium">
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${order.isRemote ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                      {order.isRemote ? t('orders.remote') : t('orders.onSite')}
+                      {order.distance != null && ` (${Math.round(order.distance)}m)`}
+                    </span>
+                  </dd>
+                </div>
+              )}
               <div>
-                <dt className="text-gray-500">Location</dt>
+                <dt className="text-gray-500">{t('reservations.location') || '地點'}</dt>
                 <dd className="font-medium text-gray-900">{order.location.name}</dd>
               </div>
               <div>
-                <dt className="text-gray-500">Customer</dt>
+                <dt className="text-gray-500">{t('orders.customer')}</dt>
                 <dd className="font-medium text-gray-900">
                   {order.customer ? (
                     <>
@@ -238,7 +252,7 @@ export default function OrderDetailPage() {
                       )}
                     </>
                   ) : (
-                    <span className="text-gray-400">Guest</span>
+                    <span className="text-gray-400">{t('common.guest') || '訪客'}</span>
                   )}
                 </dd>
               </div>

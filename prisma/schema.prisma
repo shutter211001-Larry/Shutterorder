@@ -382,6 +382,12 @@ model Order {
   guestName   String?
   guestEmail  String?
   guestPhone  String?
+  
+  // Location Tracking
+  userLat      Float?
+  userLon      Float?
+  isRemote     Boolean  @default(false)
+  distance     Float?   // meters
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -115,6 +115,21 @@ export default function Checkout() {
         couponCode: couponCode || undefined,
       };
 
+      // Capture location (optional, won't block if fails)
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { 
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        });
+        body.userLat = position.coords.latitude;
+        body.userLon = position.coords.longitude;
+      } catch (err) {
+        console.warn('Geolocation capture skipped or failed:', err);
+      }
+
       if (orderType === 'delivery') {
         body.address = address;
       }

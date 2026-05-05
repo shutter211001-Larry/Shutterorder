@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface Order {
   id: string;
@@ -13,6 +13,8 @@ interface Order {
   customer: { id: string; name: string; email: string } | null;
   location: { id: string; name: string };
   _count: { items: number };
+  isRemote?: boolean;
+  distance?: number | null;
 }
 
 interface Pagination {
@@ -34,6 +36,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrderList() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,7 +71,7 @@ export default function OrderList() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('orders.title')}</h1>
       </div>
 
       {/* Filters */}
@@ -112,7 +115,7 @@ export default function OrderList() {
       )}
 
       {!loading && !error && orders.length === 0 && (
-        <p className="text-gray-500 text-center py-12">No orders found.</p>
+        <p className="text-gray-500 text-center py-12">{t('common.noResults')}</p>
       )}
 
       {!loading && orders.length > 0 && (
@@ -121,29 +124,37 @@ export default function OrderList() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Order #</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Customer</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Items</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">Total</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Actions</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('orders.orderNumber')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('orders.customer')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('orders.type')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.status')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('orders.items')}</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-600">{t('orders.total')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.createdAt')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="px-4 py-3 font-mono text-xs">
-                      {order.orderNumber}
+                      <div className="flex flex-col gap-1">
+                        <span>{order.orderNumber}</span>
+                        {order.isRemote !== undefined && (
+                          <span className={`inline-flex items-center w-fit px-1.5 py-0.5 rounded text-[10px] font-bold ${order.isRemote ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                            {order.isRemote ? t('orders.remote') : t('orders.onSite')}
+                            {order.distance != null && ` (${Math.round(order.distance)}m)`}
+                          </span>
+                        )}
+                      </div>
                       {order.scheduledAt && (
-                        <span className="ml-1.5 inline-flex items-center text-indigo-600" title={`Scheduled: ${new Date(order.scheduledAt).toLocaleString()}`} aria-label={`Scheduled: ${new Date(order.scheduledAt).toLocaleString()}`}>
+                        <span className="mt-1 inline-flex items-center text-indigo-600" title={`Scheduled: ${new Date(order.scheduledAt).toLocaleString()}`} aria-label={`Scheduled: ${new Date(order.scheduledAt).toLocaleString()}`}>
                           &#128339;
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      {order.customer ? order.customer.name : <span className="text-gray-400">Guest</span>}
+                      {order.customer ? order.customer.name : <span className="text-gray-400">{t('common.guest') || '訪客'}</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${order.orderType === 'DELIVERY' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
@@ -166,7 +177,7 @@ export default function OrderList() {
                         to={`/orders/${order.id}`}
                         className="text-primary-600 hover:text-primary-700 text-xs font-medium"
                       >
-                        View
+                        {t('common.view') || '查看'}
                       </Link>
                     </td>
                   </tr>

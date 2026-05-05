@@ -35,6 +35,8 @@ interface LocationData {
   minOrderPickup: number;
   deliveryLeadTime: number;
   pickupLeadTime: number;
+  lat?: number;
+  lng?: number;
 }
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -64,6 +66,8 @@ const emptyLocation: LocationData = {
   minOrderPickup: 0,
   deliveryLeadTime: 30,
   pickupLeadTime: 15,
+  lat: 0,
+  lng: 0,
 };
 
 export default function LocationForm() {
@@ -101,6 +105,8 @@ export default function LocationForm() {
           minOrderPickup: loc.minOrderPickup,
           deliveryLeadTime: loc.deliveryLeadTime,
           pickupLeadTime: loc.pickupLeadTime,
+          lat: loc.lat || 0,
+          lng: loc.lng || 0,
         });
         if (loc.operatingHours?.length) {
           setHours(loc.operatingHours.map((h: any) => ({
@@ -291,6 +297,26 @@ export default function LocationForm() {
                 type="text"
                 value={form.country}
                 onChange={(e) => updateField('country', e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Latitude (經度)</label>
+              <input
+                type="number"
+                step="any"
+                value={form.lat}
+                onChange={(e) => updateField('lat', parseFloat(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Longitude (緯度)</label>
+              <input
+                type="number"
+                step="any"
+                value={form.lng}
+                onChange={(e) => updateField('lng', parseFloat(e.target.value))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
