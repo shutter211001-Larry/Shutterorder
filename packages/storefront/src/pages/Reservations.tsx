@@ -134,7 +134,7 @@ export default function Reservations() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('reservations.bookTable')}</h2>
 
-          {!user && (settings.showMembership !== false && settings.showMembership !== 'false') && (
+          {!user && settings.showMembership && (
             <div className="bg-yellow-50 text-yellow-800 text-sm p-3 rounded-lg mb-4">
               <Link to="/login" className="underline font-medium">{t('nav.login')}</Link> {t('reservations.loginRequired').toLowerCase()}
             </div>

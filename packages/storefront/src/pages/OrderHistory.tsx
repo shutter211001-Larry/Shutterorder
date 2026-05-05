@@ -77,7 +77,7 @@ export default function OrderHistory() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">{t('orders.title')}</h1>
-        {settings.showMembership !== false && settings.showMembership !== 'false' && (
+        {settings.showMembership && (
           <Link to="/account" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             {t('nav.myAccount')}
           </Link>
@@ -100,7 +100,7 @@ export default function OrderHistory() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           <p className="text-gray-500 mb-4">{t('orders.noOrders')}</p>
-          {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+          {settings.navShowMenu && (
             <Link to="/menu" className="bg-primary-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors">
               {t('checkout.browseMenu')}
             </Link>

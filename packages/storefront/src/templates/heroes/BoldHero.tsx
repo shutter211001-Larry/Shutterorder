@@ -24,7 +24,7 @@ export default function BoldHero({ hero, t }: HeroProps) {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+              {settings.navShowMenu && (
                 <Link
                   to={hero?.ctaPrimaryLink || '/menu'}
                   className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 font-bold text-lg uppercase tracking-wider hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
@@ -34,8 +34,8 @@ export default function BoldHero({ hero, t }: HeroProps) {
               )}
               {(() => {
                 const link = hero?.ctaSecondaryLink || '/locations';
-                if (link === '/locations' && (settings.navShowLocations === false || settings.navShowLocations === 'false')) return null;
-                if (link === '/reservations' && (settings.navShowReservations === false || settings.navShowReservations === 'false')) return null;
+                if (link === '/locations' && !settings.navShowLocations) return null;
+                if (link === '/reservations' && !settings.navShowReservations) return null;
                 return (
                   <Link
                     to={link}

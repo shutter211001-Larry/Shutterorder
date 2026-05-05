@@ -80,7 +80,7 @@ export default function Account() {
               <h3 className="font-medium text-gray-900">{t('account.orderHistory')}</h3>
               <p className="text-sm text-gray-500 mt-1">{t('account.orderHistoryDesc')}</p>
             </Link>
-            {settings.navShowReservations !== false && settings.navShowReservations !== 'false' && (
+            {settings.navShowReservations && (
               <Link to="/reservations" className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <h3 className="font-medium text-gray-900">{t('nav.reservations')}</h3>
                 <p className="text-sm text-gray-500 mt-1">{t('reservations.myReservations')}</p>

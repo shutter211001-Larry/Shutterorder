@@ -89,7 +89,7 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
             {hero?.subtitle || t('home.heroDescription')}
           </p>
           <div className="flex flex-wrap gap-4">
-            {(settings.navShowMenu === true || settings.navShowMenu === 'true') && (
+            {settings.navShowMenu && (
               <Link
                 to={hero?.ctaPrimaryLink || '/menu'}
                 className="bg-white text-primary-700 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
@@ -100,8 +100,8 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
             {hero?.ctaSecondaryText && (
               (() => {
                 const link = hero?.ctaSecondaryLink || '/locations';
-                if (link === '/locations' && (settings.navShowLocations !== true && settings.navShowLocations !== 'true')) return null;
-                if (link === '/reservations' && (settings.navShowReservations !== true && settings.navShowReservations !== 'true')) return null;
+                if (link === '/locations' && !settings.navShowLocations) return null;
+                if (link === '/reservations' && !settings.navShowReservations) return null;
                 return (
                   <Link
                     to={link}
@@ -142,13 +142,13 @@ function ClassicFeatures({ features, t }: { features: FeatureItem[] | null; t: (
           ))
         ) : (
           <>
-            {(settings.navShowMenu === true || settings.navShowMenu === 'true') && (
+            {settings.navShowMenu && (
               <FeatureCard icon="clock" title={t('home.fastDelivery')} description={t('home.fastDeliveryDesc')} />
             )}
-            {(settings.navShowLocations === true || settings.navShowLocations === 'true') && (
+            {settings.navShowLocations && (
               <FeatureCard icon="clipboard" title={t('home.easyOrdering')} description={t('home.easyOrderingDesc')} />
             )}
-            {(settings.navShowReservations === true || settings.navShowReservations === 'true') && (
+            {settings.navShowReservations && (
               <FeatureCard icon="calendar" title={t('home.tableReservations')} description={t('home.tableReservationsDesc')} />
             )}
           </>
@@ -168,8 +168,7 @@ interface CtaSection {
 function ClassicCta({ cta, t }: { cta: CtaSection | null; t: (k: string) => string }) {
   const { settings } = useTheme();
   
-  // If membership is disabled and this is the default register CTA, hide the whole section
-  if ((settings.showMembership !== true && settings.showMembership !== 'true') && (!cta?.buttonLink || cta.buttonLink === '/register')) {
+  if (!settings.showMembership && (!cta?.buttonLink || cta.buttonLink === '/register')) {
     return null;
   }
 

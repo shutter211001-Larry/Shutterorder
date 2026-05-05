@@ -24,10 +24,10 @@ export default function MinimalFooter() {
           </div>
 
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
-            {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && <Link to="/menu" className="hover:text-gray-900 transition-colors">{t('nav.menu')}</Link>}
-            {settings.navShowLocations !== false && settings.navShowLocations !== 'false' && <Link to="/locations" className="hover:text-gray-900 transition-colors">{t('nav.locations')}</Link>}
-            {settings.navShowReservations !== false && settings.navShowReservations !== 'false' && <Link to="/reservations" className="hover:text-gray-900 transition-colors">{t('nav.reservations')}</Link>}
-            {(settings.showMembership !== false && settings.showMembership !== 'false') && (
+            {settings.navShowMenu && <Link to="/menu" className="hover:text-gray-900 transition-colors">{t('nav.menu')}</Link>}
+            {settings.navShowLocations && <Link to="/locations" className="hover:text-gray-900 transition-colors">{t('nav.locations')}</Link>}
+            {settings.navShowReservations && <Link to="/reservations" className="hover:text-gray-900 transition-colors">{t('nav.reservations')}</Link>}
+            {settings.showMembership && (
               <>
                 <span className="text-gray-300">|</span>
                 <Link to="/login" className="hover:text-gray-900 transition-colors">{t('nav.login')}</Link>

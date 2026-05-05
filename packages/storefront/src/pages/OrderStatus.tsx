@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext.js';
+import { useTheme } from '../context/ThemeContext.js';
 import { API_BASE } from '../lib/api.js';
 
 interface OrderItem {
@@ -40,6 +41,7 @@ export default function OrderStatus() {
   const { t } = useTranslation();
   const { id } = useParams();
   const { token } = useAuth();
+  const { settings } = useTheme();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -108,7 +110,7 @@ export default function OrderStatus() {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">{error || t('orders.errorLoading')}</div>
-        {settings.showMembership !== false && settings.showMembership !== 'false' && (
+        {settings.showMembership && (
           <Link to="/account/orders" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             {t('orders.backToOrders')}
           </Link>
@@ -130,7 +132,7 @@ export default function OrderStatus() {
             {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
-        {settings.showMembership !== false && settings.showMembership !== 'false' && (
+        {settings.showMembership && (
           <Link to="/account/orders" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             {t('orders.title')}
           </Link>
@@ -239,7 +241,7 @@ export default function OrderStatus() {
       </div>
 
       <div className="mt-8 flex justify-center gap-4">
-        {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+        {settings.navShowMenu && (
           <Link
             to="/menu"
             className="bg-primary-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors"
@@ -247,7 +249,7 @@ export default function OrderStatus() {
             {t('home.viewMenu')}
           </Link>
         )}
-        {settings.showMembership !== false && settings.showMembership !== 'false' && (
+        {settings.showMembership && (
           <Link
             to="/account/orders"
             className="border border-gray-300 text-gray-700 px-6 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors"

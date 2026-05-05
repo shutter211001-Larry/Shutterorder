@@ -42,6 +42,7 @@ export interface SiteSettings {
     deliveryEnabled?: boolean;
     pickupEnabled?: boolean;
     allowGuestCheckout?: boolean;
+    enableFutureOrdering?: boolean;
   };
   paymentSettings?: {
     cashEnabled?: boolean;

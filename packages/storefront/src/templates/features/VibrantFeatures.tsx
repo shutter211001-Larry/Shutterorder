@@ -24,9 +24,9 @@ export default function VibrantFeatures({ features, t }: FeaturesProps) {
   const { settings } = useTheme();
 
   const items = features?.length ? features : [
-    (settings.navShowMenu !== false && settings.navShowMenu !== 'false') && { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
-    (settings.navShowLocations !== false && settings.navShowLocations !== 'false') && { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
-    (settings.navShowReservations !== false && settings.navShowReservations !== 'false') && { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
+    settings.navShowMenu && { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
+    settings.navShowLocations && { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
+    settings.navShowReservations && { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
   ].filter(Boolean) as Array<{ icon: string; title: string; description: string }>;
 
   return (

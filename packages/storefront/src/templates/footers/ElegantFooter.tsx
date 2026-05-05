@@ -33,13 +33,13 @@ export default function ElegantFooter() {
           <div>
             <h3 className="text-gray-800 font-serif text-base mb-4 tracking-wide">{t('footer.quickLinks')}</h3>
             <ul className="space-y-2">
-              {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && <li><Link to="/menu" className="hover:text-gray-900 transition-colors">{t('nav.menu')}</Link></li>}
-              {settings.navShowLocations !== false && settings.navShowLocations !== 'false' && <li><Link to="/locations" className="hover:text-gray-900 transition-colors">{t('nav.locations')}</Link></li>}
-              {settings.navShowReservations !== false && settings.navShowReservations !== 'false' && <li><Link to="/reservations" className="hover:text-gray-900 transition-colors">{t('nav.reservations')}</Link></li>}
+              {settings.navShowMenu && <li><Link to="/menu" className="hover:text-gray-900 transition-colors">{t('nav.menu')}</Link></li>}
+              {settings.navShowLocations && <li><Link to="/locations" className="hover:text-gray-900 transition-colors">{t('nav.locations')}</Link></li>}
+              {settings.navShowReservations && <li><Link to="/reservations" className="hover:text-gray-900 transition-colors">{t('nav.reservations')}</Link></li>}
             </ul>
           </div>
 
-          {settings.showMembership !== false && settings.showMembership !== 'false' && (
+          {settings.showMembership && (
             <div>
               <h3 className="text-gray-800 font-serif text-base mb-4 tracking-wide">{t('footer.account')}</h3>
               <ul className="space-y-2">
