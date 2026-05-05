@@ -13,13 +13,7 @@ export function initSocket(httpServer: HttpServer): Server {
 
   io = new Server(httpServer, {
     cors: {
-      origin: (origin, callback) => {
-        if (!origin || corsOrigins.includes('*') || corsOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(null, false); // Explicitly reject but don't throw error
-        }
-      },
+      origin: true, // Temporarily allow all for debugging
       methods: ["GET", "POST"],
       credentials: true,
     },
