@@ -44,6 +44,7 @@ export default function KitchenDisplay() {
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [socketError, setSocketError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
@@ -67,7 +68,6 @@ export default function KitchenDisplay() {
   // Socket.IO connection for real-time updates
   useEffect(() => {
     // Derive socket URL from VITE_API_URL or window.location.origin
-    // If VITE_API_URL is "https://api.example.com/api", we want "https://api.example.com"
     const apiBase = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '').replace(/\/$/, '');
     const socketUrl = apiBase || window.location.origin;
     
@@ -84,12 +84,19 @@ export default function KitchenDisplay() {
 
     s.on('connect', () => {
       console.log('Socket connected successfully');
+      setIsConnected(true);
       setSocketError(null);
       s.emit('join:kitchen');
     });
 
+    s.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setIsConnected(false);
+    });
+
     s.on('connect_error', (err) => {
       console.error('Socket connection error:', err);
+      setIsConnected(false);
       setSocketError(err.message);
     });
 
@@ -174,9 +181,9 @@ export default function KitchenDisplay() {
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-bold text-primary-400">{t('kitchen.title')}</h1>
           <div className="flex items-center gap-2" role="status">
-            <div className={`w-2 h-2 rounded-full ${socket?.connected ? 'bg-green-400' : 'bg-red-400'}`} />
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
             <span className="text-xs text-gray-400">
-              {socket?.connected ? 'Live' : socketError ? `Disconnected (${socketError})` : 'Disconnected'}
+              {isConnected ? 'Live' : socketError ? `Disconnected (${socketError})` : 'Disconnected'}
             </span>
           </div>
         </div>
