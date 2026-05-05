@@ -43,6 +43,7 @@ export interface SiteSettings {
     pickupEnabled?: boolean;
     allowGuestCheckout?: boolean;
     enableFutureOrdering?: boolean;
+    taxRate?: number;
   };
   paymentSettings?: {
     cashEnabled?: boolean;
