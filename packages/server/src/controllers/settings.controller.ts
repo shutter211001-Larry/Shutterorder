@@ -43,6 +43,19 @@ async function getOrCreateSettings() {
 
 // Only the fields required by the public storefront — never include API keys or credentials.
 function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSettings>>) {
+  const getJson = (val: any) => {
+    if (!val) return {};
+    if (typeof val === 'string') {
+      try { return JSON.parse(val); } catch { return {}; }
+    }
+    return val;
+  };
+
+  const general = getJson(settings.generalSettings);
+  const order = getJson(settings.orderSettings);
+  const payment = getJson(settings.paymentSettings);
+  const reservation = getJson(settings.reservationSettings);
+
   return {
     id: settings.id,
     siteName: settings.siteName,
@@ -56,28 +69,28 @@ function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSetting
     heroSection: settings.heroSection,
     featuresSection: settings.featuresSection,
     ctaSection: settings.ctaSection,
-    navShowHome: (settings.generalSettings as any)?.navShowHome ?? true,
-    navShowLocations: (settings.generalSettings as any)?.navShowLocations ?? true,
-    navShowMenu: (settings.generalSettings as any)?.navShowMenu ?? true,
-    navShowReservations: (settings.generalSettings as any)?.navShowReservations ?? true,
-    showMembership: (settings.generalSettings as any)?.showMembership ?? true,
+    navShowHome: general.navShowHome ?? true,
+    navShowLocations: general.navShowLocations ?? true,
+    navShowMenu: general.navShowMenu ?? true,
+    navShowReservations: general.navShowReservations ?? true,
+    showMembership: general.showMembership ?? true,
     orderSettings: settings.orderSettings ? {
-      enabled: (settings.orderSettings as any).enabled,
-      deliveryEnabled: (settings.orderSettings as any).deliveryEnabled,
-      pickupEnabled: (settings.orderSettings as any).pickupEnabled,
-      allowGuestCheckout: (settings.orderSettings as any).allowGuestCheckout ?? true,
+      enabled: order.enabled,
+      deliveryEnabled: order.deliveryEnabled,
+      pickupEnabled: order.pickupEnabled,
+      allowGuestCheckout: order.allowGuestCheckout ?? true,
     } : undefined,
     paymentSettings: settings.paymentSettings ? {
-      cashEnabled: (settings.paymentSettings as any).cashEnabled ?? true,
-      stripeEnabled: (settings.paymentSettings as any).stripeEnabled ?? false,
-      paypalEnabled: (settings.paymentSettings as any).paypalEnabled ?? false,
+      cashEnabled: payment.cashEnabled ?? true,
+      stripeEnabled: payment.stripeEnabled ?? false,
+      paypalEnabled: payment.paypalEnabled ?? false,
     } : {
       cashEnabled: true,
       stripeEnabled: false,
       paypalEnabled: false
     },
     reservationSettings: settings.reservationSettings ? {
-      enabled: (settings.reservationSettings as any).enabled,
+      enabled: reservation.enabled,
     } : undefined,
     createdAt: settings.createdAt,
     updatedAt: settings.updatedAt,
