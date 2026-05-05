@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -58,6 +58,7 @@ const STATUS_COLORS: Record<string, string> = {
 const CHART_COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#7c3aed', '#2563eb', '#059669'];
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [data, setData] = useState<DashboardData | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,11 +99,11 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Dashboard</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">{t('dashboard.title')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {['Orders Today', 'Revenue', 'Reservations', 'Active Items'].map((label) => (
-            <div key={label} className="bg-white rounded-lg shadow p-6 animate-pulse">
-              <p className="text-sm text-gray-500">{label}</p>
+          {['todayOrders', 'todayRevenue', 'activeReservations', 'activeMenuItems'].map((key) => (
+            <div key={key} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <p className="text-sm text-gray-500">{t(`dashboard.stats.${key}`)}</p>
               <div className="h-9 bg-gray-200 rounded mt-2 w-20" role="status" aria-label="Loading" />
             </div>
           ))}
@@ -133,7 +134,7 @@ export default function Dashboard() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Dashboard</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">{t('dashboard.title')}</h2>
         <div className="flex bg-gray-100 rounded-lg p-1" role="tablist">
           <button
             onClick={() => setTab('overview')}
@@ -142,7 +143,7 @@ export default function Dashboard() {
             role="tab"
             aria-selected={tab === 'overview'}
           >
-            Overview
+            {t('dashboard.overview')}
           </button>
           <button
             onClick={() => setTab('analytics')}
@@ -151,7 +152,7 @@ export default function Dashboard() {
             role="tab"
             aria-selected={tab === 'analytics'}
           >
-            Analytics
+            {t('dashboard.analytics')}
           </button>
         </div>
       </div>
@@ -159,24 +160,24 @@ export default function Dashboard() {
       {/* Key Metrics — always visible */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Orders Today</p>
+          <p className="text-sm text-gray-500">{t('dashboard.stats.todayOrders')}</p>
           <p className="text-3xl font-bold text-gray-900 mt-1">{m.ordersToday}</p>
-          <p className="text-xs text-gray-400 mt-1">{m.ordersThisWeek} this week</p>
+          <p className="text-xs text-gray-400 mt-1">{m.ordersThisWeek} {t('dashboard.stats.ordersThisWeek')}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Revenue Today</p>
+          <p className="text-sm text-gray-500">{t('dashboard.stats.todayRevenue')}</p>
           <p className="text-3xl font-bold text-primary-600 mt-1">${m.revenueToday.toFixed(2)}</p>
-          <p className="text-xs text-gray-400 mt-1">${m.revenueThisMonth.toFixed(2)} this month</p>
+          <p className="text-xs text-gray-400 mt-1">${m.revenueThisMonth.toFixed(2)} {t('dashboard.stats.revenueThisMonth')}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Pending Reservations</p>
+          <p className="text-sm text-gray-500">{t('dashboard.stats.activeReservations')}</p>
           <p className="text-3xl font-bold text-gray-900 mt-1">{m.pendingReservations}</p>
-          <p className="text-xs text-gray-400 mt-1">{m.totalCustomers} total customers</p>
+          <p className="text-xs text-gray-400 mt-1">{m.totalCustomers} {t('dashboard.stats.totalCustomers')}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <p className="text-sm text-gray-500">Active Menu Items</p>
+          <p className="text-sm text-gray-500">{t('dashboard.stats.activeMenuItems')}</p>
           <p className="text-3xl font-bold text-gray-900 mt-1">{m.activeItems}</p>
-          <p className="text-xs text-gray-400 mt-1">{m.pendingReviews} reviews pending</p>
+          <p className="text-xs text-gray-400 mt-1">{m.pendingReviews} {t('dashboard.stats.pendingReviews')}</p>
         </div>
       </div>
 
@@ -186,19 +187,19 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-gray-50 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-gray-900">{m.totalOrders}</p>
-              <p className="text-xs text-gray-500">Total Orders</p>
+              <p className="text-xs text-gray-500">{t('dashboard.stats.totalOrders')}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-gray-900">${m.totalRevenue.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">Total Revenue</p>
+              <p className="text-xs text-gray-500">{t('dashboard.stats.totalRevenue')}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-gray-900">{m.ordersThisMonth}</p>
-              <p className="text-xs text-gray-500">Orders This Month</p>
+              <p className="text-xs text-gray-500">{t('dashboard.stats.ordersThisMonth')}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-gray-900">${m.revenueThisWeek.toFixed(2)}</p>
-              <p className="text-xs text-gray-500">Revenue This Week</p>
+              <p className="text-xs text-gray-500">{t('dashboard.stats.revenueThisWeek')}</p>
             </div>
           </div>
 
@@ -206,9 +207,9 @@ export default function Dashboard() {
             {/* Recent Orders */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.recentOrders')}</h3>
                 <Link to="/orders" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                  View All
+                  {t('dashboard.viewAll')}
                 </Link>
               </div>
               {data.recentOrders.length === 0 ? (
@@ -242,9 +243,9 @@ export default function Dashboard() {
             {/* Top Selling Items */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Top Selling Items</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.topSellingItems')}</h3>
                 <Link to="/menu/items" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                  View Menu
+                  {t('dashboard.viewMenu')}
                 </Link>
               </div>
               {data.topItems.length === 0 ? (
@@ -257,7 +258,7 @@ export default function Dashboard() {
                         <span className="text-sm font-bold text-gray-400 w-5">{idx + 1}</span>
                         <span className="text-sm font-medium text-gray-900">{item.name}</span>
                       </div>
-                      <span className="text-sm text-gray-600">{item.totalQuantity} sold</span>
+                      <span className="text-sm text-gray-600">{item.totalQuantity} {t('dashboard.sold')}</span>
                     </div>
                   ))}
                 </div>
@@ -299,7 +300,7 @@ function AnalyticsPanel({
   }
 
   if (!analytics) {
-    return <p className="text-gray-500 text-sm">Unable to load analytics data.</p>;
+    return <p className="text-gray-500 text-sm">{t('dashboard.charts.noData')}</p>;
   }
 
   const formatDate = (dateStr: string) => {
@@ -340,7 +341,7 @@ function AnalyticsPanel({
 
       {/* Revenue Trend */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.revenueTrend')}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={analytics.dailyStats.map((d) => ({ ...d, label: formatDate(d.date) }))}>
             <defs>
@@ -353,7 +354,7 @@ function AnalyticsPanel({
             <XAxis dataKey="label" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
             <Tooltip
-              formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+              formatter={(value) => [`$${Number(value).toFixed(2)}`, t('dashboard.stats.totalRevenue')]}
               contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
             />
             <Area type="monotone" dataKey="revenue" stroke="#ea580c" fill="url(#revenueGradient)" strokeWidth={2} />
@@ -363,7 +364,7 @@ function AnalyticsPanel({
 
       {/* Daily Orders */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Orders</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.dailyOrders')}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={analytics.dailyStats.map((d) => ({ ...d, label: formatDate(d.date) }))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -378,7 +379,7 @@ function AnalyticsPanel({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Order Type Distribution */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Types</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.orderTypes')}</h3>
           {analytics.orderTypeDistribution.length === 0 ? (
             <p className="text-gray-500 text-sm">No data available.</p>
           ) : (
@@ -406,7 +407,7 @@ function AnalyticsPanel({
 
         {/* Order Status Distribution */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Status</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.orderStatus')}</h3>
           {analytics.orderStatusDistribution.length === 0 ? (
             <p className="text-gray-500 text-sm">No data available.</p>
           ) : (
@@ -423,7 +424,7 @@ function AnalyticsPanel({
                 />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
-                  formatter={(value) => [value, 'Orders']}
+                  formatter={(value) => [value, t('dashboard.stats.totalOrders')]}
                 />
                 <Bar dataKey="count" fill="#f97316" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -434,7 +435,7 @@ function AnalyticsPanel({
 
       {/* Hourly Distribution */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Orders by Hour of Day</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.ordersByHour')}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={fullHourly}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -449,7 +450,7 @@ function AnalyticsPanel({
       {/* Category Revenue */}
       {analytics.categoryRevenue.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue by Category</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.charts.revenueByCategory')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={analytics.categoryRevenue}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -459,7 +460,7 @@ function AnalyticsPanel({
                 contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
                 formatter={(value, name) => [
                   name === 'Revenue' ? `$${Number(value).toFixed(2)}` : value,
-                  name,
+                  name === 'Revenue' ? t('dashboard.stats.totalRevenue') : t('dashboard.stats.totalOrders'),
                 ]}
               />
               <Legend />

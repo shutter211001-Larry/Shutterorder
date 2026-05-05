@@ -6,9 +6,19 @@ import fr from './locales/fr.json';
 import de from './locales/de.json';
 import it from './locales/it.json';
 import pt from './locales/pt.json';
+import zhTW from './locales/zh-TW.json';
+import th from './locales/th.json';
+import id from './locales/id.json';
+import vi from './locales/vi.json';
+import tl from './locales/tl.json';
 
 export const SUPPORTED_LANGUAGES = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'zh-TW', name: '繁體中文', flag: '🇹🇼' },
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'th', name: 'ภาษาไทย', flag: '🇹🇭' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'tl', name: 'Filipino', flag: '🇵🇭' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
@@ -18,7 +28,7 @@ export const SUPPORTED_LANGUAGES = [
 
 export type LanguageCode = (typeof SUPPORTED_LANGUAGES)[number]['code'];
 
-const savedLanguage = localStorage.getItem('language') || 'en';
+const savedLanguage = localStorage.getItem('language') || 'zh-TW';
 
 i18n.use(initReactI18next).init({
   resources: {
@@ -28,6 +38,11 @@ i18n.use(initReactI18next).init({
     de: { translation: de },
     it: { translation: it },
     pt: { translation: pt },
+    'zh-TW': { translation: zhTW },
+    th: { translation: th },
+    id: { translation: id },
+    vi: { translation: vi },
+    tl: { translation: tl },
   },
   lng: savedLanguage,
   fallbackLng: 'en',

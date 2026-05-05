@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 
 type Role = 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
@@ -13,60 +14,60 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'Dashboard', icon: '\u25A1', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/orders', label: 'Orders', icon: '\uD83D\uDCCB', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/reservations', label: 'Reservations', icon: '\uD83D\uDDD3', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/reviews', label: 'Reviews', icon: '\u2B50', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/kitchen', label: 'Kitchen', icon: '\uD83C\uDF73', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/locations', label: 'Locations', icon: '\u25CE', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/', label: 'nav.dashboard', icon: '\u25A1', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/orders', label: 'nav.orders', icon: '\uD83D\uDCCB', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/reservations', label: 'nav.reservations', icon: '\uD83D\uDDD3', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/reviews', label: 'nav.reviews', icon: '\u2B50', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/kitchen', label: 'nav.kitchen', icon: '\uD83C\uDF73', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { path: '/locations', label: 'nav.locations', icon: '\u25CE', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/menu',
-    label: 'Menu',
+    label: 'nav.menu',
     icon: '\u2630',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
-      { path: '/menu/items', label: 'Items' },
-      { path: '/menu/categories', label: 'Categories' },
+      { path: '/menu/items', label: 'nav.menuItems' },
+      { path: '/menu/categories', label: 'nav.categories' },
     ],
   },
-  { path: '/coupons', label: 'Coupons', icon: '\uD83C\uDFF7', roles: ['SUPER_ADMIN', 'MANAGER'] },
-  { path: '/automation', label: 'Automation', icon: '\u26A1', roles: ['SUPER_ADMIN', 'MANAGER'] },
-  { path: '/loyalty', label: 'Loyalty', icon: '\uD83C\uDF81', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/coupons', label: 'nav.coupons', icon: '\uD83C\uDFF7', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/automation', label: 'nav.automation', icon: '\u26A1', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/loyalty', label: 'nav.loyalty', icon: '\uD83C\uDF81', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/design',
-    label: 'Design',
+    label: 'nav.design',
     icon: '\uD83C\uDFA8',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
-      { path: '/design/landing', label: 'Landing Page' },
-      { path: '/design/branding', label: 'Branding' },
-      { path: '/design/theme', label: 'Theme' },
-      { path: '/design/templates', label: 'Templates' },
+      { path: '/design/landing', label: 'nav.landingPage' },
+      { path: '/design/branding', label: 'nav.branding' },
+      { path: '/design/theme', label: 'nav.theme' },
+      { path: '/design/templates', label: 'nav.templates' },
     ],
   },
   {
     path: '/legal',
-    label: 'Legal',
+    label: 'nav.legal',
     icon: '\u2696',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
-      { path: '/legal/pages', label: 'Pages' },
-      { path: '/legal/cookies', label: 'Cookie Categories' },
-      { path: '/legal/consent', label: 'Consent Log' },
+      { path: '/legal/pages', label: 'nav.legalPages' },
+      { path: '/legal/cookies', label: 'nav.cookieCategories' },
+      { path: '/legal/consent', label: 'nav.consentLog' },
     ],
   },
-  { path: '/settings', label: 'Settings', icon: '\u2699', roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { path: '/settings', label: 'nav.settings', icon: '\u2699', roles: ['SUPER_ADMIN', 'MANAGER'] },
   {
     path: '/developer',
-    label: 'Developer',
+    label: 'nav.developer',
     icon: '\uD83D\uDEE0',
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
-      { path: '/developer/metrics', label: 'API Metrics' },
-      { path: '/developer/audit-log', label: 'Audit Log' },
+      { path: '/developer/metrics', label: 'nav.apiMetrics' },
+      { path: '/developer/audit-log', label: 'nav.auditLog' },
     ],
   },
-  { path: '/staff', label: 'Staff', icon: '\uD83D\uDC65', roles: ['SUPER_ADMIN'] },
+  { path: '/staff', label: 'nav.staff', icon: '\uD83D\uDC65', roles: ['SUPER_ADMIN'] },
 ];
 
 const ROLE_COLORS: Record<Role, string> = {
@@ -82,6 +83,7 @@ const ROLE_LABELS: Record<Role, string> = {
 };
 
 export default function AdminLayout({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const { user, token } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
@@ -132,7 +134,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
       <aside className="w-64 bg-gray-900 text-white flex flex-col" role="navigation" aria-label="Main navigation">
         <div className="px-6 py-4 border-b border-gray-700">
           <h1 className="text-xl font-bold text-primary-400">KitchenAsty</h1>
-          <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
+          <p className="text-xs text-gray-400 mt-1">{t('common.adminPanel') || '管理後台'}</p>
         </div>
         <nav className="flex-1 py-4">
           {filteredNav.map((item) => {
@@ -150,7 +152,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                     }`}
                 >
                   <span className="mr-3">{item.icon}</span>
-                  {item.label}
+                  {t(item.label)}
                 </Link>
                 {item.children && isActive && (
                   <div className="bg-gray-950">
@@ -163,7 +165,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                           : 'text-gray-400 hover:text-white'
                           }`}
                       >
-                        {child.label}
+                        {t(child.label)}
                       </Link>
                     ))}
                   </div>
@@ -254,7 +256,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                         onClick={() => setDropdownOpen(false)}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        Settings
+                        {t('nav.settings')}
                       </Link>
                     )}
                     {onLogout && (
@@ -265,7 +267,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                         }}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        Logout
+                        {t('nav.logout')}
                       </button>
                     )}
                   </div>

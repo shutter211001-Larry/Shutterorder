@@ -3,6 +3,7 @@ import { z } from 'zod';
 import prisma from '../lib/db.js';
 import { emitNewOrder, emitOrderStatusUpdate } from '../lib/socket.js';
 import { isPointInPolygon } from '../lib/geo.js';
+import { calculateDistance } from '@kitchenasty/shared';
 import { sendEmail, orderConfirmationEmail, orderStatusEmail } from '../lib/email.js';
 import { auditLog } from '../lib/audit.js';
 
@@ -39,6 +40,8 @@ const createOrderSchema = z.object({
   guestEmail: z.string().email().optional(),
   guestPhone: z.string().optional(),
   loyaltyPointsRedeem: z.number().int().min(0).optional(),
+  userLat: z.number().optional(),
+  userLon: z.number().optional(),
 });
 
 function generateOrderNumber(): string {
@@ -55,7 +58,11 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const { orderType, items, comment, scheduledAt, address, guestName, guestEmail, guestPhone, loyaltyPointsRedeem } = parsed.data;
+  const { 
+    orderType, items, comment, scheduledAt, address, 
+    guestName, guestEmail, guestPhone, loyaltyPointsRedeem,
+    userLat, userLon 
+  } = parsed.data;
 
   if (orderType === 'DELIVERY' && !address) {
     res.status(400).json({ success: false, error: 'Delivery address is required' });
@@ -262,6 +269,14 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax + deliveryFee - loyaltyDiscount;
 
+  // Calculate distance and tag remote status
+  let distance = null;
+  let isRemote = false;
+  if (userLat != null && userLon != null && location.lat != null && location.lng != null) {
+    distance = calculateDistance(userLat, userLon, location.lat, location.lng);
+    isRemote = distance > 20; // 20 meter threshold
+  }
+
   const order = await prisma.order.create({
     data: {
       orderNumber: generateOrderNumber(),
@@ -278,6 +293,10 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       guestName: customerId ? undefined : guestName,
       guestEmail: customerId ? undefined : guestEmail,
       guestPhone: customerId ? undefined : guestPhone,
+      userLat,
+      userLon,
+      distance,
+      isRemote,
       items: { create: orderItemsData },
     },
     include: {
