@@ -90,12 +90,19 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
               {hero?.ctaPrimaryText || t('home.viewMenu')}
             </Link>
             {hero?.ctaSecondaryText && (
-              <Link
-                to={hero?.ctaSecondaryLink || '/locations'}
-                className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
-              >
-                {hero?.ctaSecondaryText}
-              </Link>
+              (() => {
+                const link = hero?.ctaSecondaryLink || '/locations';
+                if (link === '/locations' && settings.navShowLocations === false) return null;
+                if (link === '/reservations' && settings.navShowReservations === false) return null;
+                return (
+                  <Link
+                    to={link}
+                    className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
+                  >
+                    {hero?.ctaSecondaryText}
+                  </Link>
+                );
+              })()
             )}
           </div>
         </div>
@@ -128,7 +135,9 @@ function ClassicFeatures({ features, t }: { features: FeatureItem[] | null; t: (
           <>
             <FeatureCard icon="clock" title={t('home.fastDelivery')} description={t('home.fastDeliveryDesc')} />
             <FeatureCard icon="clipboard" title={t('home.easyOrdering')} description={t('home.easyOrderingDesc')} />
-            <FeatureCard icon="calendar" title={t('home.tableReservations')} description={t('home.tableReservationsDesc')} />
+            {settings.navShowReservations !== false && (
+              <FeatureCard icon="calendar" title={t('home.tableReservations')} description={t('home.tableReservationsDesc')} />
+            )}
           </>
         )}
       </div>
@@ -144,6 +153,13 @@ interface CtaSection {
 }
 
 function ClassicCta({ cta, t }: { cta: CtaSection | null; t: (k: string) => string }) {
+  const { settings } = useTheme();
+  
+  // If membership is disabled and this is the default register CTA, hide the whole section
+  if (settings.showMembership === false && (!cta?.buttonLink || cta.buttonLink === '/register')) {
+    return null;
+  }
+
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">

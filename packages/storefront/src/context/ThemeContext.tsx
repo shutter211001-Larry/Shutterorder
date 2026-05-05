@@ -41,6 +41,7 @@ export interface SiteSettings {
     enabled?: boolean;
     deliveryEnabled?: boolean;
     pickupEnabled?: boolean;
+    allowGuestCheckout?: boolean;
   };
   paymentSettings?: {
     cashEnabled?: boolean;
@@ -50,6 +51,11 @@ export interface SiteSettings {
   reservationSettings?: {
     enabled?: boolean;
   };
+  navShowHome?: boolean;
+  navShowLocations?: boolean;
+  navShowMenu?: boolean;
+  navShowReservations?: boolean;
+  showMembership?: boolean;
 }
 
 interface ThemeContextType {
