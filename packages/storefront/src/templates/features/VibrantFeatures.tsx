@@ -1,3 +1,5 @@
+import { useTheme } from '../../context/ThemeContext.js';
+
 interface FeaturesProps {
   features: Array<{ icon: string; title: string; description: string }> | null;
   t: (key: string) => string;
@@ -18,16 +20,14 @@ const gradients = [
   'from-fuchsia-500 to-pink-500',
 ];
 
-function getDefaultFeatures(t: (key: string) => string) {
-  return [
-    { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
-    { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
-    { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
-  ];
-}
-
 export default function VibrantFeatures({ features, t }: FeaturesProps) {
-  const items = features?.length ? features : getDefaultFeatures(t);
+  const { settings } = useTheme();
+
+  const items = features?.length ? features : [
+    (settings.navShowMenu !== false && settings.navShowMenu !== 'false') && { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
+    (settings.navShowLocations !== false && settings.navShowLocations !== 'false') && { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
+    (settings.navShowReservations !== false && settings.navShowReservations !== 'false') && { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
+  ].filter(Boolean) as Array<{ icon: string; title: string; description: string }>;
 
   return (
     <section className="py-20 px-4 bg-white dark:bg-gray-950">
