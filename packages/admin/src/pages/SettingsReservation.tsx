@@ -57,17 +57,17 @@ export default function SettingsReservation() {
     }
   }
 
-  if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
+  if (loading) return <div className="p-6 text-gray-500">載入中...</div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; Back to Settings</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">Reservation Settings</h1>
+          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; 返回設定</Link>
+          <h1 className="text-2xl font-bold text-gray-900 mt-1">訂位設定</h1>
         </div>
         <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50">
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? '儲存中...' : '儲存變更'}
         </button>
       </div>
 
@@ -77,36 +77,36 @@ export default function SettingsReservation() {
       <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
         <label className="flex items-center gap-3">
           <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-          <span className="text-sm font-medium text-gray-700">Reservations enabled</span>
+          <span className="text-sm font-medium text-gray-700">啟用線上訂位功能</span>
         </label>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Time Interval (min)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">訂位間隔 (分鐘)</label>
             <input type="number" min={1} value={timeInterval} onChange={(e) => setTimeInterval(parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-            <p className="mt-1 text-xs text-gray-500">Time slot interval for booking slots</p>
+            <p className="mt-1 text-xs text-gray-500">開放訂位的時段間隔</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Stay Time (min)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">用餐時間 (分鐘)</label>
             <input type="number" min={1} value={stayTime} onChange={(e) => setStayTime(parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-            <p className="mt-1 text-xs text-gray-500">Average time a party occupies a table</p>
+            <p className="mt-1 text-xs text-gray-500">每組客人的平均用餐時間</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Max Advance Booking (days)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">最遠可預約天數 (天)</label>
             <input type="number" min={1} value={maxAdvanceBookingDays} onChange={(e) => setMaxAdvanceBookingDays(parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Min Cancellation Notice (hours)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">最晚取消通知 (小時)</label>
             <input type="number" min={0} value={minCancellationNoticeHours} onChange={(e) => setMinCancellationNoticeHours(parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
           </div>
         </div>
 
-        <label className="flex items-center gap-3">
+        <label className={`flex items-center gap-3 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <input type="checkbox" checked={autoConfirm} onChange={(e) => setAutoConfirm(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-          <span className="text-sm font-medium text-gray-700">Auto-confirm reservations</span>
+          <span className="text-sm font-medium text-gray-700">自動確認訂位</span>
         </label>
       </div>
     </div>

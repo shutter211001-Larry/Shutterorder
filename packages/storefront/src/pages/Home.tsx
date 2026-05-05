@@ -89,12 +89,14 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
             >
               {hero?.ctaPrimaryText || t('home.viewMenu')}
             </Link>
-            <Link
-              to={hero?.ctaSecondaryLink || '/locations'}
-              className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
-            >
-              {hero?.ctaSecondaryText || t('home.findLocation')}
-            </Link>
+            {hero?.ctaSecondaryText && (
+              <Link
+                to={hero?.ctaSecondaryLink || '/locations'}
+                className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
+              >
+                {hero?.ctaSecondaryText}
+              </Link>
+            )}
           </div>
         </div>
       </div>

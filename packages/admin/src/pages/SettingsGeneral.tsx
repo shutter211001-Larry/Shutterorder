@@ -68,17 +68,16 @@ export default function SettingsGeneral() {
     }
   }
 
-  if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
-
+  if (loading) return <div className="p-6 text-gray-500">載入中...</div>;
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; Back to Settings</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">General Settings</h1>
+          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; 返回設定</Link>
+          <h1 className="text-2xl font-bold text-gray-900 mt-1">一般設定</h1>
         </div>
         <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50">
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? '儲存中...' : '儲存變更'}
         </button>
       </div>
 
@@ -88,63 +87,63 @@ export default function SettingsGeneral() {
       <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">聯絡電子郵件</label>
             <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">聯絡電話</label>
             <input type="text" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">時區</label>
           <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
             {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Distance Unit</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">距離單位</label>
           <div className="flex gap-4">
             <label className="flex items-center gap-2 text-sm">
               <input type="radio" name="distanceUnit" value="km" checked={distanceUnit === 'km'} onChange={() => setDistanceUnit('km')} className="text-primary-600" />
-              Kilometers (km)
+              公里 (km)
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input type="radio" name="distanceUnit" value="mi" checked={distanceUnit === 'mi'} onChange={() => setDistanceUnit('mi')} className="text-primary-600" />
-              Miles (mi)
+              英里 (mi)
             </label>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Default Currency</label>
-            <input type="text" maxLength={3} value={defaultCurrency} onChange={(e) => setDefaultCurrency(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="USD" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">預設幣別</label>
+            <input type="text" maxLength={3} value={defaultCurrency} onChange={(e) => setDefaultCurrency(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="TWD" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Currency Symbol</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">貨幣符號</label>
             <input type="text" maxLength={5} value={currencySymbol} onChange={(e) => setCurrencySymbol(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="$" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Currency Position</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">符號位置</label>
             <div className="flex gap-4 mt-2">
               <label className="flex items-center gap-2 text-sm">
                 <input type="radio" name="currencyPosition" value="before" checked={currencyPosition === 'before'} onChange={() => setCurrencyPosition('before')} className="text-primary-600" />
-                Before ($10)
+                前方 ($10)
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input type="radio" name="currencyPosition" value="after" checked={currencyPosition === 'after'} onChange={() => setCurrencyPosition('after')} className="text-primary-600" />
-                After (10$)
+                後方 (10$)
               </label>
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Google Maps API Key</label>
-          <input type="password" value={googleMapsApiKey} onChange={(e) => setGoogleMapsApiKey(e.target.value)} className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Enter API key" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Google Maps API 金鑰</label>
+          <input type="password" value={googleMapsApiKey} onChange={(e) => setGoogleMapsApiKey(e.target.value)} className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="輸入 API 金鑰" />
         </div>
       </div>
     </div>

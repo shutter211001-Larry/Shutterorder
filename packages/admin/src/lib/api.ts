@@ -16,7 +16,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || `Request failed: ${res.status}`);
+    const error = data.error || `Request failed: ${res.status}`;
+    const errorMsg = typeof error === 'string' ? error : JSON.stringify(error);
+    const err = new Error(errorMsg);
+    (err as any).data = error; // Attach original error data
+    throw err;
   }
 
   return data;

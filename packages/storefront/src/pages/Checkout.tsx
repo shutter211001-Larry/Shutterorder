@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
 import { useAuth } from '../context/AuthContext.js';
+import { useTheme } from '../context/ThemeContext.js';
 
 type OrderType = 'delivery' | 'pickup';
 type PaymentMethod = 'cash' | 'stripe' | 'paypal';
@@ -14,9 +15,13 @@ export default function Checkout() {
   const { t } = useTranslation();
   const { items, subtotal, clear } = useCart();
   const { user, token } = useAuth();
+  const { settings } = useTheme();
   const navigate = useNavigate();
 
-  const [orderType, setOrderType] = useState<OrderType>('delivery');
+  const orderSettings = settings.orderSettings;
+  const paymentSettings = settings.paymentSettings;
+
+  const [orderType, setOrderType] = useState<OrderType>('pickup');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [address, setAddress] = useState({ line1: '', line2: '', city: '', state: '', zip: '' });
   const [scheduledAt, setScheduledAt] = useState('');
@@ -46,6 +51,28 @@ export default function Checkout() {
   const tax = subtotal * TAX_RATE;
   const currentDeliveryFee = orderType === 'delivery' ? deliveryFee : 0;
   const total = subtotal + tax + currentDeliveryFee - loyaltyDiscount;
+
+  // Set defaults based on settings
+  useEffect(() => {
+    if (orderSettings) {
+      if (orderSettings.deliveryEnabled && !orderSettings.pickupEnabled) {
+        setOrderType('delivery');
+      } else {
+        setOrderType('pickup');
+      }
+    }
+  }, [orderSettings]);
+
+  useEffect(() => {
+    if (paymentSettings) {
+      if (!paymentSettings.cashEnabled) {
+        if (paymentSettings.stripeEnabled) setPaymentMethod('stripe');
+        else if (paymentSettings.paypalEnabled) setPaymentMethod('paypal');
+      } else {
+        setPaymentMethod('cash');
+      }
+    }
+  }, [paymentSettings]);
 
   // Check busy mode on mount
   useEffect(() => {
@@ -186,33 +213,35 @@ export default function Checkout() {
           )}
 
           {/* Order type */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.orderType')}</h2>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setOrderType('delivery')}
-                className={`flex-1 py-3 rounded-lg font-medium text-sm border-2 transition-colors ${
-                  orderType === 'delivery'
-                    ? 'border-primary-600 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                {t('checkout.delivery')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setOrderType('pickup')}
-                className={`flex-1 py-3 rounded-lg font-medium text-sm border-2 transition-colors ${
-                  orderType === 'pickup'
-                    ? 'border-primary-600 bg-primary-50 text-primary-700'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                {t('checkout.pickup')}
-              </button>
+          {orderSettings?.deliveryEnabled && orderSettings?.pickupEnabled && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.orderType')}</h2>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOrderType('delivery')}
+                  className={`flex-1 py-3 rounded-lg font-medium text-sm border-2 transition-colors ${
+                    orderType === 'delivery'
+                      ? 'border-primary-600 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  {t('checkout.delivery')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderType('pickup')}
+                  className={`flex-1 py-3 rounded-lg font-medium text-sm border-2 transition-colors ${
+                    orderType === 'pickup'
+                      ? 'border-primary-600 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  {t('checkout.pickup')}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Delivery address */}
           {orderType === 'delivery' && (
@@ -268,39 +297,41 @@ export default function Checkout() {
           )}
 
           {/* Schedule */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.scheduling')}</h2>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  name="schedule"
-                  checked={!scheduledAt}
-                  onChange={() => setScheduledAt('')}
-                  className="accent-primary-600"
-                />
-                <span className="text-sm text-gray-700">{t('checkout.asap')}</span>
-              </label>
-              <label className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  name="schedule"
-                  checked={!!scheduledAt}
-                  onChange={() => setScheduledAt(getDefaultScheduleTime())}
-                  className="accent-primary-600"
-                />
-                <span className="text-sm text-gray-700">{t('checkout.scheduled')}</span>
-              </label>
-              {scheduledAt && (
-                <input
-                  type="datetime-local"
-                  value={scheduledAt}
-                  onChange={(e) => setScheduledAt(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
-                />
-              )}
+          {orderSettings?.enableFutureOrdering && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.scheduling')}</h2>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="schedule"
+                    checked={!scheduledAt}
+                    onChange={() => setScheduledAt('')}
+                    className="accent-primary-600"
+                  />
+                  <span className="text-sm text-gray-700">{t('checkout.asap')}</span>
+                </label>
+                <label className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="schedule"
+                    checked={!!scheduledAt}
+                    onChange={() => setScheduledAt(getDefaultScheduleTime())}
+                    className="accent-primary-600"
+                  />
+                  <span className="text-sm text-gray-700">{t('checkout.scheduled')}</span>
+                </label>
+                {scheduledAt && (
+                  <input
+                    type="datetime-local"
+                    value={scheduledAt}
+                    onChange={(e) => setScheduledAt(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Notes */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -362,53 +393,61 @@ export default function Checkout() {
           )}
 
           {/* Payment method */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.paymentMethod')}</h2>
-            <div className="space-y-2">
-              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                paymentMethod === 'cash'
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'cash'}
-                  onChange={() => setPaymentMethod('cash')}
-                  className="accent-primary-600"
-                />
-                <span className="text-sm font-medium text-gray-900">{t('checkout.cashOnDelivery')}</span>
-              </label>
-              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                paymentMethod === 'stripe'
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'stripe'}
-                  onChange={() => setPaymentMethod('stripe')}
-                  className="accent-primary-600"
-                />
-                <span className="text-sm font-medium text-gray-900">{t('checkout.creditCard')}</span>
-              </label>
-              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                paymentMethod === 'paypal'
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}>
-                <input
-                  type="radio"
-                  name="payment"
-                  checked={paymentMethod === 'paypal'}
-                  onChange={() => setPaymentMethod('paypal')}
-                  className="accent-primary-600"
-                />
-                <span className="text-sm font-medium text-gray-900">PayPal</span>
-              </label>
+          {(paymentSettings?.stripeEnabled || paymentSettings?.paypalEnabled || paymentSettings?.cashEnabled) && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('checkout.paymentMethod')}</h2>
+              <div className="space-y-2">
+                {paymentSettings?.cashEnabled && (
+                  <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                    paymentMethod === 'cash'
+                      ? 'border-primary-600 bg-primary-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={paymentMethod === 'cash'}
+                      onChange={() => setPaymentMethod('cash')}
+                      className="accent-primary-600"
+                    />
+                    <span className="text-sm font-medium text-gray-900">{t('checkout.cashOnDelivery')}</span>
+                  </label>
+                )}
+                {paymentSettings?.stripeEnabled && (
+                  <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                    paymentMethod === 'stripe'
+                      ? 'border-primary-600 bg-primary-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={paymentMethod === 'stripe'}
+                      onChange={() => setPaymentMethod('stripe')}
+                      className="accent-primary-600"
+                    />
+                    <span className="text-sm font-medium text-gray-900">{t('checkout.creditCard')}</span>
+                  </label>
+                )}
+                {paymentSettings?.paypalEnabled && (
+                  <label className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                    paymentMethod === 'paypal'
+                      ? 'border-primary-600 bg-primary-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={paymentMethod === 'paypal'}
+                      onChange={() => setPaymentMethod('paypal')}
+                      className="accent-primary-600"
+                    />
+                    <span className="text-sm font-medium text-gray-900">PayPal</span>
+                  </label>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Guest info or login prompt */}
           {!user && (
