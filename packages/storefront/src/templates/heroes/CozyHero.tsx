@@ -44,7 +44,7 @@ export default function CozyHero({ hero, t }: HeroProps) {
             </p>
 
             <div className="flex flex-wrap justify-center gap-4">
-              {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+              {settings.navShowMenu && (
                 <Link
                   to={hero?.ctaPrimaryLink || '/menu'}
                   className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3.5 rounded-xl font-semibold shadow-lg shadow-amber-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-amber-500/30"
@@ -54,8 +54,8 @@ export default function CozyHero({ hero, t }: HeroProps) {
               )}
               {(() => {
                 const link = hero?.ctaSecondaryLink || '/locations';
-                if (link === '/locations' && (settings.navShowLocations === false || settings.navShowLocations === 'false')) return null;
-                if (link === '/reservations' && (settings.navShowReservations === false || settings.navShowReservations === 'false')) return null;
+                if (link === '/locations' && !settings.navShowLocations) return null;
+                if (link === '/reservations' && !settings.navShowReservations) return null;
                 return (
                   <Link
                     to={link}

@@ -50,7 +50,7 @@ export default function OrderConfirmation() {
       )}
 
       <div className="flex justify-center gap-4">
-        {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+        {settings.navShowMenu && (
           <Link
             to="/menu"
             className="bg-primary-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors"

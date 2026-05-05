@@ -13,7 +13,7 @@ export default function RusticCta({ cta, t }: CtaProps) {
   const buttonText = cta?.buttonText || t('home.createAccount');
   const buttonLink = cta?.buttonLink || '/register';
 
-  if ((settings.showMembership === false || settings.showMembership === 'false') && buttonLink === '/register') {
+  if (!settings.showMembership && buttonLink === '/register') {
     return null;
   }
 

@@ -53,7 +53,7 @@ export default function RetroHero({ hero, t }: HeroProps) {
         </p>
 
         <div className="flex flex-wrap justify-center gap-4">
-          {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+          {settings.navShowMenu && (
             <Link
               to={hero?.ctaPrimaryLink || '/menu'}
               className="bg-amber-700 hover:bg-amber-800 dark:bg-amber-600 dark:hover:bg-amber-700 text-amber-50 px-8 py-3.5 rounded-sm font-bold uppercase tracking-widest text-sm border-2 border-amber-800 dark:border-amber-500 transition-colors shadow-md"
@@ -64,8 +64,8 @@ export default function RetroHero({ hero, t }: HeroProps) {
           )}
           {(() => {
             const link = hero?.ctaSecondaryLink || '/locations';
-            if (link === '/locations' && (settings.navShowLocations === false || settings.navShowLocations === 'false')) return null;
-            if (link === '/reservations' && (settings.navShowReservations === false || settings.navShowReservations === 'false')) return null;
+            if (link === '/locations' && !settings.navShowLocations) return null;
+            if (link === '/reservations' && !settings.navShowReservations) return null;
             return (
               <Link
                 to={link}

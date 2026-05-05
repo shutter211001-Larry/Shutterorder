@@ -78,7 +78,7 @@ export default function Locations() {
                     </span>
                   )}
                 </div>
-                {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+                {settings.navShowMenu && (
                   <Link
                     to={`/menu?location=${loc.id}`}
                     className="block text-center bg-primary-600 text-white py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors"

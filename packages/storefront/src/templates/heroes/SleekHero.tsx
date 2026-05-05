@@ -45,7 +45,7 @@ export default function SleekHero({ hero, t }: HeroProps) {
         </h1>
 
         <div className="flex flex-wrap justify-center gap-4">
-          {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && (
+          {settings.navShowMenu && (
             <Link
               to={hero?.ctaPrimaryLink || '/menu'}
               className="relative group bg-gradient-to-r from-cyan-500 to-primary-500 text-white px-8 py-3.5 rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/30"
@@ -56,8 +56,8 @@ export default function SleekHero({ hero, t }: HeroProps) {
           )}
           {(() => {
             const link = hero?.ctaSecondaryLink || '/locations';
-            if (link === '/locations' && (settings.navShowLocations === false || settings.navShowLocations === 'false')) return null;
-            if (link === '/reservations' && (settings.navShowReservations === false || settings.navShowReservations === 'false')) return null;
+            if (link === '/locations' && !settings.navShowLocations) return null;
+            if (link === '/reservations' && !settings.navShowReservations) return null;
             return (
               <Link
                 to={link}

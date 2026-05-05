@@ -31,13 +31,13 @@ export default function BoldFooter() {
           <div>
             <h3 className="text-white font-black text-lg uppercase tracking-wider mb-5">{t('footer.quickLinks')}</h3>
             <ul className="space-y-3 text-base font-semibold">
-              {settings.navShowMenu !== false && settings.navShowMenu !== 'false' && <li><Link to="/menu" className="hover:text-white transition-colors">{t('nav.menu')}</Link></li>}
-              {settings.navShowLocations !== false && settings.navShowLocations !== 'false' && <li><Link to="/locations" className="hover:text-white transition-colors">{t('nav.locations')}</Link></li>}
-              {settings.navShowReservations !== false && settings.navShowReservations !== 'false' && <li><Link to="/reservations" className="hover:text-white transition-colors">{t('nav.reservations')}</Link></li>}
+              {settings.navShowMenu && <li><Link to="/menu" className="hover:text-white transition-colors">{t('nav.menu')}</Link></li>}
+              {settings.navShowLocations && <li><Link to="/locations" className="hover:text-white transition-colors">{t('nav.locations')}</Link></li>}
+              {settings.navShowReservations && <li><Link to="/reservations" className="hover:text-white transition-colors">{t('nav.reservations')}</Link></li>}
             </ul>
           </div>
 
-          {settings.showMembership !== false && settings.showMembership !== 'false' && (
+          {settings.showMembership && (
             <div>
               <h3 className="text-white font-black text-lg uppercase tracking-wider mb-5">{t('footer.account')}</h3>
               <ul className="space-y-3 text-base font-semibold">
