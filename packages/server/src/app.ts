@@ -40,8 +40,15 @@ export function createApp() {
   // Middleware
   app.use(requestId);
   app.use(helmet());
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
   app.use(cors({
-    origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      if (!origin || corsOrigins.includes('*') || corsOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   }));

@@ -78,7 +78,7 @@ export default function KitchenDisplay() {
       transports: ['polling', 'websocket'],
       reconnectionAttempts: 5,
       timeout: 10000,
-      withCredentials: true
+      withCredentials: false
     });
     
     setSocket(s);

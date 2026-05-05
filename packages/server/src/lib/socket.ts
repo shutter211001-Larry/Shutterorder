@@ -9,13 +9,21 @@ const expo = new Expo();
 let io: Server | null = null;
 
 export function initSocket(httpServer: HttpServer): Server {
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(s => s.trim()) || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+  
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+      origin: (origin, callback) => {
+        if (!origin || corsOrigins.includes('*') || corsOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(null, false); // Explicitly reject but don't throw error
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true,
     },
-    allowEIO3: true // Support older clients if any
+    allowEIO3: true
   });
 
   io.on('connection', (socket: Socket) => {
