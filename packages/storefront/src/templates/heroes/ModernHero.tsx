@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext.js';
 
 interface HeroProps {
   hero: { title?: string; subtitle?: string; ctaPrimaryText?: string; ctaPrimaryLink?: string; ctaSecondaryText?: string; ctaSecondaryLink?: string; backgroundImage?: string } | null;
@@ -6,9 +7,11 @@ interface HeroProps {
 }
 
 export default function ModernHero({ hero, t }: HeroProps) {
+  const { settings } = useTheme();
+
   return (
     <section className="relative bg-gray-50 dark:bg-gray-950 overflow-hidden min-h-[70vh] flex items-center">
-      {/* Gradient blobs */}
+      {/* ... (blobs and shapes) */}
       <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-3xl" />
       <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-purple-400/20 dark:bg-purple-600/10 blur-3xl" />
 
@@ -30,18 +33,27 @@ export default function ModernHero({ hero, t }: HeroProps) {
             </h1>
 
             <div className="flex flex-wrap gap-4">
-              <Link
-                to={hero?.ctaPrimaryLink || '/menu'}
-                className="bg-primary-600 text-white px-8 py-3.5 rounded-2xl font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25"
-              >
-                {hero?.ctaPrimaryText || t('home.viewMenu')}
-              </Link>
-              <Link
-                to={hero?.ctaSecondaryLink || '/locations'}
-                className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-8 py-3.5 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-md border border-gray-200 dark:border-gray-700"
-              >
-                {hero?.ctaSecondaryText || t('home.findLocation')}
-              </Link>
+              {settings.navShowMenu !== false && (
+                <Link
+                  to={hero?.ctaPrimaryLink || '/menu'}
+                  className="bg-primary-600 text-white px-8 py-3.5 rounded-2xl font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25"
+                >
+                  {hero?.ctaPrimaryText || t('home.viewMenu')}
+                </Link>
+              )}
+              {(() => {
+                const link = hero?.ctaSecondaryLink || '/locations';
+                if (link === '/locations' && settings.navShowLocations === false) return null;
+                if (link === '/reservations' && settings.navShowReservations === false) return null;
+                return (
+                  <Link
+                    to={link}
+                    className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-8 py-3.5 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-md border border-gray-200 dark:border-gray-700"
+                  >
+                    {hero?.ctaSecondaryText || t('home.findLocation')}
+                  </Link>
+                );
+              })()}
             </div>
           </div>
 
