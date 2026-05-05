@@ -10,7 +10,7 @@ let io: Server | null = null;
 
 export function initSocket(httpServer: HttpServer): Server {
   const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(s => s.trim()) || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
-  
+
   io = new Server(httpServer, {
     cors: {
       origin: (origin, callback) => {
@@ -68,7 +68,7 @@ export function emitOrderStatusUpdate(order: {
 
   // Send push notification to the customer
   if (order.customerId) {
-    sendPushNotification(order.customerId, order.orderNumber, order.status).catch(() => {});
+    sendPushNotification(order.customerId, order.orderNumber, order.status).catch(() => { });
   }
 }
 
