@@ -151,7 +151,14 @@ export default function MenuItemForm() {
 
   const autoSlug = (name: string) => {
     if (!isEdit) {
-      updateField('slug', name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
+      const slug = name.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      
+      // If slug becomes empty (e.g. all Chinese), don't auto-fill it to avoid dash-only slugs
+      if (slug) {
+        updateField('slug', slug);
+      }
     }
   };
 
@@ -253,7 +260,7 @@ export default function MenuItemForm() {
       }
       navigate('/menu/items');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.data || err.message);
       setSaving(false);
     }
   };
@@ -272,7 +279,9 @@ export default function MenuItemForm() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          {typeof error === 'string' ? error : (Array.isArray(error) ? (error as any).map((err: any, i: number) => <div key={i}>{err.message || JSON.stringify(err)}</div>) : JSON.stringify(error))}
+        </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">

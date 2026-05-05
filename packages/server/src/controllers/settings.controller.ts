@@ -56,6 +56,19 @@ function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSetting
     heroSection: settings.heroSection,
     featuresSection: settings.featuresSection,
     ctaSection: settings.ctaSection,
+    orderSettings: settings.orderSettings ? {
+      enabled: (settings.orderSettings as any).enabled,
+      deliveryEnabled: (settings.orderSettings as any).deliveryEnabled,
+      pickupEnabled: (settings.orderSettings as any).pickupEnabled,
+    } : undefined,
+    paymentSettings: settings.paymentSettings ? {
+      cashEnabled: (settings.paymentSettings as any).cashEnabled,
+      stripeEnabled: (settings.paymentSettings as any).stripeEnabled,
+      paypalEnabled: (settings.paymentSettings as any).paypalEnabled,
+    } : undefined,
+    reservationSettings: settings.reservationSettings ? {
+      enabled: (settings.reservationSettings as any).enabled,
+    } : undefined,
     createdAt: settings.createdAt,
     updatedAt: settings.updatedAt,
   };
@@ -181,6 +194,8 @@ const generalSettingsSchema = z.object({
 
 const orderSettingsSchema = z.object({
   enabled: z.boolean().optional(),
+  deliveryEnabled: z.boolean().optional(),
+  pickupEnabled: z.boolean().optional(),
   minOrderDelivery: z.number().min(0).optional(),
   minOrderPickup: z.number().min(0).optional(),
   deliveryLeadTime: z.number().min(0).optional(),

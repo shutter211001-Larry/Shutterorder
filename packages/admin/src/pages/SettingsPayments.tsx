@@ -77,17 +77,17 @@ export default function SettingsPayments() {
     }
   }
 
-  if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
+  if (loading) return <div className="p-6 text-gray-500">載入中...</div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; Back to Settings</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">Payment Gateways</h1>
+          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; 返回設定</Link>
+          <h1 className="text-2xl font-bold text-gray-900 mt-1">支付方式設定</h1>
         </div>
         <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50">
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? '儲存中...' : '儲存變更'}
         </button>
       </div>
 
@@ -97,23 +97,23 @@ export default function SettingsPayments() {
       {/* Stripe */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Stripe</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Stripe (信用卡)</h2>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={stripeEnabled} onChange={(e) => setStripeEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-            <span className="text-sm text-gray-700">Enabled</span>
+            <span className="text-sm text-gray-700">啟用</span>
           </label>
         </div>
-        <div className="space-y-4">
+        <div className={`space-y-4 ${!stripeEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Publishable Key</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">可發佈金鑰 (Publishable Key)</label>
             <input type="text" value={stripePublishableKey} onChange={(e) => setStripePublishableKey(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="pk_..." />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Secret Key</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">秘密金鑰 (Secret Key)</label>
             <input type="password" value={stripeSecretKey} onChange={(e) => setStripeSecretKey(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="sk_..." />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Webhook Secret</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Webhook 秘密金鑰</label>
             <input type="password" value={stripeWebhookSecret} onChange={(e) => setStripeWebhookSecret(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="whsec_..." />
           </div>
         </div>
@@ -125,21 +125,21 @@ export default function SettingsPayments() {
           <h2 className="text-lg font-semibold text-gray-900">PayPal</h2>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={paypalEnabled} onChange={(e) => setPaypalEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-            <span className="text-sm text-gray-700">Enabled</span>
+            <span className="text-sm text-gray-700">啟用</span>
           </label>
         </div>
-        <div className="space-y-4">
+        <div className={`space-y-4 ${!paypalEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">客戶 ID (Client ID)</label>
             <input type="text" value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">客戶秘密金鑰 (Client Secret)</label>
             <input type="password" value={paypalClientSecret} onChange={(e) => setPaypalClientSecret(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
           </div>
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={paypalSandbox} onChange={(e) => setPaypalSandbox(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-            <span className="text-sm font-medium text-gray-700">Sandbox mode</span>
+            <span className="text-sm font-medium text-gray-700">沙盒測試模式 (Sandbox mode)</span>
           </label>
         </div>
       </div>
@@ -147,10 +147,10 @@ export default function SettingsPayments() {
       {/* Cash */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Cash on Delivery</h2>
+          <h2 className="text-lg font-semibold text-gray-900">貨到付款 / 店內付現</h2>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={cashEnabled} onChange={(e) => setCashEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-            <span className="text-sm text-gray-700">Enabled</span>
+            <span className="text-sm text-gray-700">啟用</span>
           </label>
         </div>
       </div>

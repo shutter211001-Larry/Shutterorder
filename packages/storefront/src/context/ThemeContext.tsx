@@ -37,6 +37,19 @@ export interface SiteSettings {
   heroSection: HeroSection | null;
   featuresSection: FeatureItem[] | null;
   ctaSection: CtaSection | null;
+  orderSettings?: {
+    enabled?: boolean;
+    deliveryEnabled?: boolean;
+    pickupEnabled?: boolean;
+  };
+  paymentSettings?: {
+    cashEnabled?: boolean;
+    stripeEnabled?: boolean;
+    paypalEnabled?: boolean;
+  };
+  reservationSettings?: {
+    enabled?: boolean;
+  };
 }
 
 interface ThemeContextType {
