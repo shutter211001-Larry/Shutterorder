@@ -75,9 +75,10 @@ export default function KitchenDisplay() {
     
     const s = io(socketUrl, { 
       path: '/socket.io', 
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
       reconnectionAttempts: 5,
-      timeout: 10000
+      timeout: 10000,
+      withCredentials: true
     });
     
     setSocket(s);
