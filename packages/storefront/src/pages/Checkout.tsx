@@ -198,7 +198,7 @@ export default function Checkout() {
         total: data.data.total,
         orderType: data.data.orderType,
       });
-      navigate(`/order/${data.data.id}`, { state: { order: data.data } });
+      navigate(`/orders/${data.data.id}`, { state: { order: data.data } });
     } catch (err: any) {
       setError(err.message || t('common.error'));
     } finally {
