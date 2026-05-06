@@ -73,7 +73,6 @@ async function getMailConfig(): Promise<{ transporter: Transporter; from: string
   return { transporter, from };
 }
 
-/** Invalidate the cached transporter (e.g. after settings update). */
 export function invalidateMailCache(): void {
   cachedTransporter = null;
   cacheExpiry = 0;
@@ -86,71 +85,119 @@ interface EmailOptions {
   text?: string;
 }
 
+/**
+ * Sends an email using the configured service (Gmail API, Mailgun, or SMTP).
+ * Optimized to be truly non-blocking.
+ */
 export async function sendEmail(options: EmailOptions): Promise<void> {
   if (process.env.NODE_ENV === 'test') return;
 
-  try {
-    const serviceType = process.env.MAIL_SERVICE_TYPE || 'SMTP';
+  // Run in a self-contained async block to avoid blocking the caller's thread
+  (async () => {
+    try {
+      const serviceType = process.env.MAIL_SERVICE_TYPE || 'GMAIL_API';
 
-    if (serviceType === 'GMAIL_API' && process.env.GOOGLE_CLIENT_ID) {
-      // Get Access Token
-      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          client_id: process.env.GOOGLE_CLIENT_ID!,
-          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-          refresh_token: process.env.GOOGLE_REFRESH_TOKEN!,
-          grant_type: 'refresh_token',
-        } as any),
-      });
-      const tokenData = await tokenRes.json();
-      const accessToken = tokenData.access_token;
-
-      // Construct MIME Message
-      const message = [
-        `To: ${options.to}`,
-        `Subject: ${options.subject}`,
-        'Content-Type: text/html; charset=utf-8',
-        '',
-        options.html,
-      ].join('\r\n');
-
-      const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-      // Send via API
-      const user = process.env.SMTP_USER || 'me';
-      const apiRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/${user}/messages/send`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ raw: encodedMessage }),
-      });
-
-      if (!apiRes.ok) {
-        const errData = await apiRes.json();
-        throw new Error(errData.error?.message || 'Gmail API error');
+      if (serviceType === 'MAILGUN' && process.env.MAILGUN_API_KEY) {
+        await sendMailgunEmail(options);
+      } else if (serviceType === 'GMAIL_API' && process.env.GOOGLE_CLIENT_ID) {
+        await sendGmailApiEmail(options);
+      } else {
+        // Fallback to traditional SMTP
+        const { transporter, from } = await getMailConfig();
+        await transporter.sendMail({
+          from,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+          text: options.text,
+        });
       }
-      return;
+    } catch (err) {
+      emailLogger.error({ err, options }, 'Background email sending failed');
     }
+  })();
+}
 
-    // Fallback to SMTP
-    const { transporter, from } = await getMailConfig();
-    await transporter.sendMail({
-      from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-    });
-  } catch (err) {
-    emailLogger.error({ err }, 'Failed to send email');
+async function sendMailgunEmail(options: EmailOptions) {
+  const domain = process.env.MAILGUN_DOMAIN;
+  const apiKey = process.env.MAILGUN_API_KEY;
+  if (!domain || !apiKey) throw new Error('Mailgun config missing');
+
+  const auth = Buffer.from(`api:${apiKey}`).toString('base64');
+  const body = new URLSearchParams({
+    from: process.env.EMAIL_FROM || `KitchenAsty <noreply@${domain}>`,
+    to: options.to,
+    subject: options.subject,
+    html: options.html,
+  });
+
+  const res = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body,
+  });
+
+  if (!res.ok) {
+    const errData = await res.json();
+    throw new Error(`Mailgun error: ${errData.message || res.statusText}`);
+  }
+}
+
+async function sendGmailApiEmail(options: EmailOptions) {
+  // Get Access Token
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID!,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN!,
+      grant_type: 'refresh_token',
+    }),
+  });
+  
+  const tokenData = await tokenRes.json();
+  if (!tokenRes.ok) throw new Error(`Gmail OAuth error: ${tokenData.error_description || 'Unknown'}`);
+  
+  const accessToken = tokenData.access_token;
+
+  // Construct MIME Message
+  const from = process.env.EMAIL_FROM || 'KitchenAsty <noreply@kitchenasty.com>';
+  const message = [
+    `From: ${from}`,
+    `To: ${options.to}`,
+    `Subject: ${options.subject}`,
+    'Content-Type: text/html; charset=utf-8',
+    '',
+    options.html,
+  ].join('\r\n');
+
+  const encodedMessage = Buffer.from(message)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  const user = process.env.SMTP_USER || 'me';
+  const apiRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/${user}/messages/send`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ raw: encodedMessage }),
+  });
+
+  if (!apiRes.ok) {
+    const errData = await apiRes.json();
+    throw new Error(errData.error?.message || 'Gmail API error');
   }
 }
 
 // Email Templates
-
 export function orderConfirmationEmail(order: {
   orderNumber: string;
   orderType: string;

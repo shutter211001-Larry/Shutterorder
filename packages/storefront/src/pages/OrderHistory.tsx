@@ -46,6 +46,42 @@ export default function OrderHistory() {
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
 
+  // Lookup state
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupNumber, setLookupNumber] = useState('');
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState('');
+  const { addOrder } = useRecentOrders();
+
+  async function handleLookup(e: React.FormEvent) {
+    e.preventDefault();
+    setLookupLoading(true);
+    setLookupError('');
+    try {
+      const num = lookupNumber.startsWith('#') ? lookupNumber : `#${lookupNumber}`;
+      const res = await fetch(`/api/orders/lookup?email=${encodeURIComponent(lookupEmail)}&orderNumber=${encodeURIComponent(num)}`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        // Add to local history
+        addOrder({
+          id: data.data.id,
+          orderNumber: data.data.orderNumber,
+          date: data.data.createdAt,
+          total: data.data.total,
+          orderType: data.data.orderType
+        });
+        // Redirect
+        window.location.href = `/orders/${data.data.id}`;
+      } else {
+        setLookupError(t('orders.lookupError'));
+      }
+    } catch (err) {
+      setLookupError(t('orders.lookupServerError'));
+    } finally {
+      setLookupLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (!token) {
       setLoading(false);
@@ -56,7 +92,7 @@ export default function OrderHistory() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to load orders');
+        if (!res.ok) throw new Error(t('orders.errorLoading'));
         return res.json();
       })
       .then((data) => {
@@ -65,7 +101,7 @@ export default function OrderHistory() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [token, page]);
+  }, [token, page, t]);
 
   if (authLoading) {
     return (
@@ -82,7 +118,7 @@ export default function OrderHistory() {
     total: ro.total || 0,
     orderType: ro.orderType || 'PICKUP',
     createdAt: ro.date,
-    location: { name: '最近的訂單' },
+    location: { name: t('orders.recentGuestOrders') },
     _count: { items: 0 }
   }));
 
@@ -91,11 +127,11 @@ export default function OrderHistory() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {user ? t('orders.title') : '最近的訂單 (訪客)'}
+            {user ? t('orders.title') : t('orders.recentGuestOrders')}
           </h1>
           {!user && (
             <p className="text-sm text-gray-500 mt-1">
-              這些是存放在此瀏覽器中的訂單紀錄。
+              {t('orders.recentGuestOrdersDesc')}
             </p>
           )}
         </div>
@@ -106,7 +142,7 @@ export default function OrderHistory() {
         )}
         {!user && (
           <Link to="/login" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-            登入以查看完整紀錄
+            {t('orders.loginToViewFull')}
           </Link>
         )}
       </div>
@@ -122,18 +158,50 @@ export default function OrderHistory() {
       )}
 
       {!loading && !error && displayOrders.length === 0 && (
-        <div className="text-center py-16">
-          <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-12 bg-white rounded-xl border border-gray-200 shadow-sm mb-8">
+          <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           <p className="text-gray-500 mb-4">{t('orders.noOrders')}</p>
           {settings.navShowMenu && (
-            <Link to="/menu" className="bg-primary-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors">
+            <Link to="/menu" className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors">
               {t('checkout.browseMenu')}
             </Link>
           )}
         </div>
       )}
+
+      {/* Find Order Form */}
+      <div className="bg-primary-50 rounded-xl border border-primary-100 p-6 mb-8">
+        <h2 className="text-lg font-bold text-primary-900 mb-2">{t('orders.findOrderTitle')}</h2>
+        <p className="text-sm text-primary-700 mb-4">{t('orders.findOrderDesc')}</p>
+        <form onSubmit={handleLookup} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <input
+            type="email"
+            placeholder={t('orders.lookupEmail')}
+            required
+            value={lookupEmail}
+            onChange={(e) => setLookupEmail(e.target.value)}
+            className="px-4 py-2 border border-primary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+          />
+          <input
+            type="text"
+            placeholder={t('orders.lookupNumber')}
+            required
+            value={lookupNumber}
+            onChange={(e) => setLookupNumber(e.target.value)}
+            className="px-4 py-2 border border-primary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+          />
+          <button
+            type="submit"
+            disabled={lookupLoading}
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-primary-700 transition-colors disabled:opacity-50"
+          >
+            {lookupLoading ? t('orders.lookupSearching') : t('orders.lookupSubmit')}
+          </button>
+        </form>
+        {lookupError && <p className="text-xs text-red-600 mt-2">{lookupError}</p>}
+      </div>
 
       {!loading && displayOrders.length > 0 && (
         <>
