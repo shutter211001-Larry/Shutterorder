@@ -222,20 +222,26 @@ export function staffInvitationEmail(invite: {
   role: string;
   inviteLink: string;
 }): { subject: string; html: string } {
+  const roleLabels: Record<string, string> = {
+    SUPER_ADMIN: '超級管理員',
+    MANAGER: '店經理',
+    STAFF: '店員',
+  };
+
   return {
-    subject: 'You\'re Invited to Join KitchenAsty',
+    subject: '邀請您加入 KitchenAsty 團隊',
     html: `
       <div style="max-width:600px;margin:0 auto;font-family:sans-serif">
         <div style="background:#f97316;color:white;padding:20px;text-align:center;border-radius:8px 8px 0 0">
           <h1 style="margin:0;font-size:24px">KitchenAsty</h1>
         </div>
         <div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px">
-          <h2 style="margin:0 0 8px">You're Invited!</h2>
-          <p style="color:#6b7280;margin:0 0 16px">You've been invited to join the KitchenAsty team as <strong>${invite.role.replace(/_/g, ' ')}</strong>.</p>
+          <h2 style="margin:0 0 8px">您收到了邀請！</h2>
+          <p style="color:#6b7280;margin:0 0 16px">您已被邀請加入 KitchenAsty 團隊，職位為：<strong>${roleLabels[invite.role] || invite.role}</strong>。</p>
           <div style="text-align:center;margin:24px 0">
-            <a href="${invite.inviteLink}" style="display:inline-block;background:#f97316;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">Accept Invitation</a>
+            <a href="${invite.inviteLink}" style="display:inline-block;background:#f97316;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px">接受邀請</a>
           </div>
-          <p style="color:#6b7280;font-size:14px">This invitation expires in 7 days. If you didn't expect this invitation, you can safely ignore this email.</p>
+          <p style="color:#6b7280;font-size:14px">此邀請連結將在 7 天後過期。如果您沒有預期收到此邀請，請直接忽略此郵件。</p>
         </div>
       </div>
     `,
