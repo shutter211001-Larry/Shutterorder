@@ -38,11 +38,14 @@ function getStepIndex(steps: { key: string; label: string }[], status: string): 
   return steps.findIndex((s) => s.key === status);
 }
 
+import { useRecentOrders } from '../hooks/useRecentOrders.js';
+
 export default function OrderStatus() {
   const { t } = useTranslation();
   const { id } = useParams();
   const { token } = useAuth();
   const { settings } = useTheme();
+  const { addOrder } = useRecentOrders();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,7 +76,16 @@ export default function OrderStatus() {
         if (!res.ok) throw new Error('Failed to load order');
         return res.json();
       })
-      .then((data) => setOrder(data.data))
+      .then((data) => {
+        setOrder(data.data);
+        if (data.data) {
+          addOrder({
+            id: data.data.id,
+            orderNumber: data.data.orderNumber,
+            date: data.data.createdAt
+          });
+        }
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id, token]);
