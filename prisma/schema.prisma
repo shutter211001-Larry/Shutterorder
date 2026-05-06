@@ -288,6 +288,7 @@ model MenuOptionValue {
 model Mealtime {
   id         String   @id @default(cuid())
   name       String
+  nameTranslations Json?
   startTime  String   // "06:00"
   endTime    String   // "11:00"
   days       Int[]    // [0,1,2,3,4,5,6] days of week
@@ -315,6 +316,7 @@ model MenuItemMealtime {
 model Allergen {
   id   String @id @default(cuid())
   name String @unique
+  nameTranslations Json?
 
   menuItems MenuItemAllergen[]
 
