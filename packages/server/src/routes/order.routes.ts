@@ -14,11 +14,11 @@ router.get('/my-orders', authenticate, listCustomerOrders);
 
 // Staff: list and manage orders
 router.get('/', authenticate, requireStaff, listOrders);
-router.get('/export', authenticate, requireRole(['SUPER_ADMIN', 'MANAGER']), exportOrders);
-router.get('/template', authenticate, requireRole(['SUPER_ADMIN', 'MANAGER']), downloadOrderTemplate);
-router.post('/import', authenticate, requireRole(['SUPER_ADMIN', 'MANAGER']), upload.single('file'), importOrders);
+router.get('/export', authenticate, requireRole('SUPER_ADMIN', 'MANAGER'), exportOrders);
+router.get('/template', authenticate, requireRole('SUPER_ADMIN', 'MANAGER'), downloadOrderTemplate);
+router.post('/import', authenticate, requireRole('SUPER_ADMIN', 'MANAGER'), upload.single('file'), importOrders);
 router.get('/:id', authenticate, getOrder);
 router.patch('/:id/status', authenticate, requireStaff, updateOrderStatus);
-router.delete('/:id', authenticate, requireRole(['SUPER_ADMIN', 'MANAGER']), deleteOrder);
+router.delete('/:id', authenticate, requireRole('SUPER_ADMIN', 'MANAGER'), deleteOrder);
 
 export default router;
