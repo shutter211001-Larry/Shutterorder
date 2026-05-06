@@ -71,13 +71,13 @@ const emptyItem: MenuItemData = {
 };
 
 const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'ja', label: 'Japanese' },
-  { code: 'ko', label: 'Korean' },
-  { code: 'th', label: 'Thai' },
-  { code: 'tl', label: 'Filipino' },
-  { code: 'vi', label: 'Vietnamese' },
-  { code: 'id', label: 'Indonesian' },
+  { code: 'en', label: '英文 (English)' },
+  { code: 'ja', label: '日文 (Japanese)' },
+  { code: 'ko', label: '韓文 (Korean)' },
+  { code: 'th', label: '泰文 (Thai)' },
+  { code: 'tl', label: '菲律賓文 (Filipino)' },
+  { code: 'vi', label: '越南文 (Vietnamese)' },
+  { code: 'id', label: '印尼文 (Indonesian)' },
 ];
 
 const emptyOptionValue: OptionValue = { name: '', priceModifier: 0, isDefault: false, sortOrder: 0 };
@@ -291,7 +291,7 @@ export default function MenuItemForm() {
     }
   };
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
+  if (loading) return <p className="text-gray-500">載入中...</p>;
 
   return (
     <div>
@@ -300,7 +300,7 @@ export default function MenuItemForm() {
           {isEdit ? '編輯產品' : '新增產品'}
         </h2>
         <button onClick={() => navigate('/menu/items')} className="text-gray-500 hover:text-gray-700 text-sm">
-          Back to Menu Items
+          返回產品列表
         </button>
       </div>
 
@@ -489,7 +489,7 @@ export default function MenuItemForm() {
         {/* Image Upload */}
         {isEdit && (
           <section className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Image</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">產品圖片 (Image)</h3>
             <div className="flex items-start gap-6">
               {imageUrl ? (
                 <div className="relative">
@@ -503,19 +503,19 @@ export default function MenuItemForm() {
                     onClick={handleImageRemove}
                     disabled={uploading}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 disabled:opacity-50"
-                    aria-label="Remove image"
+                    aria-label="移除圖片"
                   >
                     X
                   </button>
                 </div>
               ) : (
                 <div className="w-40 h-40 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                  <span className="text-sm text-gray-400">No image</span>
+                  <span className="text-sm text-gray-400">尚未上傳圖片</span>
                 </div>
               )}
               <div>
                 <label className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 cursor-pointer disabled:opacity-50 transition-colors">
-                  {uploading ? 'Uploading...' : 'Upload Image'}
+                  {uploading ? '上傳中...' : '上傳圖片'}
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
@@ -524,7 +524,7 @@ export default function MenuItemForm() {
                     className="hidden"
                   />
                 </label>
-                <p className="text-xs text-gray-400 mt-2">JPEG, PNG, WebP, or GIF. Max 5MB.</p>
+                <p className="text-xs text-gray-400 mt-2">支援格式：JPEG, PNG, WebP, GIF。檔案大小上限 5MB。</p>
               </div>
             </div>
           </section>
@@ -738,10 +738,10 @@ export default function MenuItemForm() {
         {/* Submit */}
         <div className="flex justify-end gap-3">
           <button type="button" onClick={() => navigate('/menu/items')} className="px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-            Cancel
+            取消
           </button>
           <button type="submit" disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors">
-            {saving ? 'Saving...' : isEdit ? 'Update Item' : 'Create Item'}
+            {saving ? '儲存中...' : isEdit ? '更新產品資料' : '建立新產品'}
           </button>
         </div>
       </form>

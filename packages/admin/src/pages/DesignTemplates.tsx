@@ -7,16 +7,16 @@ interface TemplateDef {
 }
 
 const templates: TemplateDef[] = [
-  { id: 'classic', name: 'Classic', description: 'Clean gradient hero, 3-column features, simple CTA' },
-  { id: 'elegant', name: 'Elegant', description: 'Centered header, full-image hero with overlay, icon-card features' },
-  { id: 'bold', name: 'Bold', description: 'Large bold typography, split hero, horizontal feature strip' },
-  { id: 'minimal', name: 'Minimal', description: 'Ultra-clean, text-only hero, simple list features' },
-  { id: 'cozy', name: 'Cozy', description: 'Rounded warm feel, card-based hero, rounded feature cards' },
-  { id: 'modern', name: 'Modern', description: 'Glass header, asymmetric hero, grid features, geometric CTA' },
-  { id: 'rustic', name: 'Rustic', description: 'Earthy warm header, textured hero, earthy feature cards' },
-  { id: 'vibrant', name: 'Vibrant', description: 'Gradient header, animated gradient hero, colorful feature cards' },
-  { id: 'sleek', name: 'Sleek', description: 'Dark header, dark hero with glow effects, dark feature cards' },
-  { id: 'retro', name: 'Retro', description: 'Vintage-style header, retro hero with badges, nostalgic CTA' },
+  { id: 'classic', name: '經典 (Classic)', description: '簡潔的漸層主視覺、三欄式特色介紹、簡單明瞭的行動呼籲。' },
+  { id: 'elegant', name: '優雅 (Elegant)', description: '置中頁首、帶有遮罩的全螢幕主圖、圖示卡片式特色介紹。' },
+  { id: 'bold', name: '粗獷 (Bold)', description: '大型粗體排版、分割式主視覺、橫向特色條。' },
+  { id: 'minimal', name: '極簡 (Minimal)', description: '超淨感設計、純文字主視覺、簡約列表式特色。' },
+  { id: 'cozy', name: '溫馨 (Cozy)', description: '圓潤溫暖感、卡片式主視覺、圓角特色卡片。' },
+  { id: 'modern', name: '現代 (Modern)', description: '磨砂玻璃頁首、不對稱主視覺、網格特色、幾何圖形行動呼籲。' },
+  { id: 'rustic', name: '鄉村 (Rustic)', description: '大地色系溫暖頁首、質感紋理主視覺、大地色特色卡片。' },
+  { id: 'vibrant', name: '活力 (Vibrant)', description: '漸層頁首、動態漸層主視覺、色彩鮮豔的特色卡片。' },
+  { id: 'sleek', name: '俐落 (Sleek)', description: '深色頁首、帶有光暈效果的深色主視覺、深色特色卡片。' },
+  { id: 'retro', name: '復古 (Retro)', description: '復古風頁首、帶有徽章的復古主視覺、懷舊風行動呼籲。' },
 ];
 
 /* ── Miniature CSS previews ─────────────────────────────────── */
@@ -327,26 +327,26 @@ export default function DesignTemplates() {
       const data = await res.json();
       if (data.success) {
         setCurrent(id);
-        setSuccess(`Template "${templates.find((t) => t.id === id)?.name}" applied successfully`);
+        setSuccess(`模板 "${templates.find((t) => t.id === id)?.name}" 已成功套用`);
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(typeof data.error === 'string' ? data.error : 'Failed to apply template');
+        setError(typeof data.error === 'string' ? data.error : '無法套用模板');
       }
     } catch {
-      setError('Network error');
+      setError('網路連線錯誤');
     } finally {
       setSaving(null);
     }
   }
 
-  if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
+  if (loading) return <div className="p-6 text-gray-500">載入中...</div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Templates</h1>
-          <p className="text-sm text-gray-500 mt-1">Choose a storefront layout template. This changes the header, hero, features, CTA, and footer style.</p>
+          <h1 className="text-2xl font-bold text-gray-900">模板設定 (Templates)</h1>
+          <p className="text-sm text-gray-500 mt-1">選擇前台商店的版面佈局模板。這將改變頁首、主視覺、特色介紹、行動呼籲以及頁尾的風格。</p>
         </div>
       </div>
 
@@ -391,7 +391,7 @@ export default function DesignTemplates() {
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="text-sm font-semibold text-gray-900">{tpl.name}</h3>
                   {isActive && (
-                    <span className="text-[10px] font-medium text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded-full">Active</span>
+                    <span className="text-[10px] font-medium text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded-full">使用中</span>
                   )}
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed mb-3">{tpl.description}</p>
@@ -404,7 +404,7 @@ export default function DesignTemplates() {
                       : 'bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50'
                   }`}
                 >
-                  {isSaving ? 'Applying...' : isActive ? 'Current Template' : 'Apply Template'}
+                  {isSaving ? '套用中...' : isActive ? '目前模板' : '套用此模板'}
                 </button>
               </div>
             </div>

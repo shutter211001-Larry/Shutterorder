@@ -44,7 +44,7 @@ export default function DeliveryZoneList() {
         try {
           boundaries = JSON.parse(boundariesJson);
         } catch {
-          setError('Invalid JSON for boundaries');
+          setError('邊界數據格式錯誤 (請確保為有效的 JSON)');
           setSaving(false);
           return;
         }
@@ -84,7 +84,7 @@ export default function DeliveryZoneList() {
   };
 
   const deleteZone = async (id: string) => {
-    if (!confirm('Delete this delivery zone?')) return;
+    if (!confirm('確定要刪除此外送區域嗎？')) return;
     try {
       await api.delete(`/locations/${locationId}/delivery-zones/${id}`);
       setZones((prev) => prev.filter((z) => z.id !== id));
@@ -96,12 +96,12 @@ export default function DeliveryZoneList() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Delivery Zones</h1>
+        <h1 className="text-2xl font-bold text-gray-900">外送區域管理 (Delivery Zones)</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
         >
-          {showForm ? 'Cancel' : 'Add Zone'}
+          {showForm ? '取消' : '+ 新增區域'}
         </button>
       </div>
 
@@ -111,18 +111,18 @@ export default function DeliveryZoneList() {
         <form onSubmit={handleCreate} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Zone Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">區域名稱 (Zone Name)</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none"
-                placeholder="e.g., Downtown"
+                placeholder="例如：市中心"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Charge ($)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">外送費 ($)</label>
               <input
                 type="number"
                 step="0.01"
@@ -133,7 +133,7 @@ export default function DeliveryZoneList() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Min Order ($)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">起送金額 ($)</label>
               <input
                 type="number"
                 step="0.01"
@@ -145,13 +145,13 @@ export default function DeliveryZoneList() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Boundaries (JSON polygon)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">邊界設定 (Boundaries JSON polygon)</label>
             <textarea
               value={boundariesJson}
               onChange={(e) => setBoundariesJson(e.target.value)}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none font-mono"
-              placeholder='[[lat, lng], [lat, lng], ...]'
+              placeholder='[[經度, 緯度], [經度, 緯度], ...]'
             />
           </div>
           <button
@@ -159,19 +159,19 @@ export default function DeliveryZoneList() {
             disabled={saving}
             className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50"
           >
-            {saving ? 'Creating...' : 'Create Zone'}
+            {saving ? '儲存中...' : '建立區域'}
           </button>
         </form>
       )}
 
       {loading && (
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="Loading" />
+          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="載入中" />
         </div>
       )}
 
       {!loading && zones.length === 0 && !showForm && (
-        <p className="text-gray-500 text-center py-12">No delivery zones configured.</p>
+        <p className="text-gray-500 text-center py-12">目前尚無外送區域設定。</p>
       )}
 
       {!loading && zones.length > 0 && (
@@ -179,11 +179,11 @@ export default function DeliveryZoneList() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Charge</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Min Order</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">區域名稱</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-600">外送費</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-600">起送金額</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">狀態</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-600">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -196,19 +196,19 @@ export default function DeliveryZoneList() {
                     <button
                       onClick={() => toggleActive(zone)}
                       className={`text-xs px-2 py-0.5 rounded-full font-medium ${zone.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                        }`}
-                      aria-label={`${zone.isActive ? 'Deactivate' : 'Activate'} zone ${zone.name}`}
+                         }`}
+                      aria-label={`${zone.isActive ? '停用' : '啟用'} 區域 ${zone.name}`}
                     >
-                      {zone.isActive ? 'Active' : 'Inactive'}
+                      {zone.isActive ? '啟用中' : '已停用'}
                     </button>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => deleteZone(zone.id)}
                       className="text-red-600 hover:text-red-700 text-xs font-medium"
-                      aria-label={`Delete zone ${zone.name}`}
+                      aria-label={`刪除區域 ${zone.name}`}
                     >
-                      Delete
+                      刪除
                     </button>
                   </td>
                 </tr>

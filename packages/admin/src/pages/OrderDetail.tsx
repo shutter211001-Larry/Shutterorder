@@ -95,7 +95,7 @@ export default function OrderDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="Loading" />
+        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="載入中" />
       </div>
     );
   }
@@ -114,19 +114,27 @@ export default function OrderDetailPage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link to="/orders" className="text-gray-400 hover:text-gray-600" aria-label="Back to orders">
+        <Link to="/orders" className="text-gray-400 hover:text-gray-600" aria-label="返回訂單列表">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('orders.orderDetail')} {order.orderNumber}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">訂單詳情 #{order.orderNumber}</h1>
           <p className="text-sm text-gray-500">
-            {new Date(order.createdAt).toLocaleString()}
+            下單時間：{new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
         <span className={`ml-auto text-sm px-3 py-1 rounded-full font-medium ${STATUS_COLORS[order.status] || 'bg-gray-100'}`}>
-          {order.status.replace(/_/g, ' ')}
+          {order.status === 'PENDING' && '待處理'}
+          {order.status === 'CONFIRMED' && '已確認'}
+          {order.status === 'PREPARING' && '製作中'}
+          {order.status === 'READY' && '可取餐'}
+          {order.status === 'OUT_FOR_DELIVERY' && '外送中'}
+          {order.status === 'DELIVERED' && '已送達'}
+          {order.status === 'PICKED_UP' && '已取餐'}
+          {order.status === 'CANCELLED' && '已取消'}
+          {!['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'PICKED_UP', 'CANCELLED'].includes(order.status) && order.status.replace(/_/g, ' ')}
         </span>
       </div>
 
@@ -150,7 +158,7 @@ export default function OrderDetailPage() {
                       </div>
                     )}
                     {item.comment && (
-                      <div className="text-xs text-gray-400 mt-0.5 italic">Note: {item.comment}</div>
+                      <div className="text-xs text-gray-400 mt-0.5 italic">備註: {item.comment}</div>
                     )}
                   </div>
                   <span className="font-medium text-gray-900">${item.subtotal.toFixed(2)}</span>
@@ -199,7 +207,7 @@ export default function OrderDetailPage() {
         <div className="space-y-6">
           {/* Status update */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Update Status</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">更新訂單狀態</h2>
             <div className="space-y-2">
               {STATUSES.map((status) => (
                 <button
@@ -210,9 +218,17 @@ export default function OrderDetailPage() {
                       ? STATUS_COLORS[status] + ' cursor-default'
                       : 'text-gray-600 hover:bg-gray-100 disabled:opacity-40'
                     }`}
-                  aria-label={`Set status to ${status.replace(/_/g, ' ')}`}
+                  aria-label={`將狀態設為 ${status.replace(/_/g, ' ')}`}
                 >
-                  {status.replace(/_/g, ' ')}
+                  {status === 'PENDING' && '待處理 (Pending)'}
+                  {status === 'CONFIRMED' && '已確認 (Confirmed)'}
+                  {status === 'PREPARING' && '製作中 (Preparing)'}
+                  {status === 'READY' && '可取餐 (Ready)'}
+                  {status === 'OUT_FOR_DELIVERY' && '外送中 (Out for Delivery)'}
+                  {status === 'DELIVERED' && '已送達 (Delivered)'}
+                  {status === 'PICKED_UP' && '已取餐 (Picked Up)'}
+                  {status === 'CANCELLED' && '已取消 (Cancelled)'}
+                  {!['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'PICKED_UP', 'CANCELLED'].includes(status) && status.replace(/_/g, ' ')}
                 </button>
               ))}
             </div>
@@ -259,7 +275,7 @@ export default function OrderDetailPage() {
               </div>
               {order.scheduledAt && (
                 <div>
-                  <dt className="text-gray-500">Scheduled For</dt>
+                  <dt className="text-gray-500">預約取餐/送達時間</dt>
                   <dd className="font-medium text-gray-900">
                     {new Date(order.scheduledAt).toLocaleString()}
                   </dd>
