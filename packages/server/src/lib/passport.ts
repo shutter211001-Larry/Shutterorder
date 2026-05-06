@@ -44,6 +44,12 @@ export function initPassport() {
                 },
               });
             }
+
+            // Always try to link orders with this email that are still marked as guest
+            await prisma.order.updateMany({
+              where: { guestEmail: email, customerId: null },
+              data: { customerId: customer.id },
+            });
             
             done(null, { id: customer.id, email: customer.email, type: 'customer' as const });
           } catch (err) {

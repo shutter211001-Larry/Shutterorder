@@ -7,12 +7,14 @@ import { useTheme } from '../context/ThemeContext.js';
 import LanguageSwitcher from './LanguageSwitcher.js';
 import { headerVariants } from '../templates/headers/index.js';
 import type { TemplateId } from '../templates/index.js';
+import { useRecentOrders } from '../hooks/useRecentOrders.js';
 
 function ClassicHeader() {
   const { t } = useTranslation();
   const { user, logout, isLoading } = useAuth();
   const { itemCount, setIsOpen: openCart } = useCart();
   const { settings } = useTheme();
+  const { recentOrders } = useRecentOrders();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -64,6 +66,20 @@ function ClassicHeader() {
           {/* Desktop auth + cart + language */}
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />
+
+            {!user && recentOrders.length > 0 && (
+              <Link
+                to={`/orders/${recentOrders[0].id}`}
+                className="p-2 text-primary-600 hover:bg-primary-50 rounded-md flex items-center gap-1"
+                title="追蹤最近的訂單"
+              >
+                <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <span className="text-xs font-bold hidden lg:inline">追蹤訂單</span>
+              </Link>
+            )}
+
             <button
               onClick={() => openCart(true)}
               className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
@@ -171,6 +187,20 @@ function ClassicHeader() {
             <div className="px-3 py-2">
               <LanguageSwitcher />
             </div>
+            {!user && recentOrders.length > 0 && (
+              <div className="px-3 py-2 border-t border-gray-100 mt-2">
+                <Link
+                  to={`/orders/${recentOrders[0].id}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-primary-600 font-medium py-2"
+                >
+                  <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  追蹤最近的訂單
+                </Link>
+              </div>
+            )}
             {settings.showMembership && (
               <div className="border-t border-gray-200 pt-3 mt-3">
                 {isLoading ? (

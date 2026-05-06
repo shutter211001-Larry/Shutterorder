@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useTheme } from '../context/ThemeContext.js';
+import { useRecentOrders } from '../hooks/useRecentOrders.js';
 
 type OrderType = 'delivery' | 'pickup';
 type PaymentMethod = 'cash' | 'stripe' | 'paypal';
@@ -17,6 +18,7 @@ export default function Checkout() {
   const { items, subtotal, clear } = useCart();
   const { user, token } = useAuth();
   const { settings } = useTheme();
+  const { addOrder } = useRecentOrders();
   const navigate = useNavigate();
 
   const orderSettings = settings.orderSettings;
@@ -189,6 +191,11 @@ export default function Checkout() {
       if (!res.ok) throw new Error(data.error || 'Failed to place order');
 
       clear();
+      addOrder({
+        id: data.data.id,
+        orderNumber: data.data.orderNumber,
+        date: new Date().toISOString(),
+      });
       navigate(`/order/${data.data.id}`, { state: { order: data.data } });
     } catch (err: any) {
       setError(err.message || t('common.error'));

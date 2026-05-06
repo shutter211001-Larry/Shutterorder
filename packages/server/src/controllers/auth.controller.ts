@@ -127,6 +127,12 @@ export async function customerRegister(req: Request, res: Response): Promise<voi
     select: { id: true, email: true, name: true, phone: true },
   });
 
+  // Link previous guest orders to this new account
+  await prisma.order.updateMany({
+    where: { guestEmail: email, customerId: null },
+    data: { customerId: customer.id },
+  });
+
   const token = generateToken({
     id: customer.id,
     email: customer.email,
