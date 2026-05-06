@@ -28,6 +28,8 @@ const navItems: NavItem[] = [
     children: [
       { path: '/menu/items', label: 'nav.menuItems' },
       { path: '/menu/categories', label: 'nav.categories' },
+      { path: '/menu/allergens', label: 'nav.allergens' },
+      { path: '/menu/mealtimes', label: 'nav.mealtimes' },
     ],
   },
   { path: '/coupons', label: 'nav.coupons', icon: '\uD83C\uDFF7', roles: ['SUPER_ADMIN', 'MANAGER'] },
