@@ -28,7 +28,7 @@ export default function CategoryList() {
   const topLevel = categories.filter((c) => !c.parentId);
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete category "${name}"?`)) return;
+    if (!confirm(`確定要刪除分類 "${name}" 嗎？`)) return;
     try {
       await api.delete(`/menu/categories/${id}`);
       setCategories((prev) => prev.filter((c) => c.id !== id));
@@ -40,23 +40,23 @@ export default function CategoryList() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Categories</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">分類管理 (Categories)</h2>
         <Link
           to="/menu/categories/new"
           className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
         >
-          Add Category
+          + 新增分類
         </Link>
       </div>
 
-      {loading && <p className="text-gray-500">Loading categories...</p>}
-      {error && <p className="text-red-600">Error: {error}</p>}
+      {loading && <p className="text-gray-500">載入分類中...</p>}
+      {error && <p className="text-red-600">錯誤: {error}</p>}
 
       {!loading && !error && topLevel.length === 0 && (
         <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">No categories yet.</p>
+          <p className="text-gray-500 mb-4">目前尚無分類。</p>
           <Link to="/menu/categories/new" className="text-primary-600 hover:text-primary-700 font-medium">
-            Create your first category
+            建立您的第一個分類
           </Link>
         </div>
       )}
@@ -66,12 +66,12 @@ export default function CategoryList() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategories</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名稱 (Name)</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">產品數量</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">子分類</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">狀態 (Status)</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排序</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -92,18 +92,18 @@ export default function CategoryList() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cat.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                      {cat.isActive ? 'Active' : 'Inactive'}
+                      {cat.isActive ? '啟用中' : '已停用'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {cat.sortOrder}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-3">
-                    <Link to={`/menu/categories/${cat.id}`} className="text-primary-600 hover:text-primary-900 font-medium" aria-label={`Edit category ${cat.name}`}>
-                      Edit
+                    <Link to={`/menu/categories/${cat.id}`} className="text-primary-600 hover:text-primary-900 font-medium" aria-label={`編輯分類 ${cat.name}`}>
+                      編輯
                     </Link>
-                    <button onClick={() => handleDelete(cat.id, cat.name)} className="text-red-600 hover:text-red-900 font-medium" aria-label={`Delete category ${cat.name}`}>
-                      Delete
+                    <button onClick={() => handleDelete(cat.id, cat.name)} className="text-red-600 hover:text-red-900 font-medium" aria-label={`刪除分類 ${cat.name}`}>
+                      刪除
                     </button>
                   </td>
                 </tr>

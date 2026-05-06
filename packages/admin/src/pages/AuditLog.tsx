@@ -59,7 +59,7 @@ export default function AuditLog() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Audit Log</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">稽核紀錄 (Audit Log)</h1>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4">
@@ -67,9 +67,9 @@ export default function AuditLog() {
           value={entityFilter}
           onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-          aria-label="Filter by entity"
+          aria-label="依對象篩選"
         >
-          <option value="">All Entities</option>
+          <option value="">所有對象 (All Entities)</option>
           {ENTITIES.map((e) => (
             <option key={e} value={e}>{e}</option>
           ))}
@@ -78,20 +78,25 @@ export default function AuditLog() {
           value={actionFilter}
           onChange={(e) => { setActionFilter(e.target.value); setPage(1); }}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-          aria-label="Filter by action"
+          aria-label="依動作篩選"
         >
-          <option value="">All Actions</option>
+          <option value="">所有動作 (All Actions)</option>
           {ACTIONS.map((a) => (
-            <option key={a} value={a}>{a}</option>
+            <option key={a} value={a}>
+              {a === 'create' && '新增 (Create)'}
+              {a === 'update' && '更新 (Update)'}
+              {a === 'delete' && '刪除 (Delete)'}
+              {!['create', 'update', 'delete'].includes(a) && a}
+            </option>
           ))}
         </select>
         <input
           type="text"
-          placeholder="Search by email or ID..."
+          placeholder="搜尋電子郵件或 ID..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm w-64"
-          aria-label="Search audit logs"
+          aria-label="搜尋稽核紀錄"
         />
       </div>
 
@@ -100,23 +105,23 @@ export default function AuditLog() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
             <tr>
-              <th className="px-6 py-3 text-left">Date</th>
-              <th className="px-6 py-3 text-left">User</th>
-              <th className="px-6 py-3 text-left">Action</th>
-              <th className="px-6 py-3 text-left">Entity</th>
-              <th className="px-6 py-3 text-left">Entity ID</th>
-              <th className="px-6 py-3 text-left">IP</th>
-              <th className="px-6 py-3 text-left">Details</th>
+              <th className="px-6 py-3 text-left">時間</th>
+              <th className="px-6 py-3 text-left">操作者</th>
+              <th className="px-6 py-3 text-left">動作</th>
+              <th className="px-6 py-3 text-left">對象</th>
+              <th className="px-6 py-3 text-left">對象 ID</th>
+              <th className="px-6 py-3 text-left">IP 位址</th>
+              <th className="px-6 py-3 text-left">詳細內容</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">Loading...</td>
+                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">載入中...</td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">No audit log entries.</td>
+                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">尚無任何稽核紀錄。</td>
               </tr>
             ) : (
               logs.map((log) => (
@@ -127,7 +132,10 @@ export default function AuditLog() {
                   <td className="px-6 py-3 text-gray-700">{log.userEmail}</td>
                   <td className="px-6 py-3">
                     <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${ACTION_COLORS[log.action] || 'bg-gray-100 text-gray-700'}`}>
-                      {log.action}
+                      {log.action === 'create' && '新增'}
+                      {log.action === 'update' && '更新'}
+                      {log.action === 'delete' && '刪除'}
+                      {!['create', 'update', 'delete'].includes(log.action) && log.action}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-gray-700">{log.entity}</td>
@@ -153,17 +161,17 @@ export default function AuditLog() {
             disabled={page === 1}
             className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
           >
-            Previous
+            上一頁
           </button>
           <span className="px-3 py-1 text-sm text-gray-600">
-            Page {page} of {totalPages}
+            第 {page} 頁，共 {totalPages} 頁
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
           >
-            Next
+            下一頁
           </button>
         </div>
       )}

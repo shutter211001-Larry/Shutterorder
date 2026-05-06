@@ -25,21 +25,21 @@ export default function LegalPageList() {
       .finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return <div className="p-6 text-gray-500">Loading...</div>;
+  if (loading) return <div className="p-6 text-gray-500">載入中...</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Legal Pages</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">法規頁面管理 (Legal Pages)</h1>
 
       {pages.length === 0 ? (
         <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">
-          <p>No legal pages yet. Create one by editing a slug below.</p>
+          <p>目前尚無法規頁面。您可以點選下方連結來建立。</p>
           <div className="mt-4 flex gap-3 justify-center">
             <Link to="/legal/pages/privacy-policy" className="text-primary-600 hover:underline">
-              Create Privacy Policy
+              建立隱私權政策 (Privacy Policy)
             </Link>
-            <Link to="/legal/pages/impressum" className="text-primary-600 hover:underline">
-              Create Impressum
+            <Link to="/legal/pages/terms-of-service" className="text-primary-600 hover:underline">
+              建立服務條款 (Terms of Service)
             </Link>
           </div>
         </div>
@@ -48,10 +48,10 @@ export default function LegalPageList() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
-                <th className="px-6 py-3 text-left">Title</th>
-                <th className="px-6 py-3 text-left">Slug</th>
-                <th className="px-6 py-3 text-left">Last Updated</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3 text-left">標題 (Title)</th>
+                <th className="px-6 py-3 text-left">網址別名 (Slug)</th>
+                <th className="px-6 py-3 text-left">最後更新</th>
+                <th className="px-6 py-3 text-right">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -67,7 +67,7 @@ export default function LegalPageList() {
                       to={`/legal/pages/${page.slug}`}
                       className="text-primary-600 hover:text-primary-700 font-medium"
                     >
-                      Edit
+                      編輯
                     </Link>
                   </td>
                 </tr>

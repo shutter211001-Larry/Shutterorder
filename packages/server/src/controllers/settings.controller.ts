@@ -401,6 +401,8 @@ export async function sendTestEmail(req: Request, res: Response): Promise<void> 
       secure: encryption === 'ssl',
       auth: user ? { user, pass } : undefined,
       ...(encryption === 'tls' ? { requireTLS: true } : {}),
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,   // 10 seconds
     });
 
     await transporter.sendMail({

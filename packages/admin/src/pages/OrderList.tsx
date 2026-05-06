@@ -81,33 +81,33 @@ export default function OrderList() {
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-          aria-label="Filter by status"
+          aria-label="依狀態篩選"
         >
-          <option value="">All Statuses</option>
-          <option value="PENDING">Pending</option>
-          <option value="CONFIRMED">Confirmed</option>
-          <option value="PREPARING">Preparing</option>
-          <option value="READY">Ready</option>
-          <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
-          <option value="DELIVERED">Delivered</option>
-          <option value="PICKED_UP">Picked Up</option>
-          <option value="CANCELLED">Cancelled</option>
+          <option value="">所有狀態</option>
+          <option value="PENDING">待處理 (Pending)</option>
+          <option value="CONFIRMED">已確認 (Confirmed)</option>
+          <option value="PREPARING">製作中 (Preparing)</option>
+          <option value="READY">可取餐 (Ready)</option>
+          <option value="OUT_FOR_DELIVERY">外送中 (Out for Delivery)</option>
+          <option value="DELIVERED">已送達 (Delivered)</option>
+          <option value="PICKED_UP">已取餐 (Picked Up)</option>
+          <option value="CANCELLED">已取消 (Cancelled)</option>
         </select>
         <select
           value={typeFilter}
           onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-          aria-label="Filter by order type"
+          aria-label="依訂單類型篩選"
         >
-          <option value="">All Types</option>
-          <option value="DELIVERY">Delivery</option>
-          <option value="PICKUP">Pickup</option>
+          <option value="">所有類型</option>
+          <option value="DELIVERY">外送 (Delivery)</option>
+          <option value="PICKUP">自取 (Pickup)</option>
         </select>
       </div>
 
       {loading && (
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="Loading" />
+          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="載入中" />
         </div>
       )}
 
@@ -160,12 +160,20 @@ export default function OrderList() {
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${order.orderType === 'DELIVERY' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
                         }`}>
-                        {order.orderType}
+                        {order.orderType === 'DELIVERY' ? '外送' : '自取'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-700'}`}>
-                        {order.status.replace(/_/g, ' ')}
+                        {order.status === 'PENDING' && '待處理'}
+                        {order.status === 'CONFIRMED' && '已確認'}
+                        {order.status === 'PREPARING' && '製作中'}
+                        {order.status === 'READY' && '可取餐'}
+                        {order.status === 'OUT_FOR_DELIVERY' && '外送中'}
+                        {order.status === 'DELIVERED' && '已送達'}
+                        {order.status === 'PICKED_UP' && '已取餐'}
+                        {order.status === 'CANCELLED' && '已取消'}
+                        {!['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'PICKED_UP', 'CANCELLED'].includes(order.status) && order.status.replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-600">{order._count.items}</td>
@@ -195,17 +203,17 @@ export default function OrderList() {
                 onClick={() => setPage((p) => p - 1)}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
-                Previous
+                上一頁
               </button>
               <span className="text-sm text-gray-600">
-                Page {pagination.page} of {pagination.totalPages}
+                第 {pagination.page} 頁，共 {pagination.totalPages} 頁
               </span>
               <button
                 disabled={page >= pagination.totalPages}
                 onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
-                Next
+                下一頁
               </button>
             </div>
           )}

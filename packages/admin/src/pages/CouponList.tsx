@@ -24,9 +24,9 @@ interface Pagination {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  PERCENTAGE: '% Off',
-  FIXED: '$ Off',
-  FREE_DELIVERY: 'Free Delivery',
+  PERCENTAGE: '% 折扣 (Percentage)',
+  FIXED: '固定金額 (Fixed Amount)',
+  FREE_DELIVERY: '免運費 (Free Delivery)',
 };
 
 export default function CouponList() {
@@ -72,25 +72,25 @@ export default function CouponList() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Coupons</h1>
+        <h1 className="text-2xl font-bold text-gray-900">優惠券管理 (Coupons)</h1>
         <Link
           to="/coupons/new"
           className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
         >
-          + New Coupon
+          + 新增優惠券
         </Link>
       </div>
 
       {loading && (
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="Loading" />
+          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" role="status" aria-label="載入中" />
         </div>
       )}
 
       {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">{error}</div>}
 
       {!loading && !error && coupons.length === 0 && (
-        <p className="text-gray-500 text-center py-12">No coupons yet.</p>
+        <p className="text-gray-500 text-center py-12">目前尚無優惠券。</p>
       )}
 
       {!loading && coupons.length > 0 && (
@@ -99,13 +99,13 @@ export default function CouponList() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Code</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Value</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Min Order</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Usage</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Actions</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">代碼 (Code)</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">類型 (Type)</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">數值 (Value)</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">最低消費</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">使用次數</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">狀態 (Status)</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">操作 (Actions)</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,16 +139,16 @@ export default function CouponList() {
                           }`}
                         aria-label={`${coupon.isActive ? 'Deactivate' : 'Activate'} coupon ${coupon.code}`}
                       >
-                        {coupon.isActive ? 'Active' : 'Inactive'}
+                        {coupon.isActive ? '啟用中' : '已停用'}
                       </button>
                     </td>
                     <td className="px-4 py-3">
                       <Link
                         to={`/coupons/${coupon.id}`}
                         className="text-primary-600 hover:text-primary-700 text-xs font-medium"
-                        aria-label={`Edit coupon ${coupon.code}`}
+                        aria-label={`編輯優惠券 ${coupon.code}`}
                       >
-                        Edit
+                        編輯
                       </Link>
                     </td>
                   </tr>
@@ -164,17 +164,17 @@ export default function CouponList() {
                 onClick={() => setPage((p) => p - 1)}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
-                Previous
+                上一頁
               </button>
               <span className="text-sm text-gray-600">
-                Page {pagination.page} of {pagination.totalPages}
+                第 {pagination.page} 頁，共 {pagination.totalPages} 頁
               </span>
               <button
                 disabled={page >= pagination.totalPages}
                 onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
               >
-                Next
+                下一頁
               </button>
             </div>
           )}

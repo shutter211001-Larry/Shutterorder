@@ -21,7 +21,7 @@ export default function AcceptInvite() {
 
   useEffect(() => {
     if (!tokenParam) {
-      setTokenError('No invite token provided');
+      setTokenError('未提供邀請令牌 (Invite token)');
       setValidating(false);
       return;
     }
@@ -42,7 +42,7 @@ export default function AcceptInvite() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('兩次輸入的密碼不一致');
       return;
     }
 
@@ -83,7 +83,7 @@ export default function AcceptInvite() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl text-red-600">!</span>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Invalid Invitation</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">無效的邀請</h2>
             <p className="text-gray-600">{tokenError}</p>
           </div>
         </div>
@@ -92,9 +92,9 @@ export default function AcceptInvite() {
   }
 
   const ROLE_LABELS: Record<string, string> = {
-    SUPER_ADMIN: 'Super Admin',
-    MANAGER: 'Manager',
-    STAFF: 'Staff',
+    SUPER_ADMIN: '超級管理員 (Super Admin)',
+    MANAGER: '店經理 (Manager)',
+    STAFF: '店員 (Staff)',
   };
 
   return (
@@ -102,13 +102,13 @@ export default function AcceptInvite() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary-400">KitchenAsty</h1>
-          <p className="text-gray-400 mt-1 text-sm">Accept Your Invitation</p>
+          <p className="text-gray-400 mt-1 text-sm">接受加入邀請</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-5">
           <div className="text-center mb-2">
             <p className="text-sm text-gray-600">
-              You've been invited as <strong>{ROLE_LABELS[role] || role}</strong>
+              您被邀請擔任 <strong>{ROLE_LABELS[role] || role}</strong>
             </p>
             <p className="text-xs text-gray-400 mt-1">{email}</p>
           </div>
@@ -118,7 +118,7 @@ export default function AcceptInvite() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">您的姓名</label>
             <input
               type="text"
               value={name}
@@ -130,7 +130,7 @@ export default function AcceptInvite() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">設定密碼</label>
             <input
               type="password"
               value={password}
@@ -142,7 +142,7 @@ export default function AcceptInvite() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">確認密碼</label>
             <input
               type="password"
               value={confirmPassword}
@@ -158,7 +158,7 @@ export default function AcceptInvite() {
             disabled={submitting}
             className="w-full bg-primary-600 text-white py-2.5 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
           >
-            {submitting ? 'Creating account...' : 'Create Account'}
+            {submitting ? '帳號建立中...' : '完成註冊並登入'}
           </button>
         </form>
       </div>

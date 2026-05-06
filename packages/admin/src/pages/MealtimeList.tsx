@@ -12,16 +12,16 @@ interface Mealtime {
 }
 
 const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'ja', label: 'Japanese' },
-  { code: 'ko', label: 'Korean' },
-  { code: 'th', label: 'Thai' },
-  { code: 'tl', label: 'Filipino' },
-  { code: 'vi', label: 'Vietnamese' },
-  { code: 'id', label: 'Indonesian' },
+  { code: 'en', label: '英文 (English)' },
+  { code: 'ja', label: '日文 (Japanese)' },
+  { code: 'ko', label: '韓文 (Korean)' },
+  { code: 'th', label: '泰文 (Thai)' },
+  { code: 'tl', label: '菲律賓文 (Filipino)' },
+  { code: 'vi', label: '越南文 (Vietnamese)' },
+  { code: 'id', label: '印尼文 (Indonesian)' },
 ];
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
 export default function MealtimeList() {
   const [mealtimes, setMealtimes] = useState<Mealtime[]>([]);
@@ -73,17 +73,17 @@ export default function MealtimeList() {
     }
   }
 
-  if (loading) return <div className="p-6 text-center text-gray-500">Loading...</div>;
+  if (loading) return <div className="p-6 text-center text-gray-500">載入中...</div>;
 
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Mealtime Segments</h1>
+        <h1 className="text-2xl font-bold text-gray-900">用餐時段管理 (Mealtime Segments)</h1>
         <button
           onClick={() => setIsAdding(!isAdding)}
           className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700"
         >
-          {isAdding ? 'Cancel' : '+ Add Segment'}
+          {isAdding ? '取消' : '+ 新增時段'}
         </button>
       </div>
 
@@ -91,19 +91,19 @@ export default function MealtimeList() {
         <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Segment Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">時段名稱</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500"
-                placeholder="e.g. Breakfast"
+                placeholder="例如：早餐、晚餐"
               />
             </div>
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">開始時間</label>
                 <input
                   type="time"
                   value={form.startTime}
@@ -112,7 +112,7 @@ export default function MealtimeList() {
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">結束時間</label>
                 <input
                   type="time"
                   value={form.endTime}
@@ -124,7 +124,7 @@ export default function MealtimeList() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 bg-gray-50 p-4 rounded-lg">
-            <p className="col-span-full text-xs font-bold text-gray-400 uppercase">Translations</p>
+            <p className="col-span-full text-xs font-bold text-gray-400 uppercase">多語言翻譯 (Translations)</p>
             {LANGUAGES.map((lang) => (
               <div key={lang.code}>
                 <label className="block text-[10px] text-gray-400 font-bold uppercase mb-1">{lang.code}</label>
@@ -140,7 +140,7 @@ export default function MealtimeList() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Available Days</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">適用星期 (Available Days)</label>
             <div className="flex gap-2">
               {DAYS.map((day, i) => (
                 <button
@@ -162,7 +162,7 @@ export default function MealtimeList() {
 
           <div className="flex justify-end pt-4">
             <button type="submit" className="bg-primary-600 text-white px-8 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-primary-700">
-              Save Segment
+              儲存時段設定
             </button>
           </div>
         </form>
@@ -177,7 +177,7 @@ export default function MealtimeList() {
                 <p className="text-xs text-primary-600 font-medium">{m.startTime} - {m.endTime}</p>
               </div>
               <button onClick={() => handleDelete(m.id)} className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                Delete
+                刪除
               </button>
             </div>
             
