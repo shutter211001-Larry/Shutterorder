@@ -132,6 +132,9 @@ export default function SettingsMail() {
             <option value="tls">TLS</option>
             <option value="ssl">SSL</option>
           </select>
+          <p className="mt-2 text-xs text-gray-500">
+            提示：Gmail 建議使用 <b>Port 587 + TLS</b>。如果在雲端環境（如 Railway）連線逾時，請嘗試改用 <b>Port 465 + SSL</b>。
+          </p>
         </div>
 
         <h2 className="text-lg font-semibold text-gray-900 pt-4">發件者資訊</h2>
