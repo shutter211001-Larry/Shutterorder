@@ -101,14 +101,14 @@ export default function CouponForm() {
           </svg>
         </Link>
         <h1 className="text-2xl font-bold text-gray-900">
-          {isEdit ? 'Edit Coupon' : 'New Coupon'}
+          {isEdit ? '編輯優惠券' : '新增優惠券'}
         </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Code</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">優惠碼 (Code)</label>
             <input
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -118,15 +118,15 @@ export default function CouponForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">優惠類型</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
             >
-              <option value="PERCENTAGE">Percentage Off</option>
-              <option value="FIXED">Fixed Amount Off</option>
-              <option value="FREE_DELIVERY">Free Delivery</option>
+              <option value="PERCENTAGE">百分比折扣 (Percentage Off)</option>
+              <option value="FIXED">固定金額折扣 (Fixed Amount Off)</option>
+              <option value="FREE_DELIVERY">免運費 (Free Delivery)</option>
             </select>
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function CouponForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Value {type === 'PERCENTAGE' ? '(%)' : '($)'}
+                折扣數值 {type === 'PERCENTAGE' ? '(%)' : '($)'}
               </label>
               <input
                 type="number"
@@ -148,14 +148,14 @@ export default function CouponForm() {
             </div>
             {type === 'PERCENTAGE' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Discount ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">最高折扣金額 ($)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={maxDiscount}
                   onChange={(e) => setMaxDiscount(e.target.value)}
-                  placeholder="No cap"
+                  placeholder="無上限"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
                 />
               </div>
@@ -165,7 +165,7 @@ export default function CouponForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Min Order ($)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">最低消費金額 ($)</label>
             <input
               type="number"
               step="0.01"
@@ -176,7 +176,7 @@ export default function CouponForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Per Customer Limit</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">每位顧客使用限制 (次)</label>
             <input
               type="number"
               min="1"
@@ -188,20 +188,20 @@ export default function CouponForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Total Usage Limit</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">總發行數量 (次)</label>
           <input
             type="number"
             min="1"
             value={usageLimit}
             onChange={(e) => setUsageLimit(e.target.value)}
-            placeholder="Unlimited"
+            placeholder="無限制"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Valid From</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">生效日期</label>
             <input
               type="date"
               value={startsAt}
@@ -210,7 +210,7 @@ export default function CouponForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Valid Until</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">截止日期</label>
             <input
               type="date"
               value={expiresAt}
@@ -228,7 +228,7 @@ export default function CouponForm() {
             onChange={(e) => setIsActive(e.target.checked)}
             className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
           />
-          <label htmlFor="isActive" className="text-sm text-gray-700">Active</label>
+          <label htmlFor="isActive" className="text-sm text-gray-700">啟用 (Active)</label>
         </div>
 
         {error && <div className="text-red-600 text-sm">{error}</div>}
@@ -239,13 +239,13 @@ export default function CouponForm() {
             disabled={saving}
             className="bg-primary-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : isEdit ? 'Update Coupon' : 'Create Coupon'}
+            {saving ? '儲存中...' : isEdit ? '更新優惠券' : '建立優惠券'}
           </button>
           <Link
             to="/coupons"
             className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            取消
           </Link>
         </div>
       </form>

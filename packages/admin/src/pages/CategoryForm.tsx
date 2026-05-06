@@ -14,13 +14,13 @@ interface CategoryData {
 }
 
 const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'ja', label: 'Japanese' },
-  { code: 'ko', label: 'Korean' },
-  { code: 'th', label: 'Thai' },
-  { code: 'tl', label: 'Filipino' },
-  { code: 'vi', label: 'Vietnamese' },
-  { code: 'id', label: 'Indonesian' },
+  { code: 'en', label: '英文 (English)' },
+  { code: 'ja', label: '日文 (Japanese)' },
+  { code: 'ko', label: '韓文 (Korean)' },
+  { code: 'th', label: '泰文 (Thai)' },
+  { code: 'tl', label: '菲律賓文 (Filipino)' },
+  { code: 'vi', label: '越南文 (Vietnamese)' },
+  { code: 'id', label: '印尼文 (Indonesian)' },
 ];
 
 interface CategoryOption {
@@ -117,10 +117,10 @@ export default function CategoryForm() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">
-          {isEdit ? 'Edit Category' : 'New Category'}
+          {isEdit ? '編輯分類' : '新增分類'}
         </h2>
         <button onClick={() => navigate('/menu/categories')} className="text-gray-500 hover:text-gray-700 text-sm">
-          Back to Categories
+          返回分類列表
         </button>
       </div>
 
@@ -130,10 +130,10 @@ export default function CategoryForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <section className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Category Details</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">分類基本資料 (Category Details)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">名稱 *</label>
               <input
                 type="text"
                 value={form.name}
@@ -143,7 +143,7 @@ export default function CategoryForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Slug *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">網址代稱 (Slug) *</label>
               <input
                 type="text"
                 value={form.slug}
@@ -154,7 +154,7 @@ export default function CategoryForm() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">描述 (Description)</label>
               <textarea
                 value={form.description}
                 onChange={(e) => updateField('description', e.target.value)}
@@ -163,20 +163,20 @@ export default function CategoryForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">父分類 (Parent Category)</label>
               <select
                 value={form.parentId}
                 onChange={(e) => updateField('parentId', e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">None (top-level)</option>
+                <option value="">無 (頂層分類)</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">排序 (Sort Order)</label>
               <input
                 type="number"
                 value={form.sortOrder}
@@ -193,7 +193,7 @@ export default function CategoryForm() {
                   onChange={(e) => updateField('isActive', e.target.checked)}
                   className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="text-sm text-gray-700">Active</span>
+                <span className="text-sm text-gray-700">啟用 (Active)</span>
               </label>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function CategoryForm() {
 
         {/* Translations */}
         <section className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Translations</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">多語言翻譯 (Translations)</h3>
           <div className="space-y-6">
             {LANGUAGES.map((lang) => (
               <div key={lang.code} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-100 rounded-lg">
@@ -209,7 +209,7 @@ export default function CategoryForm() {
                   <span className="text-sm font-bold text-primary-600">{lang.label} ({lang.code})</span>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Name ({lang.code})</label>
+                  <label className="block text-xs text-gray-500 mb-1">名稱 ({lang.code})</label>
                   <input
                     type="text"
                     value={form.nameTranslations[lang.code] || ''}
@@ -221,7 +221,7 @@ export default function CategoryForm() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Description ({lang.code})</label>
+                  <label className="block text-xs text-gray-500 mb-1">描述 ({lang.code})</label>
                   <textarea
                     value={form.descriptionTranslations[lang.code] || ''}
                     onChange={(e) => {
@@ -239,10 +239,10 @@ export default function CategoryForm() {
 
         <div className="flex justify-end gap-3">
           <button type="button" onClick={() => navigate('/menu/categories')} className="px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-            Cancel
+            取消
           </button>
           <button type="submit" disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors">
-            {saving ? 'Saving...' : isEdit ? 'Update Category' : 'Create Category'}
+            {saving ? '儲存中...' : isEdit ? '更新分類' : '建立分類'}
           </button>
         </div>
       </form>
