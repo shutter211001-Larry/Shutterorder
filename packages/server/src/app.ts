@@ -40,7 +40,7 @@ export function createApp() {
   // Middleware
   app.use(requestId);
   app.use(helmet());
-  const corsOrigins = process.env.CORS_ORIGINS?.split(',') || [
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(s => s.trim().replace(/\/$/, '')) || [
     'http://localhost:5173', 
     'http://localhost:5174', 
     'http://localhost:3000',
@@ -55,7 +55,7 @@ export function createApp() {
       // Allow configured origins + any local development IPs
       const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('192.168.') || origin.includes('10.');
       const isAllowed = corsOrigins.includes(origin) || isLocal;
-      
+
       if (isAllowed) {
         callback(null, true);
       } else {
