@@ -227,8 +227,8 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       
       return {
         menuOptionValueId: opt.menuOptionValueId,
-        name: dbValue ? dbValue.label : opt.name,
-        value: dbValue ? dbValue.label : opt.value,
+        name: dbValue ? dbValue.name : opt.name,
+        value: dbValue ? dbValue.name : opt.value,
         priceModifier: actualModifier,
       };
     });
