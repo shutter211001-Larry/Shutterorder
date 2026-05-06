@@ -9,15 +9,33 @@ const expo = new Expo();
 let io: Server | null = null;
 
 export function initSocket(httpServer: HttpServer): Server {
-  const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(s => s.trim()) || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(s => s.trim().replace(/\/$/, '')) || [
+    'http://localhost:5173', 
+    'http://localhost:5174', 
+    'http://localhost:3000',
+    'https://admin-panel-production-7660.up.railway.app',
+    'https://storefront-production-31e8.up.railway.app'
+  ];
 
   io = new Server(httpServer, {
     cors: {
-      origin: true, // Temporarily allow all for debugging
+      origin: (origin, callback) => {
+        if (!origin || corsOrigins.includes('*')) {
+          return callback(null, true);
+        }
+        const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('192.168.') || origin.includes('10.');
+        const isAllowed = corsOrigins.includes(origin) || isLocal;
+        if (isAllowed) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true,
     },
-    allowEIO3: true
+    allowEIO3: true,
+    transports: ['polling', 'websocket']
   });
 
   io.on('connection', (socket: Socket) => {
