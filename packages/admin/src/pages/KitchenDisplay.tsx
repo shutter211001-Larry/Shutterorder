@@ -14,6 +14,7 @@ interface OrderItem {
 interface KitchenOrder {
   id: string;
   orderNumber: string;
+  pickupNumber?: string;
   orderType: string;
   status: string;
   comment: string | null;
