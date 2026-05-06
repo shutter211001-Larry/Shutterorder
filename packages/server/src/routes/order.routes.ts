@@ -4,7 +4,7 @@ import multer from 'multer';
 import { 
   createOrder, listOrders, listCustomerOrders, getOrder, 
   updateOrderStatus, deleteOrder, exportOrders, importOrders, 
-  downloadOrderTemplate, checkOrderReminders 
+  downloadOrderTemplate, checkOrderReminders, lookupOrder, claimOrder 
 } from '../controllers/order.controller.js';
 
 const router = Router();
@@ -12,6 +12,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Customer creates order (optionalAuth - allows guest checkout)
 router.post('/', optionalAuth, createOrder);
+
+// Lookup order by email/number (public)
+router.get('/lookup', lookupOrder);
+
+// Claim order to customer account (requires auth)
+router.post('/:id/claim', authenticate, claimOrder);
 
 // Customer: view own orders
 router.get('/my-orders', authenticate, listCustomerOrders);

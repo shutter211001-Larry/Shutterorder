@@ -138,7 +138,8 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   }
 
   // Delivery zone enforcement
-  let deliveryFee = 0;
+  try {
+    let deliveryFee = 0;
   if (orderType === 'DELIVERY') {
     if (address?.lat != null && address?.lng != null) {
       const zones = await prisma.deliveryZone.findMany({
@@ -203,19 +204,32 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     }
   }
 
-  // Calculate totals
+  // Calculate totals and validate options
   let subtotal = 0;
+  
+  // Fetch all option values in one go for efficiency
+  const allOptionValueIds = items.flatMap(i => (i.options || []).map(o => o.menuOptionValueId)).filter(Boolean);
+  const dbOptionValues = await prisma.menuOptionValue.findMany({
+    where: { id: { in: allOptionValueIds } }
+  });
+  const optionValueMap = new Map(dbOptionValues.map(v => [v.id, v]));
+
   const orderItemsData = items.map((item) => {
     const menuItem = menuItemMap.get(item.menuItemId)!;
     let unitPrice = menuItem.price;
 
     const optionsData = (item.options || []).map((opt) => {
-      unitPrice += opt.priceModifier;
+      // SECURITY: Get actual price from DB, not from client request
+      const dbValue = optionValueMap.get(opt.menuOptionValueId);
+      const actualModifier = dbValue ? dbValue.priceModifier : 0;
+      
+      unitPrice += actualModifier;
+      
       return {
         menuOptionValueId: opt.menuOptionValueId,
-        name: opt.name,
-        value: opt.value,
-        priceModifier: opt.priceModifier,
+        name: dbValue ? dbValue.label : opt.name,
+        value: dbValue ? dbValue.label : opt.value,
+        priceModifier: actualModifier,
       };
     });
 
@@ -420,9 +434,16 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     const { appEvents } = await import('../lib/events.js');
     appEvents.emit('order.created', { order });
   } catch {}
-
-  res.status(201).json({ success: true, data: order });
+    res.status(201).json({ success: true, data: order });
+  } catch (err: any) {
+    console.error('Error creating order:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: process.env.NODE_ENV === 'development' ? err.message : 'An error occurred while processing your order' 
+    });
+  }
 }
+
 
 export async function listOrders(req: Request, res: Response): Promise<void> {
   const page = Math.max(1, parseInt(req.query.page as string) || 1);
@@ -859,3 +880,72 @@ export async function checkOrderReminders(req: Request, res: Response): Promise<
     }
   });
 }
+
+export async function lookupOrder(req: Request, res: Response): Promise<void> {
+  const { email, orderNumber } = req.query;
+
+  if (!email || !orderNumber) {
+    res.status(400).json({ success: false, error: 'Email and order number are required' });
+    return;
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      orderNumber: orderNumber as string,
+      OR: [
+        { guestEmail: email as string },
+        { customer: { email: email as string } }
+      ]
+    },
+    select: {
+      id: true,
+      orderNumber: true,
+      customerId: true,
+      createdAt: true,
+      total: true,
+      orderType: true
+    }
+  });
+
+  if (!order) {
+    res.status(404).json({ success: false, error: 'Order not found with these details' });
+    return;
+  }
+
+  res.json({ success: true, data: order });
+}
+
+export async function claimOrder(req: Request<{ id: string }>, res: Response): Promise<void> {
+  const { id } = req.params;
+  const customerId = req.user?.id;
+
+  if (!customerId) {
+    res.status(401).json({ success: false, error: 'Authentication required' });
+    return;
+  }
+
+  const order = await prisma.order.findUnique({
+    where: { id },
+  });
+
+  if (!order) {
+    res.status(404).json({ success: false, error: 'Order not found' });
+    return;
+  }
+
+  if (order.customerId) {
+    res.status(400).json({ success: false, error: 'Order is already linked to an account' });
+    return;
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: { id },
+    data: { customerId },
+  });
+
+  auditLog(req, { action: 'update', entity: 'Order', entityId: id, details: { action: 'claim', customerId } });
+
+  res.json({ success: true, data: updatedOrder });
+}
+
+

@@ -43,12 +43,14 @@ import { useRecentOrders } from '../hooks/useRecentOrders.js';
 export default function OrderStatus() {
   const { t } = useTranslation();
   const { id } = useParams();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { settings } = useTheme();
   const { addOrder } = useRecentOrders();
-  const [order, setOrder] = useState<OrderDetail | null>(null);
+  const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [claiming, setClaiming] = useState(false);
+  const [claimSuccess, setClaimSuccess] = useState(false);
 
   const DELIVERY_STEPS = [
     { key: 'PENDING', label: t('orderStatus.placed') },
@@ -73,6 +75,7 @@ export default function OrderStatus() {
 
     fetch(`${API_BASE}/orders/${id}`, { headers })
       .then((res) => {
+        if (res.status === 403) throw new Error('LINKED_TO_ACCOUNT');
         if (!res.ok) throw new Error('Failed to load order');
         return res.json();
       })
@@ -88,9 +91,37 @@ export default function OrderStatus() {
           });
         }
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        if (err.message === 'LINKED_TO_ACCOUNT') {
+          setError(t('orders.linkedToAccount'));
+        } else {
+          setError(err.message);
+        }
+      })
       .finally(() => setLoading(false));
-  }, [id, token]);
+  }, [id, token, t]);
+
+  async function handleClaim() {
+    if (!token) return;
+    setClaiming(true);
+    try {
+      const res = await fetch(`${API_BASE}/orders/${id}/claim`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setClaimSuccess(true);
+        setOrder({ ...order, customerId: user?.id });
+      } else {
+        alert(t('orders.claimOrderError'));
+      }
+    } catch (e) {
+      alert(t('orders.claimOrderError'));
+    } finally {
+      setClaiming(false);
+    }
+  }
 
   // Real-time status updates via Socket.IO
   useEffect(() => {
@@ -99,16 +130,17 @@ export default function OrderStatus() {
     const socketHost = API_BASE.replace(/\/api$/, '') || window.location.origin;
     const socket = io(socketHost, { path: '/socket.io', transports: ['websocket', 'polling'] });
 
-    socket.emit('join:order', id);
+    socket.on('connect', () => {
+      socket.emit('joinOrder', id);
+    });
 
-    socket.on('order:statusUpdate', (data: { id: string; status: string }) => {
+    socket.on('orderStatusUpdate', (data) => {
       if (data.id === id) {
-        setOrder((prev) => prev ? { ...prev, status: data.status } : prev);
+        setOrder((prev: any) => prev ? ({ ...prev, status: data.status }) : null);
       }
     });
 
     return () => {
-      socket.emit('leave:order', id);
       socket.disconnect();
     };
   }, [id]);
@@ -116,30 +148,76 @@ export default function OrderStatus() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">{error || t('orders.errorLoading')}</div>
-        {settings.showMembership && (
-          <Link to="/account/orders" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-            {t('orders.backToOrders')}
-          </Link>
-        )}
+      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
+        <div className="bg-red-50 border border-red-100 rounded-xl p-8 shadow-sm">
+          <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{error || t('orders.errorLoading')}</h2>
+          <p className="text-gray-600 mb-6">{error === t('orders.linkedToAccount') ? '' : t('orders.errorLoadingDesc')}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/account/orders" className="bg-white text-gray-700 px-6 py-2 rounded-lg font-medium border border-gray-200 hover:bg-gray-50 transition-colors">
+              {t('orders.backToOrders')}
+            </Link>
+            {error === t('orders.linkedToAccount') && (
+              <Link to="/login" className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors">
+                {t('nav.login')}
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
 
-  const isCancelled = order.status === 'CANCELLED';
   const steps = order.orderType === 'DELIVERY' ? DELIVERY_STEPS : PICKUP_STEPS;
-  const currentStep = getStepIndex(steps, order.status);
+  const currentStep = steps.findIndex((s) => s.key === order.status);
+  const isCancelled = order.status === 'CANCELLED';
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Manual Claim Banner */}
+      {user && !order.customerId && !claimSuccess && (
+        <div className="mb-6 bg-primary-600 rounded-xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 0010 11V7a4 4 0 118 0v4c0 1.28.382 2.47 1.03 3.46l.054.091M13 13.121V19m0 0H7m6 0h6" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg leading-tight">{t('orders.claimOrderTitle')}</h3>
+              <p className="text-white/80 text-sm">{t('orders.claimOrderDesc')}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleClaim}
+            disabled={claiming}
+            className="whitespace-nowrap bg-white text-primary-600 px-6 py-2 rounded-full font-bold text-sm hover:bg-primary-50 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {claiming ? t('checkout.processing') : t('orders.claimOrderSubmit')}
+          </button>
+        </div>
+      )}
+
+      {claimSuccess && (
+        <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center gap-3 animate-bounce">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="text-sm font-medium">{t('orders.claimOrderSuccess')}</span>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           {order.pickupNumber && (
@@ -155,7 +233,7 @@ export default function OrderStatus() {
             {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
-        {settings.showMembership && (
+        {(user || settings.showMembership) && (
           <Link to="/account/orders" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             {t('orders.title')}
           </Link>
@@ -179,70 +257,73 @@ export default function OrderStatus() {
               {steps.map((step, idx) => {
                 const isComplete = idx <= currentStep;
                 const isCurrent = idx === currentStep;
+
                 return (
-                  <div key={step.key} className="flex flex-col items-center relative z-10" style={{ flex: 1 }}>
+                  <div key={step.key} className="flex flex-col items-center relative z-10">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        isComplete
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-gray-200 text-gray-500'
-                      } ${isCurrent ? 'ring-4 ring-primary-100' : ''}`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+                        isComplete ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-400'
+                      } ${isCurrent ? 'ring-4 ring-primary-100 scale-110' : ''}`}
                     >
                       {isComplete ? (
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        idx + 1
+                        <span className="text-xs font-bold">{idx + 1}</span>
                       )}
                     </div>
-                    <span className={`text-xs mt-2 text-center ${isComplete ? 'text-primary-700 font-medium' : 'text-gray-400'}`}>
+                    <span className={`text-[10px] mt-2 font-bold uppercase tracking-tighter ${isComplete ? 'text-gray-900' : 'text-gray-400'}`}>
                       {step.label}
                     </span>
                   </div>
                 );
               })}
             </div>
-            <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-200 -translate-y-1/2" style={{ marginLeft: `${100 / (steps.length * 2)}%`, marginRight: `${100 / (steps.length * 2)}%` }}>
-              <div
-                className="h-full bg-primary-600 transition-all duration-500"
-                style={{ width: currentStep >= 0 ? `${(currentStep / (steps.length - 1)) * 100}%` : '0%' }}
-              />
-            </div>
+            {/* Progress Bar Background */}
+            <div className="absolute top-5 left-0 w-full h-1 bg-gray-100 -z-0" />
+            {/* Active Progress Bar */}
+            <div
+              className="absolute top-5 left-0 h-1 bg-primary-600 transition-all duration-1000 ease-in-out -z-0"
+              style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+            />
           </div>
         )}
       </div>
 
       {/* Order Items */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('orders.items')}</h2>
-        <div className="space-y-3">
-          {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
-              <div>
-                <div className="font-medium text-gray-900">
-                  <span className="text-gray-400 mr-1">{item.quantity}x</span>
-                  {item.name}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-4 bg-gray-50 border-b border-gray-200">
+          <h3 className="font-bold text-gray-900">{t('orders.items')}</h3>
+        </div>
+        <div className="divide-y divide-gray-100">
+          {order.items?.map((item: any) => (
+            <div key={item.id} className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-bold text-gray-900">
+                    {item.quantity}x {item.name}
+                  </p>
+                  {item.options?.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {item.options.map((opt: any) => (
+                        <span key={opt.id} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                          {opt.value}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {item.comment && <p className="text-xs text-gray-500 mt-1 italic">"{item.comment}"</p>}
                 </div>
-                {item.options.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {item.options.map((o) => `${o.name}: ${o.value}`).join(', ')}
-                  </div>
-                )}
+                <span className="text-sm font-medium text-gray-900">${item.subtotal.toFixed(2)}</span>
               </div>
-              <span className="font-medium text-gray-900">${item.subtotal.toFixed(2)}</span>
             </div>
           ))}
         </div>
-
-        <div className="border-t border-gray-200 mt-4 pt-4 space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('checkout.subtotal')}</span>
+        <div className="p-4 bg-gray-50 space-y-2">
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>{t('orders.subtotal')}</span>
             <span>${order.subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('checkout.tax')}</span>
-            <span>${order.tax.toFixed(2)}</span>
           </div>
           {order.deliveryFee > 0 && (
             <div className="flex justify-between">
