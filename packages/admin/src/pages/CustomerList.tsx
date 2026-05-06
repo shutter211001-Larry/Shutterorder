@@ -37,6 +37,12 @@ export default function CustomerList() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const [showPromoModal, setShowPromoModal] = useState(false);
+  const [promoSubject, setPromoSubject] = useState('');
+  const [promoContent, setPromoContent] = useState('');
+  const [promoSending, setPromoSending] = useState(false);
+  const [promoStatus, setPromoStatus] = useState('');
+
   const token = localStorage.getItem('token') || '';
 
   const fetchCustomers = useCallback(() => {
