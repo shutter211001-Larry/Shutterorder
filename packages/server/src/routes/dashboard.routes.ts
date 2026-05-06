@@ -4,6 +4,7 @@ import { getDashboardStats, getAnalytics } from '../controllers/dashboard.contro
 
 const router = Router();
 
+router.get('/', authenticate, requireStaff, getDashboardStats);
 router.get('/stats', authenticate, requireStaff, getDashboardStats);
 router.get('/analytics', authenticate, requireStaff, getAnalytics);
 

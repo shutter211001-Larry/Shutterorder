@@ -403,6 +403,7 @@ export async function sendTestEmail(req: Request, res: Response): Promise<void> 
       ...(encryption === 'tls' ? { requireTLS: true } : {}),
       connectionTimeout: 10000, // 10 seconds
       greetingTimeout: 10000,   // 10 seconds
+      family: 4,                // Force IPv4
     });
 
     await transporter.sendMail({
@@ -414,7 +415,12 @@ export async function sendTestEmail(req: Request, res: Response): Promise<void> 
 
     res.json({ success: true, message: 'Test email sent successfully' });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message || 'Failed to send test email' });
+    let message = err.message || 'Failed to send test email';
+    if (err.code === 'ETIMEDOUT') message = 'Connection timeout: The server could not reach the SMTP host. Port 587 might be blocked by the hosting environment.';
+    if (err.code === 'ECONNREFUSED') message = 'Connection refused: The SMTP host rejected the connection. Check your host and port.';
+    if (err.code === 'EAUTH') message = 'Authentication failed: Check your username and app password.';
+    
+    res.status(500).json({ success: false, error: message, code: err.code });
   }
 }
 
