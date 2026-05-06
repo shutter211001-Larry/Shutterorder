@@ -25,7 +25,7 @@ interface MenuOption {
 }
 
 interface Allergen {
-  allergen: { id: string; name: string };
+  allergen: { id: string; name: string; nameTranslations?: Record<string, string> };
 }
 
 interface MenuItemDetail {
@@ -225,7 +225,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
                         key={a.allergen.id}
                         className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200"
                       >
-                        {a.allergen.name}
+                        {getTranslated(a.allergen.name, a.allergen.nameTranslations, i18n.language)}
                       </span>
                     ))}
                   </div>
