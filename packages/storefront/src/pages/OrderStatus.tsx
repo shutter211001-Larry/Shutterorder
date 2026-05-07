@@ -51,8 +51,6 @@ export default function OrderStatus() {
   const [error, setError] = useState('');
   const [claiming, setClaiming] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState(false);
-  const [isUsingCache, setIsUsingCache] = useState(false);
-  const [isStoreBusy, setIsStoreBusy] = useState(false);
 
   const DELIVERY_STEPS = [
     { key: 'PENDING', label: t('orderStatus.placed') },
@@ -86,14 +84,6 @@ export default function OrderStatus() {
       }
     }
 
-    // Check if store is busy
-    fetch(`${API_BASE}/locations`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.data?.[0]?.isBusy) setIsStoreBusy(true);
-      })
-      .catch(() => {});
-
     fetch(`${API_BASE}/orders/${id}`, { headers })
       .then((res) => {
         if (res.status === 403) throw new Error('LINKED_TO_ACCOUNT');
@@ -102,7 +92,6 @@ export default function OrderStatus() {
       })
       .then((data) => {
         setOrder(data.data);
-        setIsUsingCache(false);
         if (data.data) {
           // Update cache
           localStorage.setItem(`order_cache_${id}`, JSON.stringify(data.data));
@@ -121,11 +110,8 @@ export default function OrderStatus() {
         if (err.message === 'LINKED_TO_ACCOUNT') {
           setError(t('orders.linkedToAccount'));
         } else if (err.message === 'BUSY_OR_ERROR') {
-          // If we have cached order, don't show error, just a warning
-          if (cachedOrder) {
-            console.warn('API fetch failed, but showing cached order due to busy mode.');
-            setIsUsingCache(true);
-          } else {
+          // If we have cached order, we still show it but might show a general error if no cache at all
+          if (!order) {
             setError(t('orders.errorLoading'));
           }
         } else {
