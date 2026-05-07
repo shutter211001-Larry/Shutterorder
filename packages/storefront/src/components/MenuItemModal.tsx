@@ -167,7 +167,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="bg-white w-full sm:max-w-lg sm:rounded-xl max-h-[90vh] overflow-y-auto rounded-t-xl"
+        className="surface-card w-full sm:max-w-lg sm:rounded-xl max-h-[90vh] overflow-y-auto rounded-t-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {loading && (
@@ -212,19 +212,19 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
             {/* Content */}
             <div className="p-6">
               <div className="flex items-start justify-between gap-3 mb-2">
-                <h2 className="text-xl font-bold text-gray-900">{getTranslated(item.name, item.nameTranslations, i18n.language)}</h2>
+                <h2 className="text-xl font-bold text-main">{getTranslated(item.name, item.nameTranslations, i18n.language)}</h2>
                 <div className="flex flex-col items-end">
                   <span className="text-xl font-bold text-primary-600">${item.price.toFixed(2)}</span>
-                  <span className="text-[10px] text-gray-400">/ {getTranslated(item.unit || '份', item.unitTranslations || {}, i18n.language)}</span>
+                  <span className="text-[10px] text-hint">/ {getTranslated(item.unit || '份', item.unitTranslations || {}, i18n.language)}</span>
                 </div>
               </div>
 
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+              <span className="text-xs text-hint bg-gray-100 px-2 py-0.5 rounded-full">
                 {getTranslated(item.category.name, item.category.nameTranslations, i18n.language)}
               </span>
 
               {item.description && (
-                <p className="text-gray-600 mt-3 text-sm">{getTranslated(item.description, item.descriptionTranslations, i18n.language)}</p>
+                <p className="text-sub mt-3 text-sm">{getTranslated(item.description, item.descriptionTranslations, i18n.language)}</p>
               )}
 
               {/* Allergens */}
@@ -249,7 +249,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
                   {item.options.map((opt) => (
                     <div key={opt.id}>
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-sm font-semibold text-gray-900">{getTranslated(opt.name, opt.nameTranslations, i18n.language)}</h3>
+                        <h3 className="text-sm font-semibold text-main">{getTranslated(opt.name, opt.nameTranslations, i18n.language)}</h3>
                         {opt.isRequired && (
                           <span className="text-xs text-red-500 font-medium">{t('common.required')}</span>
                         )}

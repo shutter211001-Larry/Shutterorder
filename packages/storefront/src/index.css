@@ -36,7 +36,7 @@ html.dark {
   
   /* --- 2. Surface Definitions (Dark Mode) --- */
   --surface-base: #0f172a; /* Slate 950 */
-  --surface-card: #1e293b; /* Slate 800 */
+  --surface-card: #ffffff; /* Keep cards WHITE as per design */
   --surface-brand: var(--color-primary-600);
 
   /* --- 3. Semantic Text Tokens (Dark Mode Defaults) --- */
