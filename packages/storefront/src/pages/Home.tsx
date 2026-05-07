@@ -104,12 +104,12 @@ function ClassicHero({
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 w-full flex justify-center">
         <div className="max-w-4xl text-center">
-          {/* Welcome Message with enhanced typography */}
-          <div className="inline-block p-2 rounded-2xl">
+          {/* Welcome Message with premium glass panel */}
+          <div className="inline-block p-8 lg:p-12 rounded-[2.5rem] glass-panel mb-8 animate-in zoom-in-95 duration-1000">
             <h1 className="text-4xl lg:text-7xl font-black mb-6 leading-tight text-white drop-shadow-2xl">
               {getTranslated(hero?.title || '', (hero as any)?.translations?.title, lang) || t('home.heroTitle')}
             </h1>
-            <p className="text-lg lg:text-2xl mb-10 max-w-2xl mx-auto text-white/90 font-medium drop-shadow-lg">
+            <p className="text-lg lg:text-2xl max-w-2xl mx-auto text-white/90 font-medium drop-shadow-lg">
               {getTranslated(hero?.subtitle || '', (hero as any)?.translations?.subtitle, lang) || t('home.heroDescription')}
             </p>
           </div>
