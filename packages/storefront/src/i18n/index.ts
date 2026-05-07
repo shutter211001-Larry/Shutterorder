@@ -11,10 +11,14 @@ import th from './locales/th.json';
 import id from './locales/id.json';
 import vi from './locales/vi.json';
 import tl from './locales/tl.json';
+import ja from './locales/ja.json';
+import ko from './locales/ko.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'zh-TW', name: '繁體中文', flag: '<img src="/flag_tw.svg" alt="Taiwan" class="w-6 h-4 object-contain" />' },
   { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷' },
   { code: 'th', name: 'ภาษาไทย', flag: '🇹🇭' },
   { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
   { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
@@ -43,6 +47,8 @@ i18n.use(initReactI18next).init({
     id: { translation: id },
     vi: { translation: vi },
     tl: { translation: tl },
+    ja: { translation: ja },
+    ko: { translation: ko },
   },
   lng: savedLanguage,
   fallbackLng: 'en',
