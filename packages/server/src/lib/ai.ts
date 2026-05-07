@@ -4,6 +4,46 @@ function getApiKey() {
   return process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 }
 
+let cachedModel: string | null = null;
+
+/**
+ * Strategy-based model discovery with fallback logic
+ */
+async function getBestAvailableModel(apiKey: string): Promise<string> {
+  if (cachedModel) return cachedModel;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    if (!response.ok) throw new Error(`ListModels failed: ${response.status}`);
+    
+    const data = await response.json();
+    const models = (data.models || []) as { name: string; supportedGenerationMethods: string[] }[];
+    
+    // Define discovery strategy order
+    const strategy = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-pro'];
+    for (const modelKey of strategy) {
+      const match = models.find(m => m.name.includes(modelKey) && m.supportedGenerationMethods.includes('generateContent'));
+      if (match) {
+        cachedModel = match.name; // e.g., "models/gemini-1.5-flash"
+        logger.info(`[DEBUG] AI Strategy selected model: ${cachedModel}`);
+        return cachedModel!;
+      }
+    }
+    
+    // If no preferred model found, use first available that supports generateContent
+    const anyModel = models.find(m => m.supportedGenerationMethods.includes('generateContent'));
+    if (anyModel) {
+      cachedModel = anyModel.name;
+      return cachedModel!;
+    }
+    
+    return 'models/gemini-1.5-flash'; // Static fallback
+  } catch (error) {
+    logger.error(error as any, '[DEBUG] Discovery failed, falling back to static default.');
+    return 'models/gemini-1.5-flash';
+  }
+}
+
 export interface TranslationResult {
   [key: string]: string;
 }
@@ -56,7 +96,8 @@ export async function translateContent(
   `;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const selectedModel = await getBestAvailableModel(apiKey);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -122,7 +163,8 @@ export async function translateFields(
       }
     `;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const selectedModel = await getBestAvailableModel(apiKey);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
