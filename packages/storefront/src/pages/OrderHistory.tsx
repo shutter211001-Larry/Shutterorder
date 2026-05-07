@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import { useTheme } from '../context/ThemeContext.js';
 import { useRecentOrders } from '../hooks/useRecentOrders.js';
+import { API_BASE } from '../lib/api.js';
 
 interface OrderSummary {
   id: string;
@@ -45,8 +46,6 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const [isStoreBusy, setIsStoreBusy] = useState(false);
-  const [isUsingCache, setIsUsingCache] = useState(false);
 
   // Lookup state
   const [lookupEmail, setLookupEmail] = useState('');
@@ -84,14 +83,7 @@ export default function OrderHistory() {
     }
   }
 
-    // Check store busy status
-    fetch(`${API_BASE}/locations`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.data?.[0]?.isBusy) setIsStoreBusy(true);
-      })
-      .catch(() => { });
-
+  useEffect(() => {
     // Load from cache first
     if (token) {
       const cached = localStorage.getItem(`orders_cache_${page}`);
@@ -100,7 +92,6 @@ export default function OrderHistory() {
           const parsed = JSON.parse(cached);
           setOrders(parsed.data);
           setPagination(parsed.pagination);
-          setIsUsingCache(true);
           setLoading(false);
         } catch (e) { }
       }
@@ -117,15 +108,14 @@ export default function OrderHistory() {
       .then((data) => {
         setOrders(data.data);
         setPagination(data.pagination);
-        setIsUsingCache(false);
         // Save to cache
         localStorage.setItem(`orders_cache_${page}`, JSON.stringify(data));
       })
       .catch((err) => {
-        if (err.message === 'BUSY_OR_ERROR' && isUsingCache) {
-          console.warn('API busy, using cached history');
-        } else {
-          setError(err.message === 'BUSY_OR_ERROR' ? t('orders.errorLoading') : err.message);
+        if (err.message !== 'BUSY_OR_ERROR') {
+          setError(err.message);
+        } else if (!orders.length) {
+          setError(t('orders.errorLoading'));
         }
       })
       .finally(() => setLoading(false));
@@ -167,7 +157,6 @@ export default function OrderHistory() {
           <Link to="/account" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             {t('nav.myAccount')}
           </Link>
-        )}
         )}
       </div>
 
