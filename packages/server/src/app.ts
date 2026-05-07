@@ -37,7 +37,8 @@ dotenv.config();
 
 export function createApp() {
   const app = express();
-  app.set('trust proxy', true);
+  // On Railway/Cloud providers, we trust the first proxy
+  app.set('trust proxy', 1);
 
   // Middleware
   app.use(requestId);
