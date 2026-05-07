@@ -130,11 +130,17 @@ export async function translateFields(
       })
     });
 
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      logger.error({ status: response.status, errorData }, '[DEBUG] Gemini API error in translateFields');
+      return {};
+    }
+
     const data: any = await response.json();
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!resultText) {
-       logger.warn('[DEBUG] Empty response from Gemini in translateFields');
+       logger.warn({ data }, '[DEBUG] Empty response or safety block from Gemini in translateFields');
        return {};
     }
 
