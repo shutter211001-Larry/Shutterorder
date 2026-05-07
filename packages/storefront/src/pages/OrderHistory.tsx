@@ -38,7 +38,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function OrderHistory() {
   const { t } = useTranslation();
-  const { user, token, isLoading: authLoading } = useAuth();
+  const { user, token, logout, isLoading: authLoading } = useAuth();
   const { settings } = useTheme();
   const { recentOrders } = useRecentOrders();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -113,6 +113,10 @@ export default function OrderHistory() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
+        if (res.status === 401) {
+          logout();
+          throw new Error('UNAUTHORIZED_SILENT');
+        }
         if (!res.ok) throw new Error(`API_ERROR_${res.status}`);
         return res.json();
       })
@@ -123,6 +127,7 @@ export default function OrderHistory() {
         localStorage.setItem(`orders_cache_${page}`, JSON.stringify(data));
       })
       .catch((err) => {
+        if (err.message === 'UNAUTHORIZED_SILENT') return;
         console.error('Order fetch failed:', err);
         // Only show error if we have NO orders to display (including cache)
         if (!orders.length) {
