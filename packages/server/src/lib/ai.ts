@@ -62,7 +62,7 @@ export async function translateContent(
 
     return JSON.parse(resultText.trim());
   } catch (error) {
-    logger.error('Translation failed:', error);
+    logger.error(error, 'Translation failed:');
     return {};
   }
 }
@@ -112,7 +112,7 @@ export async function translateFields(
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
     return JSON.parse(resultText.trim());
   } catch (error) {
-    logger.error('Batch translation failed:', error);
+    logger.error(error, 'Batch translation failed:');
     return {};
   }
 }
