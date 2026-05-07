@@ -62,27 +62,45 @@ html.dark .bg-gray-900 { --current-bg: #111827; }
 
 /* Apply the Smart Text color to common text classes */
 .text-gray-900, .text-gray-800, .text-gray-700, .text-smart {
-  /* Default Fallback */
+  /* Step 1: Base Fallback (Light Mode default) */
   color: #111827; 
-  
-  /* Dynamic calculation based on LOCAL --current-bg */
-  @supports (color: oklch(from white l 0 0)) {
+}
+
+/* Step 2: Dark Mode Global Fallback */
+html.dark .text-gray-900, html.dark .text-gray-800, html.dark .text-gray-700, html.dark .text-smart {
+  color: #f1f5f9;
+}
+
+/* Step 3: Local Override for Light Containers (The "Context" part) */
+/* If we are inside a light background, force dark text regardless of theme */
+.bg-white .text-gray-900, .bg-white .text-gray-800, .bg-white .text-gray-700, .bg-white .text-smart,
+.bg-gray-50 .text-gray-900, .bg-gray-50 .text-gray-800, .bg-gray-50 .text-gray-700, .bg-gray-50 .text-smart {
+  color: #111827 !important;
+}
+
+/* Step 4: Scientific Precision (if supported) */
+@supports (color: oklch(from white l 0 0)) {
+  .text-gray-900, .text-gray-800, .text-gray-700, .text-smart {
     color: oklch(from var(--current-bg) clamp(0.05, calc((l - 0.45) * -1000), 0.95) 0 0);
+  }
+  
+  /* Ensure the scientific logic also respects local overrides */
+  .bg-white .text-gray-900, .bg-white .text-smart {
+    --current-bg: #ffffff;
   }
 }
 
-/* Fallback for secondary/muted text in the current environment */
+/* Fallback for secondary/muted text */
 .text-gray-500, .text-gray-400 {
   color: #64748b;
-  @supports (color: oklch(from white l 0 0)) {
-    --local-smart: oklch(from var(--current-bg) clamp(0.05, calc((l - 0.45) * -1000), 0.95) 0 0);
-    color: color-mix(in srgb, var(--local-smart), transparent 30%);
-  }
+}
+html.dark .text-gray-500, html.dark .text-gray-400 {
+  color: #cbd5e1;
 }
 
 /* Placeholder visibility based on current bg */
 ::placeholder {
-  color: color-mix(in srgb, var(--smart-text), transparent 50%);
+  color: #94a3b8;
   opacity: 1;
 }
 
