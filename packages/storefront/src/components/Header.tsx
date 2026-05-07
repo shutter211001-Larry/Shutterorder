@@ -65,7 +65,6 @@ function ClassicHeader() {
 
           {/* Desktop auth + cart + language */}
           <div className="hidden md:flex items-center gap-3">
-            <LanguageSwitcher />
 
             {!user && recentOrders.length > 0 && (
               <Link
@@ -80,20 +79,23 @@ function ClassicHeader() {
               </Link>
             )}
 
-            <button
-              onClick={() => openCart(true)}
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
-              aria-label={t('nav.openCart')}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
-              </svg>
-              {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
-                  {itemCount > 9 ? '9+' : itemCount}
-                </span>
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <button
+                onClick={() => openCart(true)}
+                className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                aria-label={t('nav.openCart')}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+                {itemCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
+                    {itemCount > 9 ? '9+' : itemCount}
+                  </span>
+                )}
+              </button>
+            </div>
             {settings.showMembership && (
               isLoading ? (
                 <div className="w-5 h-5 border-2 border-gray-200 border-t-primary-600 rounded-full animate-spin" />
@@ -133,6 +135,7 @@ function ClassicHeader() {
 
           {/* Mobile cart + hamburger */}
           <div className="md:hidden flex items-center gap-1">
+            <LanguageSwitcher />
             <button
               onClick={() => openCart(true)}
               className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
@@ -184,9 +187,6 @@ function ClassicHeader() {
                 {link.label}
               </Link>
             ))}
-            <div className="px-3 py-2">
-              <LanguageSwitcher />
-            </div>
             {!user && recentOrders.length > 0 && (
               <div className="px-3 py-2 border-t border-gray-100 mt-2">
                 <Link
