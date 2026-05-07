@@ -123,3 +123,8 @@ header button[aria-label*="購物車"] span {
     color: oklch(from var(--brand-primary) clamp(0.05, calc((l - 0.45) * -1000), 0.95) 0 0) !important;
   }
 }
+
+.surface-card {
+  --current-bg: var(--env-bg-surface);
+  @apply surface-context bg-surface border-input shadow-sm;
+}

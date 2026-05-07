@@ -31,7 +31,9 @@ interface MenuItem {
   trackStock: boolean;
   stockQty: number;
   category: { id: string; name: string; nameTranslations?: Record<string, string> };
-  _count: { options: number; allergens: number; mealtimes: number };
+  allergens: { allergen: { id: string; name: string; nameTranslations?: Record<string, string> } }[];
+  dietaryPreferences: { dietaryPreference: { id: string; name: string; nameTranslations?: Record<string, string> } }[];
+  _count: { options: number };
 }
 
 interface MenuResponse {
@@ -238,11 +240,29 @@ export default function Menu() {
                           {getTranslated(item.category.name, item.category.nameTranslations, i18n.language)}
                         </span>
                         {item._count.options > 0 && (
-                          <span className="text-xs text-primary-500 bg-primary-50 px-2 py-0.5 rounded-full">
+                          <span className="text-xs text-primary-500 bg-primary-50 px-2 py-0.5 rounded-full font-medium">
                             {t('menu.options')}
                           </span>
                         )}
                       </div>
+
+                      {/* Divider and Tags */}
+                      {(item.allergens?.length > 0 || item.dietaryPreferences?.length > 0) && (
+                        <div className="mt-3 pt-3 border-t border-input/50">
+                          <div className="flex flex-wrap gap-1.5">
+                            {item.allergens?.map((a) => (
+                              <span key={a.allergen.id} className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 font-bold uppercase tracking-wider">
+                                {getTranslated(a.allergen.name, a.allergen.nameTranslations, i18n.language)}
+                              </span>
+                            ))}
+                            {item.dietaryPreferences?.map((d) => (
+                              <span key={d.dietaryPreference.id} className="text-[10px] bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded border border-yellow-200 font-bold uppercase tracking-wider">
+                                {getTranslated(d.dietaryPreference.name, d.dietaryPreference.nameTranslations, i18n.language)}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </button>
                 ))}
