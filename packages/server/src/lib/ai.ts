@@ -96,6 +96,7 @@ export async function translateFields(
   targetLanguages: string[],
   sourceLanguage: string = 'Traditional Chinese'
 ): Promise<{ [key: string]: TranslationResult }> {
+  try {
     const apiKey = getApiKey();
     if (!apiKey) {
       logger.warn('AI Translation skipped: GEMINI_API_KEY not configured.');
