@@ -4,6 +4,7 @@ import type { TemplateId } from '../index.js';
 export interface HeroProps {
   hero: { title?: string; subtitle?: string; ctaPrimaryText?: string; ctaPrimaryLink?: string; ctaSecondaryText?: string; ctaSecondaryLink?: string; backgroundImage?: string } | null;
   t: (key: string) => string;
+  lang?: string;
 }
 
 const ElegantHero = lazy(() => import('./ElegantHero.js'));
