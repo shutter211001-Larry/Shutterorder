@@ -53,12 +53,16 @@ html.dark {
   color: var(--text-main);
 }
 
-.surface-card {
+.surface-card, .bg-white {
   background-color: var(--surface-card);
+  /* Force dark text inside cards regardless of global theme */
+  --text-main: #111827; 
+  --text-sub: #4b5563;
+  --text-hint: #94a3b8;
   border: 1px solid color-mix(in srgb, var(--text-main), transparent 90%);
 }
 
-.surface-brand {
+.surface-brand, .bg-primary-600 {
   background-color: var(--surface-brand);
   /* Scientific Contrast for Brand areas */
   @supports (color: oklch(from white l 0 0)) {
@@ -78,15 +82,6 @@ html.dark {
   @apply px-6 py-3 rounded-xl font-bold transition-all hover:brightness-110 active:scale-95;
   background-color: var(--surface-brand);
   color: var(--text-main);
-}
-
-/* Compatibility with existing Tailwind background classes */
-.bg-white, .surface-card-compat {
-  background-color: var(--surface-card);
-}
-
-.bg-primary-600, .surface-brand-compat {
-  background-color: var(--surface-brand);
 }
 
 html.dark body {
