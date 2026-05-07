@@ -43,7 +43,7 @@ import { useRecentOrders } from '../hooks/useRecentOrders.js';
 export default function OrderStatus() {
   const { t } = useTranslation();
   const { id } = useParams();
-  const { token, user } = useAuth();
+  const { token, user, logout } = useAuth();
   const { settings } = useTheme();
   const { addOrder } = useRecentOrders();
   const [order, setOrder] = useState<any>(null);
@@ -90,6 +90,10 @@ export default function OrderStatus() {
 
     fetch(`${API_BASE}/orders/${id}`, { headers })
       .then((res) => {
+        if (res.status === 401) {
+          logout();
+          throw new Error('UNAUTHORIZED_SILENT');
+        }
         if (res.status === 403) throw new Error('LINKED_TO_ACCOUNT');
         if (!res.ok) throw new Error(`API_ERROR_${res.status}`);
         return res.json();
@@ -111,6 +115,7 @@ export default function OrderStatus() {
         }
       })
       .catch((err) => {
+        if (err.message === 'UNAUTHORIZED_SILENT') return;
         console.error('Order fetch failed:', err);
         if (err.message === 'LINKED_TO_ACCOUNT') {
           setError(t('orders.linkedToAccount'));
