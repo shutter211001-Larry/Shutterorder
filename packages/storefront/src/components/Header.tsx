@@ -31,7 +31,7 @@ function ClassicHeader() {
   }
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
+    <header className="surface-card shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -43,7 +43,7 @@ function ClassicHeader() {
                 <span className="text-white font-bold text-sm">{settings.siteName.charAt(0)}</span>
               </div>
             )}
-            <span className="text-xl font-bold text-gray-900 dark:text-white">{settings.siteName}</span>
+            <span className="text-xl font-bold text-main">{settings.siteName}</span>
           </Link>
 
           {/* Desktop nav */}
@@ -54,8 +54,8 @@ function ClassicHeader() {
                 to={link.to}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive(link.to)
-                    ? 'text-primary-600 bg-primary-50 dark:bg-primary-900/30'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'text-primary-600 bg-primary-50'
+                    : 'text-sub hover:text-main hover:bg-surface'
                 }`}
               >
                 {link.label}
@@ -83,7 +83,7 @@ function ClassicHeader() {
               <LanguageSwitcher />
               <button
                 onClick={() => openCart(true)}
-                className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                className="relative p-2 text-sub hover:text-main hover:bg-surface rounded-md"
                 aria-label={t('nav.openCart')}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,18 +98,18 @@ function ClassicHeader() {
             </div>
             {settings.showMembership && (
               isLoading ? (
-                <div className="w-5 h-5 border-2 border-gray-200 border-t-primary-600 rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-input border-t-primary-600 rounded-full animate-spin" />
               ) : user ? (
                 <>
                   <Link
                     to="/account"
-                    className="text-sm text-gray-600 hover:text-gray-900"
+                    className="text-sm text-sub hover:text-main"
                   >
                     {user.name}
                   </Link>
                   <button
                     onClick={logout}
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    className="text-sm text-hint hover:text-sub"
                   >
                     {t('nav.logout')}
                   </button>
@@ -118,7 +118,7 @@ function ClassicHeader() {
                 <>
                   <Link
                     to="/login"
-                    className="text-sm text-gray-600 hover:text-gray-900"
+                    className="text-sm text-sub hover:text-main"
                   >
                     {t('nav.login')}
                   </Link>
@@ -138,7 +138,7 @@ function ClassicHeader() {
             <LanguageSwitcher />
             <button
               onClick={() => openCart(true)}
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
+              className="relative p-2 text-sub hover:text-main hover:bg-surface rounded-md"
               aria-label={t('nav.openCart')}
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,7 +151,7 @@ function ClassicHeader() {
               )}
             </button>
           <button
-            className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className="p-2 rounded-md text-sub hover:text-main hover:bg-surface"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={t('nav.toggleMenu')}
           >
@@ -171,7 +171,7 @@ function ClassicHeader() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <div className="md:hidden border-t border-input surface-card">
           <div className="px-4 py-3 space-y-1">
             {navLinks.map((link) => (
               <Link
@@ -181,7 +181,7 @@ function ClassicHeader() {
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   isActive(link.to)
                     ? 'text-primary-600 bg-primary-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    : 'text-sub hover:text-main hover:bg-surface'
                 }`}
               >
                 {link.label}
@@ -210,13 +210,13 @@ function ClassicHeader() {
                     <Link
                       to="/account"
                       onClick={() => setMobileOpen(false)}
-                      className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900"
+                      className="block px-3 py-2 text-base font-medium text-sub hover:text-main"
                     >
                       {t('nav.myAccount')}
                     </Link>
                     <button
                       onClick={() => { logout(); setMobileOpen(false); }}
-                      className="block w-full text-left px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700"
+                      className="block w-full text-left px-3 py-2 text-base font-medium text-hint hover:text-sub"
                     >
                       {t('nav.logout')}
                     </button>
@@ -226,7 +226,7 @@ function ClassicHeader() {
                     <Link
                       to="/login"
                       onClick={() => setMobileOpen(false)}
-                      className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900"
+                      className="block px-3 py-2 text-base font-medium text-sub hover:text-main"
                     >
                       {t('nav.login')}
                     </Link>
@@ -255,7 +255,7 @@ export default function Header() {
 
   if (VariantHeader) {
     return (
-      <Suspense fallback={<div className="h-16 bg-white dark:bg-gray-900" />}>
+      <Suspense fallback={<div className="h-16 surface-card" />}>
         <VariantHeader />
       </Suspense>
     );
