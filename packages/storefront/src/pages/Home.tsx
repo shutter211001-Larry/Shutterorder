@@ -74,23 +74,31 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
 
   return (
     <section
-      className="bg-gradient-to-br from-primary-600 to-primary-800 surface-brand"
+      className="relative min-h-[60vh] flex items-center overflow-hidden surface-brand"
       style={heroStyle}
     >
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28${hero?.backgroundImage ? ' bg-black/40' : ''}`}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-6xl font-extrabold mb-6 leading-tight text-main">
-            {hero?.title || t('home.heroTitle')}
-          </h1>
-          <p className="text-lg lg:text-xl mb-10 max-w-2xl mx-auto text-sub">
-            {hero?.subtitle || t('home.heroDescription')}
-          </p>
-          <div className="flex flex-wrap justify-center gap-6">
+      {/* Smart Contrast Overlay */}
+      {hero?.backgroundImage && (
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+      )}
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 w-full">
+        <div className="max-w-4xl">
+          {/* Welcome Message Container with Glassmorphism for independent contrast detection */}
+          <div className={`inline-block p-2 rounded-2xl ${hero?.backgroundImage ? 'backdrop-blur-sm bg-black/10' : ''}`}>
+            <h1 className="text-4xl lg:text-7xl font-black mb-6 leading-tight text-white drop-shadow-xl">
+              {hero?.title || t('home.heroTitle')}
+            </h1>
+            <p className="text-lg lg:text-2xl mb-10 max-w-2xl text-white/90 drop-shadow-md">
+              {hero?.subtitle || t('home.heroDescription')}
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-6 mt-4">
             {settings.navShowMenu && (
               <Link
                 to={hero?.ctaPrimaryLink || '/menu'}
-                className="bg-white text-primary-700 px-10 py-4 rounded-xl font-bold hover:bg-primary-50 transition-all transform hover:scale-105 shadow-lg text-lg"
-                style={{ fontSize: '1.2rem' }}
+                className="bg-white text-primary-700 px-10 py-4 rounded-xl font-bold hover:bg-primary-50 transition-all transform hover:scale-105 shadow-xl text-lg"
               >
                 {hero?.ctaPrimaryText || t('home.viewMenu')}
               </Link>
@@ -103,8 +111,7 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
                 return (
                   <Link
                     to={link}
-                    className="border-2 border-white text-white px-10 py-4 rounded-xl font-bold hover:bg-white/10 transition-all transform hover:scale-105 text-lg"
-                    style={{ fontSize: '1.2rem' }}
+                    className="backdrop-blur-md bg-white/10 border-2 border-white/30 text-white px-10 py-4 rounded-xl font-bold hover:bg-white/20 transition-all transform hover:scale-105 text-lg"
                   >
                     {hero?.ctaSecondaryText}
                   </Link>
