@@ -41,7 +41,10 @@ export function createApp() {
 
   // Middleware
   app.use(requestId);
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // In development/simple production, we can disable or fine-tune this
+  }));
   const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
   app.use(cors({
     origin: (origin, callback) => {
