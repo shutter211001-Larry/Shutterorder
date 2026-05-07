@@ -18,16 +18,11 @@ export default function LanguageSwitcher() {
         return <span className="text-[10px] font-bold tracking-tight text-main/80">TW</span>;
       }
       return (
-        <svg className="w-5 h-3.5 shadow-sm rounded-sm overflow-hidden border border-black/5" viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg">
-          <rect width="720" height="480" fill="#fe0000"/>
-          <rect width="360" height="240" fill="#000090"/>
-          <g transform="translate(180,120)">
-            <circle r="60" fill="#fff"/>
-            <path d="m0-80 10.392 38.784 31.216-25.216-10.392 38.785 38.784-10.392-25.216 31.216 38.785 10.392-38.784 10.392 25.216 31.216-38.785-10.392 10.392 38.784-31.216-25.216 10.392-38.785-38.784 10.392 25.216-31.216-38.785-10.392 38.784-10.392-25.216-31.216z" fill="#000090"/>
-            <circle r="42.5" fill="#fff"/>
-            <circle r="37.5" fill="#000090"/>
-          </g>
-        </svg>
+        <img 
+          src="/flag_tw.svg" 
+          className="w-5 h-3.5 shadow-sm rounded-sm object-cover border border-black/5" 
+          alt="TW Flag"
+        />
       );
     }
     
