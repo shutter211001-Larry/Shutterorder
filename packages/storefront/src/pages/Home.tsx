@@ -78,18 +78,19 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
       style={heroStyle}
     >
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28${hero?.backgroundImage ? ' bg-black/40' : ''}`}>
-        <div className="max-w-2xl">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl lg:text-6xl font-extrabold mb-6 leading-tight">
             {hero?.title || t('home.heroTitle')}
           </h1>
-          <p className="text-lg text-primary-100 mb-8">
+          <p className="text-lg lg:text-xl text-primary-100 mb-10 max-w-2xl mx-auto">
             {hero?.subtitle || t('home.heroDescription')}
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap justify-center gap-6">
             {settings.navShowMenu && (
               <Link
                 to={hero?.ctaPrimaryLink || '/menu'}
-                className="bg-white text-primary-700 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
+                className="bg-white text-primary-700 px-10 py-4 rounded-xl font-bold hover:bg-primary-50 transition-all transform hover:scale-105 shadow-lg text-lg"
+                style={{ fontSize: '1.2rem' }}
               >
                 {hero?.ctaPrimaryText || t('home.viewMenu')}
               </Link>
@@ -102,7 +103,8 @@ function ClassicHero({ hero, t }: { hero: HeroSection | null; t: (k: string) => 
                 return (
                   <Link
                     to={link}
-                    className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors"
+                    className="border-2 border-white text-white px-10 py-4 rounded-xl font-bold hover:bg-white/10 transition-all transform hover:scale-105 text-lg"
+                    style={{ fontSize: '1.2rem' }}
                   >
                     {hero?.ctaSecondaryText}
                   </Link>
@@ -139,7 +141,7 @@ function ClassicFeatures({ features, t }: { features: FeatureItem[] | null; t: (
           ))
         ) : (
           <>
-            {settings.navShowMenu && (
+            {settings.orderSettings?.deliveryEnabled && (
               <FeatureCard icon="clock" title={t('home.fastDelivery')} description={t('home.fastDeliveryDesc')} />
             )}
             {settings.navShowLocations && (
