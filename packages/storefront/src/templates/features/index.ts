@@ -4,6 +4,7 @@ import type { TemplateId } from '../index.js';
 export interface FeaturesProps {
   features: Array<{ icon: string; title: string; description: string }> | null;
   t: (key: string) => string;
+  lang?: string;
 }
 
 const ElegantFeatures = lazy(() => import('./ElegantFeatures.js'));

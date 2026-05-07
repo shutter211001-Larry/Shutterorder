@@ -4,6 +4,7 @@ import type { TemplateId } from '../index.js';
 interface CtaProps {
   cta: { title?: string; description?: string; buttonText?: string; buttonLink?: string } | null;
   t: (key: string) => string;
+  lang?: string;
 }
 
 const ElegantCta = lazy(() => import('./ElegantCta.js'));
