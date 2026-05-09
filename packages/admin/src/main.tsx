@@ -26,6 +26,7 @@ import CouponList from './pages/CouponList.js';
 import CouponForm from './pages/CouponForm.js';
 import ReviewList from './pages/ReviewList.js';
 import KitchenDisplay from './pages/KitchenDisplay.js';
+import CounterDisplay from './pages/CounterDisplay.js';
 import AutomationRuleList from './pages/AutomationRuleList.js';
 import AutomationRuleForm from './pages/AutomationRuleForm.js';
 import DeliveryZoneList from './pages/DeliveryZoneList.js';
@@ -88,6 +89,7 @@ function AppRoutes() {
         <Route path="/reviews" element={<ReviewList />} />
         <Route path="/customers" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CustomerList /></RequireRole>} />
         <Route path="/kitchen" element={<KitchenDisplay />} />
+        <Route path="/counter" element={<CounterDisplay />} />
 
         {/* MANAGER+ */}
         <Route path="/locations" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><LocationList /></RequireRole>} />

@@ -93,31 +93,51 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
   const [pendingCount, setPendingCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [enableCounterDisplay, setEnableCounterDisplay] = useState(false);
+
+  // Poll pending order count and settings
+  useEffect(() => {
+    if (!token) return;
+
+    async function fetchData() {
+      try {
+        const statsRes = await fetch('/api/dashboard/stats', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const statsData = await statsRes.json();
+        if (statsData.success && statsData.data) {
+          setPendingCount(statsData.data.pendingOrders ?? 0);
+        }
+
+        const settingsRes = await fetch('/api/settings/order', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const settingsData = await settingsRes.json();
+        if (settingsData.success && settingsData.data) {
+          setEnableCounterDisplay(!!settingsData.data.enableCounterDisplay);
+        }
+      } catch { /* ignore */ }
+    }
+
+    fetchData();
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const filteredNav = user
     ? navItems.filter((item) => item.roles.includes(user.role))
     : [];
 
-  // Poll pending order count
-  useEffect(() => {
-    if (!token) return;
-
-    async function fetchPending() {
-      try {
-        const res = await fetch('/api/dashboard/stats', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (data.success && data.data) {
-          setPendingCount(data.data.pendingOrders ?? 0);
-        }
-      } catch { /* ignore */ }
+  // Inject Counter link if enabled
+  if (enableCounterDisplay && user && !filteredNav.some(item => item.path === '/counter')) {
+    const kitchenIdx = filteredNav.findIndex(item => item.path === '/kitchen');
+    const counterItem = { path: '/counter', label: 'nav.counter', icon: '🏪', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] as Role[] };
+    if (kitchenIdx !== -1) {
+      filteredNav.splice(kitchenIdx + 1, 0, counterItem);
+    } else {
+      filteredNav.push(counterItem);
     }
-
-    fetchPending();
-    const interval = setInterval(fetchPending, 60000);
-    return () => clearInterval(interval);
-  }, [token]);
+  }
 
   // Close dropdown on click outside
   useEffect(() => {

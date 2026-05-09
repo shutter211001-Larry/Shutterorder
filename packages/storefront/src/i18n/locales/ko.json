@@ -11,7 +11,8 @@
     "search": "검색",
     "noResults": "결과를 찾을 수 없습니다",
     "viewAll": "모두 보기",
-    "required": "필수"
+    "required": "필수",
+    "guest": "게스트"
   },
   "nav": {
     "home": "홈",

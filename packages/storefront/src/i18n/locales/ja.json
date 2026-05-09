@@ -11,7 +11,8 @@
     "search": "検索",
     "noResults": "結果が見つかりません",
     "viewAll": "すべて表示",
-    "required": "必須"
+    "required": "必須",
+    "guest": "ゲスト"
   },
   "nav": {
     "home": "ホーム",
