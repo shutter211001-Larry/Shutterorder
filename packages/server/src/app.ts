@@ -148,7 +148,7 @@ export function createApp() {
   app.get('/api/debug-db', async (_req, res) => {
     try {
       const userCount = await prisma.user.count();
-      const productCount = await prisma.product.count();
+      const productCount = await prisma.menuItem.count();
       const categoryCount = await prisma.category.count();
       const locationCount = await prisma.location.count();
       const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
@@ -158,7 +158,7 @@ export function createApp() {
         success: true, 
         counts: {
           users: userCount,
-          products: productCount,
+          menuItems: productCount,
           categories: categoryCount,
           locations: locationCount,
           hasDefaultSettings: !!settings
