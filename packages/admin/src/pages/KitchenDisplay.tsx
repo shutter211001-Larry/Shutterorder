@@ -20,7 +20,10 @@ interface KitchenOrder {
   comment: string | null;
   createdAt: string;
   scheduledAt: string | null;
-  customer: { name: string } | null;
+  customer: { name: string; phone?: string; email?: string } | null;
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
   items: OrderItem[];
   isRemote?: boolean;
 }
@@ -44,12 +47,24 @@ export default function KitchenDisplay() {
   const { t } = useTranslation();
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [enableCounterDisplay, setEnableCounterDisplay] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [socketError, setSocketError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  useEffect(() => {
+    fetch('/api/settings/order', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success && res.data) {
+          setEnableCounterDisplay(!!res.data.enableCounterDisplay);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchOrders = useCallback(() => {
     // Fetch active orders (non-completed, non-cancelled)
@@ -235,7 +250,12 @@ export default function KitchenDisplay() {
                     <span className="ml-2 text-indigo-600 font-medium">
                       {new Date(order.scheduledAt!).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </span>
-                    {order.customer && <span className="ml-2 text-gray-500">{order.customer.name}</span>}
+                    <span className="ml-2 text-gray-500 font-bold">
+                      {order.customer?.name || order.guestName || '顧客'}
+                    </span>
+                    {!enableCounterDisplay && (order.customer?.phone || order.guestPhone) && (
+                      <span className="ml-1 text-blue-600">({order.customer?.phone || order.guestPhone})</span>
+                    )}
                     <span className="ml-2 text-gray-400">{order.items.length} 個品項</span>
                   </div>
                 ))}
@@ -292,9 +312,18 @@ export default function KitchenDisplay() {
                         <span className="text-xs text-gray-400">{getTimeSince(order.createdAt)}</span>
                       </div>
 
-                      {/* Customer */}
-                      {order.customer && (
-                        <p className="text-xs text-gray-500 mb-2">{order.customer.name}</p>
+                      {/* Customer info for single-person operation */}
+                      {(!enableCounterDisplay) && (
+                        <div className="mb-3 p-2 bg-gray-50 rounded border border-gray-100">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-gray-700">
+                              {order.customer?.name || order.guestName || '顧客'}
+                            </span>
+                            <span className="text-[10px] text-blue-600 font-bold">
+                              {order.customer?.phone || order.guestPhone}
+                            </span>
+                          </div>
+                        </div>
                       )}
 
                       {/* Items */}
