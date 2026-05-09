@@ -315,13 +315,20 @@ export default function KitchenDisplay() {
                       {/* Customer info for single-person operation */}
                       {(!enableCounterDisplay) && (
                         <div className="mb-3 p-2 bg-gray-50 rounded border border-gray-100">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-gray-700">
-                              {order.customer?.name || order.guestName || '顧客'}
-                            </span>
-                            <span className="text-[10px] text-blue-600 font-bold">
-                              {order.customer?.phone || order.guestPhone}
-                            </span>
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-gray-700">
+                                {order.customer?.name || order.guestName || '顧客'}
+                              </span>
+                              <span className="text-[10px] text-blue-600 font-bold">
+                                {order.customer?.phone || order.guestPhone}
+                              </span>
+                            </div>
+                            {(order.customer?.email || order.guestEmail) && (
+                              <p className="text-[10px] text-gray-400 truncate">
+                                {order.customer?.email || order.guestEmail}
+                              </p>
+                            )}
                           </div>
                         </div>
                       )}
