@@ -104,7 +104,7 @@ export default function Login() {
                   try {
                     const liff = (window as any).liff;
                     if (!liff) return;
-                    await liff.init({ liffId: settings.lineSettings.liffId });
+                    await liff.init({ liffId: settings.lineSettings!.liffId });
                     if (!liff.isLoggedIn()) {
                       liff.login();
                       return;

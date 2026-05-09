@@ -151,7 +151,7 @@ export default function Account() {
                               alert('LINE SDK 尚未載入，請稍候');
                               return;
                             }
-                            await liff.init({ liffId: settings.lineSettings.liffId });
+                            await liff.init({ liffId: settings.lineSettings!.liffId });
                             if (!liff.isLoggedIn()) {
                               liff.login();
                               return;
