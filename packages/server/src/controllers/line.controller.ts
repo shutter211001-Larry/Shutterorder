@@ -30,6 +30,7 @@ export async function getLineStatus(req: Request, res: Response) {
       hasSecret,
       hasToken,
       liffId: lineSettings.liffId || '',
+      officialAccountUrl: lineSettings.officialAccountUrl || '',
     }
   });
 }

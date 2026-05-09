@@ -13,10 +13,12 @@ export default function SettingsLine() {
     isConfigured: false,
     hasSecret: false,
     hasToken: false,
-    liffId: ''
+    liffId: '',
+    officialAccountUrl: ''
   });
 
   const [liffId, setLiffId] = useState('');
+  const [officialAccountUrl, setOfficialAccountUrl] = useState('');
 
   useEffect(() => {
     fetchStatus();
@@ -28,6 +30,7 @@ export default function SettingsLine() {
       if (res.success && res.data) {
         setStatus(res.data);
         setLiffId(res.data.liffId || '');
+        setOfficialAccountUrl(res.data.officialAccountUrl || '');
       }
     } catch (err) {
       console.error('Failed to fetch LINE status');
@@ -41,9 +44,9 @@ export default function SettingsLine() {
     setError('');
     setSuccess('');
     try {
-      // Save LIFF ID to database (non-sensitive)
+      // Save LIFF ID and Account URL to database
       await api.put('/settings', { 
-        lineSettings: { liffId } 
+        lineSettings: { liffId, officialAccountUrl } 
       });
       setSuccess('設定已儲存');
       fetchStatus();
@@ -79,6 +82,25 @@ export default function SettingsLine() {
 
       <div className="space-y-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">官方帳號連結</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">加入好友網址</label>
+              <input
+                type="text"
+                value={officialAccountUrl}
+                onChange={(e) => setOfficialAccountUrl(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                placeholder="例如 https://line.me/R/ti/p/@yourid"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                請在 LINE Official Account Manager 取得您的「加入好友」連結。前台將會使用此連結導引顧客。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">系統環境變數狀態</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={`p-4 rounded-lg border ${status.hasSecret ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
@@ -101,13 +123,6 @@ export default function SettingsLine() {
                 )}
               </div>
             </div>
-          </div>
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="text-xs text-gray-600 leading-relaxed">
-              <span className="font-bold text-gray-800">提示：</span> 
-              為了安全性，LINE 的 API 憑證現在必須透過系統環境變數設定。
-              如果您使用的是 Railway，請前往 <strong>Variables</strong> 頁面新增上述兩個變數。
-            </p>
           </div>
         </div>
 

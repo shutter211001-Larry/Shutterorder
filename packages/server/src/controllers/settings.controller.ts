@@ -36,6 +36,10 @@ const updateSettingsSchema = z.object({
     title: z.string().optional(),
     description: z.string().optional(),
   }).optional(),
+  lineSettings: z.object({
+    liffId: z.string().optional(),
+    officialAccountUrl: z.string().optional(),
+  }).optional(),
 });
 
 async function getOrCreateSettings() {
@@ -102,6 +106,7 @@ function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSetting
     reservationSettings: settings.reservationSettings ? {
       enabled: isTrue(reservation.enabled, true),
     } : undefined,
+    lineSettings: getJson(settings.lineSettings),
     createdAt: settings.createdAt,
     updatedAt: settings.updatedAt,
   };
