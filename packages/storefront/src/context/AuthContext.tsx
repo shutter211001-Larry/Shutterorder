@@ -6,6 +6,8 @@ interface User {
   email: string;
   name: string;
   phone?: string;
+  lineUserId?: string;
+  lineDisplayName?: string;
 }
 
 interface AuthContextType {

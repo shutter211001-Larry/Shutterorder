@@ -7,6 +7,8 @@ interface User {
   role: 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
   phone?: string | null;
   avatar?: string | null;
+  lineUserId?: string | null;
+  lineDisplayName?: string | null;
 }
 
 interface AuthContextValue {
