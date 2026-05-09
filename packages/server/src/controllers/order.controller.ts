@@ -468,7 +468,7 @@ export async function listOrders(req: Request, res: Response): Promise<void> {
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        customer: { select: { id: true, name: true, email: true } },
+        customer: { select: { id: true, name: true, email: true, phone: true } },
         location: { select: { id: true, name: true } },
         _count: { select: { items: true } },
         ...(includeItems ? { items: { include: { options: true } } } : {}),

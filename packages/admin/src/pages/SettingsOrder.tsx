@@ -20,6 +20,7 @@ export default function SettingsOrder() {
   const [enableTipping, setEnableTipping] = useState(false);
   const [tipOptionsStr, setTipOptionsStr] = useState('10,15,20,25');
   const [taxRate, setTaxRate] = useState(0);
+  const [enableCounterDisplay, setEnableCounterDisplay] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState<Record<string, boolean>>({
     PLACED: true,
     CONFIRMED: true,
@@ -47,6 +48,7 @@ export default function SettingsOrder() {
           if (d.pickupLeadTime !== undefined) setPickupLeadTime(d.pickupLeadTime);
           if (d.enableFutureOrdering !== undefined) setEnableFutureOrdering(d.enableFutureOrdering);
           if (d.enableTipping !== undefined) setEnableTipping(d.enableTipping);
+          if (d.enableCounterDisplay !== undefined) setEnableCounterDisplay(d.enableCounterDisplay);
           if (d.tipOptions) setTipOptionsStr(d.tipOptions.join(','));
           if (d.taxRate !== undefined) setTaxRate(d.taxRate);
           if (d.emailNotifications) {
@@ -78,6 +80,7 @@ export default function SettingsOrder() {
           pickupLeadTime, 
           enableFutureOrdering, 
           enableTipping, 
+          enableCounterDisplay,
           tipOptions, 
           taxRate,
           emailNotifications 
@@ -159,6 +162,14 @@ export default function SettingsOrder() {
             </div>
           </label>
 
+          <label className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100 cursor-pointer">
+            <input type="checkbox" checked={enableCounterDisplay} onChange={(e) => setEnableCounterDisplay(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
+            <div>
+              <p className="text-sm font-bold text-gray-900">啟用「櫃台看板」功能</p>
+              <p className="text-xs text-gray-500">在側邊欄開啟櫃台專用的看板，可顯示顧客姓名與聯絡電話以利配餐</p>
+            </div>
+          </label>
+
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={enableFutureOrdering} onChange={(e) => setEnableFutureOrdering(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
             <span className="text-sm font-medium text-gray-700">允許預約未來訂單 (Scheduled orders)</span>
@@ -223,3 +234,4 @@ export default function SettingsOrder() {
     </div>
   );
 }
+

@@ -6,6 +6,7 @@
     "reviews": "評價管理",
     "customers": "會員管理",
     "kitchen": "廚房看板",
+    "counter": "櫃台看板",
     "locations": "分店設定",
     "menu": "菜單管理",
     "menuItems": "餐點列表",
@@ -47,7 +48,8 @@
     "description": "描述",
     "createdAt": "建立時間",
     "updatedAt": "更新時間",
-    "refresh": "重新整理"
+    "refresh": "重新整理",
+    "guest": "顧客"
   },
   "dashboard": {
     "title": "控制面板",
