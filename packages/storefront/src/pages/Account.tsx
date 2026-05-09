@@ -138,21 +138,39 @@ export default function Account() {
             ) : (
               <div>
                 <p className="text-sm text-sub mb-4">{t('account.lineBindingDesc')}</p>
+                
                 <div className="space-y-4">
-                  <div className="text-xs bg-primary-50 text-primary-700 p-3 rounded-lg border border-primary-100">
-                    <p className="font-bold mb-1">如何綁定：</p>
-                    <ol className="list-decimal list-inside space-y-1">
-                      <li>關注我們的 LINE 官方帳號</li>
-                      <li>在對話框輸入 「id」 並送出</li>
-                      <li>將得到的 ID 填入下方欄位點擊綁定</li>
+                  {settings.lineSettings?.officialAccountUrl && (
+                    <div className="mb-4">
+                      <a
+                        href={settings.lineSettings.officialAccountUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-3 w-full py-3 bg-[#06C755] text-white rounded-xl font-bold hover:bg-[#05b34c] transition-all shadow-lg shadow-green-100"
+                      >
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2c5.514 0 10 3.592 10 8.007 0 3.532-2.855 6.478-6.728 7.513-.337.07-.797.222-.912.511-.103.263-.068.675-.033 1.112.035.437.166 1.764.19 1.954.024.19.112.743-.243.812-.355.07-.944-.456-1.32-.821-.376-.365-1.74-2.023-2.373-2.857-2.73-.012-5.461-1.853-5.461-5.187C5 5.592 9.486 2 12 2z" />
+                        </svg>
+                        一鍵關注官方帳號
+                      </a>
+                    </div>
+                  )}
+
+                  <div className="text-xs bg-gray-50 text-sub p-4 rounded-xl border border-gray-100">
+                    <p className="font-bold text-main mb-2">綁定三步驟：</p>
+                    <ol className="list-decimal list-inside space-y-2">
+                      <li>點擊上方按鈕關注我們的官方帳號</li>
+                      <li>在 LINE 對話框輸入 「<span className="text-primary-600 font-bold">id</span>」 並送出</li>
+                      <li>將得到的 ID 貼回下方完成連結</li>
                     </ol>
                   </div>
+
                   <div className="flex gap-2">
                     <input
                       id="lineIdInput"
                       type="text"
-                      placeholder="請輸入 LINE User ID (U...)"
-                      className="flex-1 px-3 py-2 text-sm border border-input rounded-lg focus:ring-1 focus:ring-primary-500 outline-none"
+                      placeholder="貼上您的 LINE ID (U...)"
+                      className="flex-1 px-4 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                     />
                     <button
                       onClick={async () => {
@@ -178,9 +196,9 @@ export default function Account() {
                           alert('綁定失敗');
                         }
                       }}
-                      className="px-6 py-2 text-sm font-medium text-white bg-[#06C755] hover:bg-[#05b34c] rounded-lg transition-colors shadow-sm"
+                      className="px-6 py-2 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                     >
-                      {t('account.bindLine')}
+                      確認連結
                     </button>
                   </div>
                 </div>
