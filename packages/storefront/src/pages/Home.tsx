@@ -157,7 +157,13 @@ function ClassicFeatures({ features, t, lang }: { features: FeatureItem[] | null
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {features && features.length > 0 ? (
-          features.map((feature, i) => (
+          features
+            .filter(f => {
+              if (!settings.navShowLocations && (f.title.includes('分店') || f.title.includes('定位') || f.title.includes('預約'))) return false;
+              if (!settings.navShowReservations && f.title.includes('預約')) return false;
+              return true;
+            })
+            .map((feature, i) => (
             <div key={i} className="text-center p-6">
               <div className="w-14 h-14 bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl">
                 {feature.icon}
@@ -178,7 +184,7 @@ function ClassicFeatures({ features, t, lang }: { features: FeatureItem[] | null
             {settings.navShowLocations && (
               <FeatureCard icon="clipboard" title={t('home.easyOrdering')} description={t('home.easyOrderingDesc')} />
             )}
-            {settings.navShowLocations && settings.navShowReservations && (
+            {settings.navShowLocations && settings.navShowReservations && settings.reservationSettings?.enabled && (
               <FeatureCard icon="calendar" title={t('home.tableReservations')} description={t('home.tableReservationsDesc')} />
             )}
           </>
