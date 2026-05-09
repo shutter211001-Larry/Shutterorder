@@ -147,13 +147,23 @@ export function createApp() {
   // Temporary Debug Route
   app.get('/api/debug-db', async (_req, res) => {
     try {
-      const users = await prisma.user.findMany({ select: { email: true } });
-      const dbUrl = process.env.DATABASE_URL?.replace(/:[^:@/]+@/, ':****@'); // Mask password
+      const userCount = await prisma.user.count();
+      const productCount = await prisma.product.count();
+      const categoryCount = await prisma.category.count();
+      const locationCount = await prisma.location.count();
+      
+      const dbUrl = process.env.DATABASE_URL?.replace(/:[^:@/]+@/, ':****@');
       res.json({ 
         success: true, 
-        userCount: users.length, 
-        emails: users.map((u: { email: string }) => u.email),
-        connectedTo: dbUrl 
+        counts: {
+          users: userCount,
+          products: productCount,
+          categories: categoryCount,
+          locations: locationCount
+        },
+        connectedTo: dbUrl,
+        cwd: process.cwd(),
+        uploadsDir: path.resolve(process.cwd(), 'uploads')
       });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
