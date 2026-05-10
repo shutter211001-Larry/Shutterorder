@@ -3,7 +3,7 @@ import prisma from './db.js';
 import logger from './logger.js';
 
 interface AuditOptions {
-  action: 'create' | 'update' | 'delete';
+  action: 'create' | 'update' | 'delete' | 'honeypot_triggered' | 'blocked_access';
   entity: string;
   entityId?: string;
   details?: Record<string, unknown>;
