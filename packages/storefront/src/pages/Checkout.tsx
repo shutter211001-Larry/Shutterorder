@@ -387,7 +387,9 @@ export default function Checkout() {
           {/* Schedule */}
           {orderSettings?.enableFutureOrdering && (
             <div className="surface-card rounded-xl shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-main mb-4">{t('checkout.scheduling')}</h2>
+              <h2 className="text-lg font-semibold text-main mb-4">
+                {orderType === 'delivery' ? t('checkout.deliveryTime') || '選擇送達時間' : t('checkout.scheduling')}
+              </h2>
               <div className="space-y-4">
                 <div className="flex gap-2">
                   <button
@@ -402,7 +404,9 @@ export default function Checkout() {
                           : 'border-input text-sub hover:border-gray-300'
                     }`}
                   >
-                    {isClosedNow ? t('checkout.closed') || '已打烊' : t('checkout.asap')}
+                    {isClosedNow 
+                      ? t('checkout.closed') || '今日已打烊' 
+                      : orderType === 'delivery' ? t('checkout.asap_delivery') : t('checkout.asap_pickup')}
                   </button>
                   <button
                     type="button"
@@ -418,7 +422,7 @@ export default function Checkout() {
                         : 'border-input text-sub hover:border-gray-300'
                     }`}
                   >
-                    {t('checkout.scheduled')}
+                    {orderType === 'delivery' ? t('checkout.scheduled_delivery') : t('checkout.scheduled_pickup')}
                   </button>
                 </div>
 
