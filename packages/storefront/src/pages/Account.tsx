@@ -14,6 +14,11 @@ export default function Account() {
   const [isSettingPassword, setIsSettingPassword] = useState(false);
   const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
   
+  // Merge State
+  const [showMergePrompt, setShowMergePrompt] = useState<{ provider: 'google' | 'line', id: string } | null>(null);
+  const [mergePassword, setMergePassword] = useState('');
+  const [isMerging, setIsMerging] = useState(false);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', phone: '' });
   const [isSaving, setIsSaving] = useState(false);
@@ -23,6 +28,19 @@ export default function Account() {
       setEditForm({ name: user.name || '', phone: user.phone || '' });
     }
   }, [user]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const provider = params.get('provider') as 'google' | 'line';
+    const socialId = params.get('socialId');
+
+    if (error === 'conflict' && provider) {
+      setShowMergePrompt({ provider, id: socialId || '' });
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleUpdateProfile = async () => {
     setIsSaving(true);
@@ -108,6 +126,36 @@ export default function Account() {
     }
   };
 
+  const handleMergeSocial = async () => {
+    if (!showMergePrompt || !mergePassword) return;
+    setIsMerging(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/social/merge`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ 
+          provider: showMergePrompt.provider, 
+          socialId: showMergePrompt.id, 
+          password: mergePassword 
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || '帳號整合成功！');
+        window.location.reload();
+      } else {
+        alert(data.error || '整合失敗');
+      }
+    } catch (err) {
+      alert('整合過程中發生錯誤');
+    } finally {
+      setIsMerging(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -123,6 +171,115 @@ export default function Account() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-main mb-8">{t('account.title')}</h1>
+
+      {/* Account Merge Modal (Security Check) */}
+      {showMergePrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-main mb-2">偵測到帳號衝突</h2>
+              <p className="text-sm text-sub leading-relaxed mb-6">
+                您剛登入的 {showMergePrompt.provider === 'google' ? 'Google' : 'LINE'} 帳號已連結至另一個會員。
+                如果您希望將該帳號的 **訂單記錄與紅利點數** 整合至目前帳號，請進行身份驗證。
+              </p>
+
+              <div className="space-y-4">
+                {/* Option 1: Password (if they have one) */}
+                {(user as any).hasPassword ? (
+                  <div>
+                    <label className="block text-sm font-medium text-hint mb-1">方式 1：輸入目前帳號密碼</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="password"
+                        value={mergePassword}
+                        onChange={(e) => setMergePassword(e.target.value)}
+                        placeholder="本站登入密碼"
+                        className="flex-1 px-4 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                      <button
+                        disabled={isMerging || !mergePassword}
+                        onClick={handleMergeSocial}
+                        className="px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                      >
+                        驗證
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                    <p className="text-xs text-sub">您尚未設定本站密碼，建議先設定密碼以強化帳號安全。</p>
+                    <button 
+                      onClick={() => { setShowMergePrompt(null); setShowPasswordSetup(true); }}
+                      className="text-xs font-bold text-primary-600 mt-1 hover:underline"
+                    >
+                      立即前往設定密碼
+                    </button>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-hint">或使用</span></div>
+                </div>
+
+                {/* Option 2: Re-verify Social */}
+                <div>
+                  <label className="block text-sm font-medium text-hint mb-1">方式 2：重新驗證社交帳號</label>
+                  <button
+                    onClick={() => {
+                      if (showMergePrompt.provider === 'google') {
+                        window.location.href = `${API_BASE}/auth/google?prompt=select_account&redirectUri=${encodeURIComponent(window.location.origin + '/account')}`;
+                      } else {
+                        alert('請再次點擊連結按鈕以重新核對 LINE 身份');
+                        setShowMergePrompt(null);
+                      }
+                    }}
+                    className="w-full py-2 border border-primary-200 text-primary-700 text-sm font-bold rounded-lg hover:bg-primary-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    重新驗證 {showMergePrompt.provider === 'google' ? 'Google' : 'LINE'} 身份
+                  </button>
+                </div>
+                
+                <div className="bg-amber-50 p-3 rounded-lg border border-amber-100">
+                  <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                    ⚠️ 整合後，系統將合併兩個帳號的所有記錄。為了您的安全，若您無法通過上述驗證，將無法進行整合。
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setShowMergePrompt(null);
+                    setMergePassword('');
+                  }}
+                  className="w-full py-2 text-sm text-hint hover:text-sub"
+                >
+                  取消，維持現狀
+                </button>
+              </div>
+                <button
+                  onClick={() => {
+                    setShowMergePrompt(null);
+                    setMergePassword('');
+                  }}
+                  className="w-full py-2 text-sm text-hint hover:text-sub"
+                >
+                  取消，維持現狀
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="surface-card rounded-xl shadow-sm border overflow-hidden">
         {/* Profile */}
@@ -323,6 +480,8 @@ export default function Account() {
                       if (data.success) {
                         alert('LINE 連結成功！');
                         window.location.reload();
+                      } else if (data.error && data.error.includes('已被其他會員連結')) {
+                        setShowMergePrompt({ provider: 'line', id: profile.userId });
                       } else {
                         alert(data.error);
                       }
