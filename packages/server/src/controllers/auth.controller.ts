@@ -251,3 +251,31 @@ export async function deleteMe(req: Request, res: Response): Promise<void> {
     res.status(500).json({ success: false, error: 'Failed to delete account' });
   }
 }
+
+export async function setPassword(req: Request, res: Response): Promise<void> {
+  if (!req.user || req.user.type !== 'customer') {
+    res.status(401).json({ success: false, error: 'Not authenticated' });
+    return;
+  }
+
+  const schema = z.object({ password: z.string().min(6) });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
+    return;
+  }
+
+  const customer = await prisma.customer.findUnique({ where: { id: req.user.id } });
+  if (customer?.password) {
+    res.status(400).json({ success: false, error: 'Password already set. Please use change password instead.' });
+    return;
+  }
+
+  const hashedPassword = await bcrypt.hash(parsed.data.password, 12);
+  await prisma.customer.update({
+    where: { id: req.user.id },
+    data: { password: hashedPassword }
+  });
+
+  res.json({ success: true, message: 'Password set successfully' });
+}

@@ -9,6 +9,9 @@ export default function Account() {
   const { t } = useTranslation();
   const { user, token, isLoading, logout } = useAuth();
   const { settings } = useTheme();
+  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
   const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
 
   useEffect(() => {
@@ -22,6 +25,53 @@ export default function Account() {
       })
       .catch(() => {});
   }, [token]);
+
+  const handleUnbind = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/line/unbind`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert('操作失敗');
+    }
+  };
+
+  const handleSetPasswordAndUnbind = async () => {
+    if (newPassword.length < 6) {
+      alert('密碼長度至少需要 6 位數');
+      return;
+    }
+    setIsSettingPassword(true);
+    try {
+      // 1. Set password
+      const pRes = await fetch(`${API_BASE}/auth/set-password`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      const pData = await pRes.json();
+      if (!pData.success) {
+        alert(pData.error || '密碼設定失敗');
+        setIsSettingPassword(false);
+        return;
+      }
+      // 2. Then unbind
+      await handleUnbind();
+    } catch (err) {
+      alert('系統錯誤，請稍後再試');
+      setIsSettingPassword(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -102,42 +152,66 @@ export default function Account() {
           </div>
           <div className="bg-surface rounded-lg border border-input p-4">
             {user.lineUserId ? (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-medium text-main flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    {t('account.lineBound')}
-                  </p>
-                  <p className="text-xs text-sub mt-1">
-                    {user.lineDisplayName || t('account.lineId')}: {user.lineUserId}
-                  </p>
-                </div>
-                <button
-                onClick={async () => {
-                  if (!(user as any).hasPassword) {
-                    if (!confirm('警告：您目前尚未設定帳號密碼。解除 LINE 連結後，如果您登出將無法再次登入此帳號！\n\n建議您先登出並使用「忘記密碼」功能設定密碼後再回來解除綁定。\n\n您確定仍要繼續解除連結嗎？')) return;
-                  } else {
-                    if (!confirm(t('account.unbindLineConfirm') || '確定要解除 LINE 連結嗎？')) return;
-                  }
-                  try {
-                    const res = await fetch(`${API_BASE}/line/unbind`, {
-                      method: 'POST',
-                      headers: { Authorization: `Bearer ${token}` },
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                      window.location.reload();
-                    } else {
-                      alert(data.error);
-                    }
-                  } catch (err) {
-                    alert('操作失敗');
-                  }
-                }}
-                  className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
-                >
-                  {t('account.unbindLine')}
-                </button>
+              <div className="flex flex-col gap-4">
+                {!showPasswordSetup ? (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-main flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        {t('account.lineBound')}
+                      </p>
+                      <p className="text-xs text-sub mt-1">
+                        {user.lineDisplayName || t('account.lineId')}: {user.lineUserId}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (!(user as any).hasPassword) {
+                          setShowPasswordSetup(true);
+                        } else {
+                          if (confirm(t('account.unbindLineConfirm') || '確定要解除 LINE 連結嗎？')) {
+                            handleUnbind();
+                          }
+                        }
+                      }}
+                      className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
+                    >
+                      {t('account.unbindLine')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="p-4 bg-primary-50 rounded-lg border border-primary-100 mb-4">
+                      <h3 className="text-sm font-bold text-primary-900 mb-1">優雅轉移：設定登入密碼</h3>
+                      <p className="text-xs text-primary-700 leading-relaxed">
+                        為了保障您的權益，在移除 LINE 登入前，請先為您的 Email ({user.email}) 設定一個密碼。
+                        這能確保您未來仍能隨時登入。或者，如果您不需要保留資料，可以改為執行「刪除帳號」。
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="password"
+                        placeholder="請輸入新密碼 (至少 6 位)"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="flex-1 px-4 py-2 text-sm border border-input rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                      <button
+                        disabled={isSettingPassword}
+                        onClick={handleSetPasswordAndUnbind}
+                        className="px-6 py-2 bg-primary-600 text-white text-sm font-bold rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                      >
+                        {isSettingPassword ? '設定中...' : '設定並解除連結'}
+                      </button>
+                      <button
+                        onClick={() => setShowPasswordSetup(false)}
+                        className="px-4 py-2 text-sm text-sub hover:text-main"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div>
