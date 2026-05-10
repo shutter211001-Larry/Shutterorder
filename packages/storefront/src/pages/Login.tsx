@@ -146,7 +146,7 @@ export default function Login() {
                     if (!liff) return;
                     await liff.init({ liffId: settings.lineSettings!.liffId });
                     if (!liff.isLoggedIn()) {
-                      liff.login({ redirectUri: window.location.origin });
+                      liff.login({ redirectUri: window.location.origin + '/login' });
                       return;
                     }
                     const profile = await liff.getProfile();
