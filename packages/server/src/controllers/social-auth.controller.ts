@@ -36,6 +36,10 @@ export function handleSocialCallback(req: Request, res: Response): void {
   if (isMobile && redirectUri) {
     res.redirect(`${redirectUri}?token=${encodeURIComponent(token)}`);
   } else {
-    res.redirect(`${STOREFRONT_URL}/auth/callback?token=${encodeURIComponent(token)}`);
+    let finalUrl = `${STOREFRONT_URL}/auth/callback?token=${encodeURIComponent(token)}`;
+    if (redirectUri) {
+      finalUrl += `&redirect=${encodeURIComponent(redirectUri)}`;
+    }
+    res.redirect(finalUrl);
   }
 }

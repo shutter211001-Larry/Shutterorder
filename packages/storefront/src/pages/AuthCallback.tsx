@@ -18,7 +18,8 @@ export default function AuthCallback() {
 
     if (token) {
       loginWithToken(token);
-      navigate('/');
+      const redirect = searchParams.get('redirect') || '/';
+      navigate(redirect);
     } else {
       navigate('/login');
     }
