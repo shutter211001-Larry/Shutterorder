@@ -234,8 +234,14 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
     );
 
     if (daySlots.length > 0) {
+      // Use local date (YYYY-MM-DD) instead of ISO UTC to avoid timezone shift grouping issues
+      const yyyy = targetDate.getFullYear();
+      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(targetDate.getDate()).padStart(2, '0');
+      const dateKey = `${yyyy}-${mm}-${dd}`;
+
       slotsByDay.push({
-        date: targetDate.toISOString().split('T')[0],
+        date: dateKey,
         slots: daySlots,
       });
     }
