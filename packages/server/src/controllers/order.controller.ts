@@ -567,7 +567,15 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
 
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { customer: { select: { email: true } } },
+    include: { 
+      customer: { 
+        select: { 
+          email: true, 
+          lineUserId: true,
+          name: true
+        } 
+      } 
+    },
   });
   if (!order) {
     res.status(404).json({ success: false, error: 'Order not found' });
@@ -600,17 +608,40 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
       const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
       const orderSettings = (settings?.orderSettings as any) || {};
       const notifications = orderSettings.emailNotifications || {};
-      // If the status is explicitly disabled, don't send
       if (notifications[status] === false) {
         shouldSend = false;
       }
-    } catch (e) {
-      // Default to send if settings fetch fails
-    }
+    } catch (e) {}
 
     if (shouldSend) {
       const emailContent = orderStatusEmail({ orderNumber: order.orderNumber, status });
       sendEmail({ to: recipientEmail, ...emailContent }).catch(() => {});
+    }
+  }
+
+  // Send LINE push notification if customer has bound LINE account
+  if (order.customer?.lineUserId) {
+    try {
+      const { sendLinePush } = await import('./line.controller.js');
+      let lineMessage = '';
+      
+      const statusMap: Record<string, string> = {
+        'CONFIRMED': '您的訂單已確認，我們將盡快為您準備餐點。',
+        'PREPARING': '您的餐點正在製作中！',
+        'READY': '🎉 餐點已準備就緒！歡迎前往取貨。',
+        'OUT_FOR_DELIVERY': '🚀 您的餐點已由外送員取走，正在前往您的地址！',
+        'DELIVERED': '🍽️ 您的餐點已送達，祝您用餐愉快！',
+        'CANCELLED': '您的訂單已被取消。如有任何疑問，請聯繫我們。'
+      };
+
+      if (statusMap[status]) {
+        lineMessage = `【訂單狀態更新】\n訂單編號：#${order.orderNumber}\n目前狀態：${lineMessage || statusMap[status]}`;
+        sendLinePush(order.customer.lineUserId, lineMessage).catch(err => {
+          console.error('Error sending LINE notification:', err);
+        });
+      }
+    } catch (err) {
+      console.error('Failed to import or call sendLinePush:', err);
     }
   }
 

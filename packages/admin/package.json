@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@kitchenasty/shared": "*",
+    "@kitchenasty/shared": "workspace:*",
     "i18next": "^25.8.10",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
