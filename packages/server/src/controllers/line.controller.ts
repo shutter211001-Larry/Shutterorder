@@ -191,7 +191,7 @@ export async function lineLogin(req: Request, res: Response) {
       type: 'customer'
     });
 
-    res.json({ success: true, data: { token, customer: { id: customer.id, email: customer.email, name: customer.name, phone: customer.phone } } });
+    res.json({ success: true, data: { token, customer: { id: customer.id, email: customer.email, name: customer.name, phone: customer.phone, lineUserId: customer.lineUserId, lineDisplayName: customer.lineDisplayName } } });
   } catch (err: any) {
     console.error('LINE Login Error:', err);
     res.status(500).json({ success: false, error: err.message || 'Internal server error' });
