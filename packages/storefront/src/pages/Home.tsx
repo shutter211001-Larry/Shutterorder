@@ -28,7 +28,9 @@ export default function Home() {
 
   // Auto-login if LIFF is already authorized
   useEffect(() => {
-    if (settings.lineSettings?.liffId && !user) {
+    // Only attempt auto-login if we have a LIFF ID, no user, AND no token in storage
+    // This prevents the infinite refresh loop
+    if (settings.lineSettings?.liffId && !user && !localStorage.getItem('token')) {
       const initLiff = async () => {
         try {
           const liff = (window as any).liff;
