@@ -43,7 +43,7 @@ export default function Login() {
             });
             const data = await res.json();
             if (data.success) {
-              localStorage.setItem('kitchenasty_token', data.data.token);
+              localStorage.setItem('token', data.data.token);
               window.location.href = redirectPath;
             }
           }
@@ -164,7 +164,7 @@ export default function Login() {
                     });
                     const data = await res.json();
                     if (data.success) {
-                      localStorage.setItem('kitchenasty_token', data.data.token);
+                      localStorage.setItem('token', data.data.token);
                       window.location.href = redirectPath;
                     } else {
                       setError(data.error || 'LINE Login failed');
@@ -178,7 +178,7 @@ export default function Login() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2c5.514 0 10 3.592 10 8.007 0 3.532-2.855 6.478-6.728 7.513-.337.07-.797.222-.912.511-.103.263-.068.675-.033 1.112.035.437.166 1.764.19 1.954.024.19.112.743-.243.812-.355.07-.944-.456-1.32-.821-.376-.365-1.74-2.023-2.373-2.857-2.73-.012-5.461-1.853-5.461-5.187C5 5.592 9.486 2 12 2z" />
                 </svg>
-                LINE 一鍵登入
+                {t('auth.lineSignIn')}
               </button>
             )}
           </div>

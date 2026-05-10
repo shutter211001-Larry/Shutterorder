@@ -63,6 +63,8 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
         email: user.email,
         name: user.name,
         role: user.role,
+        lineUserId: user.lineUserId,
+        lineDisplayName: user.lineDisplayName,
       },
     },
   });
@@ -196,6 +198,8 @@ export async function customerLogin(req: Request, res: Response): Promise<void> 
         email: customer.email,
         name: customer.name,
         phone: customer.phone,
+        lineUserId: customer.lineUserId,
+        lineDisplayName: customer.lineDisplayName,
       },
     },
   });

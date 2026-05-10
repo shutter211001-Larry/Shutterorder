@@ -73,6 +73,8 @@
     "orContinue": "Or continue with",
     "googleSignIn": "Sign in with Google",
     "googleRegister": "Sign up with Google",
+    "lineSignIn": "Sign in with LINE",
+    "lineRegister": "Sign up with LINE",
     "socialRegister": "Or register with social account"
   },
   "account": {

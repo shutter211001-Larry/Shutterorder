@@ -1,15 +1,18 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
+import { useTheme } from '../context/ThemeContext.js';
 import { API_BASE } from '../lib/api.js';
 
 export default function Register() {
   const { t } = useTranslation();
   const { register } = useAuth();
+  const { settings } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get('redirect') || '/';
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -17,6 +20,51 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Auto-login/register if LIFF is already authorized
+  useEffect(() => {
+    if (settings.lineSettings?.liffId) {
+      const initLiff = async () => {
+        try {
+          const liff = (window as any).liff;
+          if (!liff) return;
+          await liff.init({ liffId: settings.lineSettings!.liffId });
+          if (liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            const userEmail = liff.getDecodedIDToken()?.email;
+            
+            const res = await fetch(`${API_BASE}/line/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                lineUserId: profile.userId,
+                lineDisplayName: profile.displayName,
+                email: userEmail,
+                name: profile.displayName
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              localStorage.setItem('token', data.data.token);
+              window.location.href = redirectPath;
+            }
+          }
+        } catch (err) {
+          console.warn('Auto LIFF registration skipped:', err);
+        }
+      };
+      initLiff();
+    }
+  }, [settings.lineSettings?.liffId, redirectPath]);
+
+  const handleLineRegister = () => {
+    if (settings.lineSettings?.liffId) {
+      const liff = (window as any).liff;
+      if (liff) {
+        liff.login({ redirectUri: window.location.href });
+      }
+    }
+  };
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -141,7 +189,17 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3">
+            {settings.lineSettings?.liffId && (
+              <button
+                type="button"
+                onClick={handleLineRegister}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#06C755] rounded-lg text-sm font-medium text-white hover:bg-[#05b34c] transition-colors"
+              >
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" alt="LINE" className="w-5 h-5 brightness-0 invert" />
+                {t('auth.lineRegister')}
+              </button>
+            )}
             <a
               href={`${API_BASE}/auth/google${redirectPath !== '/' ? `?state=${encodeURIComponent(`redirectUri=${redirectPath}`)}` : ''}`}
               className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-sub hover:bg-gray-50 transition-colors"
