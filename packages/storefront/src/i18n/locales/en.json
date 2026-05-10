@@ -26,6 +26,7 @@
     "register": "Register",
     "logout": "Logout",
     "myAccount": "My Account",
+    "myAccountWithName": "My Account ({{name}})",
     "openCart": "Open cart",
     "toggleMenu": "Toggle menu"
   },
@@ -51,7 +52,11 @@
     "quickLinks": "Quick Links",
     "account": "Account",
     "createAccount": "Create Account",
-    "allRightsReserved": "All rights reserved."
+    "allRightsReserved": "All rights reserved.",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "impressum": "Impressum",
+    "cookieSettings": "Cookie Settings"
   },
   "auth": {
     "loginTitle": "Sign In",

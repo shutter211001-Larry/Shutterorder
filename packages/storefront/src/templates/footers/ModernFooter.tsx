@@ -36,7 +36,7 @@ export default function ModernFooter() {
             <ul className="space-y-3 text-sm">
               {settings.navShowMenu && <li><Link to="/menu" className="hover:text-primary-400 transition-colors">{t('nav.menu')}</Link></li>}
               {settings.navShowLocations && <li><Link to="/locations" className="hover:text-primary-400 transition-colors">{t('nav.locations')}</Link></li>}
-              {settings.navShowReservations && <li><Link to="/reservations" className="hover:text-primary-400 transition-colors">{t('nav.reservations')}</Link></li>}
+              {settings.navShowReservations && settings.reservationSettings?.enabled && <li><Link to="/reservations" className="hover:text-primary-400 transition-colors">{t('nav.reservations')}</Link></li>}
             </ul>
           </div>
 
@@ -53,16 +53,16 @@ export default function ModernFooter() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-white font-medium mb-4 text-sm uppercase tracking-wider">Legal</h3>
+            <h3 className="text-white font-medium mb-4 text-sm uppercase tracking-wider">{t('footer.legal')}</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/privacy-policy" className="hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/impressum" className="hover:text-primary-400 transition-colors">Impressum</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-primary-400 transition-colors">{t('footer.privacyPolicy')}</Link></li>
+              <li><Link to="/impressum" className="hover:text-primary-400 transition-colors">{t('footer.impressum')}</Link></li>
               <li>
                 <button
                   onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
                   className="hover:text-primary-400 transition-colors"
                 >
-                  Cookie Settings
+                  {t('footer.cookieSettings')}
                 </button>
               </li>
             </ul>

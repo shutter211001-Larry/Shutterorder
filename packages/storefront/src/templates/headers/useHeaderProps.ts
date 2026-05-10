@@ -18,7 +18,7 @@ export function useHeaderProps() {
     settings.navShowHome && { to: '/', label: t('nav.home') },
     settings.navShowLocations && { to: '/locations', label: t('nav.locations') },
     settings.navShowMenu && { to: '/menu', label: t('nav.menu') },
-    settings.navShowReservations && { to: '/reservations', label: t('nav.reservations') },
+    settings.navShowReservations && settings.reservationSettings?.enabled && { to: '/reservations', label: t('nav.reservations') },
   ].filter(Boolean) as { to: string; label: string }[];
 
   function isActive(path: string) {
