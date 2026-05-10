@@ -125,15 +125,21 @@ export default function Account() {
         },
         body: JSON.stringify({ lineUserId: profile.userId, lineDisplayName: profile.displayName }),
       });
+      
       const data = await res.json();
-      if (data.success) {
+      
+      if (res.ok && data.success) {
         alert('LINE 連結成功！');
         window.location.reload();
-      } else if (data.error && data.error.includes('已被其他會員連結')) {
-        setShowMergePrompt({ provider: 'line', id: profile.userId });
-        setIsSocialVerified(true);
       } else {
-        alert(data.error);
+        const errorMsg = data.error || '';
+        if (errorMsg.includes('已被其他會員連結') || errorMsg.includes('已被其他會員綁定')) {
+          console.log('Conflict detected, opening merge prompt for:', profile.userId);
+          setIsSocialVerified(true);
+          setShowMergePrompt({ provider: 'line', id: profile.userId });
+        } else {
+          alert(errorMsg || '連結失敗');
+        }
       }
     } catch (err) {
       alert('操作失敗');
