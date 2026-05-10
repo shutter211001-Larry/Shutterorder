@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { API_BASE } from '../lib/api.js';
+import { useTheme } from './ThemeContext.js';
 
 interface User {
   id: string;
@@ -24,9 +25,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { settings } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
-  const [isLoading, setIsLoading] = useState(!!localStorage.getItem('token'));
+  const [isLoading, setIsLoading] = useState(true);
 
   const logout = useCallback(() => {
     setUser(null);
@@ -34,6 +36,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token');
     localStorage.setItem('explicit_logout', 'true');
   }, []);
+
+  // Handle LIFF initialization and auto-login
+  useEffect(() => {
+    const liffId = settings.lineSettings?.liffId;
+    const isExplicitLogout = localStorage.getItem('explicit_logout') === 'true';
+    const hasToken = !!localStorage.getItem('token');
+
+    if (!liffId || isExplicitLogout || hasToken) return;
+
+    const initLiff = async () => {
+      try {
+        const liff = (window as any).liff;
+        if (!liff) return;
+
+        await liff.init({ liffId });
+        
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          const userEmail = liff.getDecodedIDToken()?.email;
+
+          const res = await fetch(`${API_BASE}/line/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              lineUserId: profile.userId,
+              lineDisplayName: profile.displayName,
+              email: userEmail,
+              name: profile.displayName
+            }),
+          });
+          
+          const data = await res.json();
+          if (data.success) {
+            localStorage.setItem('token', data.data.token);
+            setToken(data.data.token);
+            setUser(data.data.customer || data.data.user || data.data);
+          }
+        }
+      } catch (err) {
+        console.warn('Global LIFF init/login skipped:', err);
+      }
+    };
+
+    initLiff();
+  }, [settings.lineSettings?.liffId, token]);
 
   useEffect(() => {
     if (!token) {
