@@ -56,7 +56,6 @@ export default function Checkout() {
   const [busyMessage, setBusyMessage] = useState('');
   const [locationId, setLocationId] = useState<string>('');
   const [slotsByDay, setSlotsByDay] = useState<any[]>([]);
-  const [selectedDateIndex, setSelectedDateIndex] = useState(0);
 
   // Determine if currently closed
   useEffect(() => {
@@ -70,7 +69,6 @@ export default function Checkout() {
         // Auto-select first available slot if nothing is selected
         if (!scheduledAt) {
           setScheduledAt(slotsByDay[0].slots[0]);
-          setSelectedDateIndex(0);
         }
       } else {
         setIsClosedNow(false);
@@ -413,7 +411,6 @@ export default function Checkout() {
                     onClick={() => {
                       if (slotsByDay.length > 0 && slotsByDay[0].slots.length > 0) {
                         setScheduledAt(slotsByDay[0].slots[0]);
-                        setSelectedDateIndex(0);
                       }
                     }}
                     className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border-2 transition-all ${
@@ -428,60 +425,49 @@ export default function Checkout() {
 
                 {scheduledAt && slotsByDay.length > 0 && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                    {/* Date Selector */}
-                    <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                      {slotsByDay.map((day, idx) => {
+                    <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 no-scrollbar custom-scrollbar">
+                      {slotsByDay.map((day) => {
                         const date = new Date(day.date);
                         const isToday = new Date().toDateString() === date.toDateString();
-                        return (
-                          <button
-                            key={day.date}
-                            type="button"
-                            onClick={() => setSelectedDateIndex(idx)}
-                            className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all ${
-                              selectedDateIndex === idx
-                                ? 'bg-primary-600 text-white shadow-md shadow-primary-200'
-                                : 'bg-surface border border-input text-sub hover:bg-gray-50'
-                            }`}
-                          >
-                            {(() => {
-                              if (isToday) return '今天';
-                              // Use browser/i18n locale but force weekday and numeric month/day
-                              return date.toLocaleDateString(i18n.language, { 
-                                weekday: 'short', 
-                                month: 'numeric', 
-                                day: 'numeric' 
-                              });
-                            })()}
-                          </button>
-                        );
-                      })}
-                    </div>
+                        const headerText = isToday 
+                          ? `今天 (${date.toLocaleDateString(i18n.language, { weekday: 'short' })})` 
+                          : date.toLocaleDateString(i18n.language, { 
+                              month: 'numeric', 
+                              day: 'numeric',
+                              weekday: 'short' 
+                            });
 
-                    {/* Time Slots Grid */}
-                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                      {slotsByDay[selectedDateIndex]?.slots.map((slot: string) => {
-                        const dateObj = new Date(slot);
-                        // Using a robust 24h format that respects locale but stays 24h
-                        const timeStr = dateObj.toLocaleTimeString(i18n.language, {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false,
-                        });
-                        const isSelected = scheduledAt === slot;
                         return (
-                          <button
-                            key={slot}
-                            type="button"
-                            onClick={() => setScheduledAt(slot)}
-                            className={`py-2 rounded-lg text-xs font-medium border transition-all ${
-                              isSelected
-                                ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
-                                : 'bg-surface border-input text-main hover:border-primary-300'
-                            }`}
-                          >
-                            {timeStr}
-                          </button>
+                          <div key={day.date} className="space-y-3">
+                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider sticky top-0 bg-surface/90 backdrop-blur-sm py-1 z-10">
+                              {headerText}
+                            </h3>
+                            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                              {day.slots.map((slot: string) => {
+                                const dateObj = new Date(slot);
+                                const timeStr = dateObj.toLocaleTimeString(i18n.language, {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: false,
+                                });
+                                const isSelected = scheduledAt === slot;
+                                return (
+                                  <button
+                                    key={slot}
+                                    type="button"
+                                    onClick={() => setScheduledAt(slot)}
+                                    className={`py-2 rounded-lg text-xs font-medium border transition-all ${
+                                      isSelected
+                                        ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
+                                        : 'bg-surface border-input text-main hover:border-primary-300'
+                                    }`}
+                                  >
+                                    {timeStr}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
