@@ -40,11 +40,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Handle LIFF initialization and auto-login
   useEffect(() => {
     const liffId = settings.lineSettings?.liffId;
-    const isExplicitLogout = localStorage.getItem('explicit_logout') === 'true';
-    const hasToken = !!localStorage.getItem('token');
+    if (!liffId || isExplicitLogout) {
+      setIsLoading(false);
+      return;
+    }
 
-    if (!liffId || isExplicitLogout || hasToken) {
-      if (!hasToken) setIsLoading(false);
+    if (hasToken) {
+      // Already has a session, no need to auto-login via LIFF
       return;
     }
 
