@@ -210,21 +210,44 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
   const interval = Number(orderSettings.timeSlotInterval || 15);
   const leadTime = orderType === 'DELIVERY' ? (location.deliveryLeadTime || 45) : (location.pickupLeadTime || 15);
 
-  const now = new Date();
-  const slotsByDay: any[] = [];
+  // Force Taiwan Time calculation
+  const getTaiwanDate = (d: Date) => {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Taipei',
+      year: 'numeric', month: 'numeric', day: 'numeric',
+      hour: 'numeric', minute: 'numeric', second: 'numeric',
+      weekday: 'short',
+      hour12: false
+    }).formatToParts(d);
+    const m: any = {};
+    parts.forEach(p => m[p.type] = p.value);
+    
+    const daysMap: any = { 'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6 };
+    const dayOfWeek = daysMap[m.weekday]; 
+    const dateKey = `${m.year}-${String(m.month).padStart(2, '0')}-${String(m.day).padStart(2, '0')}`;
+    return { dayOfWeek, dateKey, year: Number(m.year), month: Number(m.month), day: Number(m.day) };
+  };
 
+  const now = new Date();
+  const taiwanNow = getTaiwanDate(now);
+  console.log(`[Slots Debug] Storefront Request at Real Now: ${now.toISOString()} (Taiwan: ${taiwanNow.dateKey} weekday=${taiwanNow.dayOfWeek})`);
+
+  const slotsByDay: any[] = [];
   const { generateDaySlots } = await import('../lib/business-hours.js');
+
+  // Log all hours in DB for this location
+  console.log(`[Slots Debug] DB Operating Hours for location ${location.id}:`);
+  (location as any).operatingHours.forEach((h: any) => {
+    console.log(`  - Day ${h.dayOfWeek}: ${h.openTime}-${h.closeTime} (isClosed: ${h.isClosed})`);
+  });
 
   for (let i = 0; i < daysCount; i++) {
     const targetDate = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
-    
-    // Reliable way to get 0-6 dayOfWeek in Taiwan timezone
-    const dayOfWeek = new Date(targetDate.toLocaleString('en-US', { timeZone: 'Asia/Taipei' })).getDay();
+    const { dayOfWeek, dateKey } = getTaiwanDate(targetDate);
     
     const sessions = (location as any).operatingHours.filter((h: any) => h.dayOfWeek === dayOfWeek && !h.isClosed);
     
-    console.log(`[Slots Debug] Day ${i} (targetDate: ${targetDate.toISOString()}): dayOfWeek=${dayOfWeek}, found ${sessions.length} sessions`);
-    sessions.forEach((s: any) => console.log(`  - Session: ${s.openTime} to ${s.closeTime}`));
+    console.log(`[Slots Debug] Processing Day ${i}: targetDate=${targetDate.toISOString()}, dateKey=${dateKey}, dayOfWeek=${dayOfWeek}, sessions=${sessions.length}`);
 
     if (sessions.length === 0) continue;
 
@@ -239,10 +262,7 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
     );
 
     if (daySlots.length > 0) {
-      console.log(`  - Generated ${daySlots.length} slots. First slot: ${daySlots[0]}`);
-      // Group by Taiwan local date (YYYY-MM-DD)
-      const dateKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(targetDate);
-
+      console.log(`  - Generated ${daySlots.length} slots for ${dateKey}. First: ${daySlots[0]}`);
       slotsByDay.push({
         date: dateKey,
         slots: daySlots,
