@@ -19,6 +19,68 @@ export default function Login() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Auto-trigger LINE login if redirected back from LINE
+  useEffect(() => {
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+    if (code && state && settings.lineSettings?.liffId && !loading && !success) {
+      console.log('[Login] LIFF redirect detected, auto-triggering login...');
+      handleLineLogin();
+    }
+  }, [searchParams, settings.lineSettings?.liffId]);
+
+  async function handleLineLogin() {
+    setLoading(true);
+    try {
+      console.log('[Login] Starting LINE Login (Auto/Manual)...');
+      const liff = (window as any).liff;
+      if (!liff) {
+        setError('LINE SDK not loaded');
+        setLoading(false);
+        return;
+      }
+
+      // Clear old LIFF data to be safe
+      localStorage.removeItem('liff:token');
+
+      await liff.init({ liffId: settings.lineSettings!.liffId });
+      if (!liff.isLoggedIn()) {
+        liff.login({ redirectUri: window.location.origin + '/login' });
+        return;
+      }
+      const profile = await liff.getProfile();
+      const userEmail = liff.getDecodedIDToken()?.email;
+
+      console.log('[Login] LINE Profile obtained, authenticating with backend...');
+      const res = await fetch(`${API_BASE}/line/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lineUserId: profile.userId,
+          lineDisplayName: profile.displayName,
+          email: userEmail,
+          name: profile.displayName
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        console.log('[Login] LINE Login successful!');
+        setSuccess(true);
+        localStorage.setItem('token', data.data.token);
+        setTimeout(() => {
+          window.location.replace(redirectPath);
+        }, 800);
+      } else {
+        setError(data.error || 'LINE Login failed');
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error('LINE Login error:', err);
+      setError('LINE Login error: ' + (err.message || 'Unknown error'));
+      setLoading(false);
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -126,57 +188,7 @@ export default function Login() {
             {settings.lineSettings?.liffId && (
               <button
                 type="button"
-                onClick={async () => {
-                  setLoading(true);
-                  try {
-                    console.log('[Login] Starting LINE Login...');
-                    const liff = (window as any).liff;
-                    if (!liff) {
-                      setError('LINE SDK not loaded');
-                      setLoading(false);
-                      return;
-                    }
-
-                    // Clear old LIFF data to be safe
-                    localStorage.removeItem('liff:token');
-
-                    await liff.init({ liffId: settings.lineSettings!.liffId });
-                    if (!liff.isLoggedIn()) {
-                      liff.login({ redirectUri: window.location.origin + '/login' });
-                      return;
-                    }
-                    const profile = await liff.getProfile();
-                    const userEmail = liff.getDecodedIDToken()?.email;
-
-                    console.log('[Login] LINE Profile obtained, authenticating with backend...');
-                    const res = await fetch(`${API_BASE}/line/login`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        lineUserId: profile.userId,
-                        lineDisplayName: profile.displayName,
-                        email: userEmail,
-                        name: profile.displayName
-                      }),
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                      console.log('[Login] LINE Login successful!');
-                      setSuccess(true);
-                      localStorage.setItem('token', data.data.token);
-                      setTimeout(() => {
-                        window.location.replace(redirectPath);
-                      }, 800);
-                    } else {
-                      setError(data.error || 'LINE Login failed');
-                      setLoading(false);
-                    }
-                  } catch (err: any) {
-                    console.error('LINE Login error:', err);
-                    setError('LINE Login error: ' + (err.message || 'Unknown error'));
-                    setLoading(false);
-                  }
-                }}
+                onClick={handleLineLogin}
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#06C755] text-white rounded-lg text-sm font-bold hover:bg-[#05b34c] transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
