@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import { API_BASE } from '../lib/api.js';
@@ -7,7 +7,8 @@ import { API_BASE } from '../lib/api.js';
 export default function Register() {
   const { t } = useTranslation();
   const { register } = useAuth();
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -28,7 +29,7 @@ export default function Register() {
     setLoading(true);
     try {
       await register({ name, email, password, phone: phone || undefined });
-      navigate('/');
+      navigate(redirectPath);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -141,7 +142,7 @@ export default function Register() {
 
           <div className="flex gap-3">
             <a
-              href={`${API_BASE}/auth/google`}
+              href={`${API_BASE}/auth/google${redirectPath !== '/' ? `?state=${encodeURIComponent(`redirectUri=${redirectPath}`)}` : ''}`}
               className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-sub hover:bg-gray-50 transition-colors"
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
@@ -151,7 +152,7 @@ export default function Register() {
 
           <p className="text-center text-sm text-gray-600 mt-4">
             {t('auth.hasAccount')}{' '}
-            <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link to={`/login${redirectPath !== '/' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`} className="text-primary-600 hover:text-primary-700 font-medium">
               {t('auth.loginLink')}
             </Link>
           </p>

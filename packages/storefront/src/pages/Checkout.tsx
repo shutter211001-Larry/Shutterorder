@@ -539,20 +539,64 @@ export default function Checkout() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <a
-                        href={`${API_BASE}/auth/google`}
+                        href={`${API_BASE}/auth/google?state=${encodeURIComponent('redirectUri=/checkout')}`}
                         className="flex items-center gap-2 px-4 py-2 bg-surface border border-input rounded-lg text-sm font-medium text-sub hover:bg-surface/80 transition-colors shadow-sm"
                       >
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
                         {t('checkout.googleLogin')}
                       </a>
+                      
+                      {settings.lineSettings?.liffId && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              const liff = (window as any).liff;
+                              if (!liff) return;
+                              await liff.init({ liffId: settings.lineSettings!.liffId });
+                              if (!liff.isLoggedIn()) {
+                                liff.login({ redirectUri: window.location.origin + '/login?redirect=/checkout' });
+                                return;
+                              }
+                              const profile = await liff.getProfile();
+                              const userEmail = liff.getDecodedIDToken()?.email;
+
+                              const res = await fetch(`${API_BASE}/line/login`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  lineUserId: profile.userId,
+                                  lineDisplayName: profile.displayName,
+                                  email: userEmail,
+                                  name: profile.displayName
+                                }),
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                localStorage.setItem('kitchenasty_token', data.data.token);
+                                window.location.href = '/checkout';
+                              }
+                            } catch (err) {
+                              console.error('LINE Login failed:', err);
+                            }
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-[#06C755] text-white rounded-lg text-sm font-bold hover:bg-[#05b34c] transition-colors shadow-sm"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2c5.514 0 10 3.592 10 8.007 0 3.532-2.855 6.478-6.728 7.513-.337.07-.797.222-.912.511-.103.263-.068.675-.033 1.112.035.437.166 1.764.19 1.954.024.19.112.743-.243.812-.355.07-.944-.456-1.32-.821-.376-.365-1.74-2.023-2.373-2.857-2.73-.012-5.461-1.853-5.461-5.187C5 5.592 9.486 2 12 2z" />
+                          </svg>
+                          LINE 登入
+                        </button>
+                      )}
+
                       <Link
-                        to="/login"
+                        to="/login?redirect=/checkout"
                         className="px-4 py-2 text-sm font-semibold text-primary-500 hover:text-primary-400 underline decoration-primary-500/30 underline-offset-4 transition-colors"
                       >
                         {t('nav.login')}
                       </Link>
                       <Link
-                        to="/register"
+                        to="/register?redirect=/checkout"
                         className="px-4 py-2 text-sm font-semibold text-primary-500 hover:text-primary-400 underline decoration-primary-500/30 underline-offset-4 transition-colors"
                       >
                         {t('nav.register')}

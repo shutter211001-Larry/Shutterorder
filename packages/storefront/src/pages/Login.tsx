@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import { useTheme } from '../context/ThemeContext.js';
@@ -9,11 +9,50 @@ export default function Login() {
   const { t } = useTranslation();
   const { login } = useAuth();
   const { settings } = useTheme();
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/';
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Auto-login if LIFF is already authorized
+  useEffect(() => {
+    if (settings.lineSettings?.liffId) {
+      const initLiff = async () => {
+        try {
+          const liff = (window as any).liff;
+          if (!liff) return;
+          await liff.init({ liffId: settings.lineSettings!.liffId });
+          if (liff.isLoggedIn()) {
+            // Already logged into LINE, try to login to Kitchenasty
+            const profile = await liff.getProfile();
+            const userEmail = liff.getDecodedIDToken()?.email;
+            
+            const res = await fetch(`${API_BASE}/line/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                lineUserId: profile.userId,
+                lineDisplayName: profile.displayName,
+                email: userEmail,
+                name: profile.displayName
+              }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              localStorage.setItem('kitchenasty_token', data.data.token);
+              window.location.href = redirectPath;
+            }
+          }
+        } catch (err) {
+          console.warn('Auto LIFF login skipped:', err);
+        }
+      };
+      initLiff();
+    }
+  }, [settings.lineSettings?.liffId, redirectPath]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,7 +60,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate(redirectPath);
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -90,7 +129,7 @@ export default function Login() {
 
           <div className="flex flex-col gap-3">
             <a
-              href={`${API_BASE}/auth/google`}
+              href={`${API_BASE}/auth/google${redirectPath !== '/' ? `?state=${encodeURIComponent(`redirectUri=${redirectPath}`)}` : ''}`}
               className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-sub hover:bg-gray-50 transition-colors"
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
@@ -125,7 +164,7 @@ export default function Login() {
                     const data = await res.json();
                     if (data.success) {
                       localStorage.setItem('kitchenasty_token', data.data.token);
-                      window.location.href = '/';
+                      window.location.href = redirectPath;
                     } else {
                       setError(data.error || 'LINE Login failed');
                     }
