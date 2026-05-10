@@ -127,7 +127,7 @@ function ClassicHero({
               (() => {
                 const link = hero?.ctaSecondaryLink || '/locations';
                 if (link === '/locations' && !settings.navShowLocations) return null;
-                if (link === '/reservations' && !settings.navShowReservations) return null;
+                if (link === '/reservations' && (!settings.navShowReservations || !settings.reservationSettings?.enabled)) return null;
                 return (
                   <Link
                     to={link}
@@ -160,7 +160,7 @@ function ClassicFeatures({ features, t, lang }: { features: FeatureItem[] | null
           features
             .filter(f => {
               if (!settings.navShowLocations && (f.title.includes('分店') || f.title.includes('定位') || f.title.includes('預約'))) return false;
-              if (!settings.navShowReservations && f.title.includes('預約')) return false;
+              if ((!settings.navShowReservations || !settings.reservationSettings?.enabled) && f.title.includes('預約')) return false;
               return true;
             })
             .map((feature, i) => (

@@ -38,7 +38,7 @@ function ClassicFooter() {
             <ul className="space-y-2 text-sm">
               {settings.navShowMenu && <li><Link to="/menu" className="hover:text-white transition-colors">{t('nav.menu')}</Link></li>}
               {settings.navShowLocations && <li><Link to="/locations" className="hover:text-white transition-colors">{t('nav.locations')}</Link></li>}
-              {settings.navShowReservations && <li><Link to="/reservations" className="hover:text-white transition-colors">{t('nav.reservations')}</Link></li>}
+              {settings.navShowReservations && settings.reservationSettings?.enabled && <li><Link to="/reservations" className="hover:text-white transition-colors">{t('nav.reservations')}</Link></li>}
             </ul>
           </div>
 
@@ -48,9 +48,9 @@ function ClassicFooter() {
               <h3 className="text-white font-semibold mb-3">{t('footer.account')}</h3>
               <ul className="space-y-2 text-sm">
                 {isLoading ? (
-                  <li className="text-gray-500 italic">載入中...</li>
+                  <li className="text-gray-500 italic">{t('common.loading')}</li>
                 ) : user ? (
-                  <li><Link to="/account" className="hover:text-white transition-colors">我的帳戶 ({user.name})</Link></li>
+                  <li><Link to="/account" className="hover:text-white transition-colors">{t('nav.myAccountWithName', { name: user.name })}</Link></li>
                 ) : (
                   <>
                     <li><Link to="/login" className="hover:text-white transition-colors">{t('nav.login')}</Link></li>
@@ -63,16 +63,16 @@ function ClassicFooter() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-white font-semibold mb-3">Legal</h3>
+            <h3 className="text-white font-semibold mb-3">{t('footer.legal')}</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/impressum" className="hover:text-white transition-colors">Impressum</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-white transition-colors">{t('footer.privacyPolicy')}</Link></li>
+              <li><Link to="/impressum" className="hover:text-white transition-colors">{t('footer.impressum')}</Link></li>
               <li>
                 <button
                   onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
                   className="hover:text-white transition-colors"
                 >
-                  Cookie Settings
+                  {t('footer.cookieSettings')}
                 </button>
               </li>
             </ul>

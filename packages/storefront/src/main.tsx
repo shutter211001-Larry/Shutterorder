@@ -70,7 +70,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="/menu" element={<Menu />} />
               <Route 
                 path="/reservations" 
-                element={<ConditionalRoute element={<Reservations />} condition={(s) => s.navShowReservations !== false} />} 
+                element={<ConditionalRoute element={<Reservations />} condition={(s) => s.navShowReservations !== false && s.reservationSettings?.enabled !== false} />} 
               />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order/:id" element={<OrderConfirmation />} />

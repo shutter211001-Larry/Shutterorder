@@ -17,7 +17,7 @@ export default function ModernFeatures({ features, t }: FeaturesProps) {
   const items = features?.length ? features : [
     settings.orderSettings?.deliveryEnabled && { icon: 'clock', title: t('home.fastDelivery'), description: t('home.fastDeliveryDesc') },
     settings.navShowLocations && { icon: 'clipboard', title: t('home.easyOrdering'), description: t('home.easyOrderingDesc') },
-    settings.navShowReservations && { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
+    settings.navShowReservations && settings.reservationSettings?.enabled && { icon: 'calendar', title: t('home.tableReservations'), description: t('home.tableReservationsDesc') },
   ].filter(Boolean) as Array<{ icon: string; title: string; description: string }>;
 
   return (
