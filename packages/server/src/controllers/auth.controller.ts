@@ -462,15 +462,17 @@ export async function mergeSocialAccount(req: Request, res: Response): Promise<v
       });
 
       // 4. FINAL STEP: Delete the now-empty source account
+      console.log(`[Merge] Successfully transferred data. Now deleting source account: ${sourceUser.id}`);
       await tx.customer.delete({
         where: { id: sourceUser.id }
       });
+      console.log(`[Merge] Source account ${sourceUser.id} deleted successfully.`);
     });
 
     res.json({ success: true, message: '帳號整合完成，您的訂單與紅利已同步。' });
-  } catch (err) {
-    console.error('Merge Error:', err);
-    res.status(500).json({ success: false, error: '整合過程中發生錯誤' });
+  } catch (err: any) {
+    console.error('Merge Account Error:', err);
+    res.status(500).json({ success: false, error: err.message || '整合過程中發生錯誤' });
   }
 }
 
