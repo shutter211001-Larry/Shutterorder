@@ -444,7 +444,15 @@ export default function Checkout() {
                                 : 'bg-surface border border-input text-sub hover:bg-gray-50'
                             }`}
                           >
-                            {isToday ? '今天' : `${date.getMonth() + 1}/${date.getDate()}`}
+                            {(() => {
+                              if (isToday) return '今天';
+                              // Use browser/i18n locale but force weekday and numeric month/day
+                              return date.toLocaleDateString(i18n.language, { 
+                                weekday: 'short', 
+                                month: 'numeric', 
+                                day: 'numeric' 
+                              });
+                            })()}
                           </button>
                         );
                       })}
@@ -453,7 +461,9 @@ export default function Checkout() {
                     {/* Time Slots Grid */}
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                       {slotsByDay[selectedDateIndex]?.slots.map((slot: string) => {
-                        const timeStr = new Date(slot).toLocaleTimeString(i18n.language, {
+                        const dateObj = new Date(slot);
+                        // Using a robust 24h format that respects locale but stays 24h
+                        const timeStr = dateObj.toLocaleTimeString(i18n.language, {
                           hour: '2-digit',
                           minute: '2-digit',
                           hour12: false,

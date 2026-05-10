@@ -216,9 +216,12 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
   const { generateDaySlots } = await import('../lib/business-hours.js');
 
   for (let i = 0; i < daysCount; i++) {
-    const targetDate = new Date();
-    targetDate.setDate(now.getDate() + i);
-    const dayOfWeek = targetDate.getDay();
+    const targetDate = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
+    
+    // Correctly get day of week in Taiwan timezone (0=Sunday, 1=Monday...)
+    const taiwanDayStr = new Intl.DateTimeFormat('en-US', { weekday: 'numeric', timeZone: 'Asia/Taipei' }).format(targetDate);
+    const dayOfWeek = (Number(taiwanDayStr)) % 7; // Sunday is 0 in JS, Intl can sometimes return 7
+    
     const sessions = (location as any).operatingHours.filter((h: any) => h.dayOfWeek === dayOfWeek && !h.isClosed);
     if (sessions.length === 0) continue;
 
@@ -233,11 +236,8 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
     );
 
     if (daySlots.length > 0) {
-      // Use local date (YYYY-MM-DD) instead of ISO UTC to avoid timezone shift grouping issues
-      const yyyy = targetDate.getFullYear();
-      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
-      const dd = String(targetDate.getDate()).padStart(2, '0');
-      const dateKey = `${yyyy}-${mm}-${dd}`;
+      // Group by Taiwan local date (YYYY-MM-DD)
+      const dateKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(targetDate);
 
       slotsByDay.push({
         date: dateKey,
