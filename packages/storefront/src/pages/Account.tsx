@@ -172,7 +172,7 @@ export default function Account() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-main mb-8">{t('account.title')}</h1>
 
-      {/* Account Merge Modal (Security Check) */}
+      {/* Account Merge Modal (Multi-path Security Check) */}
       {showMergePrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
@@ -185,7 +185,7 @@ export default function Account() {
               <h2 className="text-xl font-bold text-main mb-2">偵測到帳號衝突</h2>
               <p className="text-sm text-sub leading-relaxed mb-6">
                 您剛登入的 {showMergePrompt.provider === 'google' ? 'Google' : 'LINE'} 帳號已連結至另一個會員。
-                如果您希望將該帳號的 **訂單記錄與紅利點數** 整合至目前帳號，請進行身份驗證。
+                如果您希望整合帳號的 **訂單記錄與紅利點數**，請通過安全驗證。
               </p>
 
               <div className="space-y-4">
@@ -256,16 +256,6 @@ export default function Account() {
               </div>
 
               <div className="mt-8 flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setShowMergePrompt(null);
-                    setMergePassword('');
-                  }}
-                  className="w-full py-2 text-sm text-hint hover:text-sub"
-                >
-                  取消，維持現狀
-                </button>
-              </div>
                 <button
                   onClick={() => {
                     setShowMergePrompt(null);
