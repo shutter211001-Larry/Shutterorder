@@ -306,9 +306,108 @@ export async function updateMe(req: Request, res: Response): Promise<void> {
       select: { id: true, email: true, name: true, phone: true, lineUserId: true, lineDisplayName: true, googleId: true, googleEmail: true },
     });
 
-    res.json({ success: true, data: updated });
+    res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: 'Failed to update profile' });
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+}
+
+export async function mergeSocialAccount(req: Request, res: Response): Promise<void> {
+  if (!req.user || req.user.type !== 'customer') {
+    res.status(401).json({ success: false, error: 'Authentication required' });
+    return;
+  }
+
+  const { provider, socialId, password } = req.body;
+  if (!provider || !socialId || !password) {
+    res.status(400).json({ success: false, error: 'Missing required fields' });
+    return;
+  }
+
+  try {
+    // 1. SECURITY CHECK: Verify current user's password
+    const currentUser = await prisma.customer.findUnique({ where: { id: req.user.id } });
+    if (!currentUser || !currentUser.password) {
+      res.status(400).json({ success: false, error: '請先為目前帳號設定密碼才能進行整合' });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, currentUser.password);
+    if (!isPasswordValid) {
+      res.status(401).json({ success: false, error: '密碼錯誤，身份驗證失敗' });
+      return;
+    }
+
+    // 2. FIND SOURCE ACCOUNT: The one that currently holds the social link
+    const sourceUser = await prisma.customer.findUnique({
+      where: provider === 'google' ? { googleId: socialId } : { lineUserId: socialId },
+    });
+
+    if (!sourceUser) {
+      res.status(404).json({ success: false, error: '找不到待整合的社交帳號' });
+      return;
+    }
+
+    if (sourceUser.id === currentUser.id) {
+      res.status(400).json({ success: false, error: '帳號已在目前的連結中' });
+      return;
+    }
+
+    // 3. TRANSACTIONAL MERGE: Move orders, points, and transfer link
+    await prisma.$transaction(async (tx) => {
+      // Transfer Orders
+      await tx.order.updateMany({
+        where: { customerId: sourceUser.id },
+        data: { customerId: currentUser.id },
+      });
+
+      // Transfer Points (Simple additive logic)
+      // Note: You might need a separate loyalty log entry here
+      const sourcePoints = await tx.loyaltyPoint.aggregate({
+        where: { customerId: sourceUser.id },
+        _sum: { amount: true },
+      });
+      
+      const pointsToMove = sourcePoints._sum.amount || 0;
+      if (pointsToMove !== 0) {
+        await tx.loyaltyPoint.create({
+          data: {
+            customerId: currentUser.id,
+            amount: pointsToMove,
+            reason: `Account Merge from ${sourceUser.email}`,
+          },
+        });
+        // Clear source points (optional, as the user is being unlinked/deleted)
+        await tx.loyaltyPoint.create({
+          data: {
+            customerId: sourceUser.id,
+            amount: -pointsToMove,
+            reason: `Merged into ${currentUser.email}`,
+          },
+        });
+      }
+
+      // Unbind social ID from source
+      await tx.customer.update({
+        where: { id: sourceUser.id },
+        data: provider === 'google' 
+          ? { googleId: null, googleEmail: null } 
+          : { lineUserId: null, lineDisplayName: null },
+      });
+
+      // Bind social ID to current user
+      await tx.customer.update({
+        where: { id: currentUser.id },
+        data: provider === 'google' 
+          ? { googleId: socialId, googleEmail: (sourceUser as any).googleEmail } 
+          : { lineUserId: socialId, lineDisplayName: (sourceUser as any).lineDisplayName },
+      });
+    });
+
+    res.json({ success: true, message: '帳號整合完成，您的訂單與紅利已同步。' });
+  } catch (err) {
+    console.error('Merge Error:', err);
+    res.status(500).json({ success: false, error: '整合過程中發生錯誤' });
   }
 }
 

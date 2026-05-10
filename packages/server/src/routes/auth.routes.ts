@@ -1,58 +1,52 @@
 import { Router } from 'express';
 import passport from 'passport';
-import {
-  staffLogin,
-  staffRegister,
-  customerRegister,
-  customerLogin,
-  getMe,
-  deleteMe,
-  setPassword,
-  updateMe,
-  unbindGoogle,
-} from '../controllers/auth.controller.js';
-import { handleSocialCallback } from '../controllers/social-auth.controller.js';
-import { savePushToken } from '../controllers/push-token.controller.js';
-import { authenticate, requireRole } from '../middleware/auth.js';
+import * as authController from '../controllers/auth.controller.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
-
-// Staff auth
-router.post('/staff/login', staffLogin);
-router.post('/staff/register', authenticate, requireRole('SUPER_ADMIN'), staffRegister);
-
-// Customer auth
-router.post('/customer/register', customerRegister);
-router.post('/customer/login', customerLogin);
-
 const STOREFRONT_URL = process.env.STOREFRONT_URL || 'http://localhost:5174';
+
+// STAFF AUTH
+router.post('/staff/login', authController.staffLogin);
+router.post('/staff/register', authController.staffRegister);
+
+// CUSTOMER AUTH
+router.post('/customer/register', authController.customerRegister);
+router.post('/customer/login', authController.customerLogin);
+
+// Social login callback handler
+const handleSocialCallback = (req: any, res: any) => {
+  const token = (req.user as any).token || '';
+  res.redirect(`${STOREFRONT_URL}/login/callback?token=${token}`);
+};
 
 // Social login — Google
 if (process.env.GOOGLE_LOGIN_CLIENT_ID) {
   router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
-  router.get('/google/callback',
-    passport.authenticate('google', { session: false, failureRedirect: `${STOREFRONT_URL}/login?error=auth_failed` }),
-    handleSocialCallback
-  );
+  router.get('/google/callback', (req, res, next) => {
+    passport.authenticate('google', { session: false }, (err: any, user: any, info: any) => {
+      if (err) return res.redirect(`${STOREFRONT_URL}/login?error=server_error`);
+      if (!user) {
+        if (info && info.message && info.message.includes('已被其他會員連結')) {
+          // In Google OAuth, we don't have the socialId easily here, 
+          // but we can tell the frontend to re-initiate or we could have saved it in session.
+          // For simplicity, we'll tell the frontend a conflict happened.
+          return res.redirect(`${STOREFRONT_URL}/account?error=conflict&provider=google`);
+        }
+        return res.redirect(`${STOREFRONT_URL}/login?error=auth_failed`);
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  }, handleSocialCallback);
 }
 
-// Social login — Facebook
-if (process.env.FACEBOOK_APP_ID) {
-  router.get('/facebook', passport.authenticate('facebook', { scope: ['email'], session: false }));
-  router.get('/facebook/callback',
-    passport.authenticate('facebook', { session: false, failureRedirect: `${STOREFRONT_URL}/login?error=auth_failed` }),
-    handleSocialCallback
-  );
-}
-
-// Push notifications token
-router.post('/push-token', authenticate, savePushToken);
-
-// Current user info
-router.get('/me', authenticate, getMe);
-router.delete('/me', authenticate, deleteMe);
-router.post('/set-password', authenticate, setPassword);
-router.patch('/me', authenticate, updateMe);
-router.post('/google/unbind', authenticate, unbindGoogle);
+// SHARED
+router.get('/me', authenticate, authController.getMe);
+router.delete('/me', authenticate, authController.deleteMe);
+router.post('/set-password', authenticate, authController.setPassword);
+router.patch('/me', authenticate, authController.updateMe);
+router.post('/google/unbind', authenticate, authController.unbindGoogle);
+router.post('/social/merge', authenticate, authController.mergeSocialAccount);
 
 export default router;
