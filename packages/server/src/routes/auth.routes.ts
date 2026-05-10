@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import * as authController from '../controllers/auth.controller.js';
 import { authenticate, generateToken } from '../middleware/auth.js';
 
@@ -14,19 +15,12 @@ router.post('/staff/register', authController.staffRegister);
 router.post('/customer/register', authController.customerRegister);
 router.post('/customer/login', authController.customerLogin);
 
-// Social login callback handler
-const handleSocialCallback = (req: Request, res: Response) => {
-  if (!req.user) return res.redirect(`${STOREFRONT_URL}/auth/callback?error=auth_failed`);
-  
-  const user = req.user as any;
-  
-  // Generate JWT token for the authenticated customer
+const handleSocialCallback = (req: Request, res: Response, user: any) => {
   const token = generateToken({
     id: user.id,
     email: user.email,
-    type: user.type
+    type: user.type || 'customer',
   });
-  
   res.redirect(`${STOREFRONT_URL}/auth/callback?token=${token}`);
 };
 
@@ -45,6 +39,23 @@ if (process.env.GOOGLE_LOGIN_CLIENT_ID) {
   });
 
   router.get('/google/callback', (req: Request, res: Response, next: NextFunction) => {
+    // Extract user token from state if provided
+    const stateStr = req.query.state as string;
+    if (stateStr) {
+      try {
+        const decodedStr = decodeURIComponent(stateStr);
+        if (decodedStr.startsWith('{')) {
+          const stateObj = JSON.parse(decodedStr);
+          if (stateObj.token) {
+            const payload = jwt.verify(stateObj.token, process.env.JWT_SECRET || 'fallback_secret');
+            req.user = payload as Express.User;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse state token:', e);
+      }
+    }
+
     passport.authenticate('google', { session: false }, (err: any, user: any, info: any) => {
       if (err) {
         console.error('Google Auth Error:', err);

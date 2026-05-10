@@ -26,7 +26,8 @@ export const initPassport = () => {
             // Note: We need a way to pass the 'link' intent from frontend to Google and back.
             // For now, let's look at the 'state' if possible, or just be more careful.
             const loggedInUser = (req as any).user;
-            const isLinking = req.query.state && (req.query.state as string).includes('link=true');
+            const stateStr = req.query.state as string || '';
+            const isLinking = stateStr.includes('link=true') || stateStr.includes('"link":true');
 
             if (loggedInUser && loggedInUser.type === 'customer' && isLinking) {
               // LINKING: User is already logged in and explicitly wants to link
