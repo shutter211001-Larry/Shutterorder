@@ -353,7 +353,7 @@ export async function mergeSocialAccount(req: Request, res: Response): Promise<v
       return;
     }
 
-    // 3. TRANSACTIONAL MERGE: Move orders, points, and transfer link
+      // 3. TRANSACTIONAL MERGE: Move orders, points, and transfer link
     await prisma.$transaction(async (tx) => {
       // Transfer Orders
       await tx.order.updateMany({
@@ -361,29 +361,29 @@ export async function mergeSocialAccount(req: Request, res: Response): Promise<v
         data: { customerId: currentUser.id },
       });
 
-      // Transfer Points (Simple additive logic)
-      // Note: You might need a separate loyalty log entry here
-      const sourcePoints = await tx.loyaltyPoint.aggregate({
-        where: { customerId: sourceUser.id },
-        _sum: { amount: true },
-      });
-      
-      const pointsToMove = sourcePoints._sum.amount || 0;
+      // Transfer Points (Additive logic on the customer record)
+      const pointsToMove = sourceUser.loyaltyPoints || 0;
       if (pointsToMove !== 0) {
-        await tx.loyaltyPoint.create({
+        // Add to current user
+        await tx.customer.update({
+          where: { id: currentUser.id },
+          data: { loyaltyPoints: { increment: pointsToMove } },
+        });
+
+        // Create a transaction log for the merge
+        await tx.loyaltyTransaction.create({
           data: {
             customerId: currentUser.id,
-            amount: pointsToMove,
-            reason: `Account Merge from ${sourceUser.email}`,
+            type: 'ADJUST',
+            points: pointsToMove,
+            description: `Account Merge from ${sourceUser.email}`,
           },
         });
-        // Clear source points (optional, as the user is being unlinked/deleted)
-        await tx.loyaltyPoint.create({
-          data: {
-            customerId: sourceUser.id,
-            amount: -pointsToMove,
-            reason: `Merged into ${currentUser.email}`,
-          },
+
+        // Zero out source user (since we are unlinking/potentially deleting)
+        await tx.customer.update({
+          where: { id: sourceUser.id },
+          data: { loyaltyPoints: 0 },
         });
       }
 
