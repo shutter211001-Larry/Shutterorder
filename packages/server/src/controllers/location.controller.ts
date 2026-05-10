@@ -241,14 +241,14 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
     console.log(`  - Day ${h.dayOfWeek}: ${h.openTime}-${h.closeTime} (isClosed: ${h.isClosed})`);
   });
 
+  let allRawSlots: string[] = [];
+
   for (let i = 0; i < daysCount; i++) {
     const targetDate = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
-    const { dayOfWeek, dateKey } = getTaiwanDate(targetDate);
+    const { dayOfWeek } = getTaiwanDate(targetDate);
     
     const sessions = (location as any).operatingHours.filter((h: any) => h.dayOfWeek === dayOfWeek && !h.isClosed);
     
-    console.log(`[Slots Debug] Processing Day ${i}: targetDate=${targetDate.toISOString()}, dateKey=${dateKey}, dayOfWeek=${dayOfWeek}, sessions=${sessions.length}`);
-
     if (sessions.length === 0) continue;
 
     const minStartTime = i === 0 ? new Date(now.getTime() + leadTime * 60000) : undefined;
@@ -261,13 +261,29 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
       minStartTime
     );
 
-    if (daySlots.length > 0) {
-      console.log(`  - Generated ${daySlots.length} slots for ${dateKey}. First: ${daySlots[0]}`);
-      slotsByDay.push({
-        date: dateKey,
-        slots: daySlots,
-      });
+    allRawSlots.push(...daySlots);
+  }
+
+  // Deduplicate and sort all slots
+  allRawSlots = Array.from(new Set(allRawSlots)).sort();
+
+  // Group strictly by actual Calendar Date in Taiwan Time
+  const groupedSlots: Record<string, string[]> = {};
+  for (const slot of allRawSlots) {
+    const slotDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date(slot));
+    if (!groupedSlots[slotDateStr]) {
+      groupedSlots[slotDateStr] = [];
     }
+    groupedSlots[slotDateStr].push(slot);
+  }
+
+  // Populate slotsByDay
+  const sortedDates = Object.keys(groupedSlots).sort();
+  for (const date of sortedDates) {
+    slotsByDay.push({
+      date,
+      slots: groupedSlots[date],
+    });
   }
 
   res.json({ success: true, data: slotsByDay });
