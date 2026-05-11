@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import prisma from '../lib/db.js';
 import logger from '../lib/logger.js';
 
@@ -86,6 +86,8 @@ export const orderRateLimiter = rateLimit({
   keyGenerator: (req: Request) => {
     // Use user ID if logged in, otherwise use IP
     const user = (req as any).user;
-    return (user?.id) || req.ip || 'anonymous';
+    if (user?.id) return user.id;
+    const ip = req.ip;
+    return ip ? ipKeyGenerator(ip) : 'anonymous';
   }
 });
