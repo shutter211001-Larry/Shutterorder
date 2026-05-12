@@ -130,7 +130,8 @@ export default function SettingsGeneral() {
 
         {/* Site Navigation & Membership */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">網站導覽與功能開關</h2>
+          <h2 className="text-lg font-semibold text-gray-900">網站導覽與入口顯示</h2>
+          <p className="text-sm text-gray-500">這裡只控制前台是否顯示入口連結；實際功能開關請到點餐、訂位等各設定頁調整。</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">顯示導覽連結</h3>

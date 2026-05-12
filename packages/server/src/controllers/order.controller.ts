@@ -81,6 +81,24 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     return;
   }
 
+  const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+  const orderSettings = (siteSettings?.orderSettings as any) || {};
+
+  if (orderSettings.enabled === false) {
+    res.status(400).json({ success: false, error: 'Online ordering is currently disabled' });
+    return;
+  }
+
+  if (orderType === 'DELIVERY' && orderSettings.deliveryEnabled === false) {
+    res.status(400).json({ success: false, error: 'Delivery is currently disabled' });
+    return;
+  }
+
+  if (orderType === 'PICKUP' && orderSettings.pickupEnabled === false) {
+    res.status(400).json({ success: false, error: 'Pickup is currently disabled' });
+    return;
+  }
+
   // Get customer ID from auth if available
   const customerId = (req as any).user?.type === 'customer' ? (req as any).user.id : null;
 
@@ -131,6 +149,16 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   });
   if (!location) {
     res.status(400).json({ success: false, error: locationId ? 'Specified location not found' : 'No active location found' });
+    return;
+  }
+
+  if (orderType === 'DELIVERY' && !location.deliveryEnabled) {
+    res.status(400).json({ success: false, error: 'Delivery is not available for this location' });
+    return;
+  }
+
+  if (orderType === 'PICKUP' && !location.pickupEnabled) {
+    res.status(400).json({ success: false, error: 'Pickup is not available for this location' });
     return;
   }
 
@@ -315,30 +343,53 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     loyaltyDiscount = loyaltyPointsRedeem / 100;
   }
 
-  // Check minimum order for delivery zone
+  // Check minimum order. Delivery zones override location/global defaults.
   if (orderType === 'DELIVERY' && address?.lat != null && address?.lng != null) {
     const zones = await prisma.deliveryZone.findMany({
       where: { locationId: location.id, isActive: true },
     });
+    let matchedZone = null;
     for (const zone of zones) {
       if (zone.boundaries && Array.isArray(zone.boundaries)) {
         if (isPointInPolygon(address.lat, address.lng, zone.boundaries as [number, number][])) {
-          if (subtotal < zone.minOrder) {
-            res.status(400).json({
-              success: false,
-              error: `Mindestbestellwert für diese Lieferzone: ${zone.minOrder.toFixed(2)} €`,
-            });
-            return;
-          }
+          matchedZone = zone;
           break;
         }
       }
     }
+
+    const minOrder = matchedZone?.minOrder ?? location.minOrderDelivery ?? Number(orderSettings.minOrderDelivery || 0);
+    if (subtotal < minOrder) {
+      res.status(400).json({
+        success: false,
+        error: `Minimum delivery order amount is ${minOrder.toFixed(2)}`,
+      });
+      return;
+    }
+  } else if (orderType === 'DELIVERY') {
+    const defaultZone = await prisma.deliveryZone.findFirst({
+      where: { locationId: location.id, isActive: true },
+      orderBy: { minOrder: 'asc' },
+    });
+    const minOrder = defaultZone?.minOrder ?? location.minOrderDelivery ?? Number(orderSettings.minOrderDelivery || 0);
+    if (subtotal < minOrder) {
+      res.status(400).json({
+        success: false,
+        error: `Minimum delivery order amount is ${minOrder.toFixed(2)}`,
+      });
+      return;
+    }
+  } else {
+    const minOrder = location.minOrderPickup ?? Number(orderSettings.minOrderPickup || 0);
+    if (subtotal < minOrder) {
+      res.status(400).json({
+        success: false,
+        error: `Minimum pickup order amount is ${minOrder.toFixed(2)}`,
+      });
+      return;
+    }
   }
 
-  // Fetch site settings for tax rate
-  const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
-  const orderSettings = (siteSettings?.orderSettings as any) || {};
   let currentTaxRate = orderSettings.taxRate !== undefined ? Number(orderSettings.taxRate) : 0;
   if (isNaN(currentTaxRate)) currentTaxRate = 0;
 

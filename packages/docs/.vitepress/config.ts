@@ -64,6 +64,7 @@ export default defineConfig({
             { text: 'Payments', link: '/configuration/payments' },
             { text: 'Email & SMS', link: '/configuration/email-sms' },
             { text: 'Social Login', link: '/configuration/social-login' },
+            { text: 'Provider Keys', link: '/configuration/provider-keys' },
             { text: 'File Uploads', link: '/configuration/file-uploads' },
             { text: 'CORS & Security', link: '/configuration/cors-security' },
           ],
