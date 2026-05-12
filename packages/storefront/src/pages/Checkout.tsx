@@ -191,6 +191,30 @@ export default function Checkout() {
     );
   }
 
+  if (orderSettings?.enabled === false) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <h1 className="text-2xl font-bold text-main mb-4">{t('checkout.currentlyUnavailable')}</h1>
+        <p className="text-sub mb-6">Online ordering is currently disabled.</p>
+        <Link to="/" className="inline-block btn-primary">
+          {t('common.back')}
+        </Link>
+      </div>
+    );
+  }
+
+  if (orderSettings?.deliveryEnabled === false && orderSettings?.pickupEnabled === false) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <h1 className="text-2xl font-bold text-main mb-4">{t('checkout.currentlyUnavailable')}</h1>
+        <p className="text-sub mb-6">Delivery and pickup are currently unavailable.</p>
+        <Link to="/" className="inline-block btn-primary">
+          {t('common.back')}
+        </Link>
+      </div>
+    );
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');

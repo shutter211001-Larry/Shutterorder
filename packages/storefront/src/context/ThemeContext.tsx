@@ -53,6 +53,10 @@ export interface SiteSettings {
     deliveryEnabled?: boolean;
     pickupEnabled?: boolean;
     allowGuestCheckout?: boolean;
+    minOrderDelivery?: number;
+    minOrderPickup?: number;
+    deliveryLeadTime?: number;
+    pickupLeadTime?: number;
     enableFutureOrdering?: boolean;
     taxRate?: number;
   };

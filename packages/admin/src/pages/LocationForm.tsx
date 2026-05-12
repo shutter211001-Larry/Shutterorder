@@ -325,7 +325,8 @@ export default function LocationForm() {
 
         {/* Service Settings */}
         <section className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">服務與營運設定</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">此門市服務設定</h3>
+          <p className="text-sm text-gray-500 mb-4">這些設定只影響目前門市，會覆寫全站點餐設定中的預設外送/自取值。</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <label className="flex items-center gap-2">
               <input
@@ -343,7 +344,7 @@ export default function LocationForm() {
                 onChange={(e) => updateField('deliveryEnabled', e.target.checked)}
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm text-gray-700">提供外送 (Delivery)</span>
+              <span className="text-sm text-gray-700">此門市提供外送 (Delivery)</span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -352,10 +353,10 @@ export default function LocationForm() {
                 onChange={(e) => updateField('pickupEnabled', e.target.checked)}
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm text-gray-700">提供自取 (Pickup)</span>
+              <span className="text-sm text-gray-700">此門市提供自取 (Pickup)</span>
             </label>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">外送最低消 ($)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">此門市外送最低消 ($)</label>
               <input
                 type="number"
                 value={form.minOrderDelivery}
@@ -366,7 +367,7 @@ export default function LocationForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">外送預計時間 (分鐘)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">此門市外送預計時間 (分鐘)</label>
               <input
                 type="number"
                 value={form.deliveryLeadTime}
@@ -376,7 +377,7 @@ export default function LocationForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">自取預計時間 (分鐘)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">此門市自取預計時間 (分鐘)</label>
               <input
                 type="number"
                 value={form.pickupLeadTime}

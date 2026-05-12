@@ -119,7 +119,8 @@ export default function SettingsOrder() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">&larr; 返回設定</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">訂單與外送設定</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mt-1">線上點餐總設定</h1>
+          <p className="text-sm text-gray-500 mt-1">這裡控制全站點餐功能與預設值；各門市仍可在門市設定中覆寫外送、自取、最低消與準備時間。</p>
         </div>
         <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
           {saving ? '儲存中...' : '儲存變更'}
@@ -133,33 +134,35 @@ export default function SettingsOrder() {
         <div className="space-y-4">
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-            <span className="text-sm font-medium text-gray-700">開啟線上點餐功能</span>
+            <span className="text-sm font-medium text-gray-700">開啟全站線上點餐功能</span>
           </label>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg">
             <div className="space-y-4">
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked={deliveryEnabled} onChange={(e) => setDeliveryEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-                <span className="text-sm font-bold text-gray-900">啟用「外送」服務</span>
+                <span className="text-sm font-bold text-gray-900">全站允許「外送」服務</span>
               </label>
               <div className={!deliveryEnabled ? 'opacity-50 pointer-events-none' : ''}>
-                <label className="block text-xs text-gray-500 mb-1">外送最低消費金額 ($)</label>
+                <label className="block text-xs text-gray-500 mb-1">預設外送最低消費金額 ($)</label>
                 <input type="number" min={0} step={0.01} value={minOrderDelivery} onChange={(e) => setMinOrderDelivery(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
-                <label className="block text-xs text-gray-500 mt-3 mb-1">外送預估時間 (分鐘)</label>
+                <label className="block text-xs text-gray-500 mt-3 mb-1">預設外送預估時間 (分鐘)</label>
                 <input type="number" min={0} value={deliveryLeadTime} onChange={(e) => setDeliveryLeadTime(parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
+                <p className="text-[10px] text-gray-500 mt-2">門市或外送區域有設定時，會優先使用更細的設定。</p>
               </div>
             </div>
 
             <div className="space-y-4 border-l border-gray-200 pl-6">
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked={pickupEnabled} onChange={(e) => setPickupEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-                <span className="text-sm font-bold text-gray-900">啟用「自取」服務</span>
+                <span className="text-sm font-bold text-gray-900">全站允許「自取」服務</span>
               </label>
               <div className={!pickupEnabled ? 'opacity-50 pointer-events-none' : ''}>
-                <label className="block text-xs text-gray-500 mb-1">自取最低消費金額 ($)</label>
+                <label className="block text-xs text-gray-500 mb-1">預設自取最低消費金額 ($)</label>
                 <input type="number" min={0} step={0.01} value={minOrderPickup} onChange={(e) => setMinOrderPickup(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
-                <label className="block text-xs text-gray-500 mt-3 mb-1">自取準備時間 (分鐘)</label>
+                <label className="block text-xs text-gray-500 mt-3 mb-1">預設自取準備時間 (分鐘)</label>
                 <input type="number" min={0} value={pickupLeadTime} onChange={(e) => setPickupLeadTime(parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
+                <p className="text-[10px] text-gray-500 mt-2">門市有設定時，會優先使用門市準備時間。</p>
               </div>
             </div>
           </div>
