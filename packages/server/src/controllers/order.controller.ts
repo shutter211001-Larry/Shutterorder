@@ -18,8 +18,8 @@ function formatNotificationMessage(template: string, order: any, customer?: any)
   const userName = customer?.name || order.guestName || '顧客';
   const orderNumber = `#${order.orderNumber}`;
   const itemsList = order.items?.map((i: any) => `${i.name} x${i.quantity}`).join(', ') || '';
-  const pickupTime = order.pickupTime 
-    ? new Date(order.pickupTime).toLocaleString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+  const pickupTime = order.scheduledAt 
+    ? new Date(order.scheduledAt).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
     : '做好馬上取';
 
   return template
@@ -491,9 +491,18 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   if (customerId) {
     const pointsEarned = Math.floor(subtotal);
     if (pointsEarned > 0) {
+      // Also update phone if missing
+      const updateData: any = { loyaltyPoints: { increment: pointsEarned } };
+      if (guestPhone) {
+        const currentCustomer = await prisma.customer.findUnique({ where: { id: customerId }, select: { phone: true } });
+        if (!currentCustomer?.phone) {
+          updateData.phone = guestPhone;
+        }
+      }
+      
       await prisma.customer.update({
         where: { id: customerId },
-        data: { loyaltyPoints: { increment: pointsEarned } },
+        data: updateData,
       });
       await prisma.loyaltyTransaction.create({
         data: {
