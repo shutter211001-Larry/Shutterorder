@@ -342,7 +342,7 @@ export async function updateMe(req: Request, res: Response): Promise<void> {
       },
     });
 
-    res.json({ success: true });
+    res.json({ success: true, data: updated });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Internal server error' });
   }

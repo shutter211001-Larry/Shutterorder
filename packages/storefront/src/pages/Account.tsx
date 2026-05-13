@@ -473,7 +473,12 @@ export default function Account() {
                 <button
                   onClick={() => {
                     setIsEditing(false);
-                    setEditForm({ name: user.name || '', phone: user.phone || '' });
+                    setEditForm({ 
+                      name: user.name || '', 
+                      phone: user.phone || '',
+                      emailNotificationsEnabled: (user as any).emailNotificationsEnabled !== false,
+                      lineNotificationsEnabled: (user as any).lineNotificationsEnabled !== false
+                    });
                   }}
                   className="px-4 py-2 text-sm font-medium text-hint hover:text-main rounded-lg transition-all"
                 >
