@@ -564,7 +564,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       const lineNotifications = lineSettings.notifications || {};
       
       const isEnabled = lineNotifications['PLACED']?.enabled !== false;
-      const template = lineNotifications['PLACED']?.message || '您的訂單已成功建立！我們將盡快為您處理。';
+      const template = lineNotifications['PLACED']?.message || '您好{使用者}，您的訂單{訂單編號}已成功建立！\n餐點內容：{餐點內容}\n取餐時間：{取餐時間/做好馬上取}';
 
       if (isEnabled) {
         const formattedMessage = formatNotificationMessage(template, order, customer);
@@ -806,12 +806,13 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
       const lineNotifications = lineSettings.notifications || {};
       
       const defaultStatusMap: Record<string, string> = {
-        'CONFIRMED': '您的訂單已確認，我們將盡快為您準備餐點。',
+        'PLACED': '您好{使用者}，您的訂單{訂單編號}已成功建立！\n餐點內容：{餐點內容}\n取餐時間：{取餐時間/做好馬上取}',
+        'CONFIRMED': '您好{使用者}，您的訂單{訂單編號}已確認，我們將盡快為您準備。',
         'PREPARING': '您的餐點正在製作中！',
-        'READY': '🎉 餐點已準備就緒！歡迎前往取貨。',
-        'OUT_FOR_DELIVERY': '🚀 您的餐點已由外送員取走，正在前往您的地址！',
+        'READY': '🎉 您好{使用者}，您的訂單{訂單編號}已準備就緒！歡迎前往取貨。',
+        'OUT_FOR_DELIVERY': '🚀 您的訂單{訂單編號}已由外送員取走，正在前往您的地址！',
         'DELIVERED': '🍽️ 您的餐點已送達，祝您用餐愉快！',
-        'CANCELLED': '您的訂單已被取消。如有任何疑問，請聯繫我們。'
+        'CANCELLED': '您的訂單{訂單編號}已被取消。如有任何疑問，請聯繫我們。'
       };
 
       // Check if this status has a specific setting in lineSettings
