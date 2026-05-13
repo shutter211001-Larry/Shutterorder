@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import path from 'path';
+import fs from 'fs';
 import prisma from '../lib/db.js';
+
+const execAsync = promisify(exec);
 
 // ============================================================
 // GET METRICS SUMMARY
@@ -158,11 +164,9 @@ export async function getAuditLogs(req: Request, res: Response): Promise<void> {
 // DATABASE SYNC
 // ============================================================
 
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import path from 'path';
-
-const execAsync = promisify(exec);
+// ============================================================
+// DATABASE SYNC
+// ============================================================
 
 export async function syncDatabase(req: Request, res: Response) {
   // Only SUPER_ADMIN allowed
@@ -173,9 +177,30 @@ export async function syncDatabase(req: Request, res: Response) {
   try {
     console.log('[Developer] Starting database sync (prisma db push)...');
     
-    // In production, we might want prisma migrate deploy, but db push is faster for dev/rapid changes
-    const { stdout, stderr } = await execAsync('npx prisma db push', {
-      cwd: path.resolve(process.cwd(), '../../'), // Root directory where prisma folder is
+    // Find schema.prisma path
+    const possiblePaths = [
+      path.resolve(process.cwd(), 'prisma/schema.prisma'),
+      path.resolve(process.cwd(), '../../prisma/schema.prisma'),
+      path.resolve(process.cwd(), '../../../prisma/schema.prisma'),
+    ];
+    
+    let schemaPath = '';
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        schemaPath = p;
+        break;
+      }
+    }
+
+    if (!schemaPath) {
+      throw new Error('Could not find prisma/schema.prisma in any expected locations.');
+    }
+
+    console.log(`[Developer] Found schema at: ${schemaPath}`);
+    const rootDir = path.dirname(path.dirname(schemaPath));
+
+    const { stdout, stderr } = await execAsync(`npx prisma db push --schema="${schemaPath}"`, {
+      cwd: rootDir,
     });
 
     console.log('[Developer] Sync stdout:', stdout);
