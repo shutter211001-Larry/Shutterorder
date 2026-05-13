@@ -139,6 +139,12 @@ export default function Checkout() {
 
   // Intersection Observer for the checkout button
   useEffect(() => {
+    if (user?.phone) {
+      setGuestPhone(user.phone);
+    }
+  }, [user]);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsButtonVisible(entry.isIntersecting);
