@@ -42,12 +42,14 @@ export const initPassport = () => {
                 return done(null, false, { message: `此 Google 帳號已被其他會員連結|${profile.id}` });
               }
 
+              const existingCustomer = await prisma.customer.findUnique({ where: { id: loggedInUser.id } });
               // 2. Safe to link
               const customer = await prisma.customer.update({
                 where: { id: loggedInUser.id },
                 data: {
                   googleId: profile.id,
                   googleEmail: email,
+                  ...(!existingCustomer?.email ? { email: email } : {})
                 },
               });
               return done(null, { id: customer.id, email: customer.email, type: 'customer' as const });
@@ -84,6 +86,7 @@ export const initPassport = () => {
                 data: {
                   googleId: customer.googleId || profile.id,
                   googleEmail: customer.googleEmail || email,
+                  ...(!customer.email ? { email: email } : {}),
                   isGuest: false,
                   name: customer.name || profile.displayName || email,
                 },
