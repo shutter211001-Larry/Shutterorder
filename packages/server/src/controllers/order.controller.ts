@@ -720,6 +720,39 @@ export async function listCustomerOrders(req: Request, res: Response): Promise<v
   });
 }
 
+// ERP Integration: Background call to deduct inventory in PizzaMaster
+async function notifyPizzaMasterOfDeduction(order: any) {
+  try {
+    const url = process.env.PIZZAMASTER_API_URL || 'http://localhost:3000';
+    console.log(`[ERP Integration] Notifying PizzaMaster for stock deduction. Order: #${order.orderNumber}`);
+    const response = await fetch(`${url}/api/integration/deduct-inventory`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-integration-key': process.env.INTEGRATION_KEY || 'pizzamaster-integration-secret-key'
+      },
+      body: JSON.stringify({
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        items: order.items.map((item: any) => ({
+          menuItemId: item.menuItemId,
+          name: item.name,
+          quantity: item.quantity
+        }))
+      })
+    });
+    
+    const result = await response.json().catch(() => ({ success: false, error: 'Non-JSON response' }));
+    if (!response.ok || !result.success) {
+      console.error(`[ERP Integration] Failed to deduct inventory on PizzaMaster:`, result.error || response.statusText);
+    } else {
+      console.log(`[ERP Integration] Successfully deducted inventory on PizzaMaster for Order #${order.orderNumber}`);
+    }
+  } catch (err) {
+    console.error(`[ERP Integration] Error sending stock deduction to PizzaMaster:`, err);
+  }
+}
+
 export async function updateOrderStatus(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;
   const { status } = req.body;
@@ -754,6 +787,13 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
       items: { include: { options: true } },
     },
   });
+
+  // Trigger ERP stock deduction in PizzaMaster when confirmed
+  if (status === 'CONFIRMED' || status === 'PREPARING') {
+    notifyPizzaMasterOfDeduction(updated).catch(err => 
+      console.error('[ERP Integration] Async inventory deduction call failed:', err)
+    );
+  }
 
   auditLog(req, { action: 'update', entity: 'Order', entityId: id, details: { status, previousStatus: order.status } });
 
