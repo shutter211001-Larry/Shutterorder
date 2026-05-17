@@ -167,6 +167,7 @@ model Category {
   image                   String?
   sortOrder               Int        @default(0)
   isActive                Boolean    @default(true)
+  isDefaultOpen           Boolean    @default(false)
   parentId                String?
   locationId              String?
   createdAt               DateTime   @default(now())
