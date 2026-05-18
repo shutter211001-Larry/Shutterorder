@@ -14,7 +14,6 @@ interface Category {
   nameTranslations?: Record<string, string>;
   slug: string;
   isActive: boolean;
-  isDefaultOpen?: boolean;
   parentId: string | null;
   _count: { menuItems: number };
   children: Category[];
@@ -46,12 +45,13 @@ interface MenuResponse {
 export default function Menu() {
   const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    searchParams.get('category')
-  );
+  
+  // Read state directly from URL search parameters (Single Source of Truth)
+  const selectedCategory = searchParams.get('category');
+  const page = Number(searchParams.get('page')) || 1;
+  
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-  const [page, setPage] = useState(1);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
   const { settings } = useTheme();
@@ -81,27 +81,32 @@ export default function Menu() {
 
     const activeCats = categories.filter((c) => c.isActive && !c.parentId);
     if (activeCats.length > 0) {
-      const defaultCategory = activeCats.find((c) => c.isDefaultOpen) || activeCats[0];
-      setSelectedCategory(defaultCategory.id);
+      const defaultCategory = activeCats[0];
+      const params = new URLSearchParams(searchParams);
+      params.set('category', defaultCategory.id);
+      setSearchParams(params, { replace: true });
     }
-  }, [categories, searchParams]);
+  }, [categories, searchParams, setSearchParams]);
 
-  // Sync URL searchParams back to state (e.g. on navigation resets)
-  useEffect(() => {
-    const cat = searchParams.get('category');
-    if (cat !== selectedCategory) {
-      setSelectedCategory(cat);
-    }
-  }, [searchParams, selectedCategory]);
-
-  // Debounce search
+  // Debounce search input and update URL
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1);
+      
+      const currentSearch = searchParams.get('search') || '';
+      if (search !== currentSearch) {
+        const params = new URLSearchParams(searchParams);
+        if (search) {
+          params.set('search', search);
+        } else {
+          params.delete('search');
+        }
+        params.set('page', '1'); // Reset to page 1 on search
+        setSearchParams(params, { replace: true });
+      }
     }, 300);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [search, searchParams, setSearchParams]);
 
   // Fetch items
   useEffect(() => {
@@ -124,22 +129,25 @@ export default function Menu() {
       .finally(() => setItemsLoading(false));
   }, [itemsUrl]);
 
-  // Sync URL params
-  useEffect(() => {
-    const params: Record<string, string> = {};
-    if (selectedCategory) params.category = selectedCategory;
-    if (debouncedSearch) params.search = debouncedSearch;
-    if (page > 1) params.page = String(page);
-    setSearchParams(params, { replace: true });
-  }, [selectedCategory, debouncedSearch, page, setSearchParams]);
-
   const activeCategories = categories?.filter((c) => c.isActive && !c.parentId) || [];
   const activeItems = items.filter((i) => i.isActive && (!i.trackStock || i.stockQty > 0));
 
   function handleCategoryClick(catId: string) {
-    setSelectedCategory(catId);
-    setPage(1);
+    const params = new URLSearchParams(searchParams);
+    params.set('category', catId);
+    params.set('page', '1');
+    setSearchParams(params, { replace: true });
     setMobileCategoriesOpen(false);
+  }
+
+  function handlePageChange(newPage: number) {
+    const params = new URLSearchParams(searchParams);
+    if (newPage > 1) {
+      params.set('page', String(newPage));
+    } else {
+      params.delete('page');
+    }
+    setSearchParams(params, { replace: true });
   }
 
   return (
@@ -314,7 +322,7 @@ export default function Menu() {
                 <div className="flex justify-center items-center gap-2 mt-8">
                   <button
                     disabled={page <= 1}
-                    onClick={() => setPage((p) => p - 1)}
+                    onClick={() => handlePageChange(page - 1)}
                     className="px-3 py-1.5 text-sm border border-input rounded-lg disabled:opacity-40 hover:bg-surface text-sub transition-colors"
                   >
                     {t('locations.previous')}
@@ -324,7 +332,7 @@ export default function Menu() {
                   </span>
                   <button
                     disabled={page >= pagination.totalPages}
-                    onClick={() => setPage((p) => p + 1)}
+                    onClick={() => handlePageChange(page + 1)}
                     className="px-3 py-1.5 text-sm border border-input rounded-lg disabled:opacity-40 hover:bg-surface text-sub transition-colors"
                   >
                     {t('locations.next')}
