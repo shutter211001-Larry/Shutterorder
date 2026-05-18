@@ -234,6 +234,7 @@
   },
   "orders": {
     "title": "歷史訂單",
+    "cancelOrder": "取消訂單",
     "noOrders": "尚無訂單紀錄。",
     "orderNumber": "訂單 #{{number}}",
     "status": "狀態",

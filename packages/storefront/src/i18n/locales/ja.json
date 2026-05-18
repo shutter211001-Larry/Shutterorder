@@ -189,6 +189,7 @@
   },
   "orders": {
     "title": "注文履歴",
+    "cancelOrder": "注文をキャンセル",
     "noOrders": "まだ注文はありません。",
     "orderNumber": "注文 #{{number}}",
     "status": "ステータス",
