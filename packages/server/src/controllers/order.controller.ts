@@ -15,12 +15,28 @@ import { auditLog } from '../lib/audit.js';
 // ============================================================
 
 function formatNotificationMessage(template: string, order: any, customer?: any) {
-  const userName = customer?.name || order.guestName || '顧客';
+  const userLang = order.language || 'zh-TW';
+  const userName = customer?.name || order.guestName || (userLang === 'ko' ? '고객' : userLang === 'ja' ? 'お客様' : userLang === 'en' ? 'Guest' : '顧客');
   const orderNumber = `#${order.orderNumber}`;
-  const itemsList = order.items?.map((i: any) => `${i.name} x${i.quantity}`).join(', ') || '';
+  
+  const itemsList = order.items?.map((i: any) => {
+    let itemName = i.name;
+    if (userLang !== 'zh-TW' && i.menuItem?.nameTranslations) {
+      try {
+        const trans = typeof i.menuItem.nameTranslations === 'string'
+          ? JSON.parse(i.menuItem.nameTranslations)
+          : i.menuItem.nameTranslations;
+        if (trans && trans[userLang]) {
+          itemName = trans[userLang];
+        }
+      } catch (e) {}
+    }
+    return `${itemName} x${i.quantity}`;
+  }).join(', ') || '';
+
   const pickupTime = order.scheduledAt 
-    ? new Date(order.scheduledAt).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-    : '做好馬上取';
+    ? new Date(order.scheduledAt).toLocaleString(userLang === 'zh-TW' ? 'zh-TW' : userLang === 'ko' ? 'ko-KR' : userLang === 'ja' ? 'ja-JP' : 'en-US', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+    : (userLang === 'ko' ? '바로 픽업' : userLang === 'ja' ? 'すぐ受け取り' : userLang === 'en' ? 'ASAP' : '做好馬上取');
 
   return template
     .replace(/{使用者}/g, userName)
@@ -29,22 +45,34 @@ function formatNotificationMessage(template: string, order: any, customer?: any)
     .replace(/{取餐時間\/做好馬上取}/g, pickupTime);
 }
 
-const linePrefixLocales: Record<string, { placed: string; update: string }> = {
+const linePrefixLocales: Record<string, { placed: string; update: string; orderNumber: string; total: string; status: string }> = {
   'zh-TW': {
     placed: '【訂單建立成功】',
-    update: '【訂單狀態更新】'
+    update: '【訂單狀態更新】',
+    orderNumber: '訂單編號',
+    total: '總計',
+    status: '目前狀態'
   },
   'ko': {
     placed: '【주문 완료】',
-    update: '【주문 상태 업데이트】'
+    update: '【주문 상태 업데이트】',
+    orderNumber: '주문 번호',
+    total: '합계',
+    status: '현재 상태'
   },
   'en': {
     placed: '【Order Placed Successfully】',
-    update: '【Order Status Update】'
+    update: '【Order Status Update】',
+    orderNumber: 'Order Number',
+    total: 'Total',
+    status: 'Current Status'
   },
   'ja': {
     placed: '【ご注文完了】',
-    update: '【ご注文状況の更新】'
+    update: '【ご注文状況の更新】',
+    orderNumber: '注文番号',
+    total: '合計金額',
+    status: '現在の状況'
   }
 };
 
@@ -582,7 +610,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       items: { create: orderItemsData },
     },
     include: {
-      items: { include: { options: true } },
+      items: { include: { options: true, menuItem: { select: { id: true, nameTranslations: true } } } },
       customer: { select: { id: true, name: true, email: true } },
     },
   });
@@ -717,18 +745,19 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
       if (isEnabled && template) {
         const formattedMessage = formatNotificationMessage(template, order, customer);
-        const prefix = linePrefixLocales[langKey]?.placed || linePrefixLocales['en'].placed;
+        const prefixObj = linePrefixLocales[langKey] || linePrefixLocales['en'];
+        const prefix = prefixObj.placed;
         
         const sendLinePlacedPushAsync = async () => {
-          let lineMessage = `${prefix}\n訂單編號：#${order.orderNumber}\n總計：$${order.total.toFixed(2)}\n${formattedMessage}`;
+          let lineMessage = `${prefix}\n${prefixObj.orderNumber}：#${order.orderNumber}\n${prefixObj.total}：$${order.total.toFixed(2)}\n${formattedMessage}`;
 
           if (!isPreTranslated && customConfig?.message) {
             try {
               const { translateContent } = await import('../lib/ai.js');
-              const rawMessageToTranslate = `${prefix}\n總計：$${order.total.toFixed(2)}\n${formattedMessage}`;
+              const rawMessageToTranslate = `${prefix}\n${prefixObj.total}：$${order.total.toFixed(2)}\n${formattedMessage}`;
               const transResult = await translateContent(rawMessageToTranslate, [orderLang], 'Traditional Chinese');
               if (transResult && transResult[orderLang]) {
-                lineMessage = `${prefix}\n訂單編號：#${order.orderNumber}\n${transResult[orderLang]}`;
+                lineMessage = `${prefix}\n${prefixObj.orderNumber}：#${order.orderNumber}\n${transResult[orderLang]}`;
               }
             } catch (err) {
               console.error('[AI Translation] LINE placed order dynamic translation fallback failed:', err);
@@ -947,7 +976,7 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
     where: { id },
     data: { status },
     include: {
-      items: { include: { options: true } },
+      items: { include: { options: true, menuItem: { select: { id: true, nameTranslations: true } } } },
     },
   });
 
@@ -1082,18 +1111,19 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
 
       if (isEnabled && template) {
         const formattedMessage = formatNotificationMessage(template, updated, order.customer);
-        const prefix = linePrefixLocales[langKey]?.update || linePrefixLocales['en'].update;
+        const prefixObj = linePrefixLocales[langKey] || linePrefixLocales['en'];
+        const prefix = prefixObj.update;
 
         const sendLinePushAsync = async () => {
-          let lineMessage = `${prefix}\n訂單編號：#${order.orderNumber}\n目前狀態：${formattedMessage}`;
+          let lineMessage = `${prefix}\n${prefixObj.orderNumber}：#${order.orderNumber}\n${prefixObj.status}：${formattedMessage}`;
 
           if (!isPreTranslated && statusConfig?.message) {
             try {
               const { translateContent } = await import('../lib/ai.js');
-              const rawMessageToTranslate = `${prefix}\n目前狀態：${formattedMessage}`;
+              const rawMessageToTranslate = `${prefix}\n${prefixObj.status}：${formattedMessage}`;
               const transResult = await translateContent(rawMessageToTranslate, [orderLang], 'Traditional Chinese');
               if (transResult && transResult[orderLang]) {
-                lineMessage = `${prefix}\n訂單編號：#${order.orderNumber}\n${transResult[orderLang]}`;
+                lineMessage = `${prefix}\n${prefixObj.orderNumber}：#${order.orderNumber}\n${transResult[orderLang]}`;
               }
             } catch (err) {
               console.error('[AI Translation] LINE status update dynamic translation fallback failed:', err);
