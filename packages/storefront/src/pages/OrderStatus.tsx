@@ -292,7 +292,7 @@ export default function OrderStatus() {
               disabled={cancelling}
               className="text-red-500 hover:text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-all disabled:opacity-50"
             >
-              {cancelling ? t('checkout.processing') : '取消訂單'}
+              {cancelling ? t('checkout.processing') : t('orders.cancelOrder')}
             </button>
           )}
           {(user || settings.showMembership) && (
@@ -426,7 +426,7 @@ export default function OrderStatus() {
             to="/menu"
             className="btn-primary"
           >
-            {t('home.orderMore')}
+            {t('orderConfirmation.orderMore')}
           </Link>
         )}
         {settings.showMembership && (

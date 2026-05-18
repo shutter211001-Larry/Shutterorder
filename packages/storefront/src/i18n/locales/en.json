@@ -235,6 +235,7 @@
   },
   "orders": {
     "title": "Order History",
+    "cancelOrder": "Cancel Order",
     "noOrders": "No orders yet.",
     "orderNumber": "Order #{{number}}",
     "status": "Status",

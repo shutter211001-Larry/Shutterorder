@@ -613,11 +613,37 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
         total: order.total,
         items: order.items.map((i) => ({ name: i.name, quantity: i.quantity, subtotal: i.subtotal })),
       });
-      sendEmail({
-        to: recipientEmail,
-        ...emailContent,
-        locationId: order.locationId,
-      }).catch(() => {});
+      const sendConfirmationEmailAsync = async () => {
+        let finalSubject = emailContent.subject;
+        let finalHtml = emailContent.html;
+
+        const orderLang = order.language || 'zh-TW';
+        const isTraditionalChinese = orderLang.startsWith('zh') || orderLang === 'zh-TW';
+
+        if (!isTraditionalChinese) {
+          try {
+            const { translateContent } = await import('../lib/ai.js');
+            const transSubject = await translateContent(emailContent.subject, [orderLang], 'Traditional Chinese');
+            if (transSubject && transSubject[orderLang]) {
+              finalSubject = transSubject[orderLang];
+            }
+            const transBody = await translateContent(emailContent.html, [orderLang], 'Traditional Chinese');
+            if (transBody && transBody[orderLang]) {
+              finalHtml = transBody[orderLang];
+            }
+          } catch (err) {
+            console.error('[AI Translation] Confirmation Email translation failed:', err);
+          }
+        }
+
+        sendEmail({
+          to: recipientEmail,
+          subject: finalSubject,
+          html: finalHtml,
+          locationId: order.locationId,
+        }).catch(() => {});
+      };
+      sendConfirmationEmailAsync().catch(() => {});
     }
   }
 
@@ -634,8 +660,27 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
       if (isEnabled) {
         const formattedMessage = formatNotificationMessage(template, order, customer);
-        const lineMessage = `【訂單建立成功】\n訂單編號：#${order.orderNumber}\n總計：$${order.total.toFixed(2)}\n${formattedMessage}`;
-        sendLinePush(customer.lineUserId, lineMessage).catch(() => {});
+        const sendLinePlacedPushAsync = async () => {
+          let lineMessage = `【訂單建立成功】\n訂單編號：#${order.orderNumber}\n總計：$${order.total.toFixed(2)}\n${formattedMessage}`;
+          const orderLang = order.language || 'zh-TW';
+          const isTraditionalChinese = orderLang.startsWith('zh') || orderLang === 'zh-TW';
+
+          if (!isTraditionalChinese) {
+            try {
+              const { translateContent } = await import('../lib/ai.js');
+              const rawMessageToTranslate = `【訂單建立成功】\n總計：$${order.total.toFixed(2)}\n${formattedMessage}`;
+              const transResult = await translateContent(rawMessageToTranslate, [orderLang], 'Traditional Chinese');
+              if (transResult && transResult[orderLang]) {
+                const translatedBody = transResult[orderLang];
+                lineMessage = `【訂單建立成功】\n訂單編號：#${order.orderNumber}\n${translatedBody}`;
+              }
+            } catch (err) {
+              console.error('[AI Translation] LINE placed order translation failed:', err);
+            }
+          }
+          sendLinePush(customer.lineUserId!, lineMessage).catch(() => {});
+        };
+        sendLinePlacedPushAsync().catch(() => {});
       }
     } catch (err) {
       console.error('[LINE Notify] Error in createOrder notification logic:', err);
@@ -1028,13 +1073,33 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
 
       if (isEnabled && template) {
         const formattedMessage = formatNotificationMessage(template, updated, order.customer);
-        const lineMessage = `【訂單狀態更新】\n訂單編號：#${order.orderNumber}\n目前狀態：${formattedMessage}`;
-        console.log(`[LINE Notify] Sending message to LINE...`);
-        sendLinePush(order.customer.lineUserId, lineMessage).then(() => {
-          console.log('[LINE Notify] sendLinePush call completed');
-        }).catch(err => {
-          console.error('[LINE Notify] sendLinePush FAILED:', err);
-        });
+        const sendLinePushAsync = async () => {
+          let lineMessage = `【訂單狀態更新】\n訂單編號：#${order.orderNumber}\n目前狀態：${formattedMessage}`;
+          const orderLang = order.language || 'zh-TW';
+          const isTraditionalChinese = orderLang.startsWith('zh') || orderLang === 'zh-TW';
+
+          if (!isTraditionalChinese) {
+            try {
+              const { translateContent } = await import('../lib/ai.js');
+              const rawMessageToTranslate = `【訂單狀態更新】\n目前狀態：${formattedMessage}`;
+              const transResult = await translateContent(rawMessageToTranslate, [orderLang], 'Traditional Chinese');
+              if (transResult && transResult[orderLang]) {
+                const translatedBody = transResult[orderLang];
+                lineMessage = `【訂單狀態更新】\n訂單編號：#${order.orderNumber}\n${translatedBody}`;
+              }
+            } catch (err) {
+              console.error('[AI Translation] LINE status update translation failed:', err);
+            }
+          }
+
+          console.log(`[LINE Notify] Sending message to LINE...`);
+          sendLinePush(order.customer!.lineUserId!, lineMessage).then(() => {
+            console.log('[LINE Notify] sendLinePush call completed');
+          }).catch(err => {
+            console.error('[LINE Notify] sendLinePush FAILED:', err);
+          });
+        };
+        sendLinePushAsync().catch(() => {});
       } else {
         console.log(`[LINE Notify] Notification skipped: isEnabled=${isEnabled}, hasMessage=${!!template}`);
       }

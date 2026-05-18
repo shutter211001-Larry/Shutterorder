@@ -187,6 +187,7 @@
   },
   "orders": {
     "title": "주문 내역",
+    "cancelOrder": "주문 취소",
     "noOrders": "아직 주문 내역이 없습니다.",
     "orderNumber": "주문 #{{number}}",
     "status": "상태",
