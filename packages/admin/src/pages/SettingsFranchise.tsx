@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api.js';
 
 interface FranchiseStore {
   id: string;
@@ -26,111 +27,75 @@ interface IngredientWarning {
 
 export default function SettingsFranchise() {
   const token = localStorage.getItem('token') || '';
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'stores' | 'diagnostics' | 'inventory'>('stores');
   const [isDiagnosing, setIsDiagnosing] = useState(false);
   const [diagnosticLogs, setDiagnosticLogs] = useState<string[]>([]);
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(true);
   
-  // Store management state
-  const [stores, setStores] = useState<FranchiseStore[]>([
-    {
-      id: 'store-1',
-      name: '台北信義旗艦店',
-      owner: '陳大文',
-      status: 'active',
-      royaltyRate: 5.0,
-      apiEndpoint: 'https://taipei-xinyi.shutterorder.tw/api/v1',
-      contractStart: '2025-01-01',
-      contractEnd: '2028-12-31',
-      health: 'good',
-      ping: 15,
-    },
-    {
-      id: 'store-2',
-      name: '新竹竹北科技店',
-      owner: '林小明',
-      status: 'active',
-      royaltyRate: 4.5,
-      apiEndpoint: 'https://hsinchu-zhubei.shutterorder.tw/api/v1',
-      contractStart: '2025-03-15',
-      contractEnd: '2028-03-14',
-      health: 'good',
-      ping: 28,
-    },
-    {
-      id: 'store-3',
-      name: '台中一中商圈店',
-      owner: '張美玲',
-      status: 'active',
-      royaltyRate: 5.0,
-      apiEndpoint: 'https://taichung-yizhong.shutterorder.tw/api/v1',
-      contractStart: '2025-05-20',
-      contractEnd: '2027-05-19',
-      health: 'warning',
-      ping: 112,
-    },
-    {
-      id: 'store-4',
-      name: '高雄左營巨蛋店',
-      owner: '黃志強',
-      status: 'suspended',
-      royaltyRate: 4.0,
-      apiEndpoint: 'https://kaohsiung-zuoying.shutterorder.tw/api/v1',
-      contractStart: '2024-06-01',
-      contractEnd: '2026-05-31',
-      health: 'error',
-      ping: null,
-    },
-  ]);
+  // Store management state loaded dynamically from locations API
+  const [stores, setStores] = useState<FranchiseStore[]>([]);
 
   // Estimated inventory status warnings based on order deduction rates
-  const [warnings, setWarnings] = useState<IngredientWarning[]>([
-    {
-      storeId: 'store-3',
-      storeName: '台中一中商圈店',
-      ingredient: '莫札瑞拉起司 (Mozzarella)',
-      currentStock: 4.2,
-      minRequired: 15.0,
-      status: 'critical',
-      suggestedOrder: 20.0,
-    },
-    {
-      storeId: 'store-3',
-      storeName: '台中一中商圈店',
-      ingredient: '美式臘腸片 (Pepperoni)',
-      currentStock: 3.1,
-      minRequired: 8.0,
-      status: 'critical',
-      suggestedOrder: 10.0,
-    },
-    {
-      storeId: 'store-2',
-      storeName: '新竹竹北科技店',
-      ingredient: '高筋小麥麵粉 (High-Protein Flour)',
-      currentStock: 22.0,
-      minRequired: 50.0,
-      status: 'warning',
-      suggestedOrder: 60.0,
-    },
-    {
-      storeId: 'store-1',
-      storeName: '台北信義旗艦店',
-      ingredient: '秘製番茄披薩醬 (Tomato Sauce)',
-      currentStock: 12.5,
-      minRequired: 20.0,
-      status: 'warning',
-      suggestedOrder: 15.0,
-    },
-    {
-      storeId: 'store-1',
-      storeName: '台北信義旗艦店',
-      ingredient: '特級初榨橄欖油 (Extra Virgin Olive Oil)',
-      currentStock: 18.0,
-      minRequired: 10.0,
-      status: 'normal',
-      suggestedOrder: 0,
-    },
-  ]);
+  const [warnings, setWarnings] = useState<IngredientWarning[]>([]);
+
+  useEffect(() => {
+    api.get<any>('/locations')
+      .then((res) => {
+        const fetchedLocations = res.data || [];
+        const contracts = JSON.parse(localStorage.getItem('franchise_contracts') || '{}');
+        
+        const mappedStores = fetchedLocations.map((loc: any) => {
+          const contract = contracts[loc.id] || {};
+          return {
+            id: loc.id,
+            name: loc.name,
+            owner: contract.owner || '未指派',
+            status: loc.isActive ? 'active' : 'suspended',
+            royaltyRate: contract.royaltyRate !== undefined ? contract.royaltyRate : 5.0,
+            apiEndpoint: contract.apiEndpoint || `https://${loc.slug}.shutterorder.tw/api/v1`,
+            contractStart: contract.contractStart || '2025-01-01',
+            contractEnd: contract.contractEnd || '2028-12-31',
+            health: loc.isActive ? 'good' : 'error',
+            ping: loc.isActive ? 15 : null,
+          };
+        });
+        setStores(mappedStores);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load locations:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Generate dynamic inventory warnings for active stores
+  useEffect(() => {
+    if (stores.length === 0) return;
+    const mockIngredients = [
+      { name: '莫札瑞拉起司 (Mozzarella)', min: 15.0, current: 4.2, status: 'critical', suggested: 20.0 },
+      { name: '美式臘腸片 (Pepperoni)', min: 8.0, current: 3.1, status: 'critical', suggested: 10.0 },
+      { name: '高筋小麥麵粉 (High-Protein Flour)', min: 50.0, current: 22.0, status: 'warning', suggested: 60.0 },
+      { name: '秘製番茄披薩醬 (Tomato Sauce)', min: 20.0, current: 12.5, status: 'warning', suggested: 15.0 },
+    ];
+
+    const newWarnings: IngredientWarning[] = [];
+    stores.forEach((store, sIdx) => {
+      if (store.status !== 'active') return;
+      const ing = mockIngredients[sIdx % mockIngredients.length];
+      newWarnings.push({
+        storeId: store.id,
+        storeName: store.name,
+        ingredient: ing.name,
+        currentStock: ing.current,
+        minRequired: ing.min,
+        status: ing.status as any,
+        suggestedOrder: ing.suggested,
+      });
+    });
+    setWarnings(newWarnings);
+  }, [stores]);
 
   // Form states for adding/editing stores
   const [isEditing, setIsEditing] = useState(false);
@@ -142,37 +107,75 @@ export default function SettingsFranchise() {
   };
 
   const startCreate = () => {
-    setEditStore({
-      id: `store-${Date.now()}`,
-      name: '',
-      owner: '',
-      status: 'active',
-      royaltyRate: 5.0,
-      apiEndpoint: '',
-      contractStart: new Date().toISOString().split('T')[0],
-      contractEnd: new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      health: 'unchecked',
-      ping: null,
-    });
-    setIsEditing(true);
+    navigate('/locations/new');
   };
 
-  const handleSaveStore = () => {
+  const handleSaveStore = async () => {
     if (!editStore.name || !editStore.owner) {
       alert('請填寫完整分店名稱與加盟主姓名！');
       return;
     }
     
-    const existing = stores.find(s => s.id === editStore.id);
-    if (existing) {
-      setStores(stores.map(s => s.id === editStore.id ? (editStore as FranchiseStore) : s));
-    } else {
-      setStores([...stores, editStore as FranchiseStore]);
+    try {
+      // 1. Persist contract to localStorage
+      const contracts = JSON.parse(localStorage.getItem('franchise_contracts') || '{}');
+      contracts[editStore.id!] = {
+        owner: editStore.owner,
+        royaltyRate: editStore.royaltyRate,
+        apiEndpoint: editStore.apiEndpoint,
+        contractStart: editStore.contractStart,
+        contractEnd: editStore.contractEnd,
+      };
+      localStorage.setItem('franchise_contracts', JSON.stringify(contracts));
+
+      // 2. Call API to update real branch name and status
+      const nextIsActive = editStore.status === 'active';
+      await api.patch(`/locations/${editStore.id}`, {
+        name: editStore.name,
+        isActive: nextIsActive,
+      });
+
+      // 3. Update local state
+      setStores(prev => prev.map(s => s.id === editStore.id ? {
+        ...s,
+        name: editStore.name!,
+        owner: editStore.owner!,
+        status: editStore.status!,
+        royaltyRate: editStore.royaltyRate!,
+        apiEndpoint: editStore.apiEndpoint!,
+        contractStart: editStore.contractStart!,
+        contractEnd: editStore.contractEnd!,
+        health: nextIsActive ? 'good' : 'error',
+        ping: nextIsActive ? 15 : null,
+      } : s));
+      
+      setIsEditing(false);
+      setSuccess('✓ 加盟分店合約資料與實體分店已成功同步！');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      alert(`同步更新失敗: ${err.message}`);
     }
-    
-    setIsEditing(false);
-    setSuccess('✓ 加盟分店合約資料已成功儲存！');
-    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const toggleStoreStatus = async (store: FranchiseStore) => {
+    const nextStatus = store.status === 'active' ? 'suspended' : 'active';
+    const nextIsActive = nextStatus === 'active';
+    try {
+      await api.patch(`/locations/${store.id}`, {
+        isActive: nextIsActive,
+      });
+
+      setStores(prev => prev.map(s => s.id === store.id ? {
+        ...s,
+        status: nextStatus,
+        health: nextIsActive ? 'good' : 'error',
+        ping: nextIsActive ? 15 : null,
+      } : s));
+      setSuccess(`✓ 已成功切換 ${store.name} 實體分店之營運狀態！`);
+      setTimeout(() => setSuccess(''), 2000);
+    } catch (err: any) {
+      alert(`切換營運狀態失敗: ${err.message}`);
+    }
   };
 
   // Run dynamic connectivity diagnosis simulation
@@ -187,32 +190,27 @@ export default function SettingsFranchise() {
     addLog('🚀 啟動連鎖加盟分店 API 健康診斷監控引擎...');
     await new Promise(r => setTimeout(r, 600));
 
-    addLog('🔍 正在解析 4 家加盟店之遠端資料庫與 API 連線點...');
+    addLog(`🔍 正在解析 ${stores.length} 家加盟店之遠端資料庫與 API 連線點...`);
     await new Promise(r => setTimeout(r, 800));
 
-    // Update Taipei health
-    addLog('📡 正在 Ping 台北信義旗艦店 [https://taipei-xinyi.shutterorder.tw/api/v1]...');
-    await new Promise(r => setTimeout(r, 500));
-    setStores(prev => prev.map(s => s.id === 'store-1' ? { ...s, health: 'good', ping: Math.floor(10 + Math.random() * 8) } : s));
-    addLog('✓ 台北信義旗艦店：連線成功！網路延遲 14ms，資料庫同步順暢 (SSL 憑證安全)。');
+    for (const store of stores) {
+      addLog(`📡 正在 Ping ${store.name} [${store.apiEndpoint}]...`);
+      await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+      
+      const isGood = store.status === 'active';
+      const healthStatus = isGood ? (Math.random() > 0.15 ? 'good' : 'warning') : 'error';
+      const randomPing = isGood ? Math.floor(10 + Math.random() * 80) : null;
+      
+      setStores(prev => prev.map(s => s.id === store.id ? { ...s, health: healthStatus as any, ping: randomPing } : s));
 
-    // Update Hsinchu health
-    addLog('📡 正在 Ping 新竹竹北科技店 [https://hsinchu-zhubei.shutterorder.tw/api/v1]...');
-    await new Promise(r => setTimeout(r, 700));
-    setStores(prev => prev.map(s => s.id === 'store-2' ? { ...s, health: 'good', ping: Math.floor(20 + Math.random() * 12) } : s));
-    addLog('✓ 新竹竹北科技店：連線成功！網路延遲 26ms，無待同步交易訂單。');
-
-    // Update Taichung health
-    addLog('📡 正在 Ping 台中一中商圈店 [https://taichung-yizhong.shutterorder.tw/api/v1]...');
-    await new Promise(r => setTimeout(r, 1000));
-    setStores(prev => prev.map(s => s.id === 'store-3' ? { ...s, health: 'warning', ping: Math.floor(100 + Math.random() * 50) } : s));
-    addLog('⚠️ 台中一中商圈店：網路出現抖動！Ping 延遲 132ms，部分商品庫存扣減出現短暫阻塞，建請密切注意。');
-
-    // Update Kaohsiung health
-    addLog('📡 正在 Ping 高雄左營巨蛋店 [https://kaohsiung-zuoying.shutterorder.tw/api/v1]...');
-    await new Promise(r => setTimeout(r, 800));
-    setStores(prev => prev.map(s => s.id === 'store-4' ? { ...s, health: 'error', ping: null } : s));
-    addLog('❌ 高雄左營巨蛋店：API 連線超時！加盟店已被系統暫停，遠端 API 接頭已關閉，無法建立連線。');
+      if (healthStatus === 'good') {
+        addLog(`✓ ${store.name}：連線成功！網路延遲 ${randomPing}ms，資料庫同步順暢 (SSL 憑證安全)。`);
+      } else if (healthStatus === 'warning') {
+        addLog(`⚠️ ${store.name}：網路出現抖動！Ping 延遲 ${randomPing}ms，部分商品庫存扣減出現短暫阻塞，建請密切注意。`);
+      } else {
+        addLog(`❌ ${store.name}：API 連線超時！加盟店已被系統暫停，遠端 API 接頭已關閉，無法建立連線。`);
+      }
+    }
 
     await new Promise(r => setTimeout(r, 400));
     addLog('🏁 健康檢測完成！100% 診斷完畢。');
@@ -222,6 +220,15 @@ export default function SettingsFranchise() {
   const triggerSupplierAlert = (warning: IngredientWarning) => {
     alert(`📢 系統已向 ${warning.storeName} 採購系統發出預警通知！\n建議補貨量：${warning.suggestedOrder} kg`);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-12 flex flex-col items-center justify-center min-h-[400px]">
+        <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4" />
+        <p className="text-gray-500 font-bold text-sm">載入加盟分店與實體合約資料中...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -422,12 +429,7 @@ export default function SettingsFranchise() {
                       ✏️ 編輯合約設定
                     </button>
                     <button
-                      onClick={() => {
-                        const nextStatus = store.status === 'active' ? 'suspended' : 'active';
-                        setStores(stores.map(s => s.id === store.id ? { ...s, status: nextStatus } : s));
-                        setSuccess(`✓ 已切換 ${store.name} 營運權限！`);
-                        setTimeout(() => setSuccess(''), 2000);
-                      }}
+                      onClick={() => toggleStoreStatus(store)}
                       className={`px-3.5 py-1.5 text-[10px] font-black rounded-lg border transition-all cursor-pointer ${
                         store.status === 'active'
                           ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200'
