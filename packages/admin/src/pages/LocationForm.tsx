@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import { useAuth } from '../context/AuthContext.js';
 
 interface OperatingHour {
   dayOfWeek: number;
@@ -73,6 +74,7 @@ const emptyLocation: LocationData = {
 export default function LocationForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isEdit = !!id;
 
   const [form, setForm] = useState<LocationData>(emptyLocation);
@@ -80,7 +82,23 @@ export default function LocationForm() {
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!window.confirm('您確定要永久刪除此分店嗎？此操作將無法復原。')) {
+      return;
+    }
+    setDeleting(true);
+    setError(null);
+    try {
+      await api.delete(`/locations/${id}`);
+      navigate('/locations');
+    } catch (err: any) {
+      setError(err.message || '刪除失敗');
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!isEdit) return;
@@ -588,6 +606,39 @@ export default function LocationForm() {
             ))}
           </div>
         </section>
+
+        {/* Danger Zone */}
+        {isEdit && user?.role === 'SUPER_ADMIN' && (
+          <section className="bg-red-50 border border-red-200 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-red-950 mb-2 flex items-center gap-2">
+              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              危險區域 (Danger Zone)
+            </h3>
+            <p className="text-sm text-red-800 mb-4 font-semibold">
+              此操作無法復原。刪除此分店將會永久移除其相關配置，如桌位及外送區域。
+              如果此分店已包含交易訂單，系統基於審計數據考量將會拒絕刪除，屆時請改以「停用 (Inactive)」此分店。
+            </p>
+            <div className="flex items-center">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-red-200 cursor-pointer"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    正在刪除...
+                  </>
+                ) : (
+                  '永久刪除此分店'
+                )}
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Submit */}
         <div className="flex justify-end gap-3">
