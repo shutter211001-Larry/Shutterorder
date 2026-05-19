@@ -63,6 +63,7 @@ export default function OrderHistory() {
 
   // Lookup state
   const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupPhone, setLookupPhone] = useState('');
   const [lookupNumber, setLookupNumber] = useState('');
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState('');
@@ -70,11 +71,15 @@ export default function OrderHistory() {
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
+    if (!lookupEmail && !lookupPhone) {
+      setLookupError(t('orders.lookupEmailOrPhoneRequired'));
+      return;
+    }
     setLookupLoading(true);
     setLookupError('');
     try {
       const num = lookupNumber.startsWith('#') ? lookupNumber : `#${lookupNumber}`;
-      const res = await fetch(`${API_BASE}/orders/lookup?email=${encodeURIComponent(lookupEmail)}&orderNumber=${encodeURIComponent(num)}`);
+      const res = await fetch(`${API_BASE}/orders/lookup?email=${encodeURIComponent(lookupEmail)}&phone=${encodeURIComponent(lookupPhone)}&orderNumber=${encodeURIComponent(num)}`);
       const data = await res.json();
       if (data.success && data.data) {
         // Add to local history
@@ -210,13 +215,19 @@ export default function OrderHistory() {
       <div className="surface-brand rounded-xl p-6 mb-8">
         <h2 className="text-lg font-bold mb-2">{t('orders.findOrderTitle')}</h2>
         <p className="text-sm opacity-90 mb-4">{t('orders.findOrderDesc')}</p>
-        <form onSubmit={handleLookup} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <form onSubmit={handleLookup} className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <input
             type="email"
             placeholder={t('orders.lookupEmail')}
-            required
             value={lookupEmail}
             onChange={(e) => setLookupEmail(e.target.value)}
+            className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-sm focus:ring-2 focus:ring-white/50 outline-none placeholder:text-white/50 text-white"
+          />
+          <input
+            type="tel"
+            placeholder={t('orders.lookupPhone')}
+            value={lookupPhone}
+            onChange={(e) => setLookupPhone(e.target.value)}
             className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-sm focus:ring-2 focus:ring-white/50 outline-none placeholder:text-white/50 text-white"
           />
           <input
@@ -237,6 +248,7 @@ export default function OrderHistory() {
         </form>
         {lookupError && <p className="text-xs text-white mt-2">{lookupError}</p>}
       </div>
+
 
       {!loading && displayOrders.length > 0 && (
         <>

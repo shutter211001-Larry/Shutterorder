@@ -265,7 +265,7 @@
     "claimOrderSuccess": "Ordine associato correttamente al tuo account!",
     "claimOrderError": "Associazione non riuscita, riprova più tardi.",
     "findOrderTitle": "Non trovi il tuo ordine?",
-    "findOrderDesc": "Inserisci l'email e il numero d'ordine che hai usato quando hai effettuato l'ordine per recuperare i dettagli.",
+    "findOrderDesc": "Inserisci l'email/il numero di telefono e il numero d'ordine che hai usato quando hai effettuato l'ordine per recuperare i dettagli.",
     "lookupEmail": "Email",
     "lookupNumber": "Numero ordine (es. #KA-XXXX)",
     "lookupSubmit": "Recupera ordine",
@@ -274,7 +274,9 @@
     "lookupServerError": "Si è verificato un errore durante la ricerca, si prega di riprovare più tardi.",
     "recentGuestOrders": "Ordini recenti (ospite)",
     "recentGuestOrdersDesc": "Questi sono i record degli ordini memorizzati in questo browser.",
-    "loginToViewFull": "Accedi per visualizzare la cronologia completa"
+    "loginToViewFull": "Accedi per visualizzare la cronologia completa",
+    "lookupPhone": "Numero di telefono",
+    "lookupEmailOrPhoneRequired": "Inserisci un indirizzo email o un numero di telefono per recuperare l'ordine."
   },
   "orderStatus": {
     "placed": "Effettuato",

@@ -262,7 +262,7 @@
     "claimOrderSuccess": "訂單已成功關聯至您的帳戶！",
     "claimOrderError": "歸戶失敗，請稍後再試。",
     "findOrderTitle": "找不到訂單？",
-    "findOrderDesc": "輸入您在下單時填寫的信箱與訂單號碼來找回紀錄。",
+    "findOrderDesc": "輸入您在下單時填寫的信箱/電話與訂單號碼來找回紀錄。",
     "lookupEmail": "電子郵件",
     "lookupNumber": "訂單號碼 (如 #KA-XXXX)",
     "lookupSubmit": "找回訂單",
@@ -271,7 +271,9 @@
     "lookupServerError": "搜尋時發生錯誤，請稍後再試。",
     "recentGuestOrders": "最近的訂單 (訪客)",
     "recentGuestOrdersDesc": "這些是存放在此瀏覽器中的訂單紀錄。",
-    "loginToViewFull": "登入以查看完整紀錄"
+    "loginToViewFull": "登入以查看完整紀錄",
+    "lookupPhone": "電話號碼",
+    "lookupEmailOrPhoneRequired": "請輸入電子郵件或電話號碼來找回訂單"
   },
   "orderStatus": {
     "placed": "已下單",

@@ -265,7 +265,7 @@
     "claimOrderSuccess": "Pesanan berhasil ditautkan ke akun Anda!",
     "claimOrderError": "Gagal menyimpan ke akun, silakan coba lagi nanti.",
     "findOrderTitle": "Tidak menemukan pesanan?",
-    "findOrderDesc": "Masukkan email dan nomor pesanan yang Anda gunakan saat melakukan pemesanan untuk mengambil riwayatnya.",
+    "findOrderDesc": "Masukkan email/nomor telepon dan nomor pesanan yang Anda gunakan saat melakukan pemesanan untuk mengambil riwayatnya.",
     "lookupEmail": "Email",
     "lookupNumber": "Nomor Pesanan (contoh #KA-XXXX)",
     "lookupSubmit": "Cari Pesanan",
@@ -274,7 +274,9 @@
     "lookupServerError": "Terjadi kesalahan saat mencari, mohon coba lagi nanti.",
     "recentGuestOrders": "Pesanan Terbaru (Tamu)",
     "recentGuestOrdersDesc": "Ini adalah riwayat pesanan yang disimpan di browser ini.",
-    "loginToViewFull": "Masuk untuk melihat riwayat lengkap"
+    "loginToViewFull": "Masuk untuk melihat riwayat lengkap",
+    "lookupPhone": "Nomor Telepon",
+    "lookupEmailOrPhoneRequired": "Silakan masukkan alamat email atau nomor telepon untuk mengambil pesanan."
   },
   "orderStatus": {
     "placed": "Dipesan",

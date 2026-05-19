@@ -270,7 +270,7 @@
     "claimOrderSuccess": "Order successfully linked to your account!",
     "claimOrderError": "Failed to link order. Please try again later.",
     "findOrderTitle": "Can't find your order?",
-    "findOrderDesc": "Enter your email and order number to look it up.",
+    "findOrderDesc": "Enter your email/phone and order number to look it up.",
     "lookupEmail": "Email Address",
     "lookupNumber": "Order Number (e.g. #KA-XXXX)",
     "lookupSubmit": "Find Order",
@@ -283,7 +283,9 @@
     "busyNoticeDesc": "The store is not accepting new orders right now. Live status updates for existing orders may be slightly delayed.",
     "busyNoticeTitle": "Store is currently busy",
     "offlineCacheDesc": "Due to high server load, we are showing the last known status of your order.",
-    "offlineCacheTitle": "Offline Preview Mode"
+    "offlineCacheTitle": "Offline Preview Mode",
+    "lookupPhone": "Phone Number",
+    "lookupEmailOrPhoneRequired": "Please enter an email address or phone number to retrieve the order."
   },
   "orderStatus": {
     "placed": "Placed",
