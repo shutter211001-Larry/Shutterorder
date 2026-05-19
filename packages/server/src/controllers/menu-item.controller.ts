@@ -222,6 +222,7 @@ export async function updateMenuItem(req: Request<{ id: string }>, res: Response
   const { id } = req.params;
   const parsed = updateMenuItemSchema.safeParse(req.body);
   if (!parsed.success) {
+    console.error('[Zod Validation Failure] PATCH /items/' + id, JSON.stringify(parsed.error.errors, null, 2));
     res.status(400).json({ success: false, error: parsed.error.errors });
     return;
   }
