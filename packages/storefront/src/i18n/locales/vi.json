@@ -265,7 +265,7 @@
     "claimOrderSuccess": "Đơn hàng đã được liên kết thành công với tài khoản của bạn!",
     "claimOrderError": "Liên kết không thành công, vui lòng thử lại sau.",
     "findOrderTitle": "Không tìm thấy đơn hàng?",
-    "findOrderDesc": "Nhập email và số đơn hàng bạn đã sử dụng khi đặt hàng để tìm lại đơn hàng.",
+    "findOrderDesc": "Nhập email/số điện thoại và số đơn hàng bạn đã sử dụng khi đặt hàng để tìm lại đơn hàng.",
     "lookupEmail": "Email",
     "lookupNumber": "Số đơn hàng (ví dụ: #KA-XXXX)",
     "lookupSubmit": "Tìm lại đơn hàng",
@@ -274,7 +274,9 @@
     "lookupServerError": "Đã xảy ra lỗi khi tìm kiếm, vui lòng thử lại sau.",
     "recentGuestOrders": "Đơn hàng gần đây (khách)",
     "recentGuestOrdersDesc": "Đây là lịch sử đơn hàng được lưu trữ trên trình duyệt này.",
-    "loginToViewFull": "Đăng nhập để xem toàn bộ lịch sử."
+    "loginToViewFull": "Đăng nhập để xem toàn bộ lịch sử.",
+    "lookupPhone": "Số điện thoại",
+    "lookupEmailOrPhoneRequired": "Vui lòng nhập địa chỉ email hoặc số điện thoại để tìm lại đơn hàng."
   },
   "orderStatus": {
     "placed": "Đã đặt",

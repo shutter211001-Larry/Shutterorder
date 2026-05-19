@@ -265,7 +265,7 @@
     "claimOrderSuccess": "Bestellung wurde erfolgreich Ihrem Konto zugeordnet!",
     "claimOrderError": "Zuordnung fehlgeschlagen, bitte versuchen Sie es später erneut.",
     "findOrderTitle": "Bestellung nicht gefunden?",
-    "findOrderDesc": "Geben Sie die E-Mail-Adresse und Bestellnummer ein, die Sie bei der Bestellung verwendet haben, um den Datensatz abzurufen.",
+    "findOrderDesc": "Geben Sie die E-Mail-Adresse/Telefonnummer und Bestellnummer ein, die Sie bei der Bestellung verwendet haben, um den Datensatz abzurufen.",
     "lookupEmail": "E-Mail",
     "lookupNumber": "Bestellnummer (z. B. #KA-XXXX)",
     "lookupSubmit": "Bestellung finden",
@@ -274,7 +274,9 @@
     "lookupServerError": "Bei der Suche ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.",
     "recentGuestOrders": "Letzte Bestellungen (Gast)",
     "recentGuestOrdersDesc": "Dies sind die in diesem Browser gespeicherten Bestellungen.",
-    "loginToViewFull": "Anmelden, um den vollständigen Verlauf anzuzeigen"
+    "loginToViewFull": "Anmelden, um den vollständigen Verlauf anzuzeigen",
+    "lookupPhone": "Telefonnummer",
+    "lookupEmailOrPhoneRequired": "Bitte geben Sie eine E-Mail-Adresse oder Telefonnummer ein, um die Bestellung abzurufen."
   },
   "orderStatus": {
     "placed": "Aufgegeben",

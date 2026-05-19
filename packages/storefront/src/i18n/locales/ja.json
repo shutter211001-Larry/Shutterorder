@@ -264,7 +264,7 @@
     "claimOrderSuccess": "注文をアカウントに紐付けました！",
     "claimOrderError": "紐付けに失敗しました。後でもう一度お試しください。",
     "findOrderTitle": "注文が見つかりませんか？",
-    "findOrderDesc": "メールアドレスと注文番号を入力して検索してください。",
+    "findOrderDesc": "メールアドレス/電話番号と注文番号を入力して検索してください。",
     "lookupEmail": "メールアドレス",
     "lookupNumber": "注文番号 (例: #KA-XXXX)",
     "lookupSubmit": "注文を検索",
@@ -277,7 +277,9 @@
     "busyNoticeDesc": "現在、新規注文の受付を停止しています。既存の注文のステータス更新が遅れる場合があります。",
     "busyNoticeTitle": "現在混み合っています",
     "offlineCacheDesc": "サーバー負荷が高いため、前回の注文ステータスを表示しています。",
-    "offlineCacheTitle": "オフラインプレビューモード"
+    "offlineCacheTitle": "オフラインプレビューモード",
+    "lookupPhone": "電話番号",
+    "lookupEmailOrPhoneRequired": "注文を取得するには、メールアドレスまたは電話番号を入力してください。"
   },
   "orderStatus": {
     "placed": "注文済み",

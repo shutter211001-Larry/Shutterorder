@@ -265,7 +265,7 @@
     "claimOrderSuccess": "Commande associée avec succès à votre compte !",
     "claimOrderError": "Échec de l'association au compte, veuillez réessayer plus tard.",
     "findOrderTitle": "Commande introuvable ?",
-    "findOrderDesc": "Saisissez l'adresse e-mail et le numéro de commande que vous avez fournis lors de la commande pour la retrouver.",
+    "findOrderDesc": "Saisissez l'adresse e-mail/le numéro de téléphone et le numéro de commande que vous avez fournis lors de la commande pour la retrouver.",
     "lookupEmail": "Adresse e-mail",
     "lookupNumber": "Numéro de commande (ex: #KA-XXXX)",
     "lookupSubmit": "Récupérer la commande",
@@ -274,7 +274,9 @@
     "lookupServerError": "Une erreur est survenue lors de la recherche. Veuillez réessayer ultérieurement.",
     "recentGuestOrders": "Commandes récentes (invité)",
     "recentGuestOrdersDesc": "Ces commandes sont enregistrées dans ce navigateur.",
-    "loginToViewFull": "Connectez-vous pour consulter l'historique complet"
+    "loginToViewFull": "Connectez-vous pour consulter l'historique complet",
+    "lookupPhone": "Numéro de téléphone",
+    "lookupEmailOrPhoneRequired": "Veuillez saisir une adresse e-mail ou un numéro de téléphone pour retrouver la commande."
   },
   "orderStatus": {
     "placed": "Passée",

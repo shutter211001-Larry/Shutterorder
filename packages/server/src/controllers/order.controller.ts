@@ -1787,20 +1787,32 @@ export async function checkOrderReminders(req: Request, res: Response): Promise<
 }
 
 export async function lookupOrder(req: Request, res: Response): Promise<void> {
-  const { email, orderNumber } = req.query;
+  const { email, phone, orderNumber } = req.query;
 
-  if (!email || !orderNumber) {
-    res.status(400).json({ success: false, error: 'Email and order number are required' });
+  if (!orderNumber) {
+    res.status(400).json({ success: false, error: 'Order number is required' });
     return;
+  }
+
+  if (!email && !phone) {
+    res.status(400).json({ success: false, error: 'Either email or phone is required' });
+    return;
+  }
+
+  const conditions: any[] = [];
+  if (email) {
+    conditions.push({ guestEmail: email as string });
+    conditions.push({ customer: { email: email as string } });
+  }
+  if (phone) {
+    conditions.push({ guestPhone: phone as string });
+    conditions.push({ customer: { phone: phone as string } });
   }
 
   const order = await prisma.order.findFirst({
     where: {
       orderNumber: orderNumber as string,
-      OR: [
-        { guestEmail: email as string },
-        { customer: { email: email as string } }
-      ]
+      OR: conditions
     },
     select: {
       id: true,
@@ -1819,6 +1831,7 @@ export async function lookupOrder(req: Request, res: Response): Promise<void> {
 
   res.json({ success: true, data: order });
 }
+
 
 export async function claimOrder(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;

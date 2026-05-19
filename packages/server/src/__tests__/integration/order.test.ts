@@ -310,4 +310,59 @@ describe('Order API - Integration Tests', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // ============================================================
+  // LOOKUP
+  // ============================================================
+  describe('GET /api/orders/lookup', () => {
+    it('returns 400 if orderNumber is missing', async () => {
+      const res = await request(app)
+        .get('/api/orders/lookup')
+        .query({ email: 'guest@test.com' });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain('Order number is required');
+    });
+
+    it('returns 400 if both email and phone are missing', async () => {
+      const res = await request(app)
+        .get('/api/orders/lookup')
+        .query({ orderNumber: 'KA-ABC-123' });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toContain('Either email or phone is required');
+    });
+
+    it('returns 404 if no order matches email', async () => {
+      mockedPrisma.order.findFirst.mockResolvedValue(null);
+
+      const res = await request(app)
+        .get('/api/orders/lookup')
+        .query({ orderNumber: 'KA-ABC-123', email: 'wrong@test.com' });
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toContain('Order not found');
+    });
+
+    it('returns order if found by email', async () => {
+      mockedPrisma.order.findFirst.mockResolvedValue(sampleOrder as any);
+
+      const res = await request(app)
+        .get('/api/orders/lookup')
+        .query({ orderNumber: 'KA-ABC-123', email: 'guest@test.com' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.orderNumber).toBe('KA-ABC-123');
+    });
+
+    it('returns order if found by phone', async () => {
+      mockedPrisma.order.findFirst.mockResolvedValue(sampleOrder as any);
+
+      const res = await request(app)
+        .get('/api/orders/lookup')
+        .query({ orderNumber: 'KA-ABC-123', phone: '0912345678' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.orderNumber).toBe('KA-ABC-123');
+    });
+  });
 });
+

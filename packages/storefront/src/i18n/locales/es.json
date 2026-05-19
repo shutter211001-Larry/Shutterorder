@@ -265,7 +265,7 @@
     "claimOrderSuccess": "¡Pedido vinculado correctamente a su cuenta!",
     "claimOrderError": "No se pudo vincular el pedido a su cuenta, intente de nuevo más tarde.",
     "findOrderTitle": "¿No encuentra su pedido?",
-    "findOrderDesc": "Introduzca el correo electrónico y el número de pedido que utilizó al realizar el pedido para recuperar el registro.",
+    "findOrderDesc": "Introduzca el correo electrónico/teléfono y el número de pedido que utilizó al realizar el pedido para recuperar el registro.",
     "lookupEmail": "Correo electrónico",
     "lookupNumber": "Número de pedido (ej. #KA-XXXX)",
     "lookupSubmit": "Recuperar pedido",
@@ -274,7 +274,9 @@
     "lookupServerError": "Ocurrió un error al buscar. Por favor, inténtalo de nuevo más tarde.",
     "recentGuestOrders": "Pedidos recientes (invitado)",
     "recentGuestOrdersDesc": "Estos son los registros de pedidos almacenados en este navegador.",
-    "loginToViewFull": "Inicia sesión para ver el historial completo."
+    "loginToViewFull": "Inicia sesión para ver el historial completo.",
+    "lookupPhone": "Número de teléfono",
+    "lookupEmailOrPhoneRequired": "Introduzca un correo electrónico o un número de teléfono para recuperar el pedido."
   },
   "orderStatus": {
     "placed": "Realizado",

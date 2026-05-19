@@ -265,7 +265,7 @@
     "claimOrderSuccess": "Matagumpay na naiugnay ang order sa iyong account!",
     "claimOrderError": "Nabigo ang pag-ugnay sa account, pakisubukan muli mamaya.",
     "findOrderTitle": "Hindi makita ang order?",
-    "findOrderDesc": "Ilagay ang email at numero ng order na iyong ibinigay noong nag-order upang makuha ang record.",
+    "findOrderDesc": "Ilagay ang email/telepono at numero ng order na iyong ibinigay noong nag-order upang makuha ang record.",
     "lookupEmail": "Email",
     "lookupNumber": "Numero ng order (hal. #KA-XXXX)",
     "lookupSubmit": "Hanapin ang order",
@@ -274,7 +274,9 @@
     "lookupServerError": "Nagkaroon ng error habang naghahanap, pakisubukan ulit mamaya.",
     "recentGuestOrders": "Mga Kamakailang Order (Bisita)",
     "recentGuestOrdersDesc": "Ito ang mga rekord ng order na nakaimbak sa browser na ito.",
-    "loginToViewFull": "Mag-login upang makita ang buong rekord"
+    "loginToViewFull": "Mag-login upang makita ang buong rekord",
+    "lookupPhone": "Numero ng Telepono",
+    "lookupEmailOrPhoneRequired": "Mangyaring maglagay ng email address o numero ng telepono upang makuha ang order."
   },
   "orderStatus": {
     "placed": "Nai-place na",
