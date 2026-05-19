@@ -8,13 +8,13 @@ const createCategorySchema = z.object({
   name: z.string().min(1),
   nameTranslations: z.record(z.string()).optional(),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   descriptionTranslations: z.record(z.string()).optional(),
-  image: z.string().optional(),
+  image: z.string().nullable().optional(),
   sortOrder: z.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
-  parentId: z.string().optional(),
-  locationId: z.string().optional(),
+  parentId: z.string().nullable().optional(),
+  locationId: z.string().nullable().optional(),
 });
 
 const updateCategorySchema = createCategorySchema.partial().omit({ slug: true });

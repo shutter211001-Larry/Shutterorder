@@ -10,7 +10,7 @@ const createMealtimeSchema = z.object({
   endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be HH:MM format'),
   days: z.array(z.number().int().min(0).max(6)).min(1),
   isActive: z.boolean().default(true),
-  locationId: z.string().optional(),
+  locationId: z.string().nullable().optional(),
 });
 
 const updateMealtimeSchema = createMealtimeSchema.partial();
