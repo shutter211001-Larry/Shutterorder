@@ -27,25 +27,25 @@ const createMenuItemSchema = z.object({
   name: z.string().min(1),
   nameTranslations: z.record(z.string()).optional(),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   descriptionTranslations: z.record(z.string()).optional(),
   price: z.number().min(0),
-  image: z.string().optional(),
+  image: z.string().nullable().optional(),
   isActive: z.boolean().default(true),
   sortOrder: z.number().int().min(0).default(0),
   trackStock: z.boolean().default(false),
   stockQty: z.number().int().min(0).default(0),
-  unit: z.string().optional(),
+  unit: z.string().nullable().optional(),
   unitTranslations: z.record(z.string()).optional(),
   orderType: z.enum(['DELIVERY', 'PICKUP']).nullable().optional(),
   categoryId: z.string().min(1),
-  locationId: z.string().optional(),
+  locationId: z.string().nullable().optional(),
   options: z.array(menuOptionSchema).optional(),
   allergenIds: z.array(z.string()).optional(),
   mealtimeIds: z.array(z.string()).optional(),
   dietaryPreferenceIds: z.array(z.string()).optional(),
-  recipeId: z.string().optional(),
-  recipeName: z.string().optional(),
+  recipeId: z.string().nullable().optional(),
+  recipeName: z.string().nullable().optional(),
 });
 
 const updateMenuItemSchema = createMenuItemSchema.partial().omit({ slug: true });
@@ -232,7 +232,7 @@ export async function updateMenuItem(req: Request<{ id: string }>, res: Response
     return;
   }
 
-  const { options, allergenIds, mealtimeIds, dietaryPreferenceIds, ...data } = parsed.data;
+  const { options, allergenIds, mealtimeIds, dietaryPreferenceIds, recipeId, recipeName, ...data } = parsed.data;
 
   // Auto-translate fields before update
   const translatedData = await autoTranslateMenuItem(data, existing);
