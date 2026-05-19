@@ -776,7 +776,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     }
   }
 
-  const order = await prisma.order.create({
+  const order = await (prisma.order.create as any)({
     data: {
       orderNumber: generateOrderNumber(),
       pickupNumber,
@@ -799,7 +799,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       isRemote,
       language: userLang,
       items: { create: orderItemsData },
-    },
+    } as any,
     include: {
       items: { include: { options: true, menuItem: { select: { id: true, nameTranslations: true } } } },
       customer: { select: { id: true, name: true, email: true } },
@@ -884,12 +884,25 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     } catch (e) {}
 
     if (shouldSendEmail) {
-      const orderLang = order.language || 'zh-TW';
+      const orderLang = (order as any).language || 'zh-TW';
       const emailContent = orderConfirmationEmail({
         orderNumber: order.orderNumber,
         orderType: order.orderType,
         total: order.total,
-        items: order.items.map((i) => ({ name: i.name, quantity: i.quantity, subtotal: i.subtotal })),
+        items: (order as any).items.map((i: any) => {
+          let itemName = i.name;
+          if (orderLang !== 'zh-TW' && i.menuItem?.nameTranslations) {
+            try {
+              const trans = typeof i.menuItem.nameTranslations === 'string'
+                ? JSON.parse(i.menuItem.nameTranslations)
+                : i.menuItem.nameTranslations;
+              if (trans && trans[orderLang]) {
+                itemName = trans[orderLang];
+              }
+            } catch (e) {}
+          }
+          return { name: itemName, quantity: i.quantity, subtotal: i.subtotal };
+        }),
       }, orderLang);
 
       sendEmail({
@@ -910,7 +923,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       const lineNotifications = lineSettings.notifications || {};
       
       const isEnabled = lineNotifications['PLACED']?.enabled !== false;
-      const orderLang = order.language || 'zh-TW';
+      const orderLang = (order as any).language || 'zh-TW';
       const langKey = defaultStatusLocales[orderLang] ? orderLang : 'en';
 
       const customConfig = lineNotifications['PLACED'];
@@ -1211,25 +1224,52 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
       if (shouldSend) {
         const lineSettings = (settings?.lineSettings as any) || {};
         const lineNotifications = lineSettings.notifications || {};
-        const defaultStatusMap: Record<string, string> = {
-          'PLACED': '您好{使用者}，您的訂單{訂單編號}已成功建立！\n餐點內容：{餐點內容}\n取餐時間：{取餐時間/做好馬上取}',
-          'CONFIRMED': '您好{使用者}，您的訂單{訂單編號}已確認，我們將盡快為您準備。',
-          'PREPARING': '您的餐點正在製作中！',
-          'READY': '🎉 您好{使用者}，您的訂單{訂單編號}已準備就緒！歡迎前往取貨。',
-          'OUT_FOR_DELIVERY': '🚀 您的訂單{訂單編號}已由外送員取走，正在前往您的地址！',
-          'DELIVERED': '🍽️ 您的餐點已送達，祝您用餐愉快！',
-          'CANCELLED': '您的訂單{訂單編號}已被取消。如有任何疑問，請聯繫我們。'
-        };
+        
+        const orderLang = (order as any).language || 'zh-TW';
+        const langKey = defaultStatusLocales[orderLang] ? orderLang : 'en';
+
         const statusConfig = lineNotifications[status];
-        const template = statusConfig?.message || defaultStatusMap[status];
+        let template = '';
+        let isPreTranslated = false;
+
+        if (statusConfig) {
+          if (langKey === 'zh-TW') {
+            template = statusConfig.message || '';
+            isPreTranslated = true;
+          } else if (statusConfig.translations?.[langKey]) {
+            template = statusConfig.translations[langKey];
+            isPreTranslated = true;
+          } else if (statusConfig.message) {
+            template = statusConfig.message;
+          }
+        }
+
+        if (!template) {
+          template = defaultStatusLocales[langKey][status] || '';
+          isPreTranslated = true;
+        }
+
         if (template) {
-          formattedEmailMessage = formatNotificationMessage(template, updated, order.customer);
+          let formattedMsg = formatNotificationMessage(template, updated, order.customer);
+          
+          if (!isPreTranslated && statusConfig?.message) {
+            try {
+              const { translateContent } = await import('../lib/ai.js');
+              const transResult = await translateContent(formattedMsg, [orderLang], 'Traditional Chinese');
+              if (transResult && transResult[orderLang]) {
+                formattedMsg = transResult[orderLang];
+              }
+            } catch (err) {
+              console.error('[AI Translation] Email status update dynamic translation fallback failed:', err);
+            }
+          }
+          formattedEmailMessage = formattedMsg;
         }
       }
     } catch (e) {}
 
     if (shouldSend) {
-      const orderLang = order.language || 'zh-TW';
+      const orderLang = (order as any).language || 'zh-TW';
       const emailContent = orderStatusEmail(
         { orderNumber: order.orderNumber, status },
         formattedEmailMessage || undefined,
@@ -1275,7 +1315,7 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
       const statusConfig = lineNotifications[status];
       const isEnabled = statusConfig ? statusConfig.enabled !== false : !!defaultStatusLocales['zh-TW'][status];
       
-      const orderLang = order.language || 'zh-TW';
+      const orderLang = (order as any).language || 'zh-TW';
       const langKey = defaultStatusLocales[orderLang] ? orderLang : 'en';
 
       let template = '';
