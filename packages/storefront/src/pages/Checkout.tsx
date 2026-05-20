@@ -747,7 +747,7 @@ export default function Checkout() {
                               });
                               const data = await res.json();
                               if (data.success) {
-                                localStorage.setItem('kitchenasty_token', data.data.token);
+                                localStorage.setItem('token', data.data.token);
                                 window.location.href = '/checkout';
                               }
                             } catch (err) {
