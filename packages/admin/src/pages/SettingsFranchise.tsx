@@ -44,19 +44,17 @@ export default function SettingsFranchise() {
     api.get<any>('/locations')
       .then((res) => {
         const fetchedLocations = res.data || [];
-        const contracts = JSON.parse(localStorage.getItem('franchise_contracts') || '{}');
         
         const mappedStores = fetchedLocations.map((loc: any) => {
-          const contract = contracts[loc.id] || {};
           return {
             id: loc.id,
             name: loc.name,
-            owner: contract.owner || '未指派',
+            owner: loc.owner || '未指派',
             status: loc.isActive ? 'active' : 'suspended',
-            royaltyRate: contract.royaltyRate !== undefined ? contract.royaltyRate : 5.0,
-            apiEndpoint: contract.apiEndpoint || `https://${loc.slug}.shutterorder.tw/api/v1`,
-            contractStart: contract.contractStart || '2025-01-01',
-            contractEnd: contract.contractEnd || '2028-12-31',
+            royaltyRate: loc.royaltyRate !== undefined && loc.royaltyRate !== null ? loc.royaltyRate : 5.0,
+            apiEndpoint: loc.apiEndpoint || `https://${loc.slug}.shutterorder.tw/api/v1`,
+            contractStart: loc.contractStart || '2025-01-01',
+            contractEnd: loc.contractEnd || '2028-12-31',
             health: loc.isActive ? 'good' : 'error',
             ping: loc.isActive ? 15 : null,
           };
