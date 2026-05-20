@@ -30,6 +30,11 @@ const createLocationSchema = z.object({
   pickupLeadTime: z.number().int().min(0).default(15),
   isBusy: z.boolean().optional(),
   busyMessage: z.string().nullable().optional(),
+  owner: z.string().nullable().optional(),
+  royaltyRate: z.number().optional(),
+  apiEndpoint: z.string().nullable().optional(),
+  contractStart: z.string().optional(),
+  contractEnd: z.string().optional(),
   operatingHours: z.array(z.object({
     dayOfWeek: z.number().int().min(0).max(6),
     openTime: z.string().regex(/^\d{2}:\d{2}$/),

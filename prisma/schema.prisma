@@ -118,6 +118,11 @@ model Location {
   updatedAt        DateTime        @updatedAt
   isBusy           Boolean         @default(false)
   busyMessage      String?
+  owner            String?         @default("未指派")
+  royaltyRate      Float?          @default(5.0)
+  apiEndpoint      String?
+  contractStart    String?         @default("2025-01-01")
+  contractEnd      String?         @default("2028-12-31")
   categories       Category[]
   deliveryZones    DeliveryZone[]
   mealtimes        Mealtime[]
