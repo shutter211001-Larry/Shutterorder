@@ -38,6 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('explicit_logout', 'true');
   }, []);
 
+  // Silently clear an expired/invalid session without setting explicit_logout.
+  // This allows LIFF auto-login to re-authenticate on next render.
+  const silentClearSession = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    // Intentionally NOT setting 'explicit_logout' so LIFF can re-authenticate
+  }, []);
+
   // Handle LIFF initialization and auto-login
   useEffect(() => {
     const liffId = settings.lineSettings?.liffId;
@@ -45,12 +54,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const hasToken = !!localStorage.getItem('token');
 
     if (!liffId || isExplicitLogout) {
-      setIsLoading(false);
+      // No LIFF configured or user explicitly logged out — let the token effect handle loading
+      if (!hasToken) setIsLoading(false);
       return;
     }
 
     if (hasToken) {
-      // Already has a session, no need to auto-login via LIFF
+      // Already has a valid session token — the token-validation effect below will handle it
       return;
     }
 
@@ -111,9 +121,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return res.json();
       })
       .then((data) => setUser(data.data.customer || data.data.user || data.data))
-      .catch(() => logout())
+      // ✅ Use silentClearSession (not logout) so LIFF can re-authenticate after expiry
+      .catch(() => silentClearSession())
       .finally(() => setIsLoading(false));
-  }, [token, logout]);
+  }, [token, logout, silentClearSession]);
 
   async function login(email: string, password: string) {
     console.log('[Auth] Attempting login for:', email);
