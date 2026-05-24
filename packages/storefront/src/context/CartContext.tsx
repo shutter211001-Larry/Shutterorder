@@ -19,6 +19,8 @@ export interface CartItem {
   quantity: number;
   options: CartItemOption[];
   comment?: string;
+  redeemedWithPoints?: boolean;
+  rewardPointsPrice?: number;
 }
 
 interface CartContextType {
@@ -65,6 +67,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   const subtotal = items.reduce((sum, item) => {
+    if (item.redeemedWithPoints) return sum;
     const optionsTotal = item.options.reduce((s, o) => s + o.priceModifier, 0);
     return sum + (item.price + optionsTotal) * item.quantity;
   }, 0);

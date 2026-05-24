@@ -285,6 +285,82 @@ describe('Order API - Integration Tests', () => {
       expect(res.status).toBe(201);
       expect(res.body.data.discount).toBe(2.99);
     });
+
+    it('creates a pickup order with point-redeemed items and custom loyalty rates', async () => {
+      // Mock custom rates in settings
+      mockedPrisma.siteSettings.findUnique.mockResolvedValue({
+        orderSettings: { 
+          enabled: true, 
+          deliveryEnabled: true, 
+          pickupEnabled: true, 
+          taxRate: 0,
+          loyaltyEarnRate: 0.5,
+          loyaltyRedeemRate: 50.0
+        },
+        advancedSettings: {
+          loyaltyRedemptionRules: {
+            'item-1': { isRedeemable: true, maxRedemptionAmount: 0 }
+          }
+        }
+      } as any);
+
+      // Mock menu items (one standard, one reward)
+      const standardItem = { ...sampleMenuItem, id: 'item-1', price: 14.99, isActive: true };
+      const rewardItem = { id: 'item-reward', name: 'Reward Latte', price: 10.00, isActive: true, isRewardItem: true, rewardPointsPrice: 150 };
+      mockedPrisma.menuItem.findMany.mockResolvedValue([standardItem, rewardItem] as any);
+      mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
+
+      // Mock customer with enough points (needed: 150 for reward item + 100 for cash discount = 250 points)
+      mockedPrisma.customer.findUnique.mockResolvedValue({
+        id: 'cust-1',
+        email: 'customer@test.com',
+        loyaltyPoints: 300,
+      } as any);
+
+      // Mock updates & creations
+      mockedPrisma.customer.update.mockResolvedValue({} as any);
+      mockedPrisma.loyaltyTransaction.create.mockResolvedValue({} as any);
+      mockedPrisma.order.create.mockResolvedValue({
+        ...sampleOrder,
+        subtotal: 14.99,
+        discount: 2.00, // 100 points / 50 rate = $2.00
+        total: 12.99,
+      } as any);
+      mockedPrisma.automationRule.findMany.mockResolvedValue([]);
+
+      const res = await request(app)
+        .post('/api/orders')
+        .set('Authorization', `Bearer ${customerToken}`)
+        .send({
+          orderType: 'PICKUP',
+          items: [
+            { menuItemId: 'item-1', quantity: 1 },
+            { menuItemId: 'item-reward', quantity: 1, redeemedWithPoints: true }
+          ],
+          loyaltyPointsRedeem: 100, // Redeeming 100 points
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.subtotal).toBe(14.99);
+      expect(res.body.data.discount).toBe(2.00);
+      expect(res.body.data.total).toBe(12.99);
+
+      // Verify that customer points were decremented by 250 points (150 reward + 100 redeem)
+      expect(mockedPrisma.customer.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'cust-1' },
+        data: expect.objectContaining({
+          loyaltyPoints: { decrement: 250 }
+        })
+      }));
+
+      // Verify that customer points were incremented by 7 points earned (14.99 subtotal * 0.5 earn rate = 7.495 -> 7 points)
+      expect(mockedPrisma.customer.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'cust-1' },
+        data: expect.objectContaining({
+          loyaltyPoints: { increment: 7 }
+        })
+      }));
+    });
   });
 
   // ============================================================

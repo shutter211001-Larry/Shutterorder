@@ -30,8 +30,12 @@ vi.mock('../../lib/stripe.js', () => ({
     },
 }));
 
+vi.mock('../../lib/translation-helper.js', () => ({
+    autoTranslateMealtime: vi.fn((data) => Promise.resolve(data)),
+}));
+
 import prisma from '../../lib/db.js';
-const mockedPrisma = vi.mocked(prisma);
+const mockedPrisma = vi.mocked(prisma) as any;
 
 const app = createApp();
 

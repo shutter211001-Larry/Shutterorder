@@ -39,6 +39,8 @@ interface MenuItemData {
   unit: string;
   unitTranslations: Record<string, string>;
   locationId: string;
+  isRewardItem?: boolean;
+  rewardPointsPrice?: number;
 }
 
 interface CategoryOption {
@@ -92,6 +94,8 @@ const emptyItem: MenuItemData = {
   unit: '份',
   unitTranslations: {},
   locationId: '',
+  isRewardItem: false,
+  rewardPointsPrice: 0,
 };
 
 const LANGUAGES = [
@@ -198,6 +202,8 @@ export default function MenuItemForm() {
           unit: item.unit || '份',
           unitTranslations: item.unitTranslations || {},
           locationId: item.locationId || '',
+          isRewardItem: item.isRewardItem || false,
+          rewardPointsPrice: item.rewardPointsPrice || 0,
         });
         if (item.image) setImageUrl(item.image);
         if (item.options?.length) {
@@ -351,6 +357,8 @@ export default function MenuItemForm() {
         price: Number(form.price),
         sortOrder: Number(form.sortOrder),
         stockQty: Number(form.stockQty),
+        isRewardItem: !!form.isRewardItem,
+        rewardPointsPrice: Number(form.rewardPointsPrice || 0),
         options,
         allergenIds: selectedAllergens,
         mealtimeIds: selectedMealtimes,
@@ -540,7 +548,7 @@ export default function MenuItemForm() {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
-            <div className="flex items-center gap-6 mt-4">
+            <div className="flex items-center gap-6 mt-4 flex-wrap">
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -568,6 +576,38 @@ export default function MenuItemForm() {
                     onChange={(e) => updateField('stockQty', e.target.value)}
                     min={0}
                     className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+                  />
+                </div>
+              )}
+              
+              <label className="flex items-center gap-2 cursor-pointer bg-orange-50/50 p-2.5 rounded-lg border border-orange-100/50">
+                <input
+                  type="checkbox"
+                  checked={form.isRewardItem || false}
+                  onChange={(e) => {
+                    updateField('isRewardItem', e.target.checked);
+                    if (!e.target.checked) {
+                      updateField('rewardPointsPrice', 0);
+                    }
+                  }}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <div>
+                  <span className="text-sm font-bold text-orange-950">設為紅利商品 (Reward Item)</span>
+                  <p className="text-[10px] text-orange-750 mt-0.5">顧客可以使用紅利點數直接兌換此商品</p>
+                </div>
+              </label>
+              
+              {form.isRewardItem && (
+                <div className="flex items-center gap-2 animate-fadeIn">
+                  <label className="text-sm font-semibold text-orange-950">所需紅利點數:</label>
+                  <input
+                    type="number"
+                    value={form.rewardPointsPrice || 0}
+                    onChange={(e) => updateField('rewardPointsPrice', parseInt(e.target.value) || 0)}
+                    min={0}
+                    required
+                    className="w-24 border border-orange-300 rounded-lg px-2.5 py-1 text-sm focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
               )}

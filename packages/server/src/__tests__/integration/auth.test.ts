@@ -14,7 +14,22 @@ vi.mock('../../lib/db.js', () => {
     customer: {
       findUnique: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
+    order: {
+      updateMany: vi.fn(),
+    },
+    siteSettings: {
+      findUnique: vi.fn(),
+    },
+    registrationBonusRecord: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+    },
+    loyaltyTransaction: {
+      create: vi.fn(),
+    },
+    $transaction: vi.fn((promises) => Promise.all(promises)),
   };
   return { default: mockPrisma, prisma: mockPrisma };
 });
@@ -24,7 +39,7 @@ import prisma from '../../lib/db.js';
 
 const app = createApp();
 
-const mockedPrisma = vi.mocked(prisma);
+const mockedPrisma = vi.mocked(prisma) as any;
 
 describe('Auth API - Integration Tests', () => {
   beforeEach(() => {

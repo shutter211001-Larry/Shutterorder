@@ -207,6 +207,8 @@ model MenuItem {
   nameTranslations        Json?
   unit                    String?                     @default("份")
   unitTranslations        Json?
+  isRewardItem            Boolean                     @default(false)
+  rewardPointsPrice       Int                         @default(0)
   allergens               MenuItemAllergen[]
   dietaryPreferences      MenuItemDietaryPreference[]
   mealtimes               MenuItemMealtime[]

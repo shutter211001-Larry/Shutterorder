@@ -13,7 +13,7 @@ describe('Email Templates', () => {
         orderType: 'DELIVERY',
         total: 29.99,
         items: [{ name: 'Pizza', quantity: 2, subtotal: 29.98 }],
-      });
+      }, 'en');
       expect(result.subject).toBe('Order Confirmed - #KA-123');
     });
 
@@ -23,9 +23,9 @@ describe('Email Templates', () => {
         orderType: 'PICKUP',
         total: 15.00,
         items: [{ name: 'Burger', quantity: 1, subtotal: 15.00 }],
-      });
+      }, 'en');
       expect(result.html).toContain('KA-456');
-      expect(result.html).toContain('PICKUP');
+      expect(result.html).toContain('Pickup');
       expect(result.html).toContain('$15.00');
     });
 
@@ -46,18 +46,18 @@ describe('Email Templates', () => {
 
   describe('orderStatusEmail', () => {
     it('generates correct subject', () => {
-      const result = orderStatusEmail({ orderNumber: 'KA-123', status: 'PREPARING' });
-      expect(result.subject).toBe('Order #KA-123 - PREPARING');
+      const result = orderStatusEmail({ orderNumber: 'KA-123', status: 'PREPARING' }, undefined, 'en');
+      expect(result.subject).toBe('Order #KA-123 Status Update - Preparing');
     });
 
     it('includes status message', () => {
-      const result = orderStatusEmail({ orderNumber: 'KA-123', status: 'OUT_FOR_DELIVERY' });
-      expect(result.html).toContain('OUT FOR DELIVERY');
+      const result = orderStatusEmail({ orderNumber: 'KA-123', status: 'OUT_FOR_DELIVERY' }, undefined, 'en');
+      expect(result.html).toContain('Out for Delivery');
       expect(result.html).toContain('on its way');
     });
 
     it('handles cancelled status', () => {
-      const result = orderStatusEmail({ orderNumber: 'KA-123', status: 'CANCELLED' });
+      const result = orderStatusEmail({ orderNumber: 'KA-123', status: 'CANCELLED' }, undefined, 'en');
       expect(result.html).toContain('cancelled');
     });
   });
