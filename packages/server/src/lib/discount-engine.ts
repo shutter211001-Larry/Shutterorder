@@ -5,6 +5,7 @@ export interface DiscountConditions {
   allowedOrderTypes?: OrderType[];
   requireCategoryIds?: string[];
   minItemCount?: number;
+  minCategoryItemCount?: number;
   timeOfDay?: {
     startTime: string; // 'HH:MM' e.g. '14:00'
     endTime: string;   // 'HH:MM' e.g. '17:00'
@@ -95,6 +96,22 @@ export function validateAndCalculateDiscount(
       const hasCategory = cartItems.some(item => rules.requireCategoryIds?.includes(item.categoryId));
       if (!hasCategory) {
         return { isValid: false, discountAmount: 0, freeDelivery: false, reason: '購物車內未包含指定分類商品' };
+      }
+
+      // B2. Minimum Category Item Count (buy at least N items specifically in the required categories)
+      if (rules.minCategoryItemCount !== undefined && rules.minCategoryItemCount > 0) {
+        const categoryItemCount = cartItems
+          .filter(item => rules.requireCategoryIds?.includes(item.categoryId))
+          .reduce((sum, item) => sum + item.quantity, 0);
+
+        if (categoryItemCount < rules.minCategoryItemCount) {
+          return {
+            isValid: false,
+            discountAmount: 0,
+            freeDelivery: false,
+            reason: `指定分類商品總數量需達到 ${rules.minCategoryItemCount} 件`
+          };
+        }
       }
     }
 
