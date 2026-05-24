@@ -304,7 +304,7 @@ async function handleEvent(client: Client, event: WebhookEvent) {
             type: 'carousel',
             contents: bubbles
           }
-        });
+        } as any);
       } catch (err) {
         console.error('Error handling category menu:', err);
       }
@@ -578,7 +578,7 @@ async function handleEvent(client: Client, event: WebhookEvent) {
               ]
             }
           }
-        });
+        } as any);
       } catch (err) {
         console.error('Error handling order tracking:', err);
       }
