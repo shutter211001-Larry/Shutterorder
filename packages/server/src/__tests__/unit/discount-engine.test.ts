@@ -178,6 +178,37 @@ describe('Discount Engine Logic', () => {
       );
       expect(resultIn.isValid).toBe(true);
     });
+
+    it('enforces minCategoryItemCount category-specific quantity condition', () => {
+      const campaign = createSampleCampaign({
+        conditions: JSON.stringify({ requireCategoryIds: ['cat-pizza'], minCategoryItemCount: 2 })
+      });
+
+      // Cart has 1 pizza (not enough)
+      const cartItems1 = [
+        { menuItemId: 'item-1', categoryId: 'cat-pizza', price: 15, quantity: 1 },
+        { menuItemId: 'item-2', categoryId: 'cat-drinks', price: 5, quantity: 3 },
+      ];
+      const result1 = validateAndCalculateDiscount(
+        campaign,
+        { subtotal: 30, orderType: 'PICKUP', locationId: 'loc1' },
+        cartItems1
+      );
+      expect(result1.isValid).toBe(false);
+      expect(result1.reason).toContain('指定分類商品總數量需達到');
+
+      // Cart has 2 pizzas (enough)
+      const cartItems2 = [
+        { menuItemId: 'item-1', categoryId: 'cat-pizza', price: 15, quantity: 2 },
+        { menuItemId: 'item-2', categoryId: 'cat-drinks', price: 5, quantity: 1 },
+      ];
+      const result2 = validateAndCalculateDiscount(
+        campaign,
+        { subtotal: 35, orderType: 'PICKUP', locationId: 'loc1' },
+        cartItems2
+      );
+      expect(result2.isValid).toBe(true);
+    });
   });
 
   describe('findAndApplyBestAutomaticDiscount', () => {
