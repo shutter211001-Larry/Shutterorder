@@ -40,6 +40,8 @@ const createMenuItemSchema = z.object({
   orderType: z.enum(['DELIVERY', 'PICKUP']).nullable().optional(),
   categoryId: z.string().min(1),
   locationId: z.string().nullable().optional(),
+  isRewardItem: z.boolean().default(false).optional(),
+  rewardPointsPrice: z.number().int().min(0).default(0).optional(),
   options: z.array(menuOptionSchema).optional(),
   allergenIds: z.array(z.string()).optional(),
   mealtimeIds: z.array(z.string()).optional(),

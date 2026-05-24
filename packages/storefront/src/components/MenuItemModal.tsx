@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
+import { useAuth } from '../context/AuthContext.js';
 import { getTranslated } from '../utils/translation.js';
 import { useApi } from '../hooks/useApi.js';
 import { API_BASE } from '../lib/api.js';
@@ -51,6 +52,8 @@ interface MenuItemDetail {
   dietaryPreferences: DietaryPreference[];
   unit: string | null;
   unitTranslations: Record<string, string> | null;
+  isRewardItem?: boolean;
+  rewardPointsPrice?: number;
 }
 
 interface Props {
@@ -61,11 +64,13 @@ interface Props {
 export default function MenuItemModal({ itemId, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const { addItem } = useCart();
+  const { token } = useAuth();
   const [item, setItem] = useState<MenuItemDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<Record<string, string[]>>({});
+  const [buyWithPoints, setBuyWithPoints] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -150,6 +155,8 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
       price: item.price,
       quantity,
       options: cartOptions,
+      redeemedWithPoints: buyWithPoints,
+      rewardPointsPrice: buyWithPoints ? item.rewardPointsPrice : undefined,
     });
     onClose();
   }
@@ -328,6 +335,36 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
 
               {/* Quantity & Add to cart */}
               <div className="mt-6 pt-4 border-t border-gray-200">
+                {item.isRewardItem && token && (
+                  <div className="mb-4 bg-orange-50/50 border border-orange-100 p-3 rounded-lg flex items-center justify-between">
+                    <span className="text-sm font-semibold text-orange-950">兌換方式：</span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setBuyWithPoints(false)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          !buyWithPoints
+                            ? 'bg-primary-600 text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        現金付款
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBuyWithPoints(true)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          buyWithPoints
+                            ? 'bg-orange-600 text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        紅利兌換 ({item.rewardPointsPrice} 點)
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <button
@@ -348,7 +385,11 @@ export default function MenuItemModal({ itemId, onClose }: Props) {
                     onClick={handleAddToCart}
                     className="btn-primary px-6 py-2.5 rounded-lg"
                   >
-                    {t('menu.addToCart')} &mdash; ${calculateTotal().toFixed(2)}
+                    {buyWithPoints ? (
+                      `紅利兌換 — ${((item.rewardPointsPrice || 0) * quantity)} 點`
+                    ) : (
+                      `${t('menu.addToCart')} — $${calculateTotal().toFixed(2)}`
+                    )}
                   </button>
                 </div>
               </div>

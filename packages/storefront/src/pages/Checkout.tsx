@@ -85,7 +85,9 @@ export default function Checkout() {
   // Loyalty points
   const [loyaltyBalance, setLoyaltyBalance] = useState(0);
   const [loyaltyRedeem, setLoyaltyRedeem] = useState(0);
-  const loyaltyDiscount = loyaltyRedeem / 100;
+  
+  const loyaltyRedeemRate = orderSettings?.loyaltyRedeemRate ?? 100;
+  const loyaltyDiscount = loyaltyRedeem / loyaltyRedeemRate;
 
   let currentTaxRate = orderSettings?.taxRate ?? DEFAULT_TAX_RATE;
   if (isNaN(currentTaxRate)) currentTaxRate = 0;
@@ -258,6 +260,7 @@ export default function Checkout() {
         menuItemId: item.menuItemId,
         quantity: item.quantity,
         comment: item.comment,
+        redeemedWithPoints: item.redeemedWithPoints || undefined,
         options: item.options.map((o) => ({
           menuOptionValueId: o.valueId,
           name: o.optionName,
@@ -587,14 +590,14 @@ export default function Checkout() {
             <div className="surface-card rounded-xl shadow-sm border p-6">
               <h2 className="text-lg font-semibold text-main mb-4">{t('checkout.loyaltyTitle')}</h2>
               <p className="text-sm text-sub mb-3">
-                {t('checkout.loyaltyPointsAvailable', { count: loyaltyBalance })}
-                {t('checkout.loyaltyRedeemHelp')}
+                {t('checkout.loyaltyPointsAvailable', { count: loyaltyBalance })}。
+                <span>({loyaltyRedeemRate} 點 = $1.00)</span>
               </p>
               <div className="flex items-center gap-3">
                 <input
                   type="number"
                   min={0}
-                  max={Math.min(loyaltyBalance, Math.floor(subtotal * 100))}
+                  max={Math.min(loyaltyBalance, Math.floor(subtotal * loyaltyRedeemRate))}
                   step={100}
                   value={loyaltyRedeem}
                   onChange={(e) => setLoyaltyRedeem(Math.max(0, parseInt(e.target.value) || 0))}

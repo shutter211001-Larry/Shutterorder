@@ -105,7 +105,11 @@ export default function CartDrawer() {
                     </div>
                     {/* Price */}
                     <div className="text-sm font-medium text-main">
-                      ${lineTotal.toFixed(2)}
+                      {item.redeemedWithPoints ? (
+                        <span className="text-orange-600 font-bold">{item.rewardPointsPrice ? item.rewardPointsPrice * item.quantity : 0} 點</span>
+                      ) : (
+                        `$${lineTotal.toFixed(2)}`
+                      )}
                     </div>
                   </div>
                 );

@@ -46,6 +46,8 @@ const updateSettingsSchema = z.object({
   }).optional(),
   orderSettings: z.object({
     emailNotifications: z.record(z.boolean()).optional(),
+    loyaltyEarnRate: z.number().min(0).optional(),
+    loyaltyRedeemRate: z.number().min(1).optional(),
   }).optional(),
 });
 
@@ -113,6 +115,8 @@ function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSetting
       postClosingBuffer: order.postClosingBuffer !== undefined ? Number(order.postClosingBuffer) : 30,
       timeSlotInterval: order.timeSlotInterval !== undefined ? Number(order.timeSlotInterval) : 15,
       boardLeadTime: order.boardLeadTime !== undefined ? Number(order.boardLeadTime) : 60,
+      loyaltyEarnRate: order.loyaltyEarnRate !== undefined ? Number(order.loyaltyEarnRate) : 1.0,
+      loyaltyRedeemRate: order.loyaltyRedeemRate !== undefined ? Number(order.loyaltyRedeemRate) : 100.0,
       emailNotifications: order.emailNotifications || {},
     } : undefined,
     paymentSettings: {
@@ -352,6 +356,8 @@ const orderSettingsSchema = z.object({
   timeSlotInterval: z.number().min(5).max(120).optional(),
   taxRate: z.number().min(0).max(100).optional(),
   boardLeadTime: z.number().min(0).max(1440).optional(),
+  loyaltyEarnRate: z.number().min(0).optional(),
+  loyaltyRedeemRate: z.number().min(1).optional(),
   emailNotifications: z.record(z.boolean()).optional(),
 });
 

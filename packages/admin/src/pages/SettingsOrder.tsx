@@ -23,6 +23,8 @@ export default function SettingsOrder() {
   const [enableTipping, setEnableTipping] = useState(false);
   const [tipOptionsStr, setTipOptionsStr] = useState('10,15,20,25');
   const [taxRate, setTaxRate] = useState(0);
+  const [loyaltyEarnRate, setLoyaltyEarnRate] = useState(1.0);
+  const [loyaltyRedeemRate, setLoyaltyRedeemRate] = useState(100);
   const [boardLeadTime, setBoardLeadTime] = useState(60);
   const [enableCounterDisplay, setEnableCounterDisplay] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState<Record<string, boolean>>({
@@ -59,6 +61,8 @@ export default function SettingsOrder() {
           if (d.tipOptions) setTipOptionsStr(d.tipOptions.join(','));
           if (d.taxRate !== undefined) setTaxRate(d.taxRate);
           if (d.boardLeadTime !== undefined) setBoardLeadTime(d.boardLeadTime);
+          if (d.loyaltyEarnRate !== undefined) setLoyaltyEarnRate(d.loyaltyEarnRate);
+          if (d.loyaltyRedeemRate !== undefined) setLoyaltyRedeemRate(d.loyaltyRedeemRate);
           if (d.emailNotifications) {
             setEmailNotifications((prev) => ({ ...prev, ...d.emailNotifications }));
           }
@@ -95,6 +99,8 @@ export default function SettingsOrder() {
           tipOptions, 
           taxRate,
           boardLeadTime,
+          loyaltyEarnRate,
+          loyaltyRedeemRate,
           emailNotifications 
         }),
       });
@@ -246,6 +252,44 @@ export default function SettingsOrder() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">稅率 (%)</label>
             <input type="number" min={0} max={100} step={0.01} value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
+          </div>
+
+          <div className="p-5 bg-orange-50/30 rounded-xl border border-orange-100/50 space-y-4">
+            <h3 className="text-sm font-bold text-orange-950 flex items-center gap-1.5">
+              <span>🎁 會員紅利點數設定 (Loyalty Program)</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-orange-900 mb-1">消費點數回饋率</label>
+                <input 
+                  type="number" 
+                  min={0} 
+                  step={0.1}
+                  value={loyaltyEarnRate} 
+                  onChange={(e) => setLoyaltyEarnRate(parseFloat(e.target.value) || 0)} 
+                  className="w-full px-3 py-2 border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" 
+                  placeholder="1.0"
+                />
+                <p className="text-[10px] text-orange-750 mt-1">
+                  每消費 $1 元可獲得的紅利點數。例如：設定 1 代表消費 $100 得 100 點；設定 0.1 代表消費 $100 得 10 點。
+                </p>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-orange-900 mb-1">紅利折抵現金率</label>
+                <input 
+                  type="number" 
+                  min={1} 
+                  step={1}
+                  value={loyaltyRedeemRate} 
+                  onChange={(e) => setLoyaltyRedeemRate(parseInt(e.target.value) || 100)} 
+                  className="w-full px-3 py-2 border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" 
+                  placeholder="100"
+                />
+                <p className="text-[10px] text-orange-750 mt-1">
+                  折抵 $1 元現金所需的紅利點數。例如：預設 100 代表 100 點折抵 $1 元。
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">

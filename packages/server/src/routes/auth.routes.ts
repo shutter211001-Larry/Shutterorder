@@ -2,14 +2,14 @@ import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import * as authController from '../controllers/auth.controller.js';
-import { authenticate, generateToken } from '../middleware/auth.js';
+import { authenticate, generateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 const STOREFRONT_URL = process.env.STOREFRONT_URL || 'http://localhost:5174';
 
 // STAFF AUTH
 router.post('/staff/login', authController.staffLogin);
-router.post('/staff/register', authController.staffRegister);
+router.post('/staff/register', authenticate, requireRole('SUPER_ADMIN'), authController.staffRegister);
 
 // CUSTOMER AUTH
 router.post('/customer/register', authController.customerRegister);

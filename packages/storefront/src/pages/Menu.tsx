@@ -35,6 +35,8 @@ interface MenuItem {
   allergens: { allergen: { id: string; name: string; nameTranslations?: Record<string, string> } }[];
   dietaryPreferences: { dietaryPreference: { id: string; name: string; nameTranslations?: Record<string, string> } }[];
   _count: { options: number };
+  isRewardItem?: boolean;
+  rewardPointsPrice?: number;
 }
 
 interface MenuResponse {
@@ -281,9 +283,16 @@ export default function Menu() {
                     <div className="p-4">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold text-main">{getTranslated(item.name, item.nameTranslations, i18n.language)}</h3>
-                        <span className="text-primary-600 font-bold whitespace-nowrap">
-                          ${item.price.toFixed(2)}
-                        </span>
+                        <div className="flex flex-col items-end whitespace-nowrap">
+                          <span className="text-primary-600 font-bold">
+                            ${item.price.toFixed(2)}
+                          </span>
+                          {item.isRewardItem && (
+                            <span className="text-xs text-orange-600 font-extrabold mt-0.5">
+                              {item.rewardPointsPrice} 點
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {item.description && (
                         <p className="text-sm text-sub mt-1 line-clamp-2">{getTranslated(item.description, item.descriptionTranslations, i18n.language)}</p>

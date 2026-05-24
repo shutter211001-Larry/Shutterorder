@@ -319,6 +319,7 @@ const orderItemSchema = z.object({
   quantity: z.number().int().min(1),
   comment: z.string().optional(),
   options: z.array(orderItemOptionSchema).optional(),
+  redeemedWithPoints: z.boolean().optional(),
 });
 
 const createOrderSchema = z.object({
@@ -590,6 +591,46 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   // Calculate totals and validate options
   let subtotal = 0;
   
+  // Calculate total reward points cost for items bought with points
+  let totalRewardPointsCost = 0;
+  for (const item of items) {
+    if (item.redeemedWithPoints) {
+      const menuItem = menuItemMap.get(item.menuItemId);
+      if (!menuItem) continue;
+      if (!menuItem.isRewardItem) {
+        res.status(400).json({ success: false, error: `商品 ${menuItem.name} 並非可使用紅利點數兌換的品項。` });
+        return;
+      }
+      totalRewardPointsCost += item.quantity * menuItem.rewardPointsPrice;
+    }
+  }
+
+  // Retrieve dynamic rates from settings
+  let earnRate = 1.0;
+  let redeemRate = 100.0;
+  try {
+    const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    const orderSettings = (siteSettings?.orderSettings as any) || {};
+    if (orderSettings.loyaltyEarnRate !== undefined) earnRate = Number(orderSettings.loyaltyEarnRate);
+    if (orderSettings.loyaltyRedeemRate !== undefined) redeemRate = Number(orderSettings.loyaltyRedeemRate);
+  } catch (err) {
+    console.error('Failed to get dynamic rates:', err);
+  }
+
+  // Validate customer points balance for the entire order requirements
+  const neededPoints = (loyaltyPointsRedeem || 0) + totalRewardPointsCost;
+  if (neededPoints > 0) {
+    if (!customerId) {
+      res.status(400).json({ success: false, error: '會員專屬功能，請先登入帳號。' });
+      return;
+    }
+    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+    if (!customer || customer.loyaltyPoints < neededPoints) {
+      res.status(400).json({ success: false, error: '會員紅利點數不足以支付此訂單。' });
+      return;
+    }
+  }
+
   // Fetch all option values in one go for efficiency
   const allOptionValueIds = items.flatMap(i => (i.options || []).map(o => o.menuOptionValueId)).filter(Boolean);
   const dbOptionValues = await prisma.menuOptionValue.findMany({
@@ -616,16 +657,22 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       };
     });
 
-    const itemSubtotal = unitPrice * item.quantity;
-    subtotal += itemSubtotal;
+    const isRedeemed = !!item.redeemedWithPoints;
+    const finalUnitPrice = isRedeemed ? 0 : unitPrice;
+    const itemSubtotal = isRedeemed ? 0 : unitPrice * item.quantity;
+    if (!isRedeemed) {
+      subtotal += itemSubtotal;
+    }
 
     return {
       menuItemId: item.menuItemId,
       name: menuItem.name,
       quantity: item.quantity,
-      unitPrice,
+      unitPrice: finalUnitPrice,
       subtotal: itemSubtotal,
-      comment: item.comment,
+      comment: isRedeemed 
+        ? (item.comment ? `${item.comment} (紅利兌換)` : '紅利兌換')
+        : item.comment,
       options: { create: optionsData },
     };
   });
@@ -638,6 +685,9 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     const redemptionRules = advancedSettings.loyaltyRedemptionRules || {};
 
     items.forEach((item) => {
+      // Only cash items are subject to redemption margin rules
+      if (item.redeemedWithPoints) return;
+      
       const menuItem = menuItemMap.get(item.menuItemId);
       if (!menuItem) return;
       let unitPrice = menuItem.price;
@@ -662,17 +712,11 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   // Loyalty points redemption
   let loyaltyDiscount = 0;
   if (loyaltyPointsRedeem && loyaltyPointsRedeem > 0 && customerId) {
-    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
-    if (!customer || customer.loyaltyPoints < loyaltyPointsRedeem) {
-      res.status(400).json({ success: false, error: 'Insufficient loyalty points' });
-      return;
-    }
-    // 100 points = $1
-    const proposedDiscount = loyaltyPointsRedeem / 100;
+    const proposedDiscount = loyaltyPointsRedeem / redeemRate;
     if (proposedDiscount > maxRedemptionForCart) {
       res.status(400).json({ 
         success: false, 
-        error: `該購物車內品項最高僅允許使用紅利折抵 NT$ ${maxRedemptionForCart.toFixed(2)} 元 (相當於 ${Math.round(maxRedemptionForCart * 100)} 點)。`
+        error: `該購物車內品項最高僅允許使用紅利折抵 NT$ ${maxRedemptionForCart.toFixed(2)} 元 (相當於 ${Math.round(maxRedemptionForCart * redeemRate)} 點)。`
       });
       return;
     }
@@ -889,9 +933,10 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     }
   }
 
-  // Earn loyalty points (1 point per $1 spent)
+  // Earn loyalty points using dynamic loyaltyEarnRate
   if (customerId) {
-    const pointsEarned = Math.floor(subtotal);
+    // subtotal only contains cash items since point-redeemed items are 0 cash subtotal
+    const pointsEarned = Math.floor(subtotal * earnRate);
     if (pointsEarned > 0) {
       // Also update phone if missing
       const updateData: any = { loyaltyPoints: { increment: pointsEarned } };
@@ -917,21 +962,37 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       });
     }
 
-    // Redeem loyalty points
-    if (loyaltyPointsRedeem && loyaltyPointsRedeem > 0) {
+    // Redeem loyalty points (cash discount and reward item redemptions)
+    const totalPointsDeducted = (loyaltyPointsRedeem || 0) + totalRewardPointsCost;
+    if (totalPointsDeducted > 0) {
       await prisma.customer.update({
         where: { id: customerId },
-        data: { loyaltyPoints: { decrement: loyaltyPointsRedeem } },
+        data: { loyaltyPoints: { decrement: totalPointsDeducted } },
       });
-      await prisma.loyaltyTransaction.create({
-        data: {
-          customerId,
-          type: 'REDEEM',
-          points: -loyaltyPointsRedeem,
-          description: `Redeemed on order #${order.orderNumber}`,
-          orderId: order.id,
-        },
-      });
+      
+      if (loyaltyPointsRedeem && loyaltyPointsRedeem > 0) {
+        await prisma.loyaltyTransaction.create({
+          data: {
+            customerId,
+            type: 'REDEEM',
+            points: -loyaltyPointsRedeem,
+            description: `Redeemed on order #${order.orderNumber} for cash discount`,
+            orderId: order.id,
+          },
+        });
+      }
+      
+      if (totalRewardPointsCost > 0) {
+        await prisma.loyaltyTransaction.create({
+          data: {
+            customerId,
+            type: 'REDEEM',
+            points: -totalRewardPointsCost,
+            description: `Redeemed on order #${order.orderNumber} for reward items`,
+            orderId: order.id,
+          },
+        });
+      }
     }
   }
 
