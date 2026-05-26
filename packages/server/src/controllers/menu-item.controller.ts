@@ -192,7 +192,7 @@ export async function createMenuItem(req: Request, res: Response): Promise<void>
   // If a recipeId is provided, automatically link it with PizzaMaster ERP
   if (recipeId) {
     try {
-      const url = process.env.PIZZAMASTER_API_URL || 'http://localhost:3000';
+      const url = process.env.SHUTTER_ERP_API_URL || 'http://localhost:3000';
       const response = await fetch(`${url}/api/integration/mappings`, {
         method: 'POST',
         headers: {
@@ -364,7 +364,7 @@ export async function deleteMenuItemImage(req: Request<{ id: string }>, res: Res
 
 export async function getErpProductRecipes(req: Request, res: Response): Promise<void> {
   try {
-    const url = process.env.PIZZAMASTER_API_URL || 'http://localhost:3000';
+    const url = process.env.SHUTTER_ERP_API_URL || 'http://localhost:3000';
     const response = await fetch(`${url}/api/integration/product-recipes`, {
       headers: {
         'x-integration-key': process.env.INTEGRATION_KEY || 'pizzamaster-integration-secret-key'
