@@ -13,7 +13,7 @@ COPY packages/shutter-erp-frontend/package.json packages/shutter-erp-frontend/
 COPY prisma/ prisma/
 COPY tsconfig.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY packages/shared/ packages/shared/
 RUN npm run build -w packages/shared
@@ -36,7 +36,7 @@ COPY packages/admin/package.json packages/admin/
 COPY packages/storefront/package.json packages/storefront/
 COPY packages/shutter-erp-frontend/package.json packages/shutter-erp-frontend/
 
-RUN npm ci --omit=dev
+RUN npm install --omit=dev --no-audit --no-fund
 
 COPY prisma/ prisma/
 RUN npx -w packages/server prisma generate --schema ../../prisma/schema.prisma
