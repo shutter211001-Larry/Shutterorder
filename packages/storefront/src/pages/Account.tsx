@@ -29,6 +29,7 @@ export default function Account() {
   const [editForm, setEditForm] = useState({ 
     name: '', 
     phone: '',
+    address: '',
     emailNotificationsEnabled: true,
     lineNotificationsEnabled: true
   });
@@ -39,6 +40,7 @@ export default function Account() {
       setEditForm({ 
         name: user.name || '', 
         phone: user.phone || '',
+        address: (user as any).address || '',
         emailNotificationsEnabled: (user as any).emailNotificationsEnabled !== false,
         lineNotificationsEnabled: (user as any).lineNotificationsEnabled !== false
       });
@@ -476,6 +478,7 @@ export default function Account() {
                     setEditForm({ 
                       name: user.name || '', 
                       phone: user.phone || '',
+                      address: (user as any).address || '',
                       emailNotificationsEnabled: (user as any).emailNotificationsEnabled !== false,
                       lineNotificationsEnabled: (user as any).lineNotificationsEnabled !== false
                     });
@@ -521,6 +524,19 @@ export default function Account() {
                 <p className="text-main font-medium">{user.email}</p>
                 <span className="px-2 py-0.5 text-[10px] font-bold bg-hint/20 text-hint rounded-md uppercase tracking-tighter italic">Read Only</span>
               </div>
+            </div>
+            <div className="sm:col-span-2 space-y-1">
+              <label className="block text-xs font-bold uppercase tracking-widest text-hint">{t('account.addressLabel')}</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  className="w-full px-4 py-3 text-main bg-surface-soft border border-input rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+                />
+              ) : (
+                <p className="text-lg font-semibold text-main px-1">{(user as any).address || t('account.notProvided')}</p>
+              )}
             </div>
         </div>
       </div>

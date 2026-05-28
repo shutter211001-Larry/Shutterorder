@@ -6,6 +6,7 @@ interface Customer {
   email: string | null;
   name: string;
   phone: string | null;
+  address?: string | null;
   lineUserId?: string | null;
   googleEmail?: string | null;
   isGuest: boolean;
@@ -35,7 +36,7 @@ export default function CustomerList() {
   
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', phone: '', loyaltyPoints: 0, isWhitelisted: false, isBlacklisted: false, isEmployee: false });
+  const [editForm, setEditForm] = useState({ name: '', phone: '', address: '', loyaltyPoints: 0, isWhitelisted: false, isBlacklisted: false, isEmployee: false });
   const [editLoading, setEditLoading] = useState(false);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -110,6 +111,7 @@ export default function CustomerList() {
     setEditForm({
       name: customer.name,
       phone: customer.phone || '',
+      address: customer.address || '',
       loyaltyPoints: customer.loyaltyPoints,
       isWhitelisted: customer.isWhitelisted,
       isBlacklisted: customer.isBlacklisted,
@@ -238,7 +240,14 @@ export default function CustomerList() {
                     <td className="px-4 py-3 text-gray-400 text-xs font-mono max-w-[120px] truncate" title={customer.lineUserId || ''}>
                       {customer.lineUserId || '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{customer.phone || '—'}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      <div>{customer.phone || '—'}</div>
+                      {customer.address && (
+                        <div className="text-[11px] text-gray-400 truncate max-w-[180px] mt-0.5" title={customer.address}>
+                          📍 {customer.address}
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1 w-max">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-max ${customer.isGuest ? 'bg-gray-100 text-gray-600' : 'bg-primary-100 text-primary-700'}`}>
@@ -342,6 +351,15 @@ export default function CustomerList() {
                   type="text"
                   value={editForm.phone}
                   onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">住址</label>
+                <input
+                  type="text"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>

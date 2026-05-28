@@ -38,6 +38,7 @@ export async function listCustomers(req: Request, res: Response): Promise<void> 
         email: true,
         name: true,
         phone: true,
+        address: true,
         lineUserId: true,
         googleEmail: true,
         isEmployee: true,
@@ -105,6 +106,7 @@ export async function getCustomer(req: Request<{ id: string }>, res: Response): 
 const updateCustomerSchema = z.object({
   name: z.string().min(1).optional(),
   phone: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
   groupId: z.string().nullable().optional(),
   loyaltyPoints: z.number().int().optional(),
   isGuest: z.boolean().optional(),

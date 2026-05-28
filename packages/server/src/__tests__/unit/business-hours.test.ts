@@ -13,8 +13,6 @@ describe('Business Hours Logic', () => {
           openTime: '11:00',
           closeTime: '21:00',
           isClosed: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         },
       ];
 
@@ -41,8 +39,6 @@ describe('Business Hours Logic', () => {
           openTime: '22:00',
           closeTime: '02:00',
           isClosed: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         },
       ];
 
@@ -63,8 +59,6 @@ describe('Business Hours Logic', () => {
           openTime: '22:00',
           closeTime: '02:00',
           isClosed: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         },
       ];
 
@@ -87,8 +81,6 @@ describe('Business Hours Logic', () => {
           openTime: '22:00',
           closeTime: '02:00',
           isClosed: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         },
       ];
 
