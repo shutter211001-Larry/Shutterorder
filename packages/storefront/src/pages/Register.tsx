@@ -16,6 +16,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -77,7 +78,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register({ name, email, password, phone: phone || undefined });
+      await register({ name, email, password, phone: phone || undefined, address: address || undefined });
       navigate(redirectPath);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -140,6 +141,20 @@ export default function Register() {
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
               placeholder="555-123-4567"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="address" className="block text-sm font-medium text-sub mb-1">
+              {t('auth.address')}
+            </label>
+            <input
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              placeholder="123 Main St"
             />
           </div>
 

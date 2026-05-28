@@ -34,7 +34,7 @@ vi.mock('../../lib/db.js', () => {
 });
 
 import prisma from '../../lib/db.js';
-const mockedPrisma = vi.mocked(prisma);
+const mockedPrisma = vi.mocked(prisma) as any;
 
 const app = createApp();
 

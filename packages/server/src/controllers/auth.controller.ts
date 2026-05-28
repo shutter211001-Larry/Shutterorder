@@ -120,6 +120,7 @@ const customerRegisterSchema = z.object({
   password: z.string().min(6),
   name: z.string().min(1),
   phone: z.string().optional(),
+  address: z.string().optional(),
 });
 
 export async function customerRegister(req: Request, res: Response): Promise<void> {
@@ -129,7 +130,7 @@ export async function customerRegister(req: Request, res: Response): Promise<voi
     return;
   }
 
-  const { email, password, name, phone } = parsed.data;
+  const { email, password, name, phone, address } = parsed.data;
 
   const existing = await prisma.customer.findUnique({ where: { email } });
   if (existing) {
@@ -140,8 +141,8 @@ export async function customerRegister(req: Request, res: Response): Promise<voi
   const hashedPassword = await bcrypt.hash(password, 12);
 
   const customer = await prisma.customer.create({
-    data: { email, password: hashedPassword, name, phone },
-    select: { id: true, email: true, name: true, phone: true, isEmployee: true },
+    data: { email, password: hashedPassword, name, phone, address },
+    select: { id: true, email: true, name: true, phone: true, address: true, isEmployee: true },
   });
 
   // Link previous guest orders to this new account
@@ -203,6 +204,7 @@ export async function customerLogin(req: Request, res: Response): Promise<void> 
         email: customer.email,
         name: customer.name,
         phone: customer.phone,
+        address: customer.address,
         lineUserId: customer.lineUserId,
         lineDisplayName: customer.lineDisplayName,
         googleId: customer.googleId,
@@ -238,7 +240,7 @@ export async function getMe(req: Request, res: Response): Promise<void> {
     const customer = await prisma.customer.findUnique({
       where: { id: req.user.id },
       select: { 
-        id: true, email: true, name: true, phone: true, 
+        id: true, email: true, name: true, phone: true, address: true,
         lineUserId: true, lineDisplayName: true, 
         googleId: true, googleEmail: true, 
         password: true,
@@ -321,6 +323,7 @@ export async function updateMe(req: Request, res: Response): Promise<void> {
   const schema = z.object({
     name: z.string().min(1).optional(),
     phone: z.string().optional(),
+    address: z.string().optional(),
     emailNotificationsEnabled: z.boolean().optional(),
     lineNotificationsEnabled: z.boolean().optional(),
   });
@@ -336,7 +339,7 @@ export async function updateMe(req: Request, res: Response): Promise<void> {
       where: { id: req.user.id },
       data: parsed.data,
       select: { 
-        id: true, email: true, name: true, phone: true, 
+        id: true, email: true, name: true, phone: true, address: true,
         lineUserId: true, lineDisplayName: true, 
         googleId: true, googleEmail: true,
         isEmployee: true,

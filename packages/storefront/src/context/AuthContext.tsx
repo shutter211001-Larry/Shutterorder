@@ -7,6 +7,7 @@ interface User {
   email: string | null;
   name: string;
   phone?: string;
+  address?: string;
   lineUserId?: string;
   lineDisplayName?: string;
   isEmployee?: boolean;
@@ -17,7 +18,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; name: string; phone?: string }) => Promise<void>;
+  register: (data: { email: string; password: string; name: string; phone?: string; address?: string }) => Promise<void>;
   loginWithToken: (token: string) => void;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
@@ -162,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(newToken);
   }
 
-  async function register(input: { email: string; password: string; name: string; phone?: string }) {
+  async function register(input: { email: string; password: string; name: string; phone?: string; address?: string }) {
     const res = await fetch(`${API_BASE}/auth/customer/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
