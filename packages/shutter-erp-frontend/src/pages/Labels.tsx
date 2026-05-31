@@ -2007,32 +2007,56 @@ export const Labels = () => {
 
                 {/* Bottom Right: Taiwan Nutrition Facts Table */}
                 {showNutrition && (
-                  <div className="flex flex-col justify-end text-black shrink-0">
-                    <div className="text-[5.5pt] font-black text-center border-b-[0.2mm] border-black pb-[0.3mm] tracking-tighter text-black">
-                      營養標示 (每一份量 {portionSize} 公克，本包裝含 {portionsPerPkg} 份)
+                  <div className="flex flex-col justify-end text-black shrink-0 border border-black p-1 bg-white">
+                    {/* 營 養 標 示 標題，加粗並置中，下方一條粗線 */}
+                    <div className="text-[7pt] font-black text-center border-b-[0.25mm] border-black pb-0.5 tracking-[1mm] text-black leading-none">
+                      營 養 標 示
+                    </div>
+                    {/* 份量資訊獨立分行，下方有一條細線區隔 */}
+                    <div className="text-[5.5pt] font-bold text-left py-1 leading-normal border-b-[0.15mm] border-black text-black">
+                      每一份量 {portionSize} 公克<br />
+                      本包裝含 {portionsPerPkg} 份
                     </div>
                     
-                    <table className="w-full text-center border-collapse text-[5.8pt] font-black mt-[0.5mm] text-black">
+                    {/* 表格：最左表頭空白，右邊是「每份」與標準中文「每 100 公克」 */}
+                    <table className="w-full text-center border-collapse text-[5.8pt] font-black mt-0.5 text-black">
                       <thead>
                         <tr className="border-b-[0.15mm] border-black text-[5pt] text-black">
-                          <th className="py-[0.2mm] text-left pl-[0.5mm] text-black font-black">項目</th>
-                          <th className="py-[0.2mm] text-right pr-[0.5mm] text-black font-black">每份</th>
-                          <th className="py-[0.2mm] text-right pr-[0.5mm] text-black font-black">每100g</th>
+                          <th className="py-[0.2mm] text-left pl-[0.5mm] text-black font-black"></th>
+                          <th className="py-[0.2mm] text-right pr-[0.5mm] text-black font-black w-[28%]">每份</th>
+                          <th className="py-[0.2mm] text-right pr-[0.5mm] text-black font-black w-[36%]">每 100 公克</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y-[0.1mm] divide-black font-mono text-black">
                         {[
-                          { name: '熱量 (kcal)', valPer100: Number(calories) },
-                          { name: '蛋白質 (g)', valPer100: Number(protein) },
-                          { name: '脂肪 (g)', valPer100: Number(fat) },
-                          { name: '  飽和脂肪 (g)', valPer100: Number(saturatedFat) },
-                          { name: '  反式脂肪 (g)', valPer100: Number(transFat) },
-                          { name: '碳水化合物 (g)', valPer100: Number(carbs) },
-                          { name: '  糖 (g)', valPer100: Number(sugar) },
-                          { name: '鈉 (mg)', valPer100: Number(sodium) },
+                          { name: '熱量', valPer100: Number(calories), unit: '大卡', isZeroLimit: 0 },
+                          { name: '蛋白質', valPer100: Number(protein), unit: '公克', isZeroLimit: 0 },
+                          { name: '脂肪', valPer100: Number(fat), unit: '公克', isZeroLimit: 0 },
+                          { name: '  飽和脂肪', valPer100: Number(saturatedFat), unit: '公克', isZeroLimit: 0.1 },
+                          { name: '  反式脂肪', valPer100: Number(transFat), unit: '公克', isZeroLimit: 0.3 },
+                          { name: '碳水化合物', valPer100: Number(carbs), unit: '公克', isZeroLimit: 0 },
+                          { name: '  糖', valPer100: Number(sugar), unit: '公克', isZeroLimit: 0.5 },
+                          { name: '鈉', valPer100: Number(sodium), unit: '毫克', isZeroLimit: 5 },
                         ].map((row, idx) => {
                           const sizeRatio = Number(portionSize) / 100;
+                          
+                          // 計算每份與每百克數值
                           const valPerPortion = row.valPer100 * sizeRatio;
+                          const val100 = row.valPer100;
+
+                          // 格式化輸出數值，預設保留一位小數且過濾掉小數點後的零（例如 12.0 顯示 12）
+                          let displayPortion = valPerPortion.toFixed(1).replace(/\.0$/, '');
+                          let display100 = val100.toFixed(1).replace(/\.0$/, '');
+
+                          // 套用台灣衛福部「零標示」與「鈉整數」防呆法規
+                          if (row.name.trim() === '鈉') {
+                            displayPortion = valPerPortion < 5 ? '0' : Math.round(valPerPortion).toString();
+                            display100 = val100 < 5 ? '0' : Math.round(val100).toString();
+                          } else if (row.isZeroLimit > 0) {
+                            if (valPerPortion <= row.isZeroLimit) displayPortion = '0';
+                            if (val100 <= row.isZeroLimit) display100 = '0';
+                          }
+
                           return (
                             <tr key={idx} className="text-black font-black">
                               <td className={cn(
@@ -2041,11 +2065,11 @@ export const Labels = () => {
                               )}>
                                 {row.name.trim()}
                               </td>
-                              <td className="py-[0.2mm] text-right pr-[0.5mm] text-black font-mono font-bold">
-                                {valPerPortion.toFixed(1).replace(/\.0$/, '')}
+                              <td className="py-[0.2mm] text-right pr-[0.5mm] text-black font-mono font-bold whitespace-nowrap">
+                                {displayPortion} {row.unit}
                               </td>
-                              <td className="py-[0.2mm] text-right pr-[0.5mm] text-black font-mono font-bold">
-                                {row.valPer100.toFixed(1).replace(/\.0$/, '')}
+                              <td className="py-[0.2mm] text-right pr-[0.5mm] text-black font-mono font-bold whitespace-nowrap">
+                                {display100} {row.unit}
                               </td>
                             </tr>
                           );
