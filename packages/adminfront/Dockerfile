@@ -32,5 +32,5 @@ COPY packages/adminfront/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-CMD ["/bin/sh", "-c", "RESOLVER=$(awk '/^nameserver/ {print $2; exit}' /etc/resolv.conf); if echo \"$RESOLVER\" | grep -q \":\"; then RESOLVER=\"[$RESOLVER]\"; fi; echo \"resolver $RESOLVER valid=10s;\" > /etc/nginx/conf.d/resolver.conf && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "RESOLVER=$(awk '/^nameserver/ {print $2; exit}' /etc/resolv.conf); if [ -z \"$RESOLVER\" ]; then RESOLVER=\"127.0.0.11\"; fi; if echo \"$RESOLVER\" | grep -q \":\"; then RESOLVER=\"[$RESOLVER]\"; fi; echo \"resolver $RESOLVER valid=10s;\" > /etc/nginx/conf.d/resolver.conf && nginx -g 'daemon off;'"]
 
