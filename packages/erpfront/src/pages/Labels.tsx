@@ -1377,8 +1377,8 @@ export const Labels = () => {
 
   // Generate dynamic container styling and fluid scaling for full adaptive layout
   const getLabelStyle = (): React.CSSProperties => {
-    let width = "100mm";
-    let height = "100mm";
+    let width = useImperialExactSize ? "101.6mm" : "100mm";
+    let height = useImperialExactSize ? "101.6mm" : "100mm";
     let padding = "3mm";
     let baseFontSize = "9.5pt";
     if (labelSize === "80x80") {
@@ -1387,8 +1387,8 @@ export const Labels = () => {
       padding = "2.5mm";
       baseFontSize = "8.2pt";
     } else if (labelSize === "100x150") {
-      width = "100mm";
-      height = "150mm";
+      width = useImperialExactSize ? "101.6mm" : "100mm";
+      height = useImperialExactSize ? "152.4mm" : "150mm";
       padding = "4mm";
       baseFontSize = "10.5pt";
     } else if (labelSize === "70x50") {
@@ -1634,7 +1634,7 @@ export const Labels = () => {
             <div className="grid grid-cols-2 gap-2">
               {[{
               id: "100x100",
-              label: "100x100 mm",
+              label: useImperialExactSize ? "101.6x101.6 mm" : "100x100 mm",
               desc: t("erp_535")
             }, {
               id: "80x80",
@@ -1642,7 +1642,7 @@ export const Labels = () => {
               desc: t("erp_536")
             }, {
               id: "100x150",
-              label: "100x150 mm",
+              label: useImperialExactSize ? "101.6x152.4 mm" : "100x150 mm",
               desc: t("erp_537")
             }, {
               id: "70x50",
@@ -4122,7 +4122,7 @@ export const Labels = () => {
             width: auto !important;
           }
           #printable-label {
-            border: 1.2mm solid black !important;
+            border: none !important;
             border-radius: ${labelBorderRadius}mm !important;
             box-shadow: none !important;
             transform: none !important;
