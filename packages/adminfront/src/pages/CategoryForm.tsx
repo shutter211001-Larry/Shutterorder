@@ -150,13 +150,17 @@ export default function CategoryForm() {
     e.target.value = '';
   };
 
-  const handleCropComplete = async (croppedBlob: Blob) => {
+  const handleCropComplete = async (croppedBlobs: Record<string, Blob>) => {
     if (!id || !originalFile) return;
+    
+    const blob = Object.values(croppedBlobs)[0];
+    if (!blob) return;
+
     setCropSrc(null);
     setUploading(true);
     setError(null);
     try {
-      const croppedFile = new File([croppedBlob], originalFile.name.replace(/\.[^/.]+$/, "") + "_cropped.jpg", {
+      const croppedFile = new File([blob], originalFile.name.replace(/\.[^/.]+$/, "") + "_cropped.jpg", {
         type: 'image/jpeg'
       });
       const formData = new FormData();
