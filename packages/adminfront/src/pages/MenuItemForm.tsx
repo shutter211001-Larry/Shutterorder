@@ -343,15 +343,18 @@ export default function MenuItemForm() {
 
         let width = img.width;
         let height = img.height;
-        const MAX_SIZE = 1920;
+        const MIN_EDGE_MAX_SIZE = 1920;
 
-        if (width > MAX_SIZE || height > MAX_SIZE) {
-          if (width > height) {
-            height = Math.round((height * MAX_SIZE) / width);
-            width = MAX_SIZE;
+        // Scale down if both edges are larger than 1920, capping the shorter edge at 1920
+        if (width > MIN_EDGE_MAX_SIZE && height > MIN_EDGE_MAX_SIZE) {
+          if (width < height) {
+            // width is the shorter edge
+            height = Math.round((height * MIN_EDGE_MAX_SIZE) / width);
+            width = MIN_EDGE_MAX_SIZE;
           } else {
-            width = Math.round((width * MAX_SIZE) / height);
-            height = MAX_SIZE;
+            // height is the shorter edge
+            width = Math.round((width * MIN_EDGE_MAX_SIZE) / height);
+            height = MIN_EDGE_MAX_SIZE;
           }
         }
 
