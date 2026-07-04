@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
 import { useAuth } from '../context/AuthContext.js';
+import { useTheme } from '../context/ThemeContext.js';
 import { getTranslated } from '../utils/translation.js';
 import { useApi } from '../hooks/useApi.js';
 import { API_BASE } from '../lib/api.js';
@@ -72,6 +73,11 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<Record<string, string[]>>({});
   const [buyWithPoints, setBuyWithPoints] = useState(false);
+  const { settings } = useTheme();
+
+  const imgAspectRatio = (settings.menuSection as any)?.imageAspectRatio || 'h-40';
+  const isFixedHeight = imgAspectRatio === 'h-40';
+  const containerClass = `${isFixedHeight ? 'h-48' : imgAspectRatio === 'aspect-auto' ? 'aspect-video' : imgAspectRatio} relative w-full shrink-0`;
 
   useEffect(() => {
     setLoading(true);
@@ -204,7 +210,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
         {item && (
           <>
             {/* Image */}
-            <div className="h-48 relative">
+            <div className={containerClass}>
               {item.image ? (
                 <img src={item.image} alt={getTranslated(item.name, item.nameTranslations, i18n.language)} className="w-full h-full object-cover" />
               ) : (
