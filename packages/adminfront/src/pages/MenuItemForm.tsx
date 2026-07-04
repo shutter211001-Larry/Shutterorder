@@ -154,6 +154,10 @@ export default function MenuItemForm() {
 
   const [erpRecipes, setErpRecipes] = useState<ErpRecipe[]>([]);
   const [selectedErpRecipeId, setSelectedErpRecipeId] = useState<string>('');
+  const [imageAspectRatio, setImageAspectRatio] = useState<string>('h-40');
+
+  const imgClass = `${imageAspectRatio === 'h-40' ? 'h-40' : imageAspectRatio === 'aspect-auto' ? 'aspect-video' : imageAspectRatio} w-40 object-cover rounded-lg border border-gray-200`;
+  const placeholderClass = `${imageAspectRatio === 'h-40' ? 'h-40' : imageAspectRatio === 'aspect-auto' ? 'aspect-video' : imageAspectRatio} w-40 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center p-2 text-center`;
 
   useEffect(() => {
     Promise.all([
@@ -175,6 +179,19 @@ export default function MenuItemForm() {
         setErpRecipes(res.data || []);
       })
       .catch(() => console.error('Failed to load ERP recipes'));
+
+    api.get<{ data: any }>('/settings')
+      .then((res) => {
+        if (res.data?.menuSection) {
+          try {
+            const menuSetting = JSON.parse(res.data.menuSection);
+            if (menuSetting.imageAspectRatio) {
+              setImageAspectRatio(menuSetting.imageAspectRatio);
+            }
+          } catch (e) {}
+        }
+      })
+      .catch(() => {});
   }, [isEdit]);
 
   useEffect(() => {
@@ -698,7 +715,7 @@ export default function MenuItemForm() {
                   <img
                     src={getFullUrl(imageUrl)!}
                     alt={form.name}
-                    className="w-40 h-40 object-cover rounded-lg border border-gray-200"
+                    className={imgClass}
                   />
                   <button
                     type="button"
@@ -711,7 +728,7 @@ export default function MenuItemForm() {
                   </button>
                 </div>
               ) : (
-                <div className="w-40 h-40 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                <div className={placeholderClass}>
                   <span className="text-sm text-gray-400">{t('menuItemForm.noImageUploaded')}</span>
                 </div>
               )}
