@@ -42,7 +42,7 @@ export const updateLabelManufacturer = async (req: Request, res: Response) => {
     const data = req.body;
     
     const manufacturer = await prisma.labelManufacturer.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         name: data.name,
         companyName: data.companyName,
@@ -64,7 +64,7 @@ export const deleteLabelManufacturer = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.labelManufacturer.delete({
-      where: { id }
+      where: { id: id as string }
     });
     res.json({ success: true });
   } catch (error) {
