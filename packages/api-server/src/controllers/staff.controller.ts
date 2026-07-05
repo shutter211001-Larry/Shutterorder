@@ -44,6 +44,8 @@ export async function listStaff(req: Request, res: Response): Promise<void> {
         isActive: true,
         locationId: true,
         hourlyWage: true,
+        salaryType: true,
+        monthlyWage: true,
         location: { select: { id: true, name: true } },
         createdAt: true,
       },
@@ -82,6 +84,8 @@ export async function getStaff(req: Request<{ id: string }>, res: Response): Pro
       isActive: true,
       locationId: true,
       hourlyWage: true,
+      salaryType: true,
+      monthlyWage: true,
       location: { select: { id: true, name: true } },
       createdAt: true,
       updatedAt: true,
@@ -106,6 +110,8 @@ const updateStaffSchema = z.object({
   phone: z.string().nullable().optional(),
   locationId: z.string().nullable().optional(),
   hourlyWage: z.number().min(0).optional(),
+  salaryType: z.enum(['HOURLY', 'MONTHLY']).optional(),
+  monthlyWage: z.number().min(0).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -148,6 +154,8 @@ export async function updateStaff(req: Request<{ id: string }>, res: Response): 
       isActive: true,
       locationId: true,
       hourlyWage: true,
+      salaryType: true,
+      monthlyWage: true,
       location: { select: { id: true, name: true } },
     },
   });

@@ -13,6 +13,8 @@ interface Staff {
   isActive: boolean;
   locationId: string | null;
   hourlyWage: number;
+  salaryType: 'HOURLY' | 'MONTHLY';
+  monthlyWage: number;
   location: { id: string; name: string } | null;
 }
 
@@ -33,7 +35,9 @@ export default function StaffEdit() {
   const [role, setRole] = useState('');
   const [phone, setPhone] = useState('');
   const [locationId, setLocationId] = useState('');
+  const [salaryType, setSalaryType] = useState<'HOURLY' | 'MONTHLY'>('HOURLY');
   const [hourlyWage, setHourlyWage] = useState(0);
+  const [monthlyWage, setMonthlyWage] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -55,7 +59,9 @@ export default function StaffEdit() {
         setRole(s.role);
         setPhone(s.phone || '');
         setLocationId(s.locationId || '');
+        setSalaryType(s.salaryType || 'HOURLY');
         setHourlyWage(s.hourlyWage || 0);
+        setMonthlyWage(s.monthlyWage || 0);
         setIsActive(s.isActive);
         if (locData.success) setLocations(locData.data || []);
       })
@@ -77,7 +83,9 @@ export default function StaffEdit() {
           role,
           phone: phone || null,
           locationId: locationId || null,
+          salaryType,
           hourlyWage: Number(hourlyWage),
+          monthlyWage: Number(monthlyWage),
           isActive,
         }),
       });
@@ -194,16 +202,42 @@ export default function StaffEdit() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.hourlyWage')}</label>
-          <input
-            type="number"
-            min="0"
-            step="1"
-            value={hourlyWage}
-            onChange={(e) => setHourlyWage(Number(e.target.value))}
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.salaryType') || 'Salary Type'}</label>
+          <select
+            value={salaryType}
+            onChange={(e) => setSalaryType(e.target.value as 'HOURLY' | 'MONTHLY')}
             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-          />
+          >
+            <option value="HOURLY">{t('staffEdit.hourly') || 'Hourly (時薪)'}</option>
+            <option value="MONTHLY">{t('staffEdit.monthly') || 'Monthly (月薪)'}</option>
+          </select>
         </div>
+
+        {salaryType === 'HOURLY' ? (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.hourlyWage') || 'Hourly Wage'}</label>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={hourlyWage}
+              onChange={(e) => setHourlyWage(Number(e.target.value))}
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            />
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.monthlyWage') || 'Monthly Wage'}</label>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={monthlyWage}
+              onChange={(e) => setMonthlyWage(Number(e.target.value))}
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            />
+          </div>
+        )}
 
         <label className="flex items-center gap-2 cursor-pointer">
           <ToggleSwitch
