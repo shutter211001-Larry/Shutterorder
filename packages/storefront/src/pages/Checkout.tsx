@@ -91,14 +91,14 @@ export default function Checkout() {
       if (!hasSlotsToday) {
         setIsClosedNow(true);
         // Auto-select first available slot if nothing is selected
-        if (!scheduledAt) {
+        if (!scheduledAt && orderType !== 'frozen_delivery') {
           setScheduledAt(slotsByDay[0].slots[0]);
         }
       } else {
         setIsClosedNow(false);
       }
     }
-  }, [slotsByDay, scheduledAt, user]);
+  }, [slotsByDay, scheduledAt, user, orderType]);
 
   // Loyalty points
   const [loyaltyBalance, setLoyaltyBalance] = useState(0);
@@ -859,7 +859,7 @@ export default function Checkout() {
                   )}
                 </div>
 
-                {scheduledAt && slotsByDay.length > 0 && (
+                {orderType !== 'frozen_delivery' && scheduledAt && slotsByDay.length > 0 && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                     {/* Elegant Custom Date Dropdown Selector */}
                     <div className="relative">
@@ -984,7 +984,7 @@ export default function Checkout() {
                   </div>
                 )}
                 
-                {scheduledAt && slotsByDay.length === 0 && (
+                {orderType !== 'frozen_delivery' && scheduledAt && slotsByDay.length === 0 && (
                   <p className="text-xs text-hint italic">{t('checkout.noAvailableSlots') || t('checkout.noReservationSlotsAvailable')}</p>
                 )}
               </div>
