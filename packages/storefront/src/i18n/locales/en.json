@@ -316,7 +316,9 @@
     "yourOrderedMeals": "[EN] 這是您點的餐點",
     "accompanyingFriends": "[EN] 同行友人",
     "accompanyingFriendsList": "[EN] 同行友人",
-    "freeShipping": "[EN] 免運費"
+    "freeShipping": "[EN] 免運費",
+    "homeDelivery": "Home Delivery",
+    "storeToStore": "Store-to-Store Pickup"
   },
   "orderConfirmation": {
     "title": "Order Placed!",

@@ -1321,7 +1321,10 @@
     "remoteOrOnSite": "遠端/現場",
     "location": "地點",
     "guest": "訪客",
-    "scheduledTime": "預約取餐/送達時間"
+    "scheduledTime": "預約取餐/送達時間",
+    "fulfillOrder": "発送情報を入力",
+    "logisticsProvider": "物流会社",
+    "trackingNumber": "追跡番号"
   },
   "orderList": {
     "updatePaymentStatusFailed": "更新結帳狀態失敗",

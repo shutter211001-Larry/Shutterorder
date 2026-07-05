@@ -3,20 +3,20 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import * as authController from '../controllers/auth.controller.js';
 import { authenticate, generateToken, requireRole } from '../middleware/auth.js';
-
+import { loginRateLimiter, registerRateLimiter } from '../middleware/security.js';
 const router = Router();
 const STOREFRONT_URL = process.env.STORE_URL_PUBLIC || 'http://localhost:5174';
 
 // STAFF AUTH
 router.get('/staff/setup-status', authController.getSetupStatus);
-router.post('/staff/login', authController.staffLogin);
-router.post('/staff/register', authenticate, requireRole('SUPER_ADMIN'), authController.staffRegister);
+router.post('/staff/login', loginRateLimiter, authController.staffLogin);
+router.post('/staff/register', authenticate, requireRole('SUPER_ADMIN'), registerRateLimiter, authController.staffRegister);
 router.post('/staff/forgot-password', authController.requestStaffPasswordReset);
 router.post('/staff/reset-password', authController.resetStaffPassword);
 
 // CUSTOMER AUTH
-router.post('/customer/register', authController.customerRegister);
-router.post('/customer/login', authController.customerLogin);
+router.post('/customer/register', registerRateLimiter, authController.customerRegister);
+router.post('/customer/login', loginRateLimiter, authController.customerLogin);
 
 const handleSocialCallback = (req: Request, res: Response) => {
   if (!req.user) return res.redirect(`${STOREFRONT_URL}/auth/callback?error=auth_failed`);

@@ -314,7 +314,9 @@
     "yourOrderedMeals": "這是您點的餐點",
     "accompanyingFriends": "同行友人",
     "accompanyingFriendsList": "同行友人",
-    "freeShipping": "免運費"
+    "freeShipping": "免運費",
+    "homeDelivery": "宅配",
+    "storeToStore": "店到店"
   },
   "orderConfirmation": {
     "title": "點餐成功！",

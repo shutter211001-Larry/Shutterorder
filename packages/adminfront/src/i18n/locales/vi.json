@@ -1085,7 +1085,10 @@
     "remoteOrOnSite": "遠端/現場",
     "location": "地點",
     "guest": "訪客",
-    "scheduledTime": "預約取餐/送達時間"
+    "scheduledTime": "預約取餐/送達時間",
+    "fulfillOrder": "Fulfill Order",
+    "logisticsProvider": "Logistics Provider",
+    "trackingNumber": "Tracking Number"
   },
   "orderList": {
     "updatePaymentStatusFailed": "更新結帳狀態失敗",

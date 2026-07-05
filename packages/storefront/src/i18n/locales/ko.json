@@ -304,7 +304,9 @@
     "accompanyingFriends": "同行友人",
     "accompanyingFriendsList": "同行友人",
     "freeShipping": "免運費",
-    "roundingAdjustment": "結算調整 (Rounding)"
+    "roundingAdjustment": "結算調整 (Rounding)",
+    "homeDelivery": "택배",
+    "storeToStore": "편의점 수령"
   },
   "orderConfirmation": {
     "title": "주문 완료!",

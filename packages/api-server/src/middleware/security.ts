@@ -91,3 +91,33 @@ export const orderRateLimiter = rateLimit({
     return ip ? ipKeyGenerator(ip) : 'anonymous';
   }
 });
+
+/**
+ * Rate limiter for login attempts (staff & customer)
+ * to prevent brute-force attacks.
+ */
+export const loginRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'Too many login attempts from this IP, please try again after 15 minutes.'
+  }
+});
+
+/**
+ * Rate limiter for registration attempts
+ * to prevent automated account creation spam.
+ */
+export const registerRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // Limit each IP to 3 registration requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'Too many accounts created from this IP, please try again after an hour.'
+  }
+});

@@ -1321,7 +1321,10 @@
     "remoteOrOnSite": "[EN] 遠端/現場",
     "location": "[EN] 地點",
     "guest": "[EN] 訪客",
-    "scheduledTime": "[EN] 預約取餐/送達時間"
+    "scheduledTime": "[EN] 預約取餐/送達時間",
+    "fulfillOrder": "Fulfill Order",
+    "logisticsProvider": "Logistics Provider",
+    "trackingNumber": "Tracking Number"
   },
   "orderList": {
     "updatePaymentStatusFailed": "[EN] 更新結帳狀態失敗",
