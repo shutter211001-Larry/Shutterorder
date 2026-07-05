@@ -80,6 +80,7 @@ const navItems: NavItem[] = [
     children: [
       { path: '/attendance', label: 'nav.checkIn' },
       { path: '/attendance/records', label: 'nav.attendanceRecords', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/attendance/corrections', label: 'attendanceCorrections.title', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/attendance/qr-generator', label: '產生 QR Code', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/attendance/payroll', label: '薪資結算', roles: ['SUPER_ADMIN', 'MANAGER'] },
     ],

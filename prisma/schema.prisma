@@ -30,6 +30,8 @@ model User {
   sentMessages    ChatMessage[] @relation("SentMessages")
   location        Location?     @relation(fields: [locationId], references: [id])
   attendances     StaffAttendance[]
+  correctionRequests AttendanceCorrectionRequest[]
+  approvedCorrections AttendanceCorrectionRequest[] @relation("ManagerApprovedCorrections")
 
   @@map("users")
 }
@@ -813,6 +815,31 @@ model StaffAttendance {
   isOutOfRange Boolean   @default(false)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  correctionRequests AttendanceCorrectionRequest[]
 
   @@map("staff_attendance")
+}
+
+enum CorrectionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AttendanceCorrectionRequest {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendanceId          String?
+  attendance            StaffAttendance? @relation(fields: [attendanceId], references: [id], onDelete: SetNull)
+  requestedCheckIn      DateTime?
+  requestedCheckOut     DateTime?
+  reason                String
+  status                CorrectionRequestStatus @default(PENDING)
+  managerId             String?
+  manager               User?     @relation("ManagerApprovedCorrections", fields: [managerId], references: [id])
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("attendance_correction_requests")
 }

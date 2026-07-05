@@ -6,6 +6,10 @@ import {
   getRecords,
   getQrToken,
   getPayroll,
+  createCorrectionRequest,
+  getMyCorrectionRequests,
+  getCorrectionRequests,
+  updateCorrectionRequestStatus,
 } from '../controllers/attendance.controller.js';
 import { authenticate, requireStaff, requireRole } from '../middleware/auth.js';
 
@@ -24,5 +28,13 @@ router.get('/my-records', authenticate, requireStaff, getMyRecords);
 
 // Admin endpoints
 router.get('/records', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), getRecords);
+
+// Correction Request endpoints (Staff)
+router.post('/corrections', authenticate, requireStaff, createCorrectionRequest);
+router.get('/corrections/my-records', authenticate, requireStaff, getMyCorrectionRequests);
+
+// Correction Request endpoints (Admin)
+router.get('/corrections', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), getCorrectionRequests);
+router.put('/corrections/:id/status', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), updateCorrectionRequestStatus);
 
 export default router;

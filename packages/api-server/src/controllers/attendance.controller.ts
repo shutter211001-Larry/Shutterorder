@@ -239,3 +239,138 @@ export const getPayroll = async (req: Request, res: Response) => {
 
   res.json({ success: true, data: payrollData });
 };
+
+export const createCorrectionRequest = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+  const { attendanceId, requestedCheckIn, requestedCheckOut, reason } = req.body;
+
+  if (!reason) {
+    return res.status(400).json({ success: false, error: 'Reason is required' });
+  }
+
+  try {
+    const request = await prisma.attendanceCorrectionRequest.create({
+      data: {
+        userId,
+        attendanceId: attendanceId || null,
+        requestedCheckIn: requestedCheckIn ? new Date(requestedCheckIn) : null,
+        requestedCheckOut: requestedCheckOut ? new Date(requestedCheckOut) : null,
+        reason
+      }
+    });
+    res.status(201).json({ success: true, data: request });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to create request' });
+  }
+};
+
+export const getMyCorrectionRequests = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+  try {
+    const requests = await prisma.attendanceCorrectionRequest.findMany({
+      where: { userId },
+      include: {
+        attendance: true,
+        manager: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ success: true, data: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch requests' });
+  }
+};
+
+export const getCorrectionRequests = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.query;
+    const where: any = {};
+    if (status) {
+      where.status = status as any;
+    }
+
+    const requests = await prisma.attendanceCorrectionRequest.findMany({
+      where,
+      include: {
+        user: { select: { name: true, email: true } },
+        attendance: true,
+        manager: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ success: true, data: requests });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch requests' });
+  }
+};
+
+export const updateCorrectionRequestStatus = async (req: Request, res: Response) => {
+  const managerId = req.user?.id;
+  const { id } = req.params;
+  const { status, locationId } = req.body; // locationId is needed if creating a new attendance record
+
+  if (!managerId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+  if (!['APPROVED', 'REJECTED'].includes(status)) {
+    return res.status(400).json({ success: false, error: 'Invalid status' });
+  }
+
+  try {
+    const request = await prisma.attendanceCorrectionRequest.findUnique({
+      where: { id: String(id) }
+    });
+
+    if (!request) {
+      return res.status(404).json({ success: false, error: 'Request not found' });
+    }
+
+    if (request.status !== 'PENDING') {
+      return res.status(400).json({ success: false, error: 'Request is already processed' });
+    }
+
+    const updatedRequest = await prisma.attendanceCorrectionRequest.update({
+      where: { id: String(id) },
+      data: {
+        status: status as any,
+        managerId
+      }
+    });
+
+    if (status === 'APPROVED') {
+      if (request.attendanceId) {
+        // Update existing attendance
+        const updateData: any = {};
+        if (request.requestedCheckIn) updateData.checkIn = request.requestedCheckIn;
+        if (request.requestedCheckOut) updateData.checkOut = request.requestedCheckOut;
+        
+        await prisma.staffAttendance.update({
+          where: { id: request.attendanceId },
+          data: updateData
+        });
+      } else {
+        // Create new attendance
+        if (!request.requestedCheckIn) {
+           return res.status(400).json({ success: false, error: 'Cannot create attendance without check-in time' });
+        }
+        await prisma.staffAttendance.create({
+          data: {
+            userId: request.userId,
+            locationId: locationId || null,
+            checkIn: request.requestedCheckIn,
+            checkOut: request.requestedCheckOut,
+            device: 'Manual Correction',
+            isOutOfRange: false
+          }
+        });
+      }
+    }
+
+    res.json({ success: true, data: updatedRequest });
+  } catch (error) {
+    console.error('Error updating correction request:', error);
+    res.status(500).json({ success: false, error: 'Failed to update request' });
+  }
+};

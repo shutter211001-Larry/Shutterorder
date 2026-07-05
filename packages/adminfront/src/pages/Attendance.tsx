@@ -25,6 +25,17 @@ export default function Attendance() {
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [isCameraStarting, setIsCameraStarting] = useState(false);
 
+  // Correction request state
+  const [myCorrections, setMyCorrections] = useState<any[]>([]);
+  const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+  const [correctionForm, setCorrectionForm] = useState({
+    attendanceId: '',
+    date: new Date().toISOString().split('T')[0],
+    requestedCheckIn: '',
+    requestedCheckOut: '',
+    reason: ''
+  });
+
   const startScanner = async () => {
     try {
       setIsCameraStarting(true);
@@ -94,6 +105,7 @@ export default function Attendance() {
   useEffect(() => {
     fetchLocations();
     fetchMyRecords();
+    fetchMyCorrections();
     
     // Get geolocation
     if (navigator.geolocation) {
@@ -142,6 +154,20 @@ export default function Attendance() {
       const data = await res.json();
       if (data.success) {
         setMyRecords(data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function fetchMyCorrections() {
+    try {
+      const res = await fetch('/api/attendance/corrections/my-records', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMyCorrections(data.data);
       }
     } catch (err) {
       console.error(err);
@@ -217,6 +243,57 @@ export default function Attendance() {
   };
 
   // Find if checked in but not checked out
+  const submitCorrectionRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!correctionForm.reason) {
+      toast.error(t('attendanceCorrections.reasonRequired') || 'Reason is required');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      let checkInTime = null;
+      let checkOutTime = null;
+      
+      if (correctionForm.requestedCheckIn) {
+        checkInTime = new Date(`${correctionForm.date}T${correctionForm.requestedCheckIn}`);
+      }
+      if (correctionForm.requestedCheckOut) {
+        checkOutTime = new Date(`${correctionForm.date}T${correctionForm.requestedCheckOut}`);
+      }
+      
+      const payload = {
+        attendanceId: correctionForm.attendanceId || null,
+        requestedCheckIn: checkInTime,
+        requestedCheckOut: checkOutTime,
+        reason: correctionForm.reason
+      };
+
+      const res = await fetch('/api/attendance/corrections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await res.json();
+      if (data.success) {
+        toast.success(t('attendanceCorrections.success'));
+        setShowCorrectionModal(false);
+        setCorrectionForm({ attendanceId: '', date: new Date().toISOString().split('T')[0], requestedCheckIn: '', requestedCheckOut: '', reason: '' });
+        fetchMyCorrections();
+      } else {
+        toast.error(data.error || 'Failed');
+      }
+    } catch (err) {
+      toast.error(t('attendance.systemError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const todayRecord = myRecords.find(r => !r.checkOut && new Date(r.checkIn).setHours(0,0,0,0) === new Date().setHours(0,0,0,0));
 
   return (
@@ -278,6 +355,15 @@ export default function Attendance() {
               </button>
             </div>
           )}
+          
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <button
+              onClick={() => setShowCorrectionModal(true)}
+              className="text-primary-600 font-medium hover:text-primary-700 underline"
+            >
+              {t('attendanceCorrections.requestCorrection')}
+            </button>
+          </div>
         </div>
 
         {showScanner && (
@@ -389,6 +475,123 @@ export default function Attendance() {
           </div>
         </div>
       </div>
+
+      {myCorrections.length > 0 && (
+        <div className="mt-6 bg-white p-6 rounded shadow">
+          <h3 className="text-xl font-bold mb-4">{t('attendanceCorrections.title')}</h3>
+          <div className="overflow-x-auto max-h-96">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">{t('attendanceCorrections.date')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">{t('attendanceCorrections.requestedCheckIn')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">{t('attendanceCorrections.requestedCheckOut')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">{t('attendanceCorrections.reason')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">{t('attendanceCorrections.status')}</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                {myCorrections.map(req => (
+                  <tr key={req.id}>
+                    <td className="px-4 py-2">{new Date(req.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-2">{req.requestedCheckIn ? new Date(req.requestedCheckIn).toLocaleString() : '-'}</td>
+                    <td className="px-4 py-2">{req.requestedCheckOut ? new Date(req.requestedCheckOut).toLocaleString() : '-'}</td>
+                    <td className="px-4 py-2 max-w-xs truncate">{req.reason}</td>
+                    <td className="px-4 py-2">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        req.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                        req.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {req.status === 'APPROVED' ? t('attendanceCorrections.statusApproved') : 
+                         req.status === 'REJECTED' ? t('attendanceCorrections.statusRejected') : 
+                         t('attendanceCorrections.statusPending')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Correction Modal */}
+      {showCorrectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <h3 className="text-lg font-bold text-gray-900">{t('attendanceCorrections.title')}</h3>
+              <button onClick={() => setShowCorrectionModal(false)} className="text-gray-400 hover:text-gray-500">
+                &times;
+              </button>
+            </div>
+            
+            <form onSubmit={submitCorrectionRequest} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.selectDate')}</label>
+                <input
+                  type="date"
+                  required
+                  value={correctionForm.date}
+                  onChange={(e) => setCorrectionForm({...correctionForm, date: e.target.value})}
+                  className="w-full rounded border-gray-300"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckIn')}</label>
+                  <input
+                    type="time"
+                    value={correctionForm.requestedCheckIn}
+                    onChange={(e) => setCorrectionForm({...correctionForm, requestedCheckIn: e.target.value})}
+                    className="w-full rounded border-gray-300"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckOut')}</label>
+                  <input
+                    type="time"
+                    value={correctionForm.requestedCheckOut}
+                    onChange={(e) => setCorrectionForm({...correctionForm, requestedCheckOut: e.target.value})}
+                    className="w-full rounded border-gray-300"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.reason')}</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={correctionForm.reason}
+                  onChange={(e) => setCorrectionForm({...correctionForm, reason: e.target.value})}
+                  className="w-full rounded border-gray-300"
+                  placeholder={t('attendanceCorrections.checkInMissing') || ''}
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCorrectionModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                >
+                  {t('attendanceCorrections.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {t('attendanceCorrections.submit')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
