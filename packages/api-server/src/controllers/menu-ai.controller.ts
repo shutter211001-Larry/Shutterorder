@@ -29,7 +29,9 @@ export async function detectMenuFromImages(req: Request, res: Response): Promise
       You are a professional menu digitization assistant.
       I will provide you with images of a physical restaurant menu.
       Please extract all categories and the items within them.
-      For each item, extract the name, price (as a number), and description (if any).
+      For each item, extract the name, price (as a number), description (if any), and any options.
+      If the menu item has choices (e.g. "乾/湯", "大/中/小", "加蛋", "冷/熱"), extract them into the \`options\` array instead of the description.
+      For example, if an item says "乾/湯", the option name could be "種類" with values "乾", "湯".
       Return ONLY a valid JSON object matching this schema exactly:
       {
         "categories": [
@@ -39,7 +41,19 @@ export async function detectMenuFromImages(req: Request, res: Response): Promise
               {
                 "name": "string",
                 "price": number,
-                "description": "string"
+                "description": "string",
+                "options": [
+                  {
+                    "name": "string (e.g. '種類', '大小', '加料')",
+                    "isRequired": boolean,
+                    "values": [
+                      {
+                        "name": "string",
+                        "priceModifier": number (default 0 if no extra cost)
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -65,6 +79,18 @@ const importSchema = z.object({
           name: z.string(),
           price: z.number(),
           description: z.string().optional().nullable(),
+          options: z.array(
+            z.object({
+              name: z.string(),
+              isRequired: z.boolean(),
+              values: z.array(
+                z.object({
+                  name: z.string(),
+                  priceModifier: z.number()
+                })
+              )
+            })
+          ).optional()
         })
       )
     })
@@ -117,8 +143,34 @@ export async function importMenuAndTranslate(req: Request, res: Response): Promi
         };
 
         const translatedItemData = await autoTranslateMenuItem(itemData);
+        
+        let optionsToCreate: any = undefined;
+        if (item.options && item.options.length > 0) {
+          optionsToCreate = {
+            create: item.options.map((opt: any, optIndex: number) => ({
+              name: opt.name,
+              isRequired: opt.isRequired,
+              displayType: 'SELECT',
+              minSelect: opt.isRequired ? 1 : 0,
+              maxSelect: 1,
+              sortOrder: optIndex,
+              values: {
+                create: opt.values.map((v: any, vIndex: number) => ({
+                  name: v.name,
+                  priceModifier: v.priceModifier || 0,
+                  sortOrder: vIndex,
+                  isDefault: false
+                }))
+              }
+            }))
+          };
+        }
+
         await prisma.menuItem.create({
-          data: translatedItemData
+          data: {
+            ...translatedItemData,
+            options: optionsToCreate
+          }
         });
       }
     }

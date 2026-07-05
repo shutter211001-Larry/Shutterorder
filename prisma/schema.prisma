@@ -371,6 +371,9 @@ model Order {
   userLat             Float?
   userLon             Float?
   language            String?              @default("zh-TW")
+  trackingNumber      String?
+  logisticsProvider   String?
+  frozenDeliveryMethod String?
   loyaltyTransactions LoyaltyTransaction[]
   items               OrderItem[]
   address             Address?             @relation(fields: [addressId], references: [id])

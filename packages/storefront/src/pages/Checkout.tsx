@@ -30,6 +30,7 @@ export default function Checkout() {
 
   const [orderType, setOrderType] = useState<OrderType>('pickup');
   const [lastCommonOrderType, setLastCommonOrderType] = useState<'delivery' | 'pickup'>('pickup');
+  const [frozenDeliveryMethod, setFrozenDeliveryMethod] = useState<'HOME_DELIVERY' | 'STORE_TO_STORE'>('HOME_DELIVERY');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [showPaymentError, setShowPaymentError] = useState(false);
   const [address, setAddress] = useState({ line1: '', line2: '', city: '', state: '', zip: '' });
@@ -397,6 +398,7 @@ export default function Checkout() {
 
       const body: Record<string, unknown> = {
         orderType: orderType.toUpperCase(),
+        frozenDeliveryMethod: orderType === 'frozen_delivery' ? frozenDeliveryMethod : undefined,
         paymentMethod,
         items: orderItems,
         comment: comment || undefined,
@@ -870,6 +872,34 @@ export default function Checkout() {
                     </button>
                   )}
                 </div>
+
+                {orderType === 'frozen_delivery' && (
+                  <div className="flex bg-surface border-2 border-input rounded-xl p-1 mb-6">
+                    <button
+                      type="button"
+                      onClick={() => setFrozenDeliveryMethod('HOME_DELIVERY')}
+                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                        frozenDeliveryMethod === 'HOME_DELIVERY'
+                          ? 'bg-primary-600 text-white shadow-sm'
+                          : 'text-sub hover:bg-gray-100'
+                      }`}
+                    >
+                      {t('checkout.homeDelivery') || '宅配'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFrozenDeliveryMethod('STORE_TO_STORE')}
+                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                        frozenDeliveryMethod === 'STORE_TO_STORE'
+                          ? 'bg-primary-600 text-white shadow-sm'
+                          : 'text-sub hover:bg-gray-100'
+                      }`}
+                    >
+                      {t('checkout.storeToStore') || '店到店'}
+                    </button>
+                  </div>
+                )}
+
 
                 {orderType !== 'frozen_delivery' && scheduledAt && slotsByDay.length > 0 && (
                   <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">

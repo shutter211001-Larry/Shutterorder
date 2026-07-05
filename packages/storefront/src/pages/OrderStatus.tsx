@@ -22,6 +22,9 @@ interface OrderDetail {
   orderNumber: string;
   pickupNumber: string | null;
   orderType: string;
+  frozenDeliveryMethod?: string;
+  trackingNumber?: string;
+  logisticsProvider?: string;
   status: string;
   subtotal: number;
   tax: number;
@@ -366,7 +369,13 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
                   {t('orderStatus.scheduledOrderTitle') || t('orderStatus.reservationOrderConfirmed')}
                 </h3>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-800 border border-primary-200">
-                  {order.orderType === 'DELIVERY' ? t('checkout.delivery') : t('checkout.pickup')}
+                  {order.orderType === 'DELIVERY' 
+                    ? t('checkout.delivery') 
+                    : order.orderType === 'PICKUP' 
+                      ? t('checkout.pickup')
+                      : order.frozenDeliveryMethod === 'STORE_TO_STORE'
+                        ? t('checkout.storeToStore') || '店到店'
+                        : t('checkout.homeDelivery') || '宅配'}
                 </span>
               </div>
               
@@ -445,6 +454,23 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
           </div>
         )}
       </div>
+
+      {/* Tracking Info for Frozen Delivery */}
+      {order.orderType === 'FROZEN_DELIVERY' && order.trackingNumber && (
+        <div className="surface-card rounded-xl shadow-sm border p-6 mb-6">
+          <h2 className="text-lg font-semibold text-main mb-4">{t('orderStatus.trackingInfo') || '物流追蹤'}</h2>
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between">
+              <span className="text-sub">{t('orderStatus.logisticsProvider') || '物流公司'}</span>
+              <span className="font-medium text-main">{order.logisticsProvider || '-'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sub">{t('orderStatus.trackingNumber') || '託運單號'}</span>
+              <span className="font-bold text-primary-600">{order.trackingNumber}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Order Items */}
       <div className="surface-card rounded-xl shadow-sm border overflow-hidden mb-6">

@@ -355,6 +355,7 @@ const createOrderSchema = z.object({
   tableName: z.string().optional(),
   groupSessionId: z.string().optional(),
   honeypot: z.string().optional(),
+  frozenDeliveryMethod: z.string().optional(),
 });
 
 function generateOrderNumber(): string {
@@ -374,7 +375,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   const { 
     orderType, items, comment, scheduledAt, address, 
     guestName, guestEmail, guestPhone, loyaltyPointsRedeem,
-    userLat, userLon, locationId, honeypot, couponCode, tableName, groupSessionId
+    userLat, userLon, locationId, honeypot, couponCode, tableName, groupSessionId, frozenDeliveryMethod
   } = parsed.data;
 
   // HONEYPOT check: Bots often fill all fields. If this hidden field is filled, reject it silently or with a generic error.
@@ -971,6 +972,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       customerId,
       locationId: location.id,
       orderType,
+      frozenDeliveryMethod,
       paymentStatus: 'UNPAID',
       subtotal,
       tax,
@@ -1413,7 +1415,7 @@ async function notifyShutterErpOfDeduction(order: any) {
 
 export async function updateOrderStatus(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, trackingNumber, logisticsProvider } = req.body;
 
   const validStatuses = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'PICKED_UP', 'CANCELLED'];
   if (!validStatuses.includes(status)) {
@@ -1438,9 +1440,13 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
     return;
   }
 
+  const dataToUpdate: any = { status };
+  if (trackingNumber !== undefined) dataToUpdate.trackingNumber = trackingNumber;
+  if (logisticsProvider !== undefined) dataToUpdate.logisticsProvider = logisticsProvider;
+
   const updated = await prisma.order.update({
     where: { id },
-    data: { status },
+    data: dataToUpdate,
     include: {
       items: { include: { options: true, menuItem: { select: { id: true, nameTranslations: true } } } },
     },

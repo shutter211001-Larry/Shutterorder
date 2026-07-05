@@ -3,10 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api.js';
 
+interface ParsedOptionValue {
+  name: string;
+  priceModifier: number;
+}
+
+interface ParsedOption {
+  name: string;
+  isRequired: boolean;
+  values: ParsedOptionValue[];
+}
+
 interface ParsedItem {
   name: string;
   price: number;
   description: string;
+  options?: ParsedOption[];
 }
 
 interface ParsedCategory {
@@ -212,15 +224,30 @@ export default function AIMenuDetection() {
                   <tbody>
                     {cat.items.map((item, iIndex) => (
                       <tr key={iIndex} className="border-b last:border-0 hover:bg-gray-50">
-                        <td className="p-3">
+                        <td className="p-3 align-top">
                           <input
                             type="text"
                             value={item.name}
                             onChange={(e) => updateItem(cIndex, iIndex, 'name', e.target.value)}
                             className="w-full border-gray-300 rounded px-2 py-1"
                           />
+                          {item.options && item.options.length > 0 && (
+                            <div className="mt-2 text-xs text-gray-500 bg-white border border-gray-200 rounded p-1.5 shadow-sm">
+                              <span className="font-semibold text-gray-600 block mb-1">偵測到選項：</span>
+                              {item.options.map((opt, oIdx) => (
+                                <div key={oIdx} className="mb-1 last:mb-0">
+                                  <span className="font-medium text-indigo-600">{opt.name}</span>
+                                  {opt.isRequired ? <span className="text-red-500 ml-1">(必選)</span> : ''}
+                                  <span className="mx-1">:</span>
+                                  <span className="text-gray-600">
+                                    {opt.values.map(v => v.priceModifier ? `${v.name}(+$${v.priceModifier})` : v.name).join(', ')}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </td>
-                        <td className="p-3">
+                        <td className="p-3 align-top">
                           <input
                             type="number"
                             value={item.price}
@@ -228,7 +255,7 @@ export default function AIMenuDetection() {
                             className="w-full border-gray-300 rounded px-2 py-1"
                           />
                         </td>
-                        <td className="p-3">
+                        <td className="p-3 align-top">
                           <input
                             type="text"
                             value={item.description || ''}
