@@ -9,3 +9,4 @@
 **Rule**: Because this project is deployed remotely (e.g., on Railway) and relies on `npx prisma migrate deploy` during startup, you MUST generate a Prisma migration file whenever you modify the database schema. 
 - Do NOT just run `npx prisma db push` without generating a migration file. 
 - If you are operating in a non-interactive environment where `npx prisma migrate dev` fails, you must manually create a timestamped folder under `prisma/migrations` containing a `migration.sql` script with the exact SQL DDL statements for your changes, and mark it as resolved locally if necessary.
+- CRITICAL: When writing manual `migration.sql` scripts, you MUST write idempotent SQL (e.g., `ALTER TABLE "table" ADD COLUMN IF NOT EXISTS "column" TEXT;`). This prevents `502 Bad Gateway` deployment crash loops on Railway if the remote database already contains the schema changes.
