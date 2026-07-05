@@ -325,27 +325,29 @@ const orderItemOptionSchema = z.object({
 const orderItemSchema = z.object({
   menuItemId: z.string().min(1),
   quantity: z.number().int().min(1),
-  comment: z.string().optional(),
+  comment: z.string().optional().transform(val => val ? val.replace(/[<>]/g, '') : val),
   options: z.array(orderItemOptionSchema).optional(),
   redeemedWithPoints: z.boolean().optional(),
 });
 
+const sanitizeHTML = (val: string | undefined) => val ? val.replace(/[<>]/g, '') : val;
+
 const createOrderSchema = z.object({
   orderType: z.enum(['DELIVERY', 'PICKUP', 'FROZEN_DELIVERY']),
-  items: z.array(orderItemSchema).min(1),
-  comment: z.string().optional(),
+  items: z.array(orderItemSchema).min(1).max(100, 'Order exceeds maximum allowed items'),
+  comment: z.string().optional().transform(sanitizeHTML),
   scheduledAt: z.string().optional(),
   couponCode: z.string().optional(),
   address: z.object({
-    line1: z.string().min(1),
-    line2: z.string().optional(),
-    city: z.string().min(1),
-    state: z.string().min(1),
-    zip: z.string().min(1),
+    line1: z.string().min(1).transform(sanitizeHTML),
+    line2: z.string().optional().transform(sanitizeHTML),
+    city: z.string().min(1).transform(sanitizeHTML),
+    state: z.string().min(1).transform(sanitizeHTML),
+    zip: z.string().min(1).transform(sanitizeHTML),
     lat: z.number().optional(),
     lng: z.number().optional(),
   }).optional(),
-  guestName: z.string().optional(),
+  guestName: z.string().optional().transform(sanitizeHTML),
   guestEmail: z.string().email().optional().or(z.literal('')),
   guestPhone: z.string().optional(),
   loyaltyPointsRedeem: z.number().int().min(0).optional(),

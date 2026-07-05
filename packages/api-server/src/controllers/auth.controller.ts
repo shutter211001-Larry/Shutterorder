@@ -100,7 +100,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
 
 const staffRegisterSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/, 'Password must be at least 8 characters and include at least one letter and one number'),
   name: z.string().min(1),
   role: z.enum(['SUPER_ADMIN', 'MANAGER', 'STAFF']).optional(),
 });
@@ -220,7 +220,7 @@ export async function resetStaffPassword(req: Request, res: Response): Promise<v
 
 const customerRegisterSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/, 'Password must be at least 8 characters and include at least one letter and one number'),
   name: z.string().min(1),
   phone: z.string().optional(),
   address: z.string().optional(),
@@ -395,10 +395,10 @@ export async function setPassword(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const schema = z.object({ password: z.string().min(6) });
+  const schema = z.object({ password: z.string().regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/, 'Password must be at least 8 characters and include at least one letter and one number') });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
+    res.status(400).json({ success: false, error: parsed.error.errors[0]?.message || 'Invalid password' });
     return;
   }
 
