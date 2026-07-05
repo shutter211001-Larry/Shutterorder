@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 export async function seedUsers(prisma: PrismaClient) {
   console.log('Seeding Users...');
@@ -77,3 +77,4 @@ export async function seedUsers(prisma: PrismaClient) {
     },
   });
 }
+

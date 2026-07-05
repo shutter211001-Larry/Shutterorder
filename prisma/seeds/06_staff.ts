@@ -61,3 +61,4 @@ export async function seedStaff(prisma: PrismaClient) {
     }
   }
 }
+
