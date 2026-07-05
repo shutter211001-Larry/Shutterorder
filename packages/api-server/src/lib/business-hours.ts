@@ -69,7 +69,7 @@ export function isWithinHours(
   if (!isOpen) {
     return { 
       isOpen: false, 
-      error: `Scheduled time must be within business hours (${timeRangesStr || 'Closed'}) considering preparation buffers.` 
+      error: 'Scheduled time must be within business hours considering preparation buffers.' 
     };
   }
 

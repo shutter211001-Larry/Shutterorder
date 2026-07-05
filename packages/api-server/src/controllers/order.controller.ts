@@ -528,14 +528,14 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
         { preOpeningBuffer, postClosingBuffer }
       );
 
-      if (!check.isOpen) {
+      if (!check.isOpen && orderType !== 'FROZEN_DELIVERY') {
         res.status(400).json({ success: false, error: check.error });
         return;
       }
     } else {
       // Check ASAP order against current hours
       const check = isWithinHours(new Date(), location.operatingHours);
-      if (!check.isOpen) {
+      if (!check.isOpen && orderType !== 'FROZEN_DELIVERY') {
         res.status(400).json({ 
           success: false, 
           error: 'We are currently closed for immediate orders. Please select a future pickup time.' 

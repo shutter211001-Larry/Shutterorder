@@ -555,7 +555,7 @@ export default function Checkout() {
         {/* Left: Form */}
         <div className="flex-1 space-y-6">
           {error && (
-            <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm">{error}</div>
+            <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm">{t(error as any)}</div>
           )}
 
           {/* Table Banner */}
