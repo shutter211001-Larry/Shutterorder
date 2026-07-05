@@ -359,6 +359,8 @@ const createOrderSchema = z.object({
   honeypot: z.string().optional(),
   frozenDeliveryMethod: z.string().optional(),
   manualDiscount: z.number().min(0).optional(),
+  manualDeliveryFee: z.number().min(0).optional(),
+  manualTax: z.number().min(0).optional(),
   trackingNumber: z.string().optional(),
   logisticsProvider: z.string().optional(),
 });
@@ -381,7 +383,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     orderType, items, comment, scheduledAt, address, 
     guestName, guestEmail, guestPhone, loyaltyPointsRedeem,
     userLat, userLon, locationId, honeypot, couponCode, tableName, groupSessionId, frozenDeliveryMethod,
-    manualDiscount, trackingNumber, logisticsProvider
+    manualDiscount, manualDeliveryFee, manualTax, trackingNumber, logisticsProvider
   } = parsed.data;
 
   // HONEYPOT check: Bots often fill all fields. If this hidden field is filled, reject it silently or with a generic error.
@@ -899,16 +901,24 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     appliedCouponId = coupon.id;
   }
 
-  // C. Manual Discount (Staff only)
+  // C. Manual Override (Staff only)
   if (isStaff && manualDiscount !== undefined) {
     couponDiscount += manualDiscount;
+  }
+
+  if (isStaff && manualDeliveryFee !== undefined) {
+    deliveryFee = manualDeliveryFee;
   }
 
   if (freeDelivery) {
     deliveryFee = 0;
   }
 
-  const tax = subtotal * (currentTaxRate / 100);
+  let tax = subtotal * (currentTaxRate / 100);
+  if (isStaff && manualTax !== undefined) {
+    tax = manualTax;
+  }
+
   const unroundedTotal = Math.max(0, subtotal + tax + deliveryFee - loyaltyDiscount - couponDiscount);
   
   const generalSettings = typeof siteSettings?.generalSettings === 'string' 
@@ -2273,6 +2283,8 @@ export async function calculateOrderSummary(req: Request, res: Response): Promis
     couponCode,
     loyaltyPointsRedeem = 0,
     address,
+    manualDeliveryFee,
+    manualTax,
   } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {

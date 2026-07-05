@@ -63,6 +63,8 @@ export default function OrderCreate() {
   
   const [couponCode, setCouponCode] = useState('');
   const [manualDiscount, setManualDiscount] = useState<number>(0);
+  const [manualDeliveryFee, setManualDeliveryFee] = useState<number | ''>('');
+  const [manualTax, setManualTax] = useState<number | ''>('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [logisticsProvider, setLogisticsProvider] = useState('');
   
@@ -129,6 +131,8 @@ export default function OrderCreate() {
           orderType: orderType,
           locationId: selectedLocationId || undefined,
           couponCode: couponCode || undefined,
+          manualDeliveryFee: manualDeliveryFee !== '' ? manualDeliveryFee : undefined,
+          manualTax: manualTax !== '' ? manualTax : undefined,
         };
 
         if (orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') {
@@ -147,7 +151,7 @@ export default function OrderCreate() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [cart, orderType, selectedLocationId, couponCode, address.line1]);
+  }, [cart, orderType, selectedLocationId, couponCode, address.line1, manualDeliveryFee, manualTax]);
 
   const openItemModal = (item: MenuItem) => {
     if (item.options && item.options.length > 0) {
@@ -251,6 +255,8 @@ export default function OrderCreate() {
         logisticsProvider: orderType === 'FROZEN_DELIVERY' ? logisticsProvider : undefined,
         couponCode: couponCode || undefined,
         manualDiscount: manualDiscount > 0 ? manualDiscount : undefined,
+        manualDeliveryFee: manualDeliveryFee !== '' ? manualDeliveryFee : undefined,
+        manualTax: manualTax !== '' ? manualTax : undefined,
       };
 
       const res = await api.post<{ data: { id: string } }>('/orders', orderData);
@@ -600,6 +606,36 @@ export default function OrderCreate() {
                         onChange={e => setManualDiscount(parseFloat(e.target.value) || 0)}
                         className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary-500 outline-none"
                         placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  {(orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualDeliveryFee') || '手動設定運費 (留空套用系統運費)'}</label>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1.5 text-gray-500 text-sm">$</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={manualDeliveryFee}
+                          onChange={e => setManualDeliveryFee(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary-500 outline-none"
+                          placeholder="留空自動計算"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualTax') || '手動設定稅金 (留空套用系統稅金)'}</label>
+                    <div className="relative">
+                      <span className="absolute left-2 top-1.5 text-gray-500 text-sm">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={manualTax}
+                        onChange={e => setManualTax(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                        className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary-500 outline-none"
+                        placeholder="留空自動計算"
                       />
                     </div>
                   </div>

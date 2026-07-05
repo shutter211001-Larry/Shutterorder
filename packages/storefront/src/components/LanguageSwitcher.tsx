@@ -15,7 +15,9 @@ export default function LanguageSwitcher() {
     // Detect Windows to handle abbreviation fallback
     const isWindows = typeof window !== 'undefined' && /Win/i.test(navigator.userAgent || navigator.platform || '');
 
-    if (code === 'zh-TW') {
+    const useTaiwanSvg = import.meta.env.VITE_TAIWAN === 'TAIWAN' || import.meta.env.TAIWAN === 'TAIWAN';
+
+    if (code === 'zh-TW' && useTaiwanSvg) {
       if (isWindows) {
         return <span className="text-[10px] font-bold tracking-tight text-main/80">TW</span>;
       }

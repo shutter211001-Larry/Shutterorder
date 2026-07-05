@@ -47,8 +47,17 @@ export default function SettingsOrder() {
   });
 
   const [enableTCat, setEnableTCat] = useState(false);
+  const [tcatCustomerId, setTcatCustomerId] = useState('');
+  const [tcatApiKey, setTcatApiKey] = useState('');
+
   const [enablePelican, setEnablePelican] = useState(false);
+  const [pelicanMerchantId, setPelicanMerchantId] = useState('');
+  const [pelicanApiKey, setPelicanApiKey] = useState('');
+
   const [enableECPay, setEnableECPay] = useState(false);
+  const [ecpayMerchantId, setEcpayMerchantId] = useState('');
+  const [ecpayHashKey, setEcpayHashKey] = useState('');
+  const [ecpayHashIv, setEcpayHashIv] = useState('');
 
   useEffect(() => {
     fetch('/api/settings/order', { headers: { Authorization: `Bearer ${token}` } })
@@ -65,8 +74,15 @@ export default function SettingsOrder() {
           if (d.minOrderPickup !== undefined) setMinOrderPickup(d.minOrderPickup);
           if (d.minOrderFrozen !== undefined) setMinOrderFrozen(d.minOrderFrozen);
           if (d.enableTCat !== undefined) setEnableTCat(d.enableTCat);
+          if (d.tcatCustomerId !== undefined) setTcatCustomerId(d.tcatCustomerId);
+          if (d.tcatApiKey !== undefined) setTcatApiKey(d.tcatApiKey);
           if (d.enablePelican !== undefined) setEnablePelican(d.enablePelican);
+          if (d.pelicanMerchantId !== undefined) setPelicanMerchantId(d.pelicanMerchantId);
+          if (d.pelicanApiKey !== undefined) setPelicanApiKey(d.pelicanApiKey);
           if (d.enableECPay !== undefined) setEnableECPay(d.enableECPay);
+          if (d.ecpayMerchantId !== undefined) setEcpayMerchantId(d.ecpayMerchantId);
+          if (d.ecpayHashKey !== undefined) setEcpayHashKey(d.ecpayHashKey);
+          if (d.ecpayHashIv !== undefined) setEcpayHashIv(d.ecpayHashIv);
           if (d.deliveryLeadTime !== undefined) setDeliveryLeadTime(d.deliveryLeadTime);
           if (d.pickupLeadTime !== undefined) setPickupLeadTime(d.pickupLeadTime);
           if (d.frozenLeadTime !== undefined) setFrozenLeadTime(d.frozenLeadTime);
@@ -109,7 +125,6 @@ export default function SettingsOrder() {
           minOrderDelivery, 
           minOrderPickup, 
           minOrderFrozen,
-          deliveryLeadTime, 
           pickupLeadTime, 
           frozenLeadTime,
           frozenDeliveryFee, 
@@ -125,8 +140,16 @@ export default function SettingsOrder() {
           loyaltyEarnRate,
           loyaltyRedeemRate,
           enableTCat,
+          tcatCustomerId,
+          tcatApiKey,
           enablePelican,
+          pelicanMerchantId,
+          pelicanApiKey,
           enableECPay,
+          ecpayMerchantId,
+          ecpayHashKey,
+          ecpayHashIv,
+          deliveryLeadTime: Number(deliveryLeadTime),
           emailNotifications 
         }),
       });
@@ -223,32 +246,75 @@ export default function SettingsOrder() {
           </div>
           <p className="text-sm text-gray-500 mb-6">這些開關將控制出貨選項。當您取得第三方物流 API 金鑰後，可以開啟對應通道，讓店員看見出貨選項。</p>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <div>
-                <span className="font-medium text-gray-900 block">黑貓宅急便 (T-Cat)</span>
-                <span className="text-xs text-gray-500">開啟此選項，出貨選單將顯示黑貓物流。</span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" checked={enableTCat} onChange={e => setEnableTCat(e.target.checked)} />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-              </label>
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <ToggleRow
+                title="黑貓宅急便 (T-Cat)"
+                description="開啟此選項，出貨選單將顯示黑貓宅急便。"
+                checked={enableTCat}
+                onChange={setEnableTCat}
+                className="bg-transparent border-none p-0 mb-4"
+              />
+              {enableTCat && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Customer ID (客戶代號)</label>
+                    <input type="text" value={tcatCustomerId} onChange={e => setTcatCustomerId(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Customer ID" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">API Key (客戶金鑰)</label>
+                    <input type="password" value={tcatApiKey} onChange={e => setTcatApiKey(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter API Key" />
+                  </div>
+                </div>
+              )}
             </div>
             
-            <ToggleRow
-              title="台灣宅配通 (Pelican)"
-              description="開啟此選項，出貨選單將顯示台灣宅配通。"
-              checked={enablePelican}
-              onChange={setEnablePelican}
-              className="bg-gray-50 border-gray-100"
-            />
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <ToggleRow
+                title="台灣宅配通 (Pelican)"
+                description="開啟此選項，出貨選單將顯示台灣宅配通。"
+                checked={enablePelican}
+                onChange={setEnablePelican}
+                className="bg-transparent border-none p-0 mb-4"
+              />
+              {enablePelican && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Merchant ID (特約商代號)</label>
+                    <input type="text" value={pelicanMerchantId} onChange={e => setPelicanMerchantId(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Merchant ID" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">API Key (介接金鑰)</label>
+                    <input type="password" value={pelicanApiKey} onChange={e => setPelicanApiKey(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter API Key" />
+                  </div>
+                </div>
+              )}
+            </div>
             
-            <ToggleRow
-              title="綠界科技 ECPay 店到店"
-              description="開啟此選項，出貨選單將顯示綠界店到店交貨便。"
-              checked={enableECPay}
-              onChange={setEnableECPay}
-              className="bg-gray-50 border-gray-100"
-            />
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <ToggleRow
+                title="綠界科技 ECPay 店到店"
+                description="開啟此選項，出貨選單將顯示綠界店到店交貨便。"
+                checked={enableECPay}
+                onChange={setEnableECPay}
+                className="bg-transparent border-none p-0 mb-4"
+              />
+              {enableECPay && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Merchant ID (特店編號)</label>
+                    <input type="text" value={ecpayMerchantId} onChange={e => setEcpayMerchantId(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Merchant ID" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Hash Key (介接 HashKey)</label>
+                    <input type="password" value={ecpayHashKey} onChange={e => setEcpayHashKey(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Hash Key" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Hash IV (介接 HashIV)</label>
+                    <input type="password" value={ecpayHashIv} onChange={e => setEcpayHashIv(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Hash IV" />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
