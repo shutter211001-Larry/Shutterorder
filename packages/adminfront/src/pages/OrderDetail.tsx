@@ -18,6 +18,7 @@ interface OrderDetail {
   orderNumber: string;
   orderType: string;
   frozenDeliveryMethod?: string;
+  address?: any;
   trackingNumber?: string;
   logisticsProvider?: string;
   status: string;
@@ -69,26 +70,39 @@ export default function OrderDetailPage() {
   // Fulfill Modal State
   const [showFulfillModal, setShowFulfillModal] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState('');
-  const [logisticsProvider, setLogisticsProvider] = useState('黑貓宅急便');
+  const [logisticsProvider, setLogisticsProvider] = useState('');
+  const [presetProvider, setPresetProvider] = useState('custom');
+  const [logisticsSettings, setLogisticsSettings] = useState({ enableTCat: false, enablePelican: false, enableECPay: false });
 
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch(`/api/orders/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
+    Promise.all([
+      fetch(`/api/orders/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(res => {
         if (!res.ok) throw new Error('Failed to load order');
         return res.json();
+      }),
+      fetch(`/api/settings/order`, { headers: { Authorization: `Bearer ${token}` } }).then(res => {
+        if (!res.ok) return null;
+        return res.json();
       })
-      .then((data) => {
-        setOrder(data.data);
-        const decimals = data.currencyDecimals !== undefined ? data.currencyDecimals : 2;
+    ])
+      .then(([orderData, settingsData]) => {
+        setOrder(orderData.data);
+        const decimals = orderData.currencyDecimals !== undefined ? orderData.currencyDecimals : 2;
         setCurrencyDecimals(decimals);
-        if (data.data) {
-          const unrounded = data.data.subtotal + data.data.tax + data.data.deliveryFee - data.data.discount;
+        if (orderData.data) {
+          const unrounded = orderData.data.subtotal + orderData.data.tax + orderData.data.deliveryFee - orderData.data.discount;
           const roundedTotal = Number(unrounded.toFixed(decimals));
           setAdjustedTotalInput(roundedTotal.toString());
+        }
+
+        if (settingsData?.success && settingsData?.data) {
+          setLogisticsSettings({
+            enableTCat: !!settingsData.data.enableTCat,
+            enablePelican: !!settingsData.data.enablePelican,
+            enableECPay: !!settingsData.data.enableECPay,
+          });
         }
       })
       .catch((err) => setError(err.message))
@@ -138,7 +152,8 @@ export default function OrderDetailPage() {
 
   async function submitFulfillment(e: React.FormEvent) {
     e.preventDefault();
-    await executeStatusUpdate('OUT_FOR_DELIVERY', { trackingNumber, logisticsProvider });
+    const finalProvider = presetProvider === 'custom' ? logisticsProvider : presetProvider;
+    await executeStatusUpdate('OUT_FOR_DELIVERY', { trackingNumber, logisticsProvider: finalProvider });
   }
 
   async function updatePaymentStatus(newPaymentStatus: string) {
@@ -507,6 +522,27 @@ export default function OrderDetailPage() {
                   )}
                 </dd>
               </div>
+              {order.address && (order.orderType === 'DELIVERY' || order.orderType === 'FROZEN_DELIVERY') && (
+                <div>
+                  <dt className="text-gray-500">
+                    {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? '取件門市' : (t('orders.deliveryAddress') || '送貨地址')}
+                  </dt>
+                  <dd className="font-medium text-gray-900 mt-1">
+                    {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? (
+                      <span className="block text-sm">{order.address.line1}</span>
+                    ) : (
+                      <div className="text-sm">
+                        <span className="block">{order.address.line1}</span>
+                        {(order.address.city || order.address.state || order.address.zip) && (
+                          <span className="block text-gray-500 mt-0.5">
+                            {order.address.city} {order.address.state} {order.address.zip}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </dd>
+                </div>
+              )}
               {order.scheduledAt && (
                 <div>
                   <dt className="text-gray-500">{t('orderDetail.scheduledTime')}</dt>
@@ -526,31 +562,39 @@ export default function OrderDetailPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t('orderDetail.fulfillOrder') || '填寫出貨資訊'}</h2>
             <form onSubmit={submitFulfillment} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.logisticsProvider') || '物流公司'}</label>
-                <select
-                  value={logisticsProvider}
-                  onChange={(e) => setLogisticsProvider(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                >
-                  <option value="黑貓宅急便">黑貓宅急便</option>
-                  <option value="台灣宅配通">台灣宅配通</option>
-                  <option value="新竹物流">新竹物流</option>
-                  <option value="綠界科技 ECPay">綠界科技 ECPay</option>
-                  <option value="自訂/其他">自訂/其他</option>
-                </select>
-              </div>
-              
-              {logisticsProvider === '自訂/其他' && (
-                <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.logisticsProvider') || '物流公司 / 配送方式'}</label>
+                {(logisticsSettings.enableTCat || logisticsSettings.enablePelican || logisticsSettings.enableECPay) ? (
+                  <div className="space-y-2">
+                    <select
+                      value={presetProvider}
+                      onChange={(e) => setPresetProvider(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                    >
+                      <option value="custom">自訂 / 手動填寫</option>
+                      {logisticsSettings.enableTCat && <option value="黑貓宅急便">黑貓宅急便</option>}
+                      {logisticsSettings.enablePelican && <option value="台灣宅配通">台灣宅配通</option>}
+                      {logisticsSettings.enableECPay && <option value="綠界科技 ECPay">綠界科技 ECPay (店到店)</option>}
+                    </select>
+                    {presetProvider === 'custom' && (
+                      <input
+                        type="text"
+                        placeholder="請手動輸入物流公司名稱..."
+                        value={logisticsProvider}
+                        onChange={(e) => setLogisticsProvider(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                      />
+                    )}
+                  </div>
+                ) : (
                   <input
                     type="text"
-                    placeholder="請輸入物流公司名稱"
+                    placeholder="例如：黑貓、Lalamove、自送..."
+                    value={logisticsProvider}
                     onChange={(e) => setLogisticsProvider(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                    required
                   />
-                </div>
-              )}
+                )}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.trackingNumber') || '託運單號'}</label>

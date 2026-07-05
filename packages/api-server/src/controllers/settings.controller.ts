@@ -53,6 +53,9 @@ const updateSettingsSchema = z.object({
     emailNotifications: z.record(z.boolean()).optional(),
     loyaltyEarnRate: z.number().min(0).optional(),
     loyaltyRedeemRate: z.number().min(1).optional(),
+    enableTCat: z.boolean().optional(),
+    enablePelican: z.boolean().optional(),
+    enableECPay: z.boolean().optional(),
   }).optional(),
 });
 
@@ -132,6 +135,9 @@ function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSetting
       boardLeadTime: order.boardLeadTime !== undefined ? Number(order.boardLeadTime) : 60,
       loyaltyEarnRate: order.loyaltyEarnRate !== undefined ? Number(order.loyaltyEarnRate) : 1.0,
       loyaltyRedeemRate: order.loyaltyRedeemRate !== undefined ? Number(order.loyaltyRedeemRate) : 100.0,
+      enableTCat: isTrue(order.enableTCat, false),
+      enablePelican: isTrue(order.enablePelican, false),
+      enableECPay: isTrue(order.enableECPay, false),
       emailNotifications: order.emailNotifications || {},
     } : undefined,
     paymentSettings: {
@@ -384,6 +390,9 @@ const orderSettingsSchema = z.object({
   loyaltyEarnRate: z.number().min(0).optional(),
   loyaltyRedeemRate: z.number().min(1).optional(),
   emailNotifications: z.record(z.boolean()).optional(),
+  enableTCat: z.boolean().optional(),
+  enablePelican: z.boolean().optional(),
+  enableECPay: z.boolean().optional(),
 });
 
 const reservationSettingsSchema = z.object({

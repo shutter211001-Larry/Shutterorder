@@ -59,6 +59,7 @@ export default function OrderCreate() {
   const [guestPhone, setGuestPhone] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [address, setAddress] = useState({ line1: '', city: '', state: '', zip: '' });
+  const [frozenDeliveryMethod, setFrozenDeliveryMethod] = useState<'HOME_DELIVERY' | 'STORE_TO_STORE'>('HOME_DELIVERY');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -126,6 +127,7 @@ export default function OrderCreate() {
         guestPhone,
         guestEmail,
         address: (orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') ? address : undefined,
+        frozenDeliveryMethod: orderType === 'FROZEN_DELIVERY' ? frozenDeliveryMethod : undefined,
       };
 
       const res = await api.post<{ data: { id: string } }>('/orders', orderData);
@@ -217,7 +219,45 @@ export default function OrderCreate() {
               </div>
             </div>
 
-            {(orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') && (
+            {orderType === 'FROZEN_DELIVERY' && (
+              <div className="mt-4 flex bg-gray-100 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setFrozenDeliveryMethod('HOME_DELIVERY')}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
+                    frozenDeliveryMethod === 'HOME_DELIVERY' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {t('orderCreate.homeDelivery') || '宅配'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFrozenDeliveryMethod('STORE_TO_STORE')}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
+                    frozenDeliveryMethod === 'STORE_TO_STORE' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {t('orderCreate.storeToStore') || '店到店'}
+                </button>
+              </div>
+            )}
+
+            {orderType === 'FROZEN_DELIVERY' && frozenDeliveryMethod === 'STORE_TO_STORE' ? (
+              <div className="mt-6 space-y-4 pt-6 border-t border-gray-100">
+                <h3 className="font-medium text-gray-900">{t('orderCreate.storeDetails') || '取件門市資訊'}</h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.storeNameId') || '門市名稱或店號'} *</label>
+                  <input
+                    type="text"
+                    required
+                    value={address.line1}
+                    onChange={e => setAddress({ ...address, line1: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                    placeholder="例如：7-11 信義店 (店號: 123456)"
+                  />
+                </div>
+              </div>
+            ) : (orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') ? (
               <div className="mt-6 space-y-4 pt-6 border-t border-gray-100">
                 <h3 className="font-medium text-gray-900">{t('orderCreate.deliveryAddress')}</h3>
                 <div>
@@ -248,12 +288,12 @@ export default function OrderCreate() {
                       value={address.zip}
                       onChange={e => setAddress({ ...address, zip: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-                      placeholder={t('orderCreate.areaCode')}
+                      placeholder={t('orderCreate.zipLabel')}
                     />
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
 

@@ -45,6 +45,10 @@ export default function SettingsOrder() {
     CANCELLED: true,
   });
 
+  const [enableTCat, setEnableTCat] = useState(false);
+  const [enablePelican, setEnablePelican] = useState(false);
+  const [enableECPay, setEnableECPay] = useState(false);
+
   useEffect(() => {
     fetch('/api/settings/order', { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
@@ -59,6 +63,9 @@ export default function SettingsOrder() {
           if (d.minOrderDelivery !== undefined) setMinOrderDelivery(d.minOrderDelivery);
           if (d.minOrderPickup !== undefined) setMinOrderPickup(d.minOrderPickup);
           if (d.minOrderFrozen !== undefined) setMinOrderFrozen(d.minOrderFrozen);
+          if (d.enableTCat !== undefined) setEnableTCat(d.enableTCat);
+          if (d.enablePelican !== undefined) setEnablePelican(d.enablePelican);
+          if (d.enableECPay !== undefined) setEnableECPay(d.enableECPay);
           if (d.deliveryLeadTime !== undefined) setDeliveryLeadTime(d.deliveryLeadTime);
           if (d.pickupLeadTime !== undefined) setPickupLeadTime(d.pickupLeadTime);
           if (d.frozenLeadTime !== undefined) setFrozenLeadTime(d.frozenLeadTime);
@@ -116,6 +123,9 @@ export default function SettingsOrder() {
           boardLeadTime,
           loyaltyEarnRate,
           loyaltyRedeemRate,
+          enableTCat,
+          enablePelican,
+          enableECPay,
           emailNotifications 
         }),
       });
@@ -200,6 +210,49 @@ export default function SettingsOrder() {
                 <label className="block text-xs text-gray-500 mt-3 mb-1">{t('settingsOrder.frozenDeliveryBaseFee')}</label>
                 <input type="number" min={0} step={0.01} value={frozenDeliveryFee} onChange={(e) => setFrozenDeliveryFee(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Logistics Channels */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">物流通道預留設定 (Logistics API Channels)</h2>
+            <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Future API</span>
+          </div>
+          <p className="text-sm text-gray-500 mb-6">這些開關將控制出貨選項。當您取得第三方物流 API 金鑰後，可以開啟對應通道，讓店員看見出貨選項。</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div>
+                <span className="font-medium text-gray-900 block">黑貓宅急便 (T-Cat)</span>
+                <span className="text-xs text-gray-500">開啟此選項，出貨選單將顯示黑貓物流。</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={enableTCat} onChange={e => setEnableTCat(e.target.checked)} />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              </label>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div>
+                <span className="font-medium text-gray-900 block">台灣宅配通 (Pelican)</span>
+                <span className="text-xs text-gray-500">開啟此選項，出貨選單將顯示台灣宅配通。</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={enablePelican} onChange={e => setEnablePelican(e.target.checked)} />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              </label>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div>
+                <span className="font-medium text-gray-900 block">綠界科技 ECPay 店到店</span>
+                <span className="text-xs text-gray-500">開啟此選項，出貨選單將顯示綠界店到店交貨便。</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={enableECPay} onChange={e => setEnableECPay(e.target.checked)} />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              </label>
             </div>
           </div>
         </div>

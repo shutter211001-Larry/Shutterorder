@@ -727,60 +727,64 @@ export default function Checkout() {
           {(orderType === 'delivery' || orderType === 'frozen_delivery') && (
             <div className="surface-card rounded-xl shadow-sm border p-6">
               <h2 className="text-lg font-semibold text-main mb-4">
-                {orderType === 'frozen_delivery' ? t('checkout.frozenDeliveryAddress') || t('checkout.frozenDeliveryAddress') : t('checkout.deliveryAddress')}
+                {orderType === 'frozen_delivery' 
+                  ? (frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('checkout.storeToStoreDetails') || '取件門市資訊') : (t('checkout.frozenDeliveryAddress') || '冷凍宅配地址'))
+                  : t('checkout.deliveryAddress')}
               </h2>
               {zoneError && orderType === 'delivery' && (
                 <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm mb-3">{zoneError}</div>
               )}
               <div className="space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <select
-                    required
-                    value={address.state}
-                    onChange={(e) => {
-                      const newCity = e.target.value;
-                      setAddress({ ...address, state: newCity, city: '', zip: '' });
-                    }}
-                    className="px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main"
-                  >
-                    <option value="" disabled>{t('checkout.cityCounty') || '請選擇縣市'}</option>
-                    {taiwanDistricts.map(city => (
-                      <option key={city.name} value={city.name}>{city.name}</option>
-                    ))}
-                  </select>
+                {frozenDeliveryMethod !== 'STORE_TO_STORE' && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <select
+                      required
+                      value={address.state}
+                      onChange={(e) => {
+                        const newCity = e.target.value;
+                        setAddress({ ...address, state: newCity, city: '', zip: '' });
+                      }}
+                      className="px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main"
+                    >
+                      <option value="" disabled>{t('checkout.cityCounty') || '請選擇縣市'}</option>
+                      {taiwanDistricts.map(city => (
+                        <option key={city.name} value={city.name}>{city.name}</option>
+                      ))}
+                    </select>
 
-                  <select
-                    required
-                    value={address.city}
-                    onChange={(e) => {
-                      const newDistrict = e.target.value;
-                      const cityData = taiwanDistricts.find(c => c.name === address.state);
-                      const districtData = cityData?.districts.find(d => d.name === newDistrict);
-                      setAddress({ ...address, city: newDistrict, zip: districtData?.zip || '' });
-                    }}
-                    disabled={!address.state}
-                    className="px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main disabled:opacity-50"
-                  >
-                    <option value="" disabled>{t('checkout.district') || '請選擇地區'}</option>
-                    {taiwanDistricts.find(c => c.name === address.state)?.districts.map(d => (
-                      <option key={d.name} value={d.name}>{d.name}</option>
-                    ))}
-                  </select>
+                    <select
+                      required
+                      value={address.city}
+                      onChange={(e) => {
+                        const newDistrict = e.target.value;
+                        const cityData = taiwanDistricts.find(c => c.name === address.state);
+                        const districtData = cityData?.districts.find(d => d.name === newDistrict);
+                        setAddress({ ...address, city: newDistrict, zip: districtData?.zip || '' });
+                      }}
+                      disabled={!address.state}
+                      className="px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main disabled:opacity-50"
+                    >
+                      <option value="" disabled>{t('checkout.district') || '請選擇地區'}</option>
+                      {taiwanDistricts.find(c => c.name === address.state)?.districts.map(d => (
+                        <option key={d.name} value={d.name}>{d.name}</option>
+                      ))}
+                    </select>
 
-                  <input
-                    type="text"
-                    required
-                    readOnly
-                    placeholder={t('checkout.zipCode') || '郵遞區號'}
-                    value={address.zip}
-                    className="px-3 py-2 bg-surface border border-input rounded-lg outline-none text-sm text-main bg-black/5 cursor-not-allowed col-span-2 sm:col-span-1"
-                  />
-                </div>
+                    <input
+                      type="text"
+                      required
+                      readOnly
+                      placeholder={t('checkout.zipCode') || '郵遞區號'}
+                      value={address.zip}
+                      className="px-3 py-2 bg-surface border border-input rounded-lg outline-none text-sm text-main bg-black/5 cursor-not-allowed col-span-2 sm:col-span-1"
+                    />
+                  </div>
+                )}
                 
                 <input
                   type="text"
                   required
-                  placeholder={t('checkout.streetAddressPlaceholder') || '例如：中正路 100 號 3 樓'}
+                  placeholder={frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('checkout.storeBranchPlaceholder') || '例如：7-11 信義店 (店號: 123456)') : (t('checkout.streetAddressPlaceholder') || '例如：中正路 100 號 3 樓')}
                   value={address.line1}
                   onChange={(e) => setAddress({ ...address, line1: e.target.value })}
                   className="w-full px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main"
