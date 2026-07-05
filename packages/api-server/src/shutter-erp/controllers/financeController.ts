@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma as adminPrisma } from '../../lib/db';
-import shutterErpPrisma from '../lib/prisma';
+import { prisma as adminPrisma } from '../../lib/db.js';
+import shutterErpPrisma from '../lib/prisma.js';
 import { OrderStatus } from '@prisma/client';
 
 export const getProfitAndLoss = async (req: Request, res: Response) => {
@@ -22,7 +22,7 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
           lte: end,
         },
         status: {
-          notIn: ['CANCELLED', 'REFUNDED'] as any,
+          notIn: ['CANCELLED'] as any,
         },
       },
       select: { total: true },
