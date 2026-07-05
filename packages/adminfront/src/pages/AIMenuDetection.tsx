@@ -136,6 +136,57 @@ export default function AIMenuDetection() {
     setCategories(newCats);
   };
 
+  const updateOption = (cIndex: number, iIndex: number, oIndex: number, field: keyof ParsedOption, val: any) => {
+    const newCats = [...categories!];
+    const opts = newCats[cIndex].items[iIndex].options;
+    if (opts && opts[oIndex]) {
+      opts[oIndex] = { ...opts[oIndex], [field]: val };
+    }
+    setCategories(newCats);
+  };
+
+  const updateOptionValue = (cIndex: number, iIndex: number, oIndex: number, vIndex: number, field: keyof ParsedOptionValue, val: any) => {
+    const newCats = [...categories!];
+    const opts = newCats[cIndex].items[iIndex].options;
+    if (opts && opts[oIndex] && opts[oIndex].values[vIndex]) {
+      opts[oIndex].values[vIndex] = { ...opts[oIndex].values[vIndex], [field]: val };
+    }
+    setCategories(newCats);
+  };
+
+  const addOption = (cIndex: number, iIndex: number) => {
+    const newCats = [...categories!];
+    const item = newCats[cIndex].items[iIndex];
+    if (!item.options) item.options = [];
+    item.options.push({ name: '新選項', isRequired: false, maxSelect: 1, values: [{ name: '選項值', priceModifier: 0 }] });
+    setCategories(newCats);
+  };
+
+  const removeOption = (cIndex: number, iIndex: number, oIndex: number) => {
+    const newCats = [...categories!];
+    const opts = newCats[cIndex].items[iIndex].options;
+    if (opts) opts.splice(oIndex, 1);
+    setCategories(newCats);
+  };
+
+  const addOptionValue = (cIndex: number, iIndex: number, oIndex: number) => {
+    const newCats = [...categories!];
+    const opts = newCats[cIndex].items[iIndex].options;
+    if (opts && opts[oIndex]) {
+      opts[oIndex].values.push({ name: '選項值', priceModifier: 0 });
+    }
+    setCategories(newCats);
+  };
+
+  const removeOptionValue = (cIndex: number, iIndex: number, oIndex: number, vIndex: number) => {
+    const newCats = [...categories!];
+    const opts = newCats[cIndex].items[iIndex].options;
+    if (opts && opts[oIndex]) {
+      opts[oIndex].values.splice(vIndex, 1);
+    }
+    setCategories(newCats);
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
@@ -232,22 +283,36 @@ export default function AIMenuDetection() {
                             onChange={(e) => updateItem(cIndex, iIndex, 'name', e.target.value)}
                             className="w-full border-gray-300 rounded px-2 py-1"
                           />
-                          {item.options && item.options.length > 0 && (
-                            <div className="mt-2 text-xs text-gray-500 bg-white border border-gray-200 rounded p-1.5 shadow-sm">
-                              <span className="font-semibold text-gray-600 block mb-1">偵測到選項：</span>
-                              {item.options.map((opt, oIdx) => (
-                                <div key={oIdx} className="mb-1 last:mb-0">
-                                  <span className="font-medium text-indigo-600">{opt.name}</span>
-                                  {opt.isRequired ? <span className="text-red-500 ml-1 text-[10px]">(必選)</span> : ''}
-                                  {(opt.maxSelect && opt.maxSelect > 1) ? <span className="text-gray-500 ml-1 text-[10px]">(可複選至多 {opt.maxSelect} 項)</span> : ''}
-                                  <span className="mx-1">:</span>
-                                  <span className="text-gray-600">
-                                    {opt.values.map(v => v.priceModifier ? `${v.name}(+$${v.priceModifier})` : v.name).join(', ')}
-                                  </span>
+                          <div className="mt-2 space-y-2">
+                            {item.options?.map((opt, oIdx) => (
+                              <div key={oIdx} className="bg-white border border-gray-200 rounded p-2 shadow-sm relative group">
+                                <button onClick={() => removeOption(cIndex, iIndex, oIdx)} className="absolute top-1 right-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                                <div className="flex flex-wrap items-center gap-2 mb-2 pr-4">
+                                  <input type="text" value={opt.name} onChange={e => updateOption(cIndex, iIndex, oIdx, 'name', e.target.value)} className="w-24 text-xs border-gray-300 rounded px-1.5 py-1 font-medium text-indigo-600" placeholder="選項名稱" />
+                                  <label className="flex items-center text-[10px] text-gray-500 gap-1"><input type="checkbox" checked={opt.isRequired} onChange={e => updateOption(cIndex, iIndex, oIdx, 'isRequired', e.target.checked)} className="rounded text-indigo-600 w-3 h-3" />必選</label>
+                                  <label className="flex items-center text-[10px] text-gray-500 gap-1">至多選<input type="number" min={1} max={99} value={opt.maxSelect || 1} onChange={e => updateOption(cIndex, iIndex, oIdx, 'maxSelect', Number(e.target.value))} className="w-10 border-gray-300 rounded px-1 py-0.5 text-center" />項</label>
                                 </div>
-                              ))}
-                            </div>
-                          )}
+                                <div className="space-y-1">
+                                  {opt.values.map((v, vIdx) => (
+                                    <div key={vIdx} className="flex items-center gap-1">
+                                      <input type="text" value={v.name} onChange={e => updateOptionValue(cIndex, iIndex, oIdx, vIdx, 'name', e.target.value)} className="flex-1 text-xs border-gray-300 rounded px-1.5 py-1" placeholder="選項值" />
+                                      <span className="text-[10px] text-gray-400">+$</span>
+                                      <input type="number" value={v.priceModifier} onChange={e => updateOptionValue(cIndex, iIndex, oIdx, vIdx, 'priceModifier', Number(e.target.value))} className="w-14 text-xs border-gray-300 rounded px-1.5 py-1" placeholder="0" />
+                                      <button onClick={() => removeOptionValue(cIndex, iIndex, oIdx, vIdx)} className="text-gray-400 hover:text-red-500 px-1">&times;</button>
+                                    </div>
+                                  ))}
+                                </div>
+                                <button onClick={() => addOptionValue(cIndex, iIndex, oIdx)} className="text-[10px] text-indigo-600 hover:text-indigo-800 mt-2 flex items-center gap-0.5">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>新增選項值
+                                </button>
+                              </div>
+                            ))}
+                            <button onClick={() => addOption(cIndex, iIndex)} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1 py-1">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>新增選項
+                            </button>
+                          </div>
                         </td>
                         <td className="p-3 align-top">
                           <input
