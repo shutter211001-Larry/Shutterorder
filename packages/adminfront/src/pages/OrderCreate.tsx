@@ -68,6 +68,26 @@ export default function OrderCreate() {
   
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  };
+
+  const [summary, setSummary] = useState<{
+    subtotal: number;
+    tax: number;
+    deliveryFee: number;
+    couponDiscount: number;
+    total: number;
+    freeDelivery: boolean;
+    appliedPromo: { name: string; code?: string } | null;
+    manualCouponError: string | null;
+  } | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -86,6 +106,48 @@ export default function OrderCreate() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      setSummary(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCalculating(true);
+      try {
+        const orderItems = cart.map((item) => ({
+          menuItemId: item.menuItemId,
+          quantity: item.quantity,
+          options: item.options.map((o) => ({
+            menuOptionValueId: o.menuOptionValueId,
+          })),
+        }));
+
+        const body: any = {
+          items: orderItems,
+          orderType: orderType,
+          locationId: selectedLocationId || undefined,
+          couponCode: couponCode || undefined,
+        };
+
+        if (orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') {
+          body.address = address;
+        }
+
+        const res = await api.post<{ data: any }>('/orders/summary', body);
+        if (res.data) {
+          setSummary(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to calculate summary', err);
+      } finally {
+        setIsCalculating(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [cart, orderType, selectedLocationId, couponCode, address.line1]);
 
   const openItemModal = (item: MenuItem) => {
     if (item.options && item.options.length > 0) {
@@ -150,8 +212,12 @@ export default function OrderCreate() {
     setCart(cart.filter((_, i) => i !== index));
   };
 
-  const calculateSubtotal = () => cart.reduce((sum, item) => sum + item.subtotal, 0);
-  const calculateTotal = () => Math.max(0, calculateSubtotal() - manualDiscount);
+  const subtotal = summary?.subtotal ?? cart.reduce((sum, item) => sum + item.subtotal, 0);
+  const tax = summary?.tax ?? 0;
+  const deliveryFee = summary?.deliveryFee ?? 0;
+  const autoCouponDiscount = summary?.couponDiscount ?? 0;
+  const apiTotal = summary?.total ?? subtotal;
+  const total = Math.max(0, apiTotal - manualDiscount);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,6 +264,16 @@ export default function OrderCreate() {
 
   if (loading) return <div className="p-8 text-center text-gray-500">{t('orderCreate.loading')}</div>;
 
+  const groupedItems = menuItems.reduce((acc, item) => {
+    const catId = item.category?.id || 'uncategorized';
+    const catName = item.category?.name || t('orderCreate.uncategorized') || '未分類';
+    if (!acc[catId]) {
+      acc[catId] = { name: catName, items: [] };
+    }
+    acc[catId].items.push(item);
+    return acc;
+  }, {} as Record<string, { name: string, items: MenuItem[] }>);
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -211,33 +287,55 @@ export default function OrderCreate() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">{t('orderCreate.selectProduct')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {menuItems.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => openItemModal(item)}
-                  className="flex items-center gap-4 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors text-left group"
-                >
-                  {item.image ? (
-                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-md object-cover" />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-300">
-                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div className="space-y-4">
+              {Object.entries(groupedItems).map(([categoryId, group]) => {
+                const isExpanded = expandedCategories[categoryId] !== false; // Default true (expanded)
+                return (
+                  <div key={categoryId} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(categoryId)}
+                      className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+                    >
+                      <span className="font-semibold text-gray-800">{group.name}</span>
+                      <svg className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900 group-hover:text-primary-600 transition-colors">{item.name}</div>
-                    <div className="text-sm text-gray-500">${item.price.toFixed(2)}</div>
+                    </button>
+                    {isExpanded && (
+                      <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {group.items.map(item => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => openItemModal(item)}
+                            className="flex items-center gap-4 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors text-left group bg-white shadow-sm"
+                          >
+                            {item.image ? (
+                              <img src={item.image} alt={item.name} className="w-16 h-16 rounded-md object-cover" />
+                            ) : (
+                              <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-300">
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-900 group-hover:text-primary-600 transition-colors">{item.name}</div>
+                              <div className="text-sm text-gray-500">${item.price.toFixed(2)}</div>
+                            </div>
+                            <div className="text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -455,9 +553,27 @@ export default function OrderCreate() {
 
               <div className="border-t border-gray-100 pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">小計</span>
-                  <span>${calculateSubtotal().toFixed(2)}</span>
+                  <span className="text-gray-500">{t('orderCreate.subtotal') || '小計'}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
+                {tax > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">{t('orderCreate.tax') || '稅金'}</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                )}
+                {(orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">{t('orderCreate.deliveryFee') || '運費'}</span>
+                    <span>${deliveryFee.toFixed(2)}</span>
+                  </div>
+                )}
+                {autoCouponDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>{t('orderCreate.discount') || '優惠折扣'} {summary?.appliedPromo?.name && `(${summary.appliedPromo.name})`}</span>
+                    <span>-${autoCouponDiscount.toFixed(2)}</span>
+                  </div>
+                )}
                 
                 <div className="space-y-3 pt-3 border-t border-gray-50">
                   <div>
@@ -469,6 +585,9 @@ export default function OrderCreate() {
                       className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primary-500 outline-none"
                       placeholder="輸入優惠碼"
                     />
+                    {summary?.manualCouponError && (
+                      <p className="text-xs text-red-500 mt-1">{summary.manualCouponError}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualDiscount') || '手動折扣金額'}</label>
@@ -488,16 +607,16 @@ export default function OrderCreate() {
 
                 <div className="flex justify-between text-lg font-bold pt-3 mt-3 border-t border-gray-200">
                   <span>{t('orderCreate.total')}</span>
-                  <span className="text-primary-600">${calculateTotal().toFixed(2)}</span>
+                  <span className="text-primary-600">${total.toFixed(2)}</span>
                 </div>
               </div>
 
               <button
-                disabled={submitting || cart.length === 0}
+                disabled={submitting || cart.length === 0 || isCalculating}
                 onClick={handleSubmit}
                 className="w-full mt-6 bg-primary-600 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors disabled:opacity-50 shadow-lg shadow-primary-200"
               >
-                {submitting ? t('orderCreate.submitting') : t('orderCreate.createOrder')}
+                {submitting || isCalculating ? (t('orderCreate.submitting') || '處理中...') : t('orderCreate.createOrder')}
               </button>
             </div>
           </div>
