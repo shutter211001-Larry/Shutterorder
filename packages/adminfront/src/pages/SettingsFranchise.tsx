@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { api } from '../lib/api.js';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 interface FranchiseStore {
   id: string;
@@ -232,28 +234,28 @@ export default function SettingsFranchise() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Header breadcrumb */}
-      <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
-        <div>
-          <Link to="/settings" className="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5 mb-1">
-            <ArrowLeft className="w-4 h-4" /> {t('settingsFranchise.returnToSystemSettings')}
-          </Link>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+    <div className="pb-12">
+      <PageHeader
+        title={
+          <div className="flex items-center gap-2">
             {t('settingsFranchise.franchiseManagement')}
             <span className="bg-primary-50 text-primary-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-primary-100">HQ Control</span>
-          </h1>
-        </div>
-        
-        {activeTab === 'stores' && !isEditing && (
-          <button
-            onClick={startCreate}
-            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-xl shadow-lg shadow-primary-200 transition-all active:scale-95 cursor-pointer"
-          >
-            {t('settingsFranchise.addNewFranchiseBranch')}
-          </button>
-        )}
-      </div>
+          </div>
+        }
+        backUrl="/settings"
+        backText={t('settingsFranchise.returnToSystemSettings')}
+        action={
+          activeTab === 'stores' && !isEditing ? (
+            <button
+              onClick={startCreate}
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-lg shadow-sm shadow-primary-200 transition-all active:scale-95 cursor-pointer"
+            >
+              {t('settingsFranchise.addNewFranchiseBranch')}
+            </button>
+          ) : undefined
+        }
+      />
+      <PageContent>
 
       {success && (
         <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs font-bold rounded-xl animate-fade-in flex items-center gap-2">
@@ -612,6 +614,7 @@ export default function SettingsFranchise() {
           </div>
         </div>
       )}
+      </PageContent>
     </div>
   );
 }

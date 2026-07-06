@@ -1,6 +1,8 @@
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 export default function StaffInvite() {
   const { t } = useTranslation();
@@ -44,8 +46,10 @@ export default function StaffInvite() {
 
   if (success) {
     return (
-      <div className="max-w-lg mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+      <div className="max-w-lg mx-auto pb-12">
+        <PageHeader title={t('staff.inviteTitle')} backUrl="/staff" backText={t('staff.back')} />
+        <PageContent>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl text-green-600">✓</span>
           </div>
@@ -66,20 +70,17 @@ export default function StaffInvite() {
             </Link>
           </div>
         </div>
+        </PageContent>
       </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <Link to="/staff" className="text-gray-400 hover:text-gray-600">
-          {t('staff.back')}
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900">{t('staff.inviteTitle')}</h1>
-      </div>
+    <div className="max-w-lg mx-auto pb-12">
+      <PageHeader title={t('staff.inviteTitle')} backUrl="/staff" backText={t('staff.back')} />
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+      <PageContent>
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
         {error && (
           <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg">{error}</div>
         )}
@@ -92,7 +93,7 @@ export default function StaffInvite() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
             placeholder="example@gmail.com"
           />
         </div>
@@ -103,7 +104,7 @@ export default function StaffInvite() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           />
         </div>
 
@@ -112,7 +113,7 @@ export default function StaffInvite() {
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           >
             <option value="STAFF">{t('staff.roles.staff')}</option>
             <option value="MANAGER">{t('staff.roles.manager')}</option>
@@ -128,6 +129,7 @@ export default function StaffInvite() {
           {loading ? t('staff.actions.sending') : t('staff.actions.sendInvite')}
         </button>
       </form>
+      </PageContent>
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { ToggleSwitch } from '../components/ui/ToggleRow';
 import { useTranslation } from 'react-i18next';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 interface Staff {
   id: string;
@@ -154,15 +156,16 @@ export default function StaffEdit() {
   }
 
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <Link to="/staff" className="text-gray-400 hover:text-gray-600">
-          {t('staff.back')}
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900">{t('staff.editTitle')}</h1>
-      </div>
+  return (
+    <div className="max-w-lg mx-auto pb-12">
+      <PageHeader
+        title={t('staff.editTitle')}
+        backUrl="/staff"
+        backText={t('staff.back')}
+      />
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+      <PageContent>
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
         {error && (
           <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg">{error}</div>
         )}
@@ -173,7 +176,7 @@ export default function StaffEdit() {
             type="email"
             value={staff.email}
             disabled
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-500 shadow-sm transition-all duration-200"
           />
         </div>
 
@@ -184,7 +187,7 @@ export default function StaffEdit() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           />
         </div>
 
@@ -194,7 +197,7 @@ export default function StaffEdit() {
             value={role}
             onChange={(e) => setRole(e.target.value)}
             disabled={user?.id === staff.id}
-            className={`w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none ${user?.id === staff.id ? 'opacity-70 cursor-not-allowed bg-gray-50' : ''}`}
+            className={`w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200 ${user?.id === staff.id ? 'opacity-70 cursor-not-allowed bg-gray-100' : ''}`}
           >
             <option value="STAFF">{t('staff.roles.staff')}</option>
             <option value="MANAGER">{t('staff.roles.manager')}</option>
@@ -208,7 +211,7 @@ export default function StaffEdit() {
             type="text"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           />
         </div>
 
@@ -217,7 +220,7 @@ export default function StaffEdit() {
           <select
             value={locationId}
             onChange={(e) => setLocationId(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           >
             <option value="">{t('staff.none')}</option>
             {locations.map((loc) => (
@@ -231,7 +234,7 @@ export default function StaffEdit() {
           <select
             value={salaryType}
             onChange={(e) => setSalaryType(e.target.value as 'HOURLY' | 'MONTHLY')}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           >
             <option value="HOURLY">{t('staffEdit.hourly') || 'Hourly (時薪)'}</option>
             <option value="MONTHLY">{t('staffEdit.monthly') || 'Monthly (月薪)'}</option>
@@ -247,7 +250,7 @@ export default function StaffEdit() {
               step="1"
               value={hourlyWage}
               onChange={(e) => setHourlyWage(Number(e.target.value))}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
             />
           </div>
         ) : (
@@ -259,7 +262,7 @@ export default function StaffEdit() {
               step="1"
               value={monthlyWage}
               onChange={(e) => setMonthlyWage(Number(e.target.value))}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
             />
           </div>
         )}
@@ -301,6 +304,7 @@ export default function StaffEdit() {
           </button>
         </div>
       )}
+      </PageContent>
     </div>
   );
 }

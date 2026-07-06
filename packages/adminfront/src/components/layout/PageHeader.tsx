@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 interface PageHeaderProps {
-  title: string;
+  title: React.ReactNode;
   subtitle?: string;
   backUrl?: string;
   backText?: string;

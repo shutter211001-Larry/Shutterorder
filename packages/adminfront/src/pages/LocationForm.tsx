@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import { OpenLocationCode } from 'open-location-code';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 interface OperatingHour {
   dayOfWeek: number;
@@ -267,18 +269,14 @@ export default function LocationForm() {
   if (loading) return <p className="text-gray-500">Loading...</p>;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          {isEdit ? t('locationForm.editStore') : t('locationForm.addStore')}
-        </h2>
-        <button
-          onClick={() => navigate('/locations')}
-          className="text-gray-500 hover:text-gray-700 text-sm"
-        >
-          {t('locationForm.backToStoreList')}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader
+        title={isEdit ? t('locationForm.editStore') : t('locationForm.addStore')}
+        backUrl="/locations"
+        backText={t('locationForm.backToStoreList')}
+      />
+
+      <PageContent>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
@@ -288,7 +286,7 @@ export default function LocationForm() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Info */}
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">{t('locationForm.basicInformation')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -298,7 +296,7 @@ export default function LocationForm() {
                 value={form.name}
                 onChange={(e) => { updateField('name', e.target.value); autoSlug(e.target.value); }}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -309,7 +307,7 @@ export default function LocationForm() {
                 onChange={(e) => updateField('slug', e.target.value)}
                 required
                 disabled={isEdit}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100"
               />
             </div>
             <div className="md:col-span-2">
@@ -318,7 +316,7 @@ export default function LocationForm() {
                 value={form.description}
                 onChange={(e) => updateField('description', e.target.value)}
                 rows={2}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -327,7 +325,7 @@ export default function LocationForm() {
                 type="text"
                 value={form.phone}
                 onChange={(e) => updateField('phone', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -336,14 +334,14 @@ export default function LocationForm() {
                 type="email"
                 value={form.email}
                 onChange={(e) => updateField('email', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
         </section>
 
         {/* Address */}
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">{t('locationForm.addressInformation')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
@@ -353,7 +351,7 @@ export default function LocationForm() {
                 value={form.address}
                 onChange={(e) => updateField('address', e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -363,7 +361,7 @@ export default function LocationForm() {
                 value={form.city}
                 onChange={(e) => updateField('city', e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -372,7 +370,7 @@ export default function LocationForm() {
                 type="text"
                 value={form.state}
                 onChange={(e) => updateField('state', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -382,7 +380,7 @@ export default function LocationForm() {
                 value={form.postalCode}
                 onChange={(e) => updateField('postalCode', e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -391,7 +389,7 @@ export default function LocationForm() {
                 type="text"
                 value={form.country}
                 onChange={(e) => updateField('country', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div className="md:col-span-2">
@@ -401,7 +399,7 @@ export default function LocationForm() {
                 value={mapInput}
                 onChange={handleMapInputChange}
                 placeholder={t('locationForm.googleMapsInputPlaceholder')}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
               {!!(form.lat || form.lng) && (
                  <p className="text-xs text-gray-500 mt-1">{t('locationForm.parsedLatitude')} {form.lat}{t('locationForm.parsedLongitude')} {form.lng}</p>
@@ -411,7 +409,7 @@ export default function LocationForm() {
         </section>
 
         {/* Service Settings */}
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-1">{t('locationForm.storeServiceSettings')}</h3>
           <p className="text-sm text-gray-500 mb-4">{t('locationForm.storeServiceSettingsDescription')}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -450,7 +448,7 @@ export default function LocationForm() {
                 onChange={(e) => updateField('minOrderDelivery', e.target.value)}
                 min={0}
                 step={0.01}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -460,7 +458,7 @@ export default function LocationForm() {
                 value={form.deliveryLeadTime}
                 onChange={(e) => updateField('deliveryLeadTime', e.target.value)}
                 min={0}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div>
@@ -470,14 +468,14 @@ export default function LocationForm() {
                 value={form.pickupLeadTime}
                 onChange={(e) => updateField('pickupLeadTime', e.target.value)}
                 min={0}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
         </section>
 
         {/* Payroll Settings */}
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-1">{t('locationForm.payrollSettings') || '薪資設定 (Payroll)'}</h3>
           <p className="text-sm text-gray-500 mb-4">{t('locationForm.payrollSettingsDescription') || '設定此門市的國定假日計薪標準。'}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -489,7 +487,7 @@ export default function LocationForm() {
                 onChange={(e) => updateField('hourlyNationalHolidayMultiplier', parseFloat(e.target.value) || 1)}
                 min={1}
                 step={0.5}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div className="flex items-center pt-6">
@@ -507,7 +505,7 @@ export default function LocationForm() {
         </section>
 
         {/* Operating Hours */}
-        <section className="bg-white rounded-xl shadow-sm border p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-bold text-gray-900">{t('locationForm.businessHoursSettings')}</h3>
@@ -634,7 +632,7 @@ export default function LocationForm() {
         </section>
 
         {/* Payroll Configuration */}
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
             <span className="text-xl">💰</span>
             薪資與排班設定 (Payroll & Roster Settings)
@@ -757,7 +755,7 @@ export default function LocationForm() {
           </div>
         </section>
         {/* Delivery Zones */}
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-gray-900">{t('locationForm.deliveryArea')}</h3>
             <button
@@ -877,8 +875,9 @@ export default function LocationForm() {
           >
             {saving ? t('locationForm.saving') : isEdit ? t('locationForm.updateStoreInfo') : t('locationForm.createStore')}
           </button>
-        </div>
+        </section>
       </form>
+      </PageContent>
     </div>
   );
 }

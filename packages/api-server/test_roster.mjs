@@ -69,7 +69,8 @@ async function runTest() {
       hourlyWage: 200,
       maxHoursPerWeek: 40,
       maxDaysPerWeek: 7,
-      availabilities: { create: availabilitiesData }
+      availabilities: { create: availabilitiesData },
+      jobRoles: { connect: [{ id: roleChef.id }] }
     }
   });
 
@@ -85,7 +86,8 @@ async function runTest() {
       hourlyWage: 180,
       maxHoursPerWeek: 168,
       maxDaysPerWeek: 3,
-      availabilities: { create: availabilitiesData }
+      availabilities: { create: availabilitiesData },
+      jobRoles: { connect: [{ id: roleChef.id }] }
     }
   });
 
@@ -102,6 +104,7 @@ async function runTest() {
       maxHoursPerWeek: 40,
       maxDaysPerWeek: 5,
       availabilities: { create: availabilitiesData },
+      jobRoles: { connect: [{ id: roleChef.id }] },
       timeOffs: {
         create: [
           { date: new Date('2026-12-23T00:00:00.000Z'), reason: '聖誕節請假' }
@@ -132,9 +135,13 @@ async function runTest() {
   
   // Now actually test the auto-scheduler!
   console.log("=== 執行自動排班演算法 (COST_OPTIMIZED) ===");
-  const res = await fetch('http://localhost:3000/shutter-erp/api/roster/auto-schedule', {
+  const { default: jwt } = await import('jsonwebtoken');
+  const { default: dotenv } = await import('dotenv');
+  dotenv.config();
+  const token = jwt.sign({ id: staffA.id, role: 'SUPER_ADMIN' }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+  const res = await fetch('http://localhost:3000/api/roster/auto-schedule', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify({
       locationId: location.id,
       startDate: '2026-12-21',

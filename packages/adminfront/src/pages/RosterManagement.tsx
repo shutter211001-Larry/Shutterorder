@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import StaffRosterSettingsModal from '../components/StaffRosterSettingsModal.js';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 interface Shift {
   id: string;
@@ -157,47 +159,53 @@ export default function RosterManagement() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <span className="text-3xl">📅</span>
-          排班管理與自動排班 (Roster Management)
-        </h1>
-        
-        <div className="flex gap-2">
-          <button
-            onClick={() => setIsSettingsModalOpen(true)}
-            disabled={!selectedLocation}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-all active:scale-95"
-          >
-            ⚙️ 員工排班限制設定
-          </button>
-          <button
-            onClick={() => handleAutoSchedule('COST_OPTIMIZED')}
-            disabled={generating || !selectedLocation}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium shadow hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 transition-all active:scale-95"
-          >
-            {generating ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : '💰'}
-            支出優化排班
-          </button>
-          
-          <button
-            onClick={() => handleAutoSchedule('FAIR')}
-            disabled={generating || !selectedLocation}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium shadow hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 transition-all active:scale-95"
-          >
-            {generating ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : '⚖️'}
-            公平時數排班
-          </button>
-        </div>
-      </div>
+    <div className="pb-12">
+      <PageHeader
+        title={
+          <div className="flex items-center gap-2">
+            <span className="text-3xl">📅</span>
+            排班管理與自動排班 (Roster Management)
+          </div>
+        }
+        action={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsSettingsModalOpen(true)}
+              disabled={!selectedLocation}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-all active:scale-95"
+            >
+              ⚙️ 員工排班限制設定
+            </button>
+            <button
+              onClick={() => handleAutoSchedule('COST_OPTIMIZED')}
+              disabled={generating || !selectedLocation}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium shadow hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 transition-all active:scale-95"
+            >
+              {generating ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : '💰'}
+              支出優化排班
+            </button>
+            
+            <button
+              onClick={() => handleAutoSchedule('FAIR')}
+              disabled={generating || !selectedLocation}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium shadow hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 transition-all active:scale-95"
+            >
+              {generating ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : '⚖️'}
+              公平時數排班
+            </button>
+          </div>
+        }
+      />
+
+      <PageContent>
+        <div className="space-y-6">
 
       {/* Controls */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-8 flex flex-wrap gap-4 items-end border border-gray-100">
+      <div className="bg-white rounded-lg shadow-sm p-6 flex flex-wrap gap-4 items-end border border-gray-200">
         {user?.role === 'SUPER_ADMIN' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">門市 (Location)</label>
@@ -242,10 +250,10 @@ export default function RosterManagement() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Requirements Column */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
               <h2 className="font-semibold text-gray-800">人力需求配置</h2>
               <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">{requirements.length} 筆</span>
@@ -277,7 +285,7 @@ export default function RosterManagement() {
 
         {/* Shifts Column */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
               <h2 className="font-semibold text-gray-800">已排定班表</h2>
               <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-medium">{shifts.length} 個班次</span>
@@ -346,6 +354,9 @@ export default function RosterManagement() {
           </div>
         </div>
       </div>
+
+      </div>
+      </PageContent>
 
       <StaffRosterSettingsModal
         isOpen={isSettingsModalOpen}

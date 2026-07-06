@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 interface Staff {
   id: string;
@@ -85,16 +87,19 @@ export default function StaffList() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('staff.title')}</h1>
-        <Link
-          to="/staff/invite"
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-        >
-          {t('staff.actions.invite')}
-        </Link>
-      </div>
+    <div className="pb-12">
+      <PageHeader
+        title={t('staff.title')}
+        action={
+          <Link
+            to="/staff/invite"
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm"
+          >
+            {t('staff.actions.invite')}
+          </Link>
+        }
+      />
+      <PageContent>
 
       {/* Filters */}
       <div className="flex gap-3 mb-4">
@@ -103,13 +108,13 @@ export default function StaffList() {
           placeholder={t('staff.searchPlaceholder')}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none w-64"
+          className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none w-64 shadow-sm transition-all duration-200"
           aria-label={t('staff.searchPlaceholder')}
         />
         <select
           value={roleFilter}
           onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+          className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
           aria-label={t('staff.roleFilter')}
         >
           <option value="">{t('staff.roleFilter')}</option>
@@ -133,7 +138,7 @@ export default function StaffList() {
 
       {!loading && staff.length > 0 && (
         <>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
@@ -211,6 +216,7 @@ export default function StaffList() {
           )}
         </>
       )}
+      </PageContent>
     </div>
   );
 }
