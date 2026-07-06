@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from '../i18n/index.js';
 import { useAuth } from '../context/AuthContext.js';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 export default function SettingsGeneral() {
   const { t } = useTranslation();
@@ -126,22 +128,27 @@ export default function SettingsGeneral() {
   }
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsGeneral.loading')}</div>;
+
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? t('settingsGeneral.saving') : t('settingsGeneral.saveChanges')}
+    </button>
+  );
+
   return (
     <div className="pb-12">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">{t('settingsGeneral.backToSettings')}</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{t('settingsGeneral.generalSettings')}</h1>
-        </div>
-        <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
-          {saving ? t('settingsGeneral.saving') : t('settingsGeneral.saveChanges')}
-        </button>
-      </div>
+      <PageHeader 
+        title={t('settingsGeneral.generalSettings')}
+        subtitle={t('settingsGeneral.backToSettings')}
+        backUrl="/settings"
+        action={actionButton}
+      />
 
-      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
-      {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
+      <PageContent>
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="space-y-6">
+        <div className="space-y-6">
         {/* Personal Preference */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('settingsGeneral.personalizationSettings')}</h2>
@@ -285,16 +292,7 @@ export default function SettingsGeneral() {
         </div>
 
         </div>
-
-        <div className="flex justify-end pt-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-10 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50"
-          >
-            {saving ? t('settingsGeneral.saving') : t('settingsGeneral.saveAllChanges')}
-          </button>
-      </div>
+      </PageContent>
     </div>
   );
 }

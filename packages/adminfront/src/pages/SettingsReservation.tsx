@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 export default function SettingsReservation() {
   const { t } = useTranslation();
@@ -63,22 +65,26 @@ export default function SettingsReservation() {
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsReservation.loading')}</div>;
 
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? t('settingsReservation.saving') : t('settingsReservation.saveChanges')}
+    </button>
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">{t('settingsReservation.backToSettings')}</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{t('settingsReservation.reservationSettings')}</h1>
-        </div>
-        <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
-          {saving ? t('settingsReservation.saving') : t('settingsReservation.saveChanges')}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader 
+        title={t('settingsReservation.reservationSettings')}
+        subtitle={t('settingsReservation.backToSettings')}
+        backUrl="/settings"
+        action={actionButton}
+      />
 
-      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
-      {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
+      <PageContent>
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+        <div className="space-y-4">
         <ToggleRow
           title={t('settingsReservation.enableOnlineReservation')}
           checked={enabled}
@@ -118,17 +124,8 @@ export default function SettingsReservation() {
             className="bg-transparent border-none p-0 mt-4"
           />
         </div>
-      </div>
-
-      <div className="flex justify-end pt-4">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-10 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50"
-        >
-          {saving ? t('settingsReservation.saving') : t('settingsReservation.saveAllChanges')}
-        </button>
-      </div>
+        </div>
+      </PageContent>
     </div>
   );
 }

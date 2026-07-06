@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow.js';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 export default function SettingsOrder() {
   const { t } = useTranslation();
@@ -169,24 +171,27 @@ export default function SettingsOrder() {
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsOrder.loading')}</div>;
 
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? t('settingsOrder.savingInProgress') : t('settingsOrder.saveChanges')}
+    </button>
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">{t('settingsOrder.backToSettings')}</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{t('settingsOrder.onlineOrderingGeneralSettings')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('settingsOrder.onlineOrderingSettingsDesc')}</p>
-        </div>
-        <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
-          {saving ? t('settingsOrder.savingInProgress') : t('settingsOrder.saveChanges')}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader 
+        title={t('settingsOrder.onlineOrderingGeneralSettings')}
+        subtitle={t('settingsOrder.onlineOrderingSettingsDesc')}
+        backUrl="/settings"
+        action={actionButton}
+      />
 
-      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
-      {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
+      <PageContent>
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-        <div className="space-y-4">
+        <div className="space-y-6">
+          <div className="space-y-4">
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
             <span className="text-sm font-medium text-gray-700">{t('settingsOrder.enableSiteWideOnlineOrdering')}</span>
@@ -450,6 +455,201 @@ export default function SettingsOrder() {
               onChange={(e) => setBoardLeadTime(parseInt(e.target.value) || 0)} 
               className="w-full max-w-xs px-3 py-2 border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" 
             />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Customer ID (客戶代號)</label>
+                    <input type="text" value={tcatCustomerId} onChange={e => setTcatCustomerId(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Customer ID" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">API Key (客戶金鑰)</label>
+                    <input type="password" value={tcatApiKey} onChange={e => setTcatApiKey(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter API Key" />
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <ToggleRow
+                title="台灣宅配通 (Pelican)"
+                description="開啟此選項，出貨選單將顯示台灣宅配通。"
+                checked={enablePelican}
+                onChange={setEnablePelican}
+                className="bg-transparent border-none p-0 mb-4"
+              />
+              {enablePelican && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Merchant ID (特約商代號)</label>
+                    <input type="text" value={pelicanMerchantId} onChange={e => setPelicanMerchantId(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Merchant ID" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">API Key (介接金鑰)</label>
+                    <input type="password" value={pelicanApiKey} onChange={e => setPelicanApiKey(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter API Key" />
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <ToggleRow
+                title="綠界科技 ECPay 店到店"
+                description="開啟此選項，出貨選單將顯示綠界店到店交貨便。"
+                checked={enableECPay}
+                onChange={setEnableECPay}
+                className="bg-transparent border-none p-0 mb-4"
+              />
+              {enableECPay && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Merchant ID (特店編號)</label>
+                    <input type="text" value={ecpayMerchantId} onChange={e => setEcpayMerchantId(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Merchant ID" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Hash Key (介接 HashKey)</label>
+                    <input type="password" value={ecpayHashKey} onChange={e => setEcpayHashKey(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Hash Key" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Hash IV (介接 HashIV)</label>
+                    <input type="password" value={ecpayHashIv} onChange={e => setEcpayHashIv(e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" placeholder="Enter Hash IV" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-gray-100 space-y-4">
+          <ToggleRow
+            title={t('settingsOrder.allowGuestCheckout')}
+            description={t('settingsOrder.guestCheckoutDesc')}
+            checked={allowGuestCheckout}
+            onChange={setAllowGuestCheckout}
+            className="bg-blue-50 border-blue-100"
+          />
+
+          <ToggleRow
+            title={t('settingsOrder.enableCounterDashboard')}
+            description={t('settingsOrder.counterDashboardDesc')}
+            checked={enableCounterDisplay}
+            onChange={setEnableCounterDisplay}
+            className="bg-purple-50 border-purple-100"
+          />
+
+          <ToggleRow
+            title={t('settingsOrder.allowScheduledOrders')}
+            checked={enableFutureOrdering}
+            onChange={setEnableFutureOrdering}
+            className="bg-transparent border-none p-2"
+          />
+
+          {enableFutureOrdering && (
+            <div className="ml-7 p-4 bg-blue-50/50 rounded-lg border border-blue-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-blue-800 mb-1">{t('settingsOrder.bufferAfterOpening')}</label>
+                <input 
+                  type="number" 
+                  value={preOpeningBuffer} 
+                  onChange={(e) => setPreOpeningBuffer(parseInt(e.target.value) || 0)}
+                  className="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                  placeholder="30"
+                />
+                <p className="text-[10px] text-blue-600 mt-1">{t('settingsOrder.bufferAfterOpeningDesc')}</p>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-blue-800 mb-1">{t('settingsOrder.bufferBeforeClosing')}</label>
+                <input 
+                  type="number" 
+                  value={postClosingBuffer} 
+                  onChange={(e) => setPostClosingBuffer(parseInt(e.target.value) || 0)}
+                  className="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                  placeholder="30"
+                />
+                <p className="text-[10px] text-blue-600 mt-1">{t('settingsOrder.bufferBeforeClosingDesc')}</p>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-blue-800 mb-1">{t('settingsOrder.scheduledTimeInterval')}</label>
+                <select 
+                  value={timeSlotInterval} 
+                  onChange={(e) => setTimeSlotInterval(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value={5}>{t('settingsOrder.fiveMinutes')}</option>
+                  <option value={10}>{t('settingsOrder.tenMinutes')}</option>
+                  <option value={15}>{t('settingsOrder.fifteenMinutes')}</option>
+                  <option value={20}>{t('settingsOrder.twentyMinutes')}</option>
+                  <option value={30}>{t('settingsOrder.thirtyMinutes')}</option>
+                  <option value={60}>{t('settingsOrder.sixtyMinutes')}</option>
+                </select>
+                <p className="text-[10px] text-blue-600 mt-1">{t('settingsOrder.timeIntervalSelection')}</p>
+              </div>
+            </div>
+          )}
+
+          <ToggleRow
+            title={t('settingsOrder.enableTipping')}
+            checked={enableTipping}
+            onChange={setEnableTipping}
+            className="bg-transparent border-none p-2"
+          />
+
+          <div className={!enableTipping ? 'opacity-50 pointer-events-none' : ''}>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsOrder.tipPercentageOptions')}</label>
+            <input type="text" value={tipOptionsStr} onChange={(e) => setTipOptionsStr(e.target.value)} className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" placeholder="10,15,20,25" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsOrder.taxRate')}</label>
+            <input type="number" min={0} max={100} step={0.01} value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" />
+          </div>
+
+          <div className="p-5 bg-orange-50/30 rounded-xl border border-orange-100/50 space-y-4">
+            <h3 className="text-sm font-bold text-orange-950 flex items-center gap-1.5">
+              <span>{t('settingsOrder.loyaltyProgramSettings')}</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-orange-900 mb-1">{t('settingsOrder.pointsRewardRate')}</label>
+                <input 
+                  type="number" 
+                  min={0} 
+                  step={0.1}
+                  value={loyaltyEarnRate} 
+                  onChange={(e) => setLoyaltyEarnRate(parseFloat(e.target.value) || 0)} 
+                  className="w-full px-3 py-2 border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" 
+                  placeholder="1.0"
+                />
+                <p className="text-[10px] text-orange-750 mt-1">
+                  {t('settingsOrder.pointsRewardDescription')}
+                </p>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-orange-900 mb-1">{t('settingsOrder.pointsRedemptionRate')}</label>
+                <input 
+                  type="number" 
+                  min={1} 
+                  step={1}
+                  value={loyaltyRedeemRate} 
+                  onChange={(e) => setLoyaltyRedeemRate(parseInt(e.target.value) || 100)} 
+                  className="w-full px-3 py-2 border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" 
+                  placeholder="100"
+                />
+                <p className="text-[10px] text-orange-750 mt-1">
+                  {t('settingsOrder.pointsRedemptionDescription')}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">
+            <label className="block text-sm font-bold text-orange-800 mb-1">{t('settingsOrder.boardDisplayLeadTime')}</label>
+            <input 
+              type="number" 
+              min={0} 
+              max={1440} 
+              value={boardLeadTime} 
+              onChange={(e) => setBoardLeadTime(parseInt(e.target.value) || 0)} 
+              className="w-full max-w-xs px-3 py-2 border border-orange-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" 
+            />
             <p className="text-xs text-orange-600 mt-2">
               {t('settingsOrder.boardLeadTimeDescription')}
               <br />
@@ -457,18 +657,7 @@ export default function SettingsOrder() {
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-end pt-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-10 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50"
-          >
-            {saving ? t('settingsOrder.saving') : t('settingsOrder.saveAllChanges')}
-          </button>
-        </div>
+      </PageContent>
     </div>
   );
 }
-

@@ -59,7 +59,7 @@ export default function Finance() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.get<FinanceData>(`/finance/pnl?startDate=${dateRange.start}&endDate=${dateRange.end}`);
+      const res = await api.get<FinanceData>(`/../shutter-erp/api/finance/pnl?startDate=${dateRange.start}&endDate=${dateRange.end}`);
       setData(res);
     } catch (error) {
       console.error("Failed to fetch finance data:", error);
