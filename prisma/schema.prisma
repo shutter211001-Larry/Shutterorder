@@ -173,6 +173,7 @@ model Location {
   staffAttendances                StaffAttendance[]
   jobRoles                        JobRole[]
   shiftRequirements               ShiftRequirement[]
+  weeklyShiftRequirements         WeeklyShiftRequirement[]
   shifts                          Shift[]
 
   @@map("locations")
@@ -895,15 +896,16 @@ model LeaveRequest {
 }
 
 model JobRole {
-  id                String             @id @default(cuid())
-  name              String
-  locationId        String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  users             User[]             @relation("UserJobRoles")
-  location          Location?          @relation(fields: [locationId], references: [id])
-  shiftRequirements ShiftRequirement[]
-  shifts            Shift[]
+  id                 String             @id @default(cuid())
+  name               String
+  locationId         String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  users              User[]             @relation("UserJobRoles")
+  location           Location?          @relation(fields: [locationId], references: [id])
+  shiftRequirements  ShiftRequirement[]
+  weeklyRequirements WeeklyShiftRequirement[]
+  shifts             Shift[]
 
   @@map("job_roles")
 }
@@ -949,6 +951,20 @@ model ShiftRequirement {
   jobRole    JobRole  @relation(fields: [jobRoleId], references: [id], onDelete: Cascade)
 
   @@map("shift_requirements")
+}
+
+model WeeklyShiftRequirement {
+  id         String   @id @default(cuid())
+  locationId String
+  dayOfWeek  Int      // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  jobRoleId  String
+  startTime  String
+  endTime    String
+  count      Int
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  jobRole    JobRole  @relation(fields: [jobRoleId], references: [id], onDelete: Cascade)
+
+  @@map("weekly_shift_requirements")
 }
 
 model Shift {
