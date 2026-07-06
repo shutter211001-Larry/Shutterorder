@@ -139,8 +139,8 @@ export default function SettingsGeneral() {
     <div className="pb-12">
       <PageHeader 
         title={t('settingsGeneral.generalSettings')}
-        subtitle={t('settingsGeneral.backToSettings')}
         backUrl="/settings"
+        backText={t('settingsGeneral.backToSettings')}
         action={actionButton}
       />
 
@@ -154,8 +154,8 @@ export default function SettingsGeneral() {
           <h2 className="text-lg font-semibold text-gray-900">{t('settingsGeneral.personalizationSettings')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.systemDisplayLanguage')}</label>
-              <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.systemDisplayLanguage')}</label>
+              <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={language} onChange={(e) => setLanguage(e.target.value)}>
                 {SUPPORTED_LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
                     {l.flag} {l.name}
@@ -171,12 +171,12 @@ export default function SettingsGeneral() {
           <h2 className="text-lg font-semibold text-gray-900">{t('settingsGeneral.contactInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.contactEmail')}</label>
-              <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.contactEmail')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.contactPhone')}</label>
-              <input type="text" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.contactPhone')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
             </div>
           </div>
         </div>
@@ -236,13 +236,13 @@ export default function SettingsGeneral() {
           <h2 className="text-lg font-semibold text-gray-900">{t('settingsGeneral.regionAndCurrency')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.timezone')}</label>
-              <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.timezone')}</label>
+              <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={timezone} onChange={(e) => setTimezone(e.target.value)}>
                 {TIMEZONES.map((tz) => <option key={tz.value} value={tz.value}>{tz.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.distanceUnit')}</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.distanceUnit')}</label>
               <div className="flex gap-4 mt-2">
                 <label className="flex items-center gap-2 text-sm">
                   <input type="radio" name="distanceUnit" value="km" checked={distanceUnit === 'km'} onChange={() => setDistanceUnit('km')} className="text-primary-600" />
@@ -258,15 +258,15 @@ export default function SettingsGeneral() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.defaultCurrency')}</label>
-              <input type="text" maxLength={3} value={defaultCurrency} onChange={(e) => setDefaultCurrency(e.target.value.toUpperCase())} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="TWD" />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.defaultCurrency')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" maxLength={3} value={defaultCurrency} onChange={(e) => setDefaultCurrency(e.target.value.toUpperCase())} placeholder="TWD" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.currencySymbol')}</label>
-              <input type="text" maxLength={5} value={currencySymbol} onChange={(e) => setCurrencySymbol(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="$" />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.currencySymbol')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" maxLength={5} value={currencySymbol} onChange={(e) => setCurrencySymbol(e.target.value)} placeholder="$" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.symbolPosition')}</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.symbolPosition')}</label>
               <div className="flex gap-4 mt-2">
                 <label className="flex items-center gap-2 text-sm">
                   <input type="radio" name="currencyPosition" value="before" checked={currencyPosition === 'before'} onChange={() => setCurrencyPosition('before')} className="text-primary-600" />
@@ -279,8 +279,8 @@ export default function SettingsGeneral() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsGeneral.checkoutDecimalPlaces')}</label>
-              <select value={currencyDecimals} onChange={(e) => setCurrencyDecimals(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.checkoutDecimalPlaces')}</label>
+              <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={currencyDecimals} onChange={(e) => setCurrencyDecimals(Number(e.target.value))}>
                 <option value={0}>{t('settingsGeneral.decimalPlacesZero')}</option>
                 <option value={1}>1</option>
                 <option value={2}>{t('settingsGeneral.decimalPlacesTwo')}</option>

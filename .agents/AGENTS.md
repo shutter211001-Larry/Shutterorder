@@ -39,3 +39,9 @@
 ## 8. Web Bluetooth API Typings Requirement
 **Trigger**: When encountering TypeScript build errors related to the Web Bluetooth API (e.g., `Cannot find name 'BluetoothDevice'` or `Property 'bluetooth' does not exist on type 'Navigator'`).
 **Rule**: The standard TypeScript `lib.dom.d.ts` does not include Web Bluetooth types. You MUST install the `@types/web-bluetooth` package as a dev dependency in the relevant workspace (e.g., `npm install -D @types/web-bluetooth -w @shutter/adminfront`) to resolve these errors.
+
+## 9. AdminFront Shutter-ERP Route Prefixing
+**Trigger**: When fetching backend Shutter-ERP API endpoints from the frontend `adminfront` app.
+**Rule**: The backend Express server mounts the Shutter-ERP router under the `/shutter-erp` prefix (e.g., `app.use('/shutter-erp', shutterErpRouter);`). However, the `adminfront` API client (`src/lib/api.ts`) automatically prepends `/api` to all requests. To correctly route to the ERP endpoints and prevent 404 errors, you MUST prefix the fetch path with `/../shutter-erp/api/` instead of just `/` or `/api/`.
+- **Correct usage**: `api.get<T>('/../shutter-erp/api/finance/pnl')`
+- **Incorrect usage**: `api.get<T>('/finance/pnl')` or `api.get<T>('/api/finance/pnl')`

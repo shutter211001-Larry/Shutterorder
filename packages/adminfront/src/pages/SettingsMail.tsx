@@ -160,11 +160,7 @@ export default function SettingsMail() {
             <p className="text-xs text-gray-500">切換分店以進行專屬的 SMTP 參數覆寫，未設定之欄位將繼承系統預設 SMTP 寄件設定。</p>
           </div>
         </div>
-        <select
-          value={selectedLocationId}
-          onChange={(e) => setSelectedLocationId(e.target.value)}
-          className="px-3.5 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all cursor-pointer bg-gray-50 hover:bg-gray-100"
-        >
+        <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={selectedLocationId} onChange={(e) => setSelectedLocationId(e.target.value)}>
           <option value="">🌐 全域系統預設設定 (System Default)</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>
@@ -195,12 +191,8 @@ export default function SettingsMail() {
               🔌 郵件伺服器連線參數配置
             </h2>
             <div className="flex items-center gap-2">
-              <label className="text-sm font-semibold text-gray-700">服務類型 (Service Type):</label>
-              <select
-                value={mailServiceType}
-                onChange={(e) => setMailServiceType(e.target.value as 'SMTP' | 'GMAIL_API')}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary-500 cursor-pointer"
-              >
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">服務類型 (Service Type):</label>
+              <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={mailServiceType} onChange={(e) => setMailServiceType(e.target.value as 'SMTP' | 'GMAIL_API')}>
                 <option value="SMTP">標準 SMTP 連線</option>
                 <option value="GMAIL_API">Google Gmail API (OAuth2)</option>
               </select>
@@ -210,24 +202,24 @@ export default function SettingsMail() {
           {mailServiceType === 'SMTP' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">SMTP Host</label>
-                <input type="text" value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" placeholder="例如 smtp.gmail.com" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">SMTP Host</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} placeholder="例如 smtp.gmail.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">SMTP Port</label>
-                <input type="number" value={smtpPort} onChange={(e) => setSmtpPort(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" placeholder="例如 587" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">SMTP Port</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" value={smtpPort} onChange={(e) => setSmtpPort(Number(e.target.value))} placeholder="例如 587" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">帳號 (User)</label>
-                <input type="text" value={smtpUser} onChange={(e) => setSmtpUser(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" placeholder="您的信箱" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">帳號 (User)</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={smtpUser} onChange={(e) => setSmtpUser(e.target.value)} placeholder="您的信箱" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">密碼 (Password / App Password)</label>
-                <input type="password" value={smtpPass} onChange={(e) => setSmtpPass(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" placeholder="已設定 (留白保持不變)" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">密碼 (Password / App Password)</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={smtpPass} onChange={(e) => setSmtpPass(e.target.value)} placeholder="已設定 (留白保持不變)" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">加密方式</label>
-                <select value={encryption} onChange={(e) => setEncryption(e.target.value as any)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">加密方式</label>
+                <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={encryption} onChange={(e) => setEncryption(e.target.value as any)}>
                   <option value="none">無 (None)</option>
                   <option value="tls">STARTTLS (通常為 587)</option>
                   <option value="ssl">SSL/TLS (通常為 465)</option>
@@ -266,23 +258,11 @@ export default function SettingsMail() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">寄件者顯示名稱 (Sender Name)</label>
-              <input
-                type="text"
-                value={senderName}
-                onChange={(e) => setSenderName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium"
-                placeholder="例：夏特點餐系統 官方總部"
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="例：夏特點餐系統 官方總部" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">發件電子郵件 (Sender Email)</label>
-              <input
-                type="email"
-                value={senderEmail}
-                onChange={(e) => setSenderEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium"
-                placeholder="noreply@shutterorder.com"
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder="noreply@shutterorder.com" />
             </div>
           </div>
         </div>
@@ -298,13 +278,7 @@ export default function SettingsMail() {
           <div className="flex gap-3 items-end">
             <div className="flex-1">
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">測試收件者電子郵件</label>
-              <input
-                type="email"
-                value={testEmail}
-                onChange={(e) => setTestEmail(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium"
-                placeholder="name@example.com"
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} placeholder="name@example.com" />
             </div>
             <button
               onClick={handleTestEmail}

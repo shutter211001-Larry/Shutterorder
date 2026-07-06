@@ -293,77 +293,38 @@ export default function SettingsFranchise() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.branchName')}</label>
-                  <input
-                    type="text"
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all"
-                    placeholder={t('settingsFranchise.exampleBranchName')}
-                    value={editStore.name || ''}
-                    onChange={e => setEditStore({ ...editStore, name: e.target.value })}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.branchName')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" placeholder={t('settingsFranchise.exampleBranchName')} value={editStore.name || ''} onChange={e => setEditStore({ ...editStore, name: e.target.value })} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.franchiseeName')}</label>
-                  <input
-                    type="text"
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all"
-                    placeholder={t('settingsFranchise.exampleFranchiseeName')}
-                    value={editStore.owner || ''}
-                    onChange={e => setEditStore({ ...editStore, owner: e.target.value })}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.franchiseeName')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" placeholder={t('settingsFranchise.exampleFranchiseeName')} value={editStore.owner || ''} onChange={e => setEditStore({ ...editStore, owner: e.target.value })} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.remoteErpApiUrl')}</label>
-                  <input
-                    type="text"
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all font-mono"
-                    placeholder="https://tainan-nanfang.shutterorder.tw/api/v1"
-                    value={editStore.apiEndpoint || ''}
-                    onChange={e => setEditStore({ ...editStore, apiEndpoint: e.target.value })}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.remoteErpApiUrl')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" placeholder="https://tainan-nanfang.shutterorder.tw/api/v1" value={editStore.apiEndpoint || ''} onChange={e => setEditStore({ ...editStore, apiEndpoint: e.target.value })} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.royaltyRatePercentage')}</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all"
-                    placeholder="5.0"
-                    value={editStore.royaltyRate || 5.0}
-                    onChange={e => setEditStore({ ...editStore, royaltyRate: parseFloat(e.target.value) || 0 })}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.royaltyRatePercentage')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" step="0.1" placeholder="5.0" value={editStore.royaltyRate || 5.0} onChange={e => setEditStore({ ...editStore, royaltyRate: parseFloat(e.target.value) || 0 })} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.contractStartDate')}</label>
-                  <input
-                    type="date"
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all"
-                    value={editStore.contractStart || ''}
-                    onChange={e => setEditStore({ ...editStore, contractStart: e.target.value })}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.contractStartDate')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="date" value={editStore.contractStart || ''} onChange={e => setEditStore({ ...editStore, contractStart: e.target.value })} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.contractEndDate')}</label>
-                  <input
-                    type="date"
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all"
-                    value={editStore.contractEnd || ''}
-                    onChange={e => setEditStore({ ...editStore, contractEnd: e.target.value })}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.contractEndDate')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="date" value={editStore.contractEnd || ''} onChange={e => setEditStore({ ...editStore, contractEnd: e.target.value })} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1.5">{t('settingsFranchise.contractStatus')}</label>
-                  <select
-                    className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white transition-all"
-                    value={editStore.status}
-                    onChange={e => setEditStore({ ...editStore, status: e.target.value as any })}
-                  >
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsFranchise.contractStatus')}</label>
+                  <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={editStore.status} onChange={e => setEditStore({ ...editStore, status: e.target.value as any })}>
                     <option value="active">{t('settingsFranchise.statusActive')}</option>
                     <option value="suspended">{t('settingsFranchise.statusSuspended')}</option>
                     <option value="expired">{t('settingsFranchise.statusExpired')}</option>

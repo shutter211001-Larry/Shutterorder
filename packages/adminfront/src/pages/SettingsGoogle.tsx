@@ -111,13 +111,7 @@ export default function SettingsGoogle() {
           </h2>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Gemini API Key</label>
-            <input
-              type="password"
-              value={geminiApiKey}
-              onChange={(e) => setGeminiApiKey(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-              placeholder={t('settingsGoogle.configuredLeaveBlank')}
-            />
+            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} placeholder={t('settingsGoogle.configuredLeaveBlank')} />
             <p className="text-xs text-gray-500 mt-2">
               {t('settingsGoogle.geminiApiKeyDescription')}
             </p>
@@ -132,23 +126,11 @@ export default function SettingsGoogle() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Client ID</label>
-              <input
-                type="text"
-                value={googleLoginClientId}
-                onChange={(e) => setGoogleLoginClientId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-                placeholder={t('settingsGoogle.exampleClientId')}
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={googleLoginClientId} onChange={(e) => setGoogleLoginClientId(e.target.value)} placeholder={t('settingsGoogle.exampleClientId')} />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Client Secret</label>
-              <input
-                type="password"
-                value={googleLoginClientSecret}
-                onChange={(e) => setGoogleLoginClientSecret(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-                placeholder={t('settingsGoogle.configuredLeaveBlankSso')}
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={googleLoginClientSecret} onChange={(e) => setGoogleLoginClientSecret(e.target.value)} placeholder={t('settingsGoogle.configuredLeaveBlankSso')} />
             </div>
           </div>
           <p className="text-xs text-blue-600 mt-2 bg-blue-50 p-2 rounded-lg border border-blue-100">
@@ -167,32 +149,15 @@ export default function SettingsGoogle() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Client ID</label>
-              <input
-                type="text"
-                value={gmailClientId}
-                onChange={(e) => setGmailClientId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={gmailClientId} onChange={(e) => setGmailClientId(e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Client Secret</label>
-              <input
-                type="password"
-                value={gmailClientSecret}
-                onChange={(e) => setGmailClientSecret(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-                placeholder={t('settingsGoogle.configuredLeaveBlankGmail')}
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={gmailClientSecret} onChange={(e) => setGmailClientSecret(e.target.value)} placeholder={t('settingsGoogle.configuredLeaveBlankGmail')} />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Refresh Token</label>
-              <input
-                type="password"
-                value={gmailRefreshToken}
-                onChange={(e) => setGmailRefreshToken(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-                placeholder={t('settingsGoogle.configuredLeaveBlankMaps')}
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={gmailRefreshToken} onChange={(e) => setGmailRefreshToken(e.target.value)} placeholder={t('settingsGoogle.configuredLeaveBlankMaps')} />
             </div>
           </div>
         </div>
@@ -204,13 +169,7 @@ export default function SettingsGoogle() {
           </h2>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Google Maps API Key</label>
-            <input
-              type="password"
-              value={googleMapsApiKey}
-              onChange={(e) => setGoogleMapsApiKey(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all"
-              placeholder={t('settingsGoogle.configuredKeepBlank')}
-            />
+            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={googleMapsApiKey} onChange={(e) => setGoogleMapsApiKey(e.target.value)} placeholder={t('settingsGoogle.configuredKeepBlank')} />
           </div>
         </div>
       </div>

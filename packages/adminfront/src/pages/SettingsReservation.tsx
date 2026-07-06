@@ -75,8 +75,8 @@ export default function SettingsReservation() {
     <div className="pb-12">
       <PageHeader 
         title={t('settingsReservation.reservationSettings')}
-        subtitle={t('settingsReservation.backToSettings')}
         backUrl="/settings"
+        backText={t('settingsReservation.backToSettings')}
         action={actionButton}
       />
 
@@ -94,25 +94,25 @@ export default function SettingsReservation() {
 
         <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsReservation.reservationIntervalMinutes')}</label>
-            <input type="number" min={1} value={timeInterval} onChange={(e) => setTimeInterval(parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsReservation.reservationIntervalMinutes')}</label>
+            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" min={1} value={timeInterval} onChange={(e) => setTimeInterval(parseInt(e.target.value) || 1)} />
             <p className="mt-1 text-xs text-gray-500">{t('settingsReservation.reservationTimeSlotInterval')}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsReservation.diningTimeMinutes')}</label>
-            <input type="number" min={1} value={stayTime} onChange={(e) => setStayTime(parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsReservation.diningTimeMinutes')}</label>
+            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" min={1} value={stayTime} onChange={(e) => setStayTime(parseInt(e.target.value) || 1)} />
             <p className="mt-1 text-xs text-gray-500">{t('settingsReservation.averageDiningTime')}</p>
           </div>
         </div>
 
         <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsReservation.maxAdvanceReservationDays')}</label>
-            <input type="number" min={1} value={maxAdvanceBookingDays} onChange={(e) => setMaxAdvanceBookingDays(parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsReservation.maxAdvanceReservationDays')}</label>
+            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" min={1} value={maxAdvanceBookingDays} onChange={(e) => setMaxAdvanceBookingDays(parseInt(e.target.value) || 1)} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsReservation.latestCancellationNoticeHours')}</label>
-            <input type="number" min={0} value={minCancellationNoticeHours} onChange={(e) => setMinCancellationNoticeHours(parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsReservation.latestCancellationNoticeHours')}</label>
+            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" min={0} value={minCancellationNoticeHours} onChange={(e) => setMinCancellationNoticeHours(parseInt(e.target.value) || 0)} />
           </div>
         </div>
 

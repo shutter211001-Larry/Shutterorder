@@ -167,63 +167,35 @@ export default function SettingsNotifications() {
             {/* Form Controls */}
             <div className="lg:col-span-2 space-y-5">
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   信件頂部大標名稱 (Brand Title)
                 </label>
-                <input
-                  type="text"
-                  value={emailBrandName}
-                  onChange={(e) => setEmailBrandName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs focus:ring-4 focus:ring-primary-100 focus:border-primary-500 transition-all font-bold"
-                  placeholder="例：夏特點餐系統"
-                />
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={emailBrandName} onChange={(e) => setEmailBrandName(e.target.value)} placeholder="例：夏特點餐系統" />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   橫幅與主色調 (Banner & Primary Color)
                 </label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-xs font-mono">#</span>
-                    <input
-                      type="text"
-                      value={emailHeaderColor.replace('#', '')}
-                      onChange={(e) => setEmailHeaderColor('#' + e.target.value)}
-                      className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-xl text-xs focus:ring-4 focus:ring-primary-100 focus:border-primary-500 font-mono uppercase font-bold"
-                      placeholder="F97316"
-                    />
+                    <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={emailHeaderColor.replace('#', '')} onChange={(e) => setEmailHeaderColor('#' + e.target.value)} placeholder="F97316" />
                   </div>
-                  <input
-                    type="color"
-                    value={emailHeaderColor}
-                    onChange={(e) => setEmailHeaderColor(e.target.value)}
-                    className="w-12 h-[42px] border border-gray-300 rounded-xl cursor-pointer p-1"
-                  />
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="color" value={emailHeaderColor} onChange={(e) => setEmailHeaderColor(e.target.value)} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   郵件外層背景底色 (Page Background)
                 </label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-xs font-mono">#</span>
-                    <input
-                      type="text"
-                      value={emailBgColor.replace('#', '')}
-                      onChange={(e) => setEmailBgColor('#' + e.target.value)}
-                      className="w-full pl-7 pr-3 py-2.5 border border-gray-300 rounded-xl text-xs focus:ring-4 focus:ring-primary-100 focus:border-primary-500 font-mono uppercase font-bold"
-                      placeholder="F3F4F6"
-                    />
+                    <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={emailBgColor.replace('#', '')} onChange={(e) => setEmailBgColor('#' + e.target.value)} placeholder="F3F4F6" />
                   </div>
-                  <input
-                    type="color"
-                    value={emailBgColor}
-                    onChange={(e) => setEmailBgColor(e.target.value)}
-                    className="w-12 h-[42px] border border-gray-300 rounded-xl cursor-pointer p-1"
-                  />
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="color" value={emailBgColor} onChange={(e) => setEmailBgColor(e.target.value)} />
                 </div>
               </div>
             </div>
@@ -318,16 +290,7 @@ export default function SettingsNotifications() {
                             </td>
                             <td className="px-6 py-4 w-5/12">
                               <div className="relative group">
-                                <textarea
-                                  value={lineNotifications[event]?.message ?? DEFAULT_LINE_MESSAGES[event]}
-                                  onChange={(e) => setLineNotifications({
-                                    ...lineNotifications,
-                                    [event]: { ...(lineNotifications[event] || {}), message: e.target.value }
-                                  })}
-                                  rows={1}
-                                  className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 resize-none overflow-hidden hover:resize-y min-h-[38px]"
-                                  placeholder="輸入通知訊息內容..."
-                                />
+                                <textarea className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm min-h-[100px] resize-y" value={lineNotifications[event]?.message ?? DEFAULT_LINE_MESSAGES[event]} onChange={(e) => setLineNotifications({ ...lineNotifications, [event]: { ...(lineNotifications[event] || {}), message: e.target.value } })} rows={1} placeholder="輸入通知訊息內容..." />
                                 {(lineNotifications[event]?.message) && (
                                   <button 
                                     onClick={() => {

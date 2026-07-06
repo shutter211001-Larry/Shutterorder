@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 import { ToggleRow } from '../components/ui/ToggleRow';
 
 export default function SettingsReviews() {
@@ -59,22 +61,29 @@ export default function SettingsReviews() {
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsReviews.loading')}</div>;
 
+  
+      
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? t('settingsReviews.saving') : t('settingsReviews.saveChanges')}
+    </button>
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">{t('settingsReviews.backToSettings')}</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{t('settingsReviews.reviewSettings')}</h1>
-        </div>
-        <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
-          {saving ? t('settingsReviews.saving') : t('settingsReviews.saveChanges')}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader 
+        title={t('settingsReviews.reviewSettings')}
+        backUrl="/settings"
+        backText={t('settingsReviews.backToSettings')}
+        action={actionButton}
+      />
+      <PageContent>
+
 
       {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
       {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+      <div className="space-y-6">
         <ToggleRow
           title={t('settingsReviews.enableCustomerReviews')}
           checked={enabled}
@@ -99,21 +108,12 @@ export default function SettingsReviews() {
         </div>
 
         <div className={`pt-2 transition-opacity duration-200 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsReviews.minRatingToReview')}</label>
-          <input type="number" min={1} max={5} value={minimumRating} onChange={(e) => setMinimumRating(parseInt(e.target.value) || 1)} className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsReviews.minRatingToReview')}</label>
+          <input className="max-w-xs w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="number" min={1} max={5} value={minimumRating} onChange={(e) => setMinimumRating(parseInt(e.target.value) || 1)} />
           <p className="mt-1 text-xs text-gray-500">{t('settingsReviews.minStarsRequiredToReview')}</p>
         </div>
-      </div>
-
-      <div className="flex justify-end pt-4">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-10 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50"
-        >
-          {saving ? t('settingsReviews.saving') : t('settingsReviews.saveAllChanges')}
-        </button>
-      </div>
+        </div>
+      </PageContent>
     </div>
   );
 }

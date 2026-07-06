@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 export default function SettingsPermissions() {
   const { t } = useTranslation();
@@ -73,18 +75,24 @@ export default function SettingsPermissions() {
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsPermissions.loading')}</div>;
 
+  
+      
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? t('settingsPermissions.saving') : t('settingsPermissions.saveChanges')}
+    </button>
+  );
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700">{t('settingsPermissions.backToSettings')}</Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{t('settingsPermissions.rolePermissionFineTuning')}</h1>
-          <p className="text-sm text-gray-500">{t('settingsPermissions.superAdminPermissionsImmutable')}</p>
-        </div>
-        <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
-          {saving ? t('settingsPermissions.saving') : t('settingsPermissions.saveChanges')}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader 
+        title={t('settingsPermissions.rolePermissionFineTuning')}
+        backUrl="/settings"
+        backText={t('settingsPermissions.backToSettings')}
+        action={actionButton}
+      />
+      <PageContent>
+
 
       {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
       {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
@@ -101,7 +109,7 @@ export default function SettingsPermissions() {
           </div>
           <div className="p-4 space-y-4">
             {PERMISSION_KEYS.map(p => (
-              <label key={`manager-${p.key}`} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-100">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" key={`manager-${p.key}`}>
                 <input 
                   type="checkbox" 
                   checked={permissions.MANAGER?.[p.key] ?? true} // Default true for Manager
@@ -128,7 +136,7 @@ export default function SettingsPermissions() {
           </div>
           <div className="p-4 space-y-4">
             {PERMISSION_KEYS.map(p => (
-              <label key={`staff-${p.key}`} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-100">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" key={`staff-${p.key}`}>
                 <input 
                   type="checkbox" 
                   checked={permissions.STAFF?.[p.key] ?? false} // Default false for Staff
@@ -153,7 +161,8 @@ export default function SettingsPermissions() {
         >
           {saving ? t('settingsPermissions.saving') : t('settingsPermissions.saveAllPermissionSettings')}
         </button>
-      </div>
+        </div>
+      </PageContent>
     </div>
   );
 }

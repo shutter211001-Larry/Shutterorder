@@ -43,21 +43,8 @@ function IPBlacklistManager({ token }: { token: string }) {
   return (
     <div className="space-y-4">
       <form onSubmit={handleAdd} className="flex gap-2">
-        <input
-          required
-          type="text"
-          placeholder="IP 地址 (例如: 1.2.3.4)"
-          value={newIp}
-          onChange={e => setNewIp(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-        />
-        <input
-          type="text"
-          placeholder="原因 (選填)"
-          value={newReason}
-          onChange={e => setNewReason(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-        />
+        <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" required type="text" placeholder="IP 地址 (例如: 1.2.3.4)" value={newIp} onChange={e => setNewIp(e.target.value)} />
+        <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" placeholder="原因 (選填)" value={newReason} onChange={e => setNewReason(e.target.value)} />
         <button
           type="submit"
           disabled={loading}
@@ -261,14 +248,8 @@ export default function SettingsAdvanced() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase">維護公告訊息</label>
-            <textarea
-              value={maintenanceMessage}
-              onChange={(e) => setMaintenanceMessage(e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="網站維護中，請稍候再試。"
-            />
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">維護公告訊息</label>
+            <textarea className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm min-h-[100px] resize-y" value={maintenanceMessage} onChange={(e) => setMaintenanceMessage(e.target.value)} rows={3} placeholder="網站維護中，請稍候再試。" />
           </div>
         </div>
 
@@ -309,14 +290,7 @@ export default function SettingsAdvanced() {
           {/* Interactive Range Slider UI */}
           <div className="py-6 px-2 space-y-6">
             <div className="relative">
-              <input
-                type="range"
-                min="0"
-                max="7"
-                value={safeIndex}
-                onChange={(e) => setInventorySyncFrequency(steps[parseInt(e.target.value) || 0])}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 focus:outline-none"
-              />
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="range" min="0" max="7" value={safeIndex} onChange={(e) => setInventorySyncFrequency(steps[parseInt(e.target.value) || 0])} />
               
               {/* Range Scale Tick Labels */}
               <div className="flex justify-between text-[10px] text-gray-400 font-semibold px-1 mt-2 select-none">

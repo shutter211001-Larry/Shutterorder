@@ -142,11 +142,7 @@ export default function SettingsLine() {
             <p className="text-xs text-gray-500 font-sans">{t('settingsLine.branchLineOverrideDescription')}</p>
           </div>
         </div>
-        <select
-          value={selectedLocationId}
-          onChange={(e) => setSelectedLocationId(e.target.value)}
-          className="px-3.5 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all cursor-pointer bg-gray-50 hover:bg-gray-100 font-sans"
-        >
+        <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={selectedLocationId} onChange={(e) => setSelectedLocationId(e.target.value)}>
           <option value="">{t('settingsLine.globalSystemDefaultSettings')}</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>
@@ -164,14 +160,8 @@ export default function SettingsLine() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('settingsLine.officialAccountLink')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsLine.addFriendUrl')}</label>
-              <input
-                type="text"
-                value={officialAccountUrl}
-                onChange={(e) => setOfficialAccountUrl(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                placeholder={t('settingsLine.exampleAddFriendUrl')}
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsLine.addFriendUrl')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={officialAccountUrl} onChange={(e) => setOfficialAccountUrl(e.target.value)} placeholder={t('settingsLine.exampleAddFriendUrl')} />
               <p className="text-xs text-gray-500 mt-2">
                 {t('settingsLine.getAddFriendLinkDescription')}
               </p>
@@ -183,24 +173,12 @@ export default function SettingsLine() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('settingsLine.messagingApiIntegrationKey')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Channel Secret</label>
-              <input
-                type="password"
-                value={channelSecret}
-                onChange={(e) => setChannelSecret(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                placeholder={status.channelSecret ? t('settingsLine.configuredKeepBlank') : t('settingsLine.enterChannelSecret')}
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Channel Secret</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} placeholder={status.channelSecret ? t('settingsLine.configuredKeepBlank') : t('settingsLine.enterChannelSecret')} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Channel Access Token</label>
-              <input
-                type="password"
-                value={channelAccessToken}
-                onChange={(e) => setChannelAccessToken(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                placeholder={status.channelAccessToken ? t('settingsLine.configuredKeepBlank') : t('settingsLine.enterChannelAccessToken')}
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Channel Access Token</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={channelAccessToken} onChange={(e) => setChannelAccessToken(e.target.value)} placeholder={status.channelAccessToken ? t('settingsLine.configuredKeepBlank') : t('settingsLine.enterChannelAccessToken')} />
             </div>
             <p className="text-xs text-gray-500 mt-2">
               {t('settingsLine.goToLineDevelopersConsole')} <strong>Messaging API Channel</strong> {t('settingsLine.getCorrespondingKeyDescription')}
@@ -212,14 +190,9 @@ export default function SettingsLine() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('settingsLine.webhookSettingsMessagingApi')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Webhook URL</label>
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={webhookUrl}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-500"
-                />
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" readOnly value={webhookUrl} />
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(webhookUrl);
@@ -243,14 +216,8 @@ export default function SettingsLine() {
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsLine.liffIdRecommended')}</label>
-              <input
-                type="text"
-                value={liffId}
-                onChange={(e) => setLiffId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                placeholder={t('settingsLine.exampleLiffId')}
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsLine.liffIdRecommended')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={liffId} onChange={(e) => setLiffId(e.target.value)} placeholder={t('settingsLine.exampleLiffId')} />
               <p className="text-xs text-gray-500 mt-2">
                 {t('settingsLine.goToLineDevelopersConsole')} <strong>LINE Login Channel</strong> {t('settingsLine.createLiffAppDescription')}
               </p>
@@ -259,24 +226,12 @@ export default function SettingsLine() {
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Channel ID (Login)</label>
-                <input
-                  type="text"
-                  value={lineLoginChannelId}
-                  onChange={(e) => setLineLoginChannelId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                  placeholder="LINE Login Channel ID"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Channel ID (Login)</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={lineLoginChannelId} onChange={(e) => setLineLoginChannelId(e.target.value)} placeholder="LINE Login Channel ID" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Channel Secret (Login)</label>
-                <input
-                  type="password"
-                  value={lineLoginChannelSecret}
-                  onChange={(e) => setLineLoginChannelSecret(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                  placeholder={t('settingsLine.configuredKeepBlank')}
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Channel Secret (Login)</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={lineLoginChannelSecret} onChange={(e) => setLineLoginChannelSecret(e.target.value)} placeholder={t('settingsLine.configuredKeepBlank')} />
               </div>
             </div>
             <p className="text-xs text-gray-500">
@@ -297,23 +252,12 @@ export default function SettingsLine() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Channel ID</label>
-                <input
-                  type="text"
-                  value={linePayChannelId}
-                  onChange={(e) => setLinePayChannelId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00B900]"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Channel ID</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={linePayChannelId} onChange={(e) => setLinePayChannelId(e.target.value)} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Channel Secret</label>
-                <input
-                  type="password"
-                  value={linePayChannelSecret}
-                  onChange={(e) => setLinePayChannelSecret(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00B900]"
-                  placeholder={t('settingsLine.configuredLeaveBlank')}
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Channel Secret</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={linePayChannelSecret} onChange={(e) => setLinePayChannelSecret(e.target.value)} placeholder={t('settingsLine.configuredLeaveBlank')} />
               </div>
             </div>
             
@@ -321,37 +265,19 @@ export default function SettingsLine() {
               <h3 className="text-sm font-semibold text-gray-800 mb-3">{t('settingsLine.advancedRoutingSettings')}</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">LINE Pay API URL</label>
-                  <input
-                    type="text"
-                    value={linePayApiUrl}
-                    onChange={(e) => setLinePayApiUrl(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#00B900]"
-                    placeholder={t('settingsLine.defaultLinePayApiUrl')}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">LINE Pay API URL</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={linePayApiUrl} onChange={(e) => setLinePayApiUrl(e.target.value)} placeholder={t('settingsLine.defaultLinePayApiUrl')} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsLine.forwardProxyUrl')}</label>
-                  <input
-                    type="text"
-                    value={linePayProxyUrl}
-                    onChange={(e) => setLinePayProxyUrl(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#00B900]"
-                    placeholder={t('settingsLine.proxyUrlExample')}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsLine.forwardProxyUrl')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={linePayProxyUrl} onChange={(e) => setLinePayProxyUrl(e.target.value)} placeholder={t('settingsLine.proxyUrlExample')} />
                   <p className="text-xs text-gray-500 mt-1">
                     {t('settingsLine.linePayProxyInfo')}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('settingsLine.customReturnUrl')}</label>
-                  <input
-                    type="text"
-                    value={linePayReturnUrl}
-                    onChange={(e) => setLinePayReturnUrl(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#00B900]"
-                    placeholder={t('settingsLine.leaveBlankForDefaultUrl')}
-                  />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsLine.customReturnUrl')}</label>
+                  <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={linePayReturnUrl} onChange={(e) => setLinePayReturnUrl(e.target.value)} placeholder={t('settingsLine.leaveBlankForDefaultUrl')} />
                   <p className="text-xs text-gray-500 mt-1">
                     {t('settingsLine.returnUrlTip')}
                   </p>
@@ -367,7 +293,7 @@ export default function SettingsLine() {
                 onChange={(e) => setLinePaySandbox(e.target.checked)}
                 className="w-4 h-4 text-[#00B900] border-gray-300 rounded focus:ring-[#00B900]"
               />
-              <label htmlFor="linePaySandbox" className="text-sm text-gray-700">{t('settingsLine.enableSandboxMode')}</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="linePaySandbox">{t('settingsLine.enableSandboxMode')}</label>
             </div>
           </div>
         </div>
