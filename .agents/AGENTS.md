@@ -13,7 +13,19 @@
 
 ## 3. open-location-code Typings Workaround
 **Trigger**: When using or implementing the \open-location-code\ library in TypeScript.
-**Rule**: The \@types/open-location-code\ package incorrectly defines methods such as \isValid\, \isFull\, and \decode\ as \static\ methods. However, at runtime, these are instance methods on the prototype. To avoid TypeScript compilation errors (e.g., \Property 'isValid' does not exist on type 'OpenLocationCode'\), you MUST instantiate the class and cast it to \ny\ before calling these methods.
+**Rule**: The \@types/open-location-code\ package incorrectly defines methods such as \isValid\, \isFull\, and \decode\ as \static\ methods. However, at runtime, these are instance methods on the prototype. To avoid TypeScript compilation errors (e.g., \Property 'isValid' does not exist on type 'OpenLocationCode'\), you MUST instantiate the class and cast it to \ ny\ before calling these methods.
 - Correct usage: \const olc: any = new OpenLocationCode(); olc.isValid(code);\
 - Incorrect usage: \OpenLocationCode.isValid(code);\ (Fails at runtime)
 - Incorrect usage: \const olc = new OpenLocationCode(); olc.isValid(code);\ (Fails TS compilation)
+
+## 4. Prisma Client Generation Requirement
+**Trigger**: When modifying the Prisma schema.
+**Rule**: In addition to generating a migration file, ALWAYS run `npx prisma generate` locally so the TypeScript compiler and IDE language server can recognize the new Prisma types (like new models or fields).
+
+## 5. Zod Schema Sync Requirement
+**Trigger**: When adding new fields to Prisma models that are updated via API endpoints (like `Location`).
+**Rule**: You MUST also update the corresponding Zod validation schemas (e.g. `createLocationSchema`) in the relevant controller. If you forget to update the Zod schema, the new fields will be silently stripped from the request body by `.safeParse()`.
+
+## 6. Express Route Mounting Requirement
+**Trigger**: When creating a new API route file (e.g., `leave.routes.ts`).
+**Rule**: You MUST remember to import and mount the new route file in `app.ts` (e.g. `app.use('/api/xxx', xxxRoutes)`). The route will not work until it is explicitly mounted in the Express app.

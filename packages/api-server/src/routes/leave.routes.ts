@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, requireManager } from '../middlewares/auth.js';
+import { authenticate, requireRole } from '../middleware/auth.js';
 import {
   createLeaveRequest,
   getMyLeaveRequests,
@@ -13,7 +13,7 @@ router.use(authenticate);
 
 router.post('/', createLeaveRequest);
 router.get('/my-records', getMyLeaveRequests);
-router.get('/', requireManager, getAllLeaveRequests);
-router.put('/:id/status', requireManager, updateLeaveStatus);
+router.get('/', requireRole('MANAGER', 'SUPER_ADMIN'), getAllLeaveRequests);
+router.put('/:id/status', requireRole('MANAGER', 'SUPER_ADMIN'), updateLeaveStatus);
 
 export default router;

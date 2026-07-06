@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../index.js';
+import prisma from '../lib/db.js';
 
 export const createLeaveRequest = async (req: Request, res: Response) => {
   const userId = req.user?.id;
@@ -70,7 +70,7 @@ export const updateLeaveStatus = async (req: Request, res: Response) => {
 
   try {
     const leave = await prisma.leaveRequest.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         status,
         managerId

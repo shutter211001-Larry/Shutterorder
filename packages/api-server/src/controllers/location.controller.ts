@@ -41,6 +41,8 @@ const createLocationSchema = z.object({
     closeTime: z.string().regex(/^\d{2}:\d{2}$/),
     isClosed: z.boolean().default(false),
   })).optional(),
+  hourlyNationalHolidayMultiplier: z.number().min(1).default(2.0),
+  monthlyNationalHolidayOvertime: z.boolean().default(true),
 });
 
 const updateLocationSchema = createLocationSchema.partial().omit({ slug: true });
