@@ -54,3 +54,9 @@
 ## 11. Taiwan Labor Standards Act Compliance (HR Design)
 **Trigger**: When designing, modifying, or implementing any Human Resources (HR) features, including but not limited to Payroll, Shift Scheduling (Roster), Attendance, Leave management, and HR database schemas.
 **Rule**: You MUST strictly comply with the Taiwan Labor Standards Act. Before proposing any design or modifying HR code, you MUST first read and reference docs/HR_LABOR_LAWS_TW.md for the correct multipliers, legal limits, and domain knowledge. Do not invent payroll logic without consulting this document.
+
+## 12. 伺服器時區漂移防範 (Timezone Drift Prevention)
+**Trigger**: When performing Date operations (like getting the day of week or day of month) on Date objects fetched from the database (Prisma) in the backend API.
+**Rule**: Dates like `req.date` or `shift.date` are parsed by Prisma as UTC Midnight objects (e.g., `2026-07-10T00:00:00.000Z`). You MUST NEVER use `.getDay()`, `.getDate()`, or `.setDate()` on these objects, as it will evaluate the date in the local timezone of the deployment server (which may be in the US), causing "Timezone Drift" bugs where the day shifts to the previous day. 
+- **Correct usage**: `.getUTCDay()`, `.getUTCDate()`, `.setUTCDate()`
+- **Incorrect usage**: `.getDay()`, `.getDate()`, `.setDate()`

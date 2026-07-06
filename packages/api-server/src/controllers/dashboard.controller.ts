@@ -7,7 +7,7 @@ export async function getDashboardStats(req: Request, res: Response): Promise<vo
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekStart = new Date(todayStart);
-    weekStart.setDate(weekStart.getDate() - 7);
+    weekStart.setUTCDate(weekStart.getUTCDate() - 7);
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
@@ -103,7 +103,7 @@ export async function getDashboardStats(req: Request, res: Response): Promise<vo
 export async function getAnalytics(req: Request, res: Response): Promise<void> {
   const days = Math.min(90, Math.max(7, parseInt(req.query.days as string) || 30));
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  startDate.setUTCDate(startDate.getUTCDate() - days);
   startDate.setHours(0, 0, 0, 0);
 
   // Daily revenue and order counts

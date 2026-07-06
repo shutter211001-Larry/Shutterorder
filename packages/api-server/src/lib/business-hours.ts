@@ -106,7 +106,7 @@ export function generateDaySlots(
     sessionEnd.setMinutes(closeH * 60 + closeM - (settings.postClosingBuffer || 0));
 
     if ((closeH * 60 + closeM) <= (openH * 60 + openM)) {
-      sessionEnd.setDate(sessionEnd.getDate() + 1);
+      sessionEnd.setUTCDate(sessionEnd.getUTCDate() + 1);
     }
 
     const current = new Date(sessionStart);
