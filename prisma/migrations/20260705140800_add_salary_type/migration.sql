@@ -1,12 +1,6 @@
 DO $$ BEGIN
-    DO $ BEGIN
     CREATE TYPE "SalaryType" AS ENUM ('HOURLY', 'MONTHLY');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "salaryType" "SalaryType" NOT NULL DEFAULT 'HOURLY';
+END $$;ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "salaryType" "SalaryType" NOT NULL DEFAULT 'HOURLY';
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "monthlyWage" DOUBLE PRECISION NOT NULL DEFAULT 0;

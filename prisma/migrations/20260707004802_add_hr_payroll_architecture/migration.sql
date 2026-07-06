@@ -1,109 +1,39 @@
 -- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+DO $$ BEGIN
     CREATE TYPE "PayrollStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'PAID');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "PayslipStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'PAID');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "PayslipItemType" AS ENUM ('ALLOWANCE', 'DEDUCTION', 'OVERTIME', 'BASE_PAY');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "EmploymentStatus" AS ENUM ('ACTIVE', 'SUSPENDED', 'TERMINATED');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "AnomalyType" AS ENUM ('LATE', 'EARLY_LEAVE', 'ABSENT', 'MISSED_PUNCH');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "DocumentType" AS ENUM ('ID_CARD', 'BANK_BOOK', 'HEALTH_CERTIFICATE', 'CONTRACT', 'OTHER');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
-    DO $ BEGIN
-    DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "DocumentStatus" AS ENUM ('VALID', 'EXPIRED', 'REJECTED');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $;
-
--- CreateTable
+END $$;-- CreateTable
 CREATE TABLE IF NOT EXISTS "payroll_periods" (
     "id" TEXT NOT NULL,
     "locationId" TEXT NOT NULL,
@@ -222,137 +152,48 @@ CREATE UNIQUE INDEX IF NOT EXISTS "employment_records_userId_key" ON "employment
 CREATE UNIQUE INDEX IF NOT EXISTS "leave_balances_userId_leaveType_year_key" ON "leave_balances"("userId", "leaveType", "year");
 
 -- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payroll_periods_locationId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payroll_periods_locationId_fkey') THEN
-        DO $ BEGIN
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payroll_periods_locationId_fkey') THEN
         ALTER TABLE "payroll_periods" ADD CONSTRAINT "payroll_periods_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslips_payrollPeriodId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslips_payrollPeriodId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslips_payrollPeriodId_fkey') THEN
         ALTER TABLE "payslips" ADD CONSTRAINT "payslips_payrollPeriodId_fkey" FOREIGN KEY ("payrollPeriodId") REFERENCES "payroll_periods"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslips_userId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslips_userId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslips_userId_fkey') THEN
         ALTER TABLE "payslips" ADD CONSTRAINT "payslips_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslip_items_payslipId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslip_items_payslipId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payslip_items_payslipId_fkey') THEN
         ALTER TABLE "payslip_items" ADD CONSTRAINT "payslip_items_payslipId_fkey" FOREIGN KEY ("payslipId") REFERENCES "payslips"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'insurance_profiles_userId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'insurance_profiles_userId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'insurance_profiles_userId_fkey') THEN
         ALTER TABLE "insurance_profiles" ADD CONSTRAINT "insurance_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'employment_records_userId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'employment_records_userId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'employment_records_userId_fkey') THEN
         ALTER TABLE "employment_records" ADD CONSTRAINT "employment_records_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'leave_balances_userId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'leave_balances_userId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'leave_balances_userId_fkey') THEN
         ALTER TABLE "leave_balances" ADD CONSTRAINT "leave_balances_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'attendance_anomalies_attendanceId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'attendance_anomalies_attendanceId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'attendance_anomalies_attendanceId_fkey') THEN
         ALTER TABLE "attendance_anomalies" ADD CONSTRAINT "attendance_anomalies_attendanceId_fkey" FOREIGN KEY ("attendanceId") REFERENCES "staff_attendance"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'employee_documents_userId_fkey') THEN
-        DO $ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'employee_documents_userId_fkey') THEN
-        DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'employee_documents_userId_fkey') THEN
         ALTER TABLE "employee_documents" ADD CONSTRAINT "employee_documents_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-    END IF;
-END $;
-    END IF;
-END $;
-
+END $$;

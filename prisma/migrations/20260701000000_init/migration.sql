@@ -1,67 +1,49 @@
 -- CreateEnum
-DO $ BEGIN
+DO $$ BEGIN
     CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'MANAGER', 'STAFF');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "MenuOptionDisplayType" AS ENUM ('SELECT', 'RADIO', 'CHECKBOX', 'QUANTITY');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "OrderType" AS ENUM ('DELIVERY', 'PICKUP', 'FROZEN_DELIVERY');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED', 'PICKED_UP', 'CANCELLED');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'STRIPE', 'PAYPAL', 'LINE_PAY');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "ReservationStatus" AS ENUM ('PENDING', 'CONFIRMED', 'SEATED', 'COMPLETED', 'CANCELLED');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "CouponType" AS ENUM ('PERCENTAGE', 'FIXED', 'FREE_DELIVERY', 'BOGO');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateEnum
-DO $ BEGIN
+END $$;-- CreateEnum
+DO $$ BEGIN
     CREATE TYPE "LoyaltyTransactionType" AS ENUM ('EARN', 'REDEEM', 'ADJUST');
 EXCEPTION
     WHEN duplicate_object THEN null;
-END $;
-
--- CreateTable
+END $$;-- CreateTable
 CREATE TABLE IF NOT EXISTS "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -760,22 +742,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS "dietary_preferences_name_key" ON "dietary_pre
 CREATE UNIQUE INDEX IF NOT EXISTS "orders_orderNumber_key" ON "orders"("orderNumber");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "orders_createdAt_idx" ON "orders"("createdAt");
+CREATE UNIQUE INDEX IF NOT EXISTS "orders_createdAt_idx" ON "orders"("createdAt");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "orders_status_idx" ON "orders"("status");
+CREATE UNIQUE INDEX IF NOT EXISTS "orders_status_idx" ON "orders"("status");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "orders_locationId_idx" ON "orders"("locationId");
+CREATE UNIQUE INDEX IF NOT EXISTS "orders_locationId_idx" ON "orders"("locationId");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "orders_customerId_idx" ON "orders"("customerId");
+CREATE UNIQUE INDEX IF NOT EXISTS "orders_customerId_idx" ON "orders"("customerId");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "order_items_orderId_idx" ON "order_items"("orderId");
+CREATE UNIQUE INDEX IF NOT EXISTS "order_items_orderId_idx" ON "order_items"("orderId");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "order_items_menuItemId_idx" ON "order_items"("menuItemId");
+CREATE UNIQUE INDEX IF NOT EXISTS "order_items_menuItemId_idx" ON "order_items"("menuItemId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX IF NOT EXISTS "tables_locationId_name_key" ON "tables"("locationId", "name");
@@ -784,13 +766,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS "tables_locationId_name_key" ON "tables"("loca
 CREATE UNIQUE INDEX IF NOT EXISTS "coupons_code_key" ON "coupons"("code");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "group_order_sessions_locationId_idx" ON "group_order_sessions"("locationId");
+CREATE UNIQUE INDEX IF NOT EXISTS "group_order_sessions_locationId_idx" ON "group_order_sessions"("locationId");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "group_order_sessions_tableId_idx" ON "group_order_sessions"("tableId");
+CREATE UNIQUE INDEX IF NOT EXISTS "group_order_sessions_tableId_idx" ON "group_order_sessions"("tableId");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "group_order_sessions_pin_idx" ON "group_order_sessions"("pin");
+CREATE UNIQUE INDEX IF NOT EXISTS "group_order_sessions_pin_idx" ON "group_order_sessions"("pin");
 
 -- CreateIndex
 CREATE UNIQUE INDEX IF NOT EXISTS "legal_pages_slug_key" ON "legal_pages"("slug");
@@ -805,359 +787,264 @@ CREATE UNIQUE INDEX IF NOT EXISTS "registration_bonus_records_provider_identifie
 CREATE UNIQUE INDEX IF NOT EXISTS "invite_tokens_token_key" ON "invite_tokens"("token");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "api_metrics_createdAt_idx" ON "api_metrics"("createdAt");
+CREATE UNIQUE INDEX IF NOT EXISTS "api_metrics_createdAt_idx" ON "api_metrics"("createdAt");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "api_metrics_path_method_idx" ON "api_metrics"("path", "method");
+CREATE UNIQUE INDEX IF NOT EXISTS "api_metrics_path_method_idx" ON "api_metrics"("path", "method");
 
 -- CreateIndex
 CREATE UNIQUE INDEX IF NOT EXISTS "ip_blacklist_ip_key" ON "ip_blacklist"("ip");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "audit_logs_createdAt_idx" ON "audit_logs"("createdAt");
+CREATE UNIQUE INDEX IF NOT EXISTS "audit_logs_createdAt_idx" ON "audit_logs"("createdAt");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "audit_logs_userId_idx" ON "audit_logs"("userId");
+CREATE UNIQUE INDEX IF NOT EXISTS "audit_logs_userId_idx" ON "audit_logs"("userId");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "audit_logs_entity_idx" ON "audit_logs"("entity");
+CREATE UNIQUE INDEX IF NOT EXISTS "audit_logs_entity_idx" ON "audit_logs"("entity");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "chat_messages_createdAt_idx" ON "chat_messages"("createdAt");
+CREATE UNIQUE INDEX IF NOT EXISTS "chat_messages_createdAt_idx" ON "chat_messages"("createdAt");
 
 -- AddForeignKey
-DO $ BEGIN
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'users_locationId_fkey') THEN
         ALTER TABLE "users" ADD CONSTRAINT "users_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'customers_groupId_fkey') THEN
         ALTER TABLE "customers" ADD CONSTRAINT "customers_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "customer_groups"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'addresses_customerId_fkey') THEN
         ALTER TABLE "addresses" ADD CONSTRAINT "addresses_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'operating_hours_locationId_fkey') THEN
         ALTER TABLE "operating_hours" ADD CONSTRAINT "operating_hours_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'delivery_zones_locationId_fkey') THEN
         ALTER TABLE "delivery_zones" ADD CONSTRAINT "delivery_zones_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'categories_locationId_fkey') THEN
         ALTER TABLE "categories" ADD CONSTRAINT "categories_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'categories_parentId_fkey') THEN
         ALTER TABLE "categories" ADD CONSTRAINT "categories_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_items_categoryId_fkey') THEN
         ALTER TABLE "menu_items" ADD CONSTRAINT "menu_items_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_items_locationId_fkey') THEN
         ALTER TABLE "menu_items" ADD CONSTRAINT "menu_items_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_options_menuItemId_fkey') THEN
         ALTER TABLE "menu_options" ADD CONSTRAINT "menu_options_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "menu_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_option_values_menuOptionId_fkey') THEN
         ALTER TABLE "menu_option_values" ADD CONSTRAINT "menu_option_values_menuOptionId_fkey" FOREIGN KEY ("menuOptionId") REFERENCES "menu_options"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'mealtimes_locationId_fkey') THEN
         ALTER TABLE "mealtimes" ADD CONSTRAINT "mealtimes_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_item_mealtimes_mealtimeId_fkey') THEN
         ALTER TABLE "menu_item_mealtimes" ADD CONSTRAINT "menu_item_mealtimes_mealtimeId_fkey" FOREIGN KEY ("mealtimeId") REFERENCES "mealtimes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_item_mealtimes_menuItemId_fkey') THEN
         ALTER TABLE "menu_item_mealtimes" ADD CONSTRAINT "menu_item_mealtimes_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "menu_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_item_allergens_allergenId_fkey') THEN
         ALTER TABLE "menu_item_allergens" ADD CONSTRAINT "menu_item_allergens_allergenId_fkey" FOREIGN KEY ("allergenId") REFERENCES "allergens"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_item_allergens_menuItemId_fkey') THEN
         ALTER TABLE "menu_item_allergens" ADD CONSTRAINT "menu_item_allergens_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "menu_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_item_dietary_preferences_dietaryPreferenceId_fkey') THEN
         ALTER TABLE "menu_item_dietary_preferences" ADD CONSTRAINT "menu_item_dietary_preferences_dietaryPreferenceId_fkey" FOREIGN KEY ("dietaryPreferenceId") REFERENCES "dietary_preferences"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'menu_item_dietary_preferences_menuItemId_fkey') THEN
         ALTER TABLE "menu_item_dietary_preferences" ADD CONSTRAINT "menu_item_dietary_preferences_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "menu_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_addressId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_assignedToId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_assignedToId_fkey" FOREIGN KEY ("assignedToId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_couponId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_couponId_fkey" FOREIGN KEY ("couponId") REFERENCES "coupons"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_customerId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_locationId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_tableId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_tableId_fkey" FOREIGN KEY ("tableId") REFERENCES "tables"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orders_groupId_fkey') THEN
         ALTER TABLE "orders" ADD CONSTRAINT "orders_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "group_order_sessions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_items_menuItemId_fkey') THEN
         ALTER TABLE "order_items" ADD CONSTRAINT "order_items_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "menu_items"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_items_orderId_fkey') THEN
         ALTER TABLE "order_items" ADD CONSTRAINT "order_items_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_item_options_menuOptionValueId_fkey') THEN
         ALTER TABLE "order_item_options" ADD CONSTRAINT "order_item_options_menuOptionValueId_fkey" FOREIGN KEY ("menuOptionValueId") REFERENCES "menu_option_values"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'order_item_options_orderItemId_fkey') THEN
         ALTER TABLE "order_item_options" ADD CONSTRAINT "order_item_options_orderItemId_fkey" FOREIGN KEY ("orderItemId") REFERENCES "order_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'payments_orderId_fkey') THEN
         ALTER TABLE "payments" ADD CONSTRAINT "payments_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tables_locationId_fkey') THEN
         ALTER TABLE "tables" ADD CONSTRAINT "tables_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reservations_customerId_fkey') THEN
         ALTER TABLE "reservations" ADD CONSTRAINT "reservations_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reservations_locationId_fkey') THEN
         ALTER TABLE "reservations" ADD CONSTRAINT "reservations_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reservations_tableId_fkey') THEN
         ALTER TABLE "reservations" ADD CONSTRAINT "reservations_tableId_fkey" FOREIGN KEY ("tableId") REFERENCES "tables"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'coupons_locationId_fkey') THEN
         ALTER TABLE "coupons" ADD CONSTRAINT "coupons_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reviews_customerId_fkey') THEN
         ALTER TABLE "reviews" ADD CONSTRAINT "reviews_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reviews_locationId_fkey') THEN
         ALTER TABLE "reviews" ADD CONSTRAINT "reviews_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'reviews_orderId_fkey') THEN
         ALTER TABLE "reviews" ADD CONSTRAINT "reviews_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "orders"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'loyalty_transactions_customerId_fkey') THEN
         ALTER TABLE "loyalty_transactions" ADD CONSTRAINT "loyalty_transactions_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'loyalty_transactions_orderId_fkey') THEN
         ALTER TABLE "loyalty_transactions" ADD CONSTRAINT "loyalty_transactions_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "orders"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'group_order_sessions_locationId_fkey') THEN
         ALTER TABLE "group_order_sessions" ADD CONSTRAINT "group_order_sessions_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'group_order_sessions_tableId_fkey') THEN
         ALTER TABLE "group_order_sessions" ADD CONSTRAINT "group_order_sessions_tableId_fkey" FOREIGN KEY ("tableId") REFERENCES "tables"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cookie_consents_cookieCategoryId_fkey') THEN
         ALTER TABLE "cookie_consents" ADD CONSTRAINT "cookie_consents_cookieCategoryId_fkey" FOREIGN KEY ("cookieCategoryId") REFERENCES "cookie_categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cookie_consents_customerId_fkey') THEN
         ALTER TABLE "cookie_consents" ADD CONSTRAINT "cookie_consents_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chat_messages_senderId_fkey') THEN
         ALTER TABLE "chat_messages" ADD CONSTRAINT "chat_messages_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chat_messages_locationId_fkey') THEN
         ALTER TABLE "chat_messages" ADD CONSTRAINT "chat_messages_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'staff_attendance_userId_fkey') THEN
         ALTER TABLE "staff_attendance" ADD CONSTRAINT "staff_attendance_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
-END $;
-
--- AddForeignKey
-DO $ BEGIN
+END $$;-- AddForeignKey
+DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'staff_attendance_locationId_fkey') THEN
         ALTER TABLE "staff_attendance" ADD CONSTRAINT "staff_attendance_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
     END IF;
-END $;
-
+END $$;
