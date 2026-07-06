@@ -32,7 +32,7 @@ interface ToggleRowProps {
 
 export function ToggleRow({ title, description, checked, onChange, className = '', disabled = false }: ToggleRowProps) {
   return (
-    <div className={`flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+    <div className={`flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <div>
         <span className={`font-medium block transition-colors duration-200 ${checked ? 'text-gray-900' : 'text-gray-400'}`}>
           {title}
