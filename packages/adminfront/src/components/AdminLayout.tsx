@@ -4,90 +4,89 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import AdminChatWidget from './AdminChatWidget';
 
+import { 
+  LayoutDashboard, 
+  Wallet, 
+  Store, 
+  ChefHat, 
+  ClipboardList, 
+  CalendarDays, 
+  MenuSquare,
+  Tags,
+  MessageSquare,
+  Users,
+  UserCog,
+  Clock,
+  CheckSquare,
+  CalendarCheck,
+  Banknote,
+  Briefcase,
+  History,
+  QrCode,
+  MapPin,
+  Settings,
+  MonitorPlay,
+  Palette,
+  Paintbrush,
+  LayoutTemplate,
+  Scale,
+  Cookie,
+  FileCheck,
+  Activity,
+  ScrollText
+} from 'lucide-react';
+
 type Role = 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
 
 interface NavItem {
+  category?: string;
   path: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   roles: Role[];
-  children?: { path: string; label: string; roles?: Role[] }[];
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'nav.dashboard', icon: '\u25A1', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/orders', label: 'nav.orders', icon: '\uD83D\uDCCB', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/reservations', label: 'nav.reservations', icon: '\uD83D\uDDD3', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/reviews', label: 'nav.reviews', icon: '\u2B50', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/customers', label: 'nav.customers', icon: '\uD83D\uDC65', roles: ['SUPER_ADMIN', 'MANAGER'] },
-  { path: '/kitchen', label: 'nav.kitchen', icon: '\uD83C\uDF73', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  { path: '/locations', label: 'nav.locations', icon: '◎', roles: ['SUPER_ADMIN'] },
-  {
-    path: '/menu',
-    label: 'nav.menu',
-    icon: '\u2630',
-    roles: ['SUPER_ADMIN', 'MANAGER'],
-    children: [
-      { path: '/menu/items', label: 'nav.menuItems' },
-      { path: '/menu/categories', label: 'nav.categories' },
-      { path: '/menu/stock', label: 'nav.stockOverview' },
-      { path: '/menu/allergens', label: 'nav.allergens' },
-      { path: '/menu/dietary', label: 'nav.dietary' },
-      { path: '/menu/mealtimes', label: 'nav.mealtimes' },
-    ],
-  },
-  { path: '/promotions', label: 'nav.promotions', icon: '🎁', roles: ['SUPER_ADMIN', 'MANAGER'] },
-  {
-    path: '/design',
-    label: 'nav.design',
-    icon: '\uD83C\uDFA8',
-    roles: ['SUPER_ADMIN'],
-    children: [
-      { path: '/design/landing', label: 'nav.landingPage' },
-      { path: '/design/branding', label: 'nav.branding' },
-      { path: '/design/theme', label: 'nav.theme' },
-      { path: '/design/templates', label: 'nav.templates' },
-    ],
-  },
-  {
-    path: '/legal',
-    label: 'nav.legal',
-    icon: '\u2696',
-    roles: ['SUPER_ADMIN'],
-    children: [
-      { path: '/legal/pages', label: 'nav.legalPages' },
-      { path: '/legal/cookies', label: 'nav.cookieCategories' },
-      { path: '/legal/consent', label: 'nav.consentLog' },
-    ],
-  },
-  { path: '/settings', label: 'nav.settings', icon: '⚙', roles: ['SUPER_ADMIN'] },
-  {
-    path: '/developer',
-    label: 'nav.developer',
-    icon: '\uD83D\uDEE0',
-    roles: ['SUPER_ADMIN'],
-    children: [
-      { path: '/developer/metrics', label: 'nav.apiMetrics' },
-      { path: '/developer/audit-log', label: 'nav.auditLog' },
-    ],
-  },
-  { path: '/staff', label: 'nav.staff', icon: '\uD83D\uDC65', roles: ['SUPER_ADMIN'] },
-  {
-    path: '/attendance',
-    label: 'nav.attendance',
-    icon: '⏱️',
-    roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
-    children: [
-      { path: '/attendance', label: 'nav.checkIn' },
-      { path: '/attendance/records', label: 'nav.attendanceRecords', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/approvals', label: '簽核中心', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/leave', label: 'attendance.leaveTitle' },
-      { path: '/attendance/qr-generator', label: '產生 QR Code', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/payroll', label: '薪資結算', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/job-roles', label: '職位設定', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/roster', label: '排班管理', roles: ['SUPER_ADMIN', 'MANAGER'] },
-    ],
-  },
+  // 📊 營運與財務 (Operations & Finance)
+  { category: 'operations', path: '/', label: 'nav.dashboard', icon: <LayoutDashboard size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { category: 'operations', path: '/finance', label: 'nav.finance', icon: <Wallet size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'operations', path: '/kitchen', label: 'nav.kitchen', icon: <ChefHat size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { category: 'operations', path: '/orders', label: 'nav.orders', icon: <ClipboardList size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { category: 'operations', path: '/reservations', label: 'nav.reservations', icon: <CalendarDays size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+
+  // 🍽️ 菜單與行銷 (Menu & Marketing)
+  { category: 'menu_marketing', path: '/menu/items', label: 'nav.menuItems', icon: <MenuSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/menu/categories', label: 'nav.categories', icon: <MenuSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/menu/stock', label: 'nav.stockOverview', icon: <MenuSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/menu/allergens', label: 'nav.allergens', icon: <MenuSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/menu/dietary', label: 'nav.dietary', icon: <MenuSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/menu/mealtimes', label: 'nav.mealtimes', icon: <MenuSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/promotions', label: 'nav.promotions', icon: <Tags size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'menu_marketing', path: '/reviews', label: 'nav.reviews', icon: <MessageSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+
+  // 👥 人事與會員 (People)
+  { category: 'people', path: '/customers', label: 'nav.customers', icon: <Users size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'people', path: '/staff', label: 'nav.staff', icon: <UserCog size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'people', path: '/attendance', label: 'nav.checkIn', icon: <Clock size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { category: 'people', path: '/attendance/approvals', label: '簽核中心', icon: <CheckSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'people', path: '/attendance/roster', label: '排班管理', icon: <CalendarCheck size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'people', path: '/attendance/payroll', label: '薪資結算', icon: <Banknote size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'people', path: '/attendance/job-roles', label: '職位設定', icon: <Briefcase size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'people', path: '/attendance/records', label: 'nav.attendanceRecords', icon: <History size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+  { category: 'people', path: '/attendance/qr-generator', label: '產生 QR Code', icon: <QrCode size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
+
+  // ⚙️ 系統與品牌 (System)
+  { category: 'system', path: '/locations', label: 'nav.locations', icon: <MapPin size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/settings', label: 'nav.settings', icon: <Settings size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/design/landing', label: 'nav.landingPage', icon: <MonitorPlay size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/design/branding', label: 'nav.branding', icon: <Palette size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/design/theme', label: 'nav.theme', icon: <Paintbrush size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/design/templates', label: 'nav.templates', icon: <LayoutTemplate size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/legal/pages', label: 'nav.legalPages', icon: <Scale size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/legal/cookies', label: 'nav.cookieCategories', icon: <Cookie size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/legal/consent', label: 'nav.consentLog', icon: <FileCheck size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/developer/metrics', label: 'nav.apiMetrics', icon: <Activity size={20} />, roles: ['SUPER_ADMIN'] },
+  { category: 'system', path: '/developer/audit-log', label: 'nav.auditLog', icon: <ScrollText size={20} />, roles: ['SUPER_ADMIN'] },
 ];
 
 const ROLE_COLORS: Record<Role, string> = {
@@ -111,26 +110,10 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [enableCounterDisplay, setEnableCounterDisplay] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   const filteredNav = user
     ? navItems.filter((item) => item.roles.includes(user.role))
     : [];
-
-
-  // Auto-expand current active item category
-  useEffect(() => {
-    const activeItem = filteredNav.find(item => 
-      item.path !== '/' && location.pathname.startsWith(item.path)
-    );
-    if (activeItem) {
-      setExpandedItems(prev => ({ ...prev, [activeItem.path]: true }));
-    }
-  }, [location.pathname, filteredNav]);
-
-  const toggleExpand = (path: string) => {
-    setExpandedItems(prev => ({ ...prev, [path]: !prev[path] }));
-  };
 
   // Poll pending order count and settings
   useEffect(() => {
@@ -165,7 +148,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
   // Inject Counter link if enabled
   if (enableCounterDisplay && user && !filteredNav.some(item => item.path === '/counter')) {
     const kitchenIdx = filteredNav.findIndex(item => item.path === '/kitchen');
-    const counterItem = { path: '/counter', label: 'nav.counter', icon: '🏪', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] as Role[] };
+    const counterItem = { category: 'operations', path: '/counter', label: 'nav.counter', icon: <Store size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] as Role[] };
     if (kitchenIdx !== -1) {
       filteredNav.splice(kitchenIdx + 1, 0, counterItem);
     } else {
@@ -222,78 +205,60 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
           <p className="text-xs text-gray-400 mt-1">{t('common.adminPanel')}</p>
         </div>
         <nav className="flex-1 py-4 overflow-y-auto select-none">
-          {filteredNav.map((item) => {
-            const isActive =
-              item.path === '/'
-                ? location.pathname === '/'
-                : location.pathname.startsWith(item.path);
-            const hasChildren = !!item.children;
-            const isExpanded = !!expandedItems[item.path];
+          {(() => {
+            const grouped = filteredNav.reduce((acc, item) => {
+              const cat = item.category || 'other';
+              if (!acc[cat]) acc[cat] = [];
+              acc[cat].push(item);
+              return acc;
+            }, {} as Record<string, NavItem[]>);
 
-            return (
-              <div key={item.path}>
-                {hasChildren ? (
-                  <button
-                    onClick={() => toggleExpand(item.path)}
-                    className={`w-full flex items-center justify-between px-6 py-3.5 md:py-3 text-base md:text-sm transition-colors focus:outline-none ${isActive
-                      ? 'bg-gray-800 text-primary-400 border-r-2 border-primary-400'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                      }`}
-                  >
-                    <div className="flex items-center">
-                      <span className="mr-3 text-lg md:text-base">{item.icon}</span>
-                      <span className="font-medium">{t(item.label)}</span>
+            const categories = [
+              { id: 'operations', label: '營運與財務' },
+              { id: 'menu_marketing', label: '菜單與行銷' },
+              { id: 'people', label: '人事與會員' },
+              { id: 'system', label: '系統與品牌' },
+              { id: 'other', label: '其他' }
+            ];
+
+            return categories.map(cat => {
+              const items = grouped[cat.id];
+              if (!items || items.length === 0) return null;
+
+              return (
+                <div key={cat.id} className="mb-6">
+                  {cat.id !== 'other' && (
+                    <div className="px-6 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      {cat.label}
                     </div>
-                    <svg
-                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                        isExpanded ? 'rotate-180' : ''
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                ) : (
-                  <Link
-                    to={item.path}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center px-6 py-3.5 md:py-3 text-base md:text-sm transition-colors ${isActive
-                      ? 'bg-gray-800 text-primary-400 border-r-2 border-primary-400'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                      }`}
-                  >
-                    <span className="mr-3 text-lg md:text-base">{item.icon}</span>
-                    <span className="font-medium">{t(item.label)}</span>
-                  </Link>
-                )}
+                  )}
+                  <div className="space-y-1">
+                    {items.map(item => {
+                      const isActive = item.path === '/' 
+                        ? location.pathname === '/' 
+                        : location.pathname.startsWith(item.path);
 
-                {item.children && isExpanded && (
-                  <div className="bg-gray-950/60 border-l border-gray-800">
-                    {item.children.filter((child) => !child.roles || (user && child.roles.includes(user.role))).map((child) => {
-                      const isChildActive = child.path === item.path 
-                        ? location.pathname === child.path 
-                        : location.pathname.startsWith(child.path);
                       return (
                         <Link
-                          key={child.path}
-                          to={child.path}
+                          key={item.path}
+                          to={item.path}
                           onClick={() => setSidebarOpen(false)}
-                          className={`block pl-14 pr-6 py-3 md:py-2.5 text-sm md:text-xs transition-colors ${isChildActive
-                            ? 'text-primary-400 font-bold bg-gray-900/40'
-                            : 'text-gray-400 hover:text-white'
-                            }`}
+                          className={`flex items-center px-6 py-2.5 text-sm transition-colors ${
+                            isActive
+                              ? 'bg-gray-800 text-primary-400 border-r-2 border-primary-400'
+                              : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                          }`}
                         >
-                          {t(child.label)}
+                          <span className="mr-3 text-gray-400">{item.icon}</span>
+                          <span className="font-medium">{t(item.label)}</span>
                         </Link>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            });
+          })()}
         </nav>
 
         {/* User info at bottom of sidebar */}
