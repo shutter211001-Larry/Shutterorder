@@ -324,7 +324,9 @@
     "status": "狀態",
     "distanceAbnormal": "距離異常",
     "normal": "正常",
-    "noRecords": "尚無紀錄"
+    "noRecords": "尚無紀錄",
+    "actions": "操作",
+    "requestCorrection": "補登/異動"
   },
   "attendancePayroll": {
     "payrollCsvHeader": "員工姓名,時薪,總工時(小時),應付薪資\\n",
@@ -1045,8 +1047,8 @@
     "stateOrRegion": "省份/區域",
     "postalCodeRequired": "郵遞區號 *",
     "countryCode": "國家 (Country Code)",
-    "googleMapsUrlOrCoordinates": "Google Maps 網址或經緯度 (自動解析)",
-    "googleMapsInputPlaceholder": "請貼上 Google Maps 分店網址，或直接輸入「緯度, 經度」",
+    "googleMapsUrlOrCoordinates": "Google Maps 網址 / Plus Code / 經緯度 (自動解析)",
+    "googleMapsInputPlaceholder": "請貼上分店網址、Plus Code，或「緯度, 經度」",
     "parsedLatitude": "目前解析結果：緯度",
     "parsedLongitude": ", 經度",
     "storeServiceSettings": "此門市服務設定",
@@ -1954,8 +1956,8 @@
     "title": "補打卡申請",
     "requestCorrection": "提出補打卡申請",
     "reason": "補打卡原因",
-    "requestedCheckIn": "申請上班時間",
-    "requestedCheckOut": "申請下班時間",
+    "requestedCheckIn": "申請上班時間 (含日期)",
+    "requestedCheckOut": "申請下班時間 (含日期)",
     "status": "狀態",
     "statusPending": "待審核",
     "statusApproved": "已核准",
@@ -1973,6 +1975,7 @@
     "bothMissing": "忘記打上下班卡",
     "employee": "員工",
     "manager": "審核主管",
-    "date": "日期"
+    "date": "日期",
+    "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
   }
 }

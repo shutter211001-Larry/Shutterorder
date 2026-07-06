@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.js';
+import { OpenLocationCode } from 'open-location-code';
 
 interface OperatingHour {
   dayOfWeek: number;
@@ -200,21 +201,37 @@ export default function LocationForm() {
 
     let lat: number | null = null;
     let lng: number | null = null;
+    let parsedPlusCode = false;
 
-    const match1 = val.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (match1) {
-      lat = parseFloat(match1[1]);
-      lng = parseFloat(match1[2]);
-    } else {
-      const match2 = val.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-      if (match2) {
-        lat = parseFloat(match2[1]);
-        lng = parseFloat(match2[2]);
+    try {
+      const olc: any = new OpenLocationCode();
+      const potentialPlusCode = val.trim().split(/[\s,]+/)[0];
+      if (olc.isValid(potentialPlusCode) && olc.isFull(potentialPlusCode)) {
+        const decoded = olc.decode(potentialPlusCode);
+        lat = decoded.latitudeCenter;
+        lng = decoded.longitudeCenter;
+        parsedPlusCode = true;
+      }
+    } catch (err) {
+      // Ignore errors if open-location-code fails or is not found
+    }
+
+    if (!parsedPlusCode) {
+      const match1 = val.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (match1) {
+        lat = parseFloat(match1[1]);
+        lng = parseFloat(match1[2]);
       } else {
-        const match3 = val.match(/^(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)$/);
-        if (match3) {
-          lat = parseFloat(match3[1]);
-          lng = parseFloat(match3[2]);
+        const match2 = val.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+        if (match2) {
+          lat = parseFloat(match2[1]);
+          lng = parseFloat(match2[2]);
+        } else {
+          const match3 = val.match(/^(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)$/);
+          if (match3) {
+            lat = parseFloat(match3[1]);
+            lng = parseFloat(match3[2]);
+          }
         }
       }
     }

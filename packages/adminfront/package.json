@@ -13,6 +13,7 @@
     "@shutter/shared": "*",
     "html5-qrcode": "^2.3.8",
     "i18next": "^25.8.10",
+    "open-location-code": "^1.0.3",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
@@ -23,6 +24,7 @@
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
+    "@types/open-location-code": "^1.0.1",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",

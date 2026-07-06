@@ -324,7 +324,9 @@
     "status": "[EN] 狀態",
     "distanceAbnormal": "[EN] 距離異常",
     "normal": "[EN] 正常",
-    "noRecords": "[EN] 尚無紀錄"
+    "noRecords": "[EN] 尚無紀錄",
+    "actions": "操作",
+    "requestCorrection": "補登/異動"
   },
   "attendancePayroll": {
     "payrollCsvHeader": "[EN] 員工姓名,時薪,總工時(小時),應付薪資\\n",
@@ -1045,8 +1047,8 @@
     "stateOrRegion": "[EN] 省份/區域",
     "postalCodeRequired": "[EN] 郵遞區號 *",
     "countryCode": "[EN] 國家 (Country Code)",
-    "googleMapsUrlOrCoordinates": "[EN] Google Maps 網址或經緯度 (自動解析)",
-    "googleMapsInputPlaceholder": "[EN] 請貼上 Google Maps 分店網址，或直接輸入「緯度, 經度」",
+    "googleMapsUrlOrCoordinates": "Google Maps URL / Plus Code / Coordinates (Auto parse)",
+    "googleMapsInputPlaceholder": "Paste Google Maps URL, Plus Code, or \"Lat, Lng\"",
     "parsedLatitude": "[EN] 目前解析結果：緯度",
     "parsedLongitude": "[EN] , 經度",
     "storeServiceSettings": "[EN] 此門市服務設定",
@@ -1973,6 +1975,7 @@
     "bothMissing": "忘記打上下班卡",
     "employee": "員工",
     "manager": "審核主管",
-    "date": "日期"
+    "date": "日期",
+    "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
   }
 }
