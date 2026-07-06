@@ -92,6 +92,7 @@ export async function getStaff(req: Request<{ id: string }>, res: Response): Pro
       maxHoursPerWeek: true,
       availabilities: true,
       timeOffs: true,
+      jobRoles: { select: { id: true, name: true } },
       location: { select: { id: true, name: true } },
       createdAt: true,
       updatedAt: true,
@@ -130,6 +131,7 @@ const updateStaffSchema = z.object({
     reason: z.string().nullable().optional(),
   })).optional(),
   isActive: z.boolean().optional(),
+  jobRoleIds: z.array(z.string()).optional(),
 });
 
 export async function updateStaff(req: Request<{ id: string }>, res: Response): Promise<void> {
@@ -160,7 +162,7 @@ export async function updateStaff(req: Request<{ id: string }>, res: Response): 
   }
 
   // Update user basic details
-  const { availabilities, timeOffs, ...userData } = parsed.data;
+  const { availabilities, timeOffs, jobRoleIds, ...userData } = parsed.data;
 
   const user = await prisma.user.update({
     where: { id: targetId },
@@ -181,6 +183,11 @@ export async function updateStaff(req: Request<{ id: string }>, res: Response): 
           })),
         },
       }),
+      ...(jobRoleIds !== undefined && {
+        jobRoles: {
+          set: jobRoleIds.map(id => ({ id }))
+        }
+      }),
     },
     select: {
       id: true,
@@ -197,6 +204,7 @@ export async function updateStaff(req: Request<{ id: string }>, res: Response): 
       maxHoursPerWeek: true,
       availabilities: true,
       timeOffs: true,
+      jobRoles: { select: { id: true, name: true } },
       location: { select: { id: true, name: true } },
     },
   });

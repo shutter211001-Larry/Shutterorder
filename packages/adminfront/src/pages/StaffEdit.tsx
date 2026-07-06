@@ -29,6 +29,7 @@ interface Staff {
     reason: string | null;
   }>;
   location: { id: string; name: string } | null;
+  jobRoles?: { id: string; name: string }[];
 }
 
 interface Location {
@@ -58,6 +59,8 @@ export default function StaffEdit() {
   const [newTimeOffDate, setNewTimeOffDate] = useState('');
   const [newTimeOffReason, setNewTimeOffReason] = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [jobRoleIds, setJobRoleIds] = useState<string[]>([]);
+  const [availableJobRoles, setAvailableJobRoles] = useState<{ id: string, name: string, locationId?: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -69,8 +72,9 @@ export default function StaffEdit() {
     Promise.all([
       fetch(`/api/staff/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
       fetch('/api/locations?limit=100', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+      fetch('/api/job-roles', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
     ])
-      .then(([staffData, locData]) => {
+      .then(([staffData, locData, rolesData]) => {
         if (!staffData.success) throw new Error(staffData.error || 'Failed to load staff');
         const s = staffData.data;
         setStaff(s);
@@ -86,7 +90,9 @@ export default function StaffEdit() {
         setAvailabilities(s.availabilities || []);
         setTimeOffs((s.timeOffs || []).map((t: any) => ({ ...t, date: new Date(t.date).toISOString().split('T')[0] })));
         setIsActive(s.isActive);
+        setJobRoleIds(s.jobRoles?.map((r: any) => r.id) || []);
         if (locData.success) setLocations(locData.data || []);
+        if (rolesData.success) setAvailableJobRoles(rolesData.data || []);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -114,6 +120,7 @@ export default function StaffEdit() {
           availabilities,
           timeOffs,
           isActive,
+          jobRoleIds,
         }),
       });
       const data = await res.json();
@@ -226,6 +233,37 @@ export default function StaffEdit() {
               <option key={loc.id} value={loc.id}>{loc.name}</option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.jobRoles') || '職位與技能 (Job Roles)'}</label>
+          <div className="space-y-2 max-h-48 overflow-y-auto p-3 bg-gray-50 border border-gray-200 rounded-xl">
+            {availableJobRoles
+              .filter(role => !role.locationId || role.locationId === locationId)
+              .map(role => (
+                <label key={role.id} className="flex items-center gap-3 cursor-pointer p-1 hover:bg-gray-100 rounded">
+                  <input
+                    type="checkbox"
+                    checked={jobRoleIds.includes(role.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setJobRoleIds([...jobRoleIds, role.id]);
+                      } else {
+                        setJobRoleIds(jobRoleIds.filter(id => id !== role.id));
+                      }
+                    }}
+                    disabled={user?.id === staff.id}
+                    className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-gray-700">{role.name}</span>
+                </label>
+              ))}
+            {availableJobRoles.filter(role => !role.locationId || role.locationId === locationId).length === 0 && (
+              <div className="text-sm text-gray-500 text-center py-2">
+                無可用職位，請先至「職位設定」新增
+              </div>
+            )}
+          </div>
         </div>
 
         <div>

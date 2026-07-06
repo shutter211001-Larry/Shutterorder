@@ -50,3 +50,7 @@
 ## 10. Language Preference
 **Trigger**: Always.
 **Rule**: You MUST always communicate and respond to the user in Traditional Chinese (繁體中文), unless the user explicitly requests another language for a specific task.
+
+## 11. Taiwan Labor Standards Act Compliance (HR Design)
+**Trigger**: When designing, modifying, or implementing any Human Resources (HR) features, including but not limited to Payroll, Shift Scheduling (Roster), Attendance, Leave management, and HR database schemas.
+**Rule**: You MUST strictly comply with the Taiwan Labor Standards Act. Before proposing any design or modifying HR code, you MUST first read and reference docs/HR_LABOR_LAWS_TW.md for the correct multipliers, legal limits, and domain knowledge. Do not invent payroll logic without consulting this document.

@@ -57,7 +57,7 @@ export async function autoSchedule(req: Request, res: Response): Promise<void> {
 
   // 3. Greedily fill requirements
   for (const req of requirements) {
-    const reqDayOfWeek = req.date.getDay();
+    const reqDayOfWeek = req.date.getUTCDay();
     const reqStartMin = timeToMinutes(req.startTime);
     const reqEndMin = timeToMinutes(req.endTime);
     const reqDuration = (reqEndMin - reqStartMin) / 60; // in hours

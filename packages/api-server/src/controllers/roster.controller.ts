@@ -191,7 +191,7 @@ export async function getMergedRequirements(locationId: string, start: Date, end
   while (current <= end) {
     const dateStr = current.toISOString().split('T')[0];
     if (!overrideDates.has(dateStr)) {
-      const dayOfWeek = current.getDay();
+      const dayOfWeek = current.getUTCDay();
       const templateReqsForDay = weeklyReqs.filter(w => w.dayOfWeek === dayOfWeek);
       for (const t of templateReqsForDay) {
         finalReqs.push({
@@ -207,7 +207,7 @@ export async function getMergedRequirements(locationId: string, start: Date, end
         });
       }
     }
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
 
   // Sort by date then startTime
