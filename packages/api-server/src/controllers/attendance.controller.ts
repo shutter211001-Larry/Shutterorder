@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { isNationalHoliday } from '../utils/holidays.js';
 import prisma from '../lib/db.js';
 import jwt from 'jsonwebtoken';
 
@@ -198,44 +199,91 @@ export const getPayroll = async (req: Request, res: Response) => {
   const startDate = new Date(Number(year), Number(month) - 1, 1);
   const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
 
-  const records = await prisma.staffAttendance.findMany({
-    where: {
-      checkIn: { gte: startDate, lte: endDate },
-      checkOut: { not: null }
-    },
+  const users = await prisma.user.findMany({
+    where: { isActive: true },
     include: {
-      user: { select: { id: true, name: true, hourlyWage: true } }
+      location: true,
+      leaves: {
+        where: {
+          status: 'APPROVED',
+          startTime: { gte: startDate },
+          endTime: { lte: endDate }
+        }
+      },
+      attendances: {
+        where: {
+          checkIn: { gte: startDate, lte: endDate },
+          checkOut: { not: null }
+        }
+      }
     }
   });
 
-  // Aggregate hours and salary by user
-  const payrollMap: Record<string, any> = {};
+  const payrollData = [];
 
-  records.forEach(record => {
-    if (!record.checkOut || !record.user) return;
-    const userId = record.user.id;
-    if (!payrollMap[userId]) {
-      payrollMap[userId] = {
-        userId,
-        name: record.user.name,
-        hourlyWage: record.user.hourlyWage,
-        totalHours: 0,
-        totalSalary: 0
-      };
+  for (const user of users) {
+    let totalHours = 0;
+    let baseSalary = 0;
+    let holidayOvertimePay = 0;
+    let leaveDeduction = 0;
+    
+    for (const record of user.attendances) {
+      if (!record.checkOut) continue;
+      const durationMs = record.checkOut.getTime() - record.checkIn.getTime();
+      const durationHours = durationMs / (1000 * 60 * 60);
+      
+      const isHoliday = await isNationalHoliday(record.checkIn);
+      const hourlyMultiplier = isHoliday ? (user.location?.hourlyNationalHolidayMultiplier || 2.0) : 1.0;
+      
+      if (user.salaryType === 'HOURLY') {
+        totalHours += durationHours;
+        if (isHoliday) {
+          holidayOvertimePay += durationHours * user.hourlyWage * (hourlyMultiplier - 1);
+        }
+      } else {
+        totalHours += durationHours;
+        if (isHoliday && (user.location?.monthlyNationalHolidayOvertime ?? true)) {
+          const hourlyRate = user.monthlyWage / 240;
+          holidayOvertimePay += durationHours * hourlyRate * (hourlyMultiplier - 1); 
+        }
+      }
     }
 
-    const durationMs = record.checkOut.getTime() - record.checkIn.getTime();
-    const durationHours = durationMs / (1000 * 60 * 60);
+    if (user.salaryType === 'HOURLY') {
+      baseSalary = totalHours * user.hourlyWage;
+    } else {
+      baseSalary = user.monthlyWage;
+      
+      const hourlyRate = user.monthlyWage / 240;
+      const minuteRate = hourlyRate / 60;
+      
+      for (const leave of user.leaves) {
+        const durationMinutes = (leave.endTime.getTime() - leave.startTime.getTime()) / (1000 * 60);
+        let deductionRatio = 0;
+        if (leave.leaveType === 'PERSONAL') deductionRatio = 1.0;
+        else if (leave.leaveType === 'SICK') deductionRatio = 0.5;
+        
+        leaveDeduction += durationMinutes * minuteRate * deductionRatio;
+      }
+    }
 
-    payrollMap[userId].totalHours += durationHours;
-  });
+    const totalSalary = Math.round(baseSalary + holidayOvertimePay - leaveDeduction);
 
-  // Calculate salary and format
-  const payrollData = Object.values(payrollMap).map(p => {
-    p.totalHours = Number(p.totalHours.toFixed(2));
-    p.totalSalary = Math.round(p.totalHours * p.hourlyWage);
-    return p;
-  });
+    if (totalHours > 0 || user.salaryType === 'MONTHLY') {
+      payrollData.push({
+        userId: user.id,
+        name: user.name,
+        salaryType: user.salaryType,
+        hourlyWage: user.hourlyWage,
+        monthlyWage: user.monthlyWage,
+        totalHours: Number(totalHours.toFixed(2)),
+        baseSalary: Math.round(baseSalary),
+        holidayOvertimePay: Math.round(holidayOvertimePay),
+        leaveDeduction: Math.round(leaveDeduction),
+        totalSalary
+      });
+    }
+  }
 
   res.json({ success: true, data: payrollData });
 };

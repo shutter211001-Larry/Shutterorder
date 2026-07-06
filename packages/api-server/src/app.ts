@@ -46,6 +46,7 @@ import settingsRoutes from './routes/settings.routes.js';
 import staffRoutes from './routes/staff.routes.js';
 import customerRoutes from './routes/customer.routes.js';
 import attendanceRoutes from './routes/attendance.routes.js';
+import leaveRoutes from './routes/leave.routes.js';
 import developerRoutes from './routes/developer.routes.js';
 import lineRoutes from './routes/line.routes.js';
 import integrationRoutes from './routes/integration.routes.js';
@@ -225,6 +226,7 @@ export async function createApp() {
   app.use('/api/staff', staffRoutes);
   app.use('/api/customers', customerRoutes);
   app.use('/api/attendance', attendanceRoutes);
+  app.use('/api/leaves', leaveRoutes);
   app.use('/api/developer', developerRoutes);
   app.use('/api/line', lineRoutes);
   app.use('/api/integration', integrationRoutes);

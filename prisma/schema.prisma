@@ -32,6 +32,8 @@ model User {
   attendances     StaffAttendance[]
   correctionRequests AttendanceCorrectionRequest[]
   approvedCorrections AttendanceCorrectionRequest[] @relation("ManagerApprovedCorrections")
+  leaves          LeaveRequest[]
+  approvedLeaves  LeaveRequest[] @relation("ManagerApprovedLeaves")
 
   @@map("users")
 }
@@ -139,6 +141,8 @@ model Location {
   busyMessage      String?
   owner            String?         @default("未指派")
   royaltyRate      Float?          @default(5.0)
+  hourlyNationalHolidayMultiplier Float @default(2.0)
+  monthlyNationalHolidayOvertime Boolean @default(true)
   apiEndpoint      String?
   contractStart    String?         @default("2025-01-01")
   contractEnd      String?         @default("2028-12-31")
@@ -842,4 +846,34 @@ model AttendanceCorrectionRequest {
   updatedAt             DateTime  @updatedAt
 
   @@map("attendance_correction_requests")
+}
+
+enum LeaveType {
+  PERSONAL
+  SICK
+  ANNUAL
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model LeaveRequest {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  leaveType       LeaveType
+  startTime       DateTime
+  endTime         DateTime
+  reason          String
+  status          LeaveStatus @default(PENDING)
+  managerId       String?
+  manager         User?       @relation("ManagerApprovedLeaves", fields: [managerId], references: [id])
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("leave_requests")
 }

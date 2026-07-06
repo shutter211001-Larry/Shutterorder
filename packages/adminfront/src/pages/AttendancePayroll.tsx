@@ -6,8 +6,13 @@ import toast from 'react-hot-toast';
 interface PayrollRecord {
   userId: string;
   name: string;
+  salaryType: 'HOURLY' | 'MONTHLY';
   hourlyWage: number;
+  monthlyWage: number;
   totalHours: number;
+  baseSalary: number;
+  holidayOvertimePay: number;
+  leaveDeduction: number;
   totalSalary: number;
 }
 
@@ -48,10 +53,10 @@ export default function AttendancePayroll() {
     if (payrollData.length === 0) return;
     
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    csvContent += t('attendancePayroll.payrollCsvHeader');
+    csvContent += `${t('attendancePayroll.payrollCsvHeader')}\n`;
     
     payrollData.forEach(row => {
-      csvContent += `${row.name},${row.hourlyWage},${row.totalHours},${row.totalSalary}\n`;
+      csvContent += `${row.name},${row.salaryType},${row.hourlyWage},${row.monthlyWage},${row.totalHours},${row.baseSalary},${row.holidayOvertimePay},${row.leaveDeduction},${row.totalSalary}\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
@@ -116,8 +121,11 @@ export default function AttendancePayroll() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.employeeName')}</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.hourlyWage')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.salaryType')}</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.totalHours')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.baseSalary')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.holidayOvertimePay')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.leaveDeduction')}</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendancePayroll.salaryPayable')}</th>
               </tr>
             </thead>
@@ -136,11 +144,20 @@ export default function AttendancePayroll() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {record.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                      NT$ {record.hourlyWage.toLocaleString()}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {record.salaryType === 'MONTHLY' ? t('attendancePayroll.typeMonthly') : t('attendancePayroll.typeHourly')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-medium">
                       {record.totalHours} h
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                      NT$ {record.baseSalary.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right">
+                      + NT$ {record.holidayOvertimePay.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-right">
+                      - NT$ {record.leaveDeduction.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold text-right">
                       NT$ {record.totalSalary.toLocaleString()}

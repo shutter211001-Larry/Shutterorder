@@ -40,6 +40,8 @@ interface LocationData {
   pickupLeadTime: number;
   lat?: number;
   lng?: number;
+  hourlyNationalHolidayMultiplier: number;
+  monthlyNationalHolidayOvertime: boolean;
 }
 
 const defaultHours: OperatingHour[] = Array.from({ length: 7 }).map((_, i: number) => ({
@@ -69,6 +71,8 @@ const emptyLocation: LocationData = {
   pickupLeadTime: 15,
   lat: 0,
   lng: 0,
+  hourlyNationalHolidayMultiplier: 2.0,
+  monthlyNationalHolidayOvertime: true,
 };
 
 export default function LocationForm() {
@@ -129,6 +133,8 @@ export default function LocationForm() {
           pickupLeadTime: loc.pickupLeadTime,
           lat: loc.lat || 0,
           lng: loc.lng || 0,
+          hourlyNationalHolidayMultiplier: loc.hourlyNationalHolidayMultiplier ?? 2.0,
+          monthlyNationalHolidayOvertime: loc.monthlyNationalHolidayOvertime ?? true,
         });
         if (loc.operatingHours?.length) {
           setHours(loc.operatingHours.map((h: any) => ({
@@ -451,6 +457,36 @@ export default function LocationForm() {
                 min={0}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
+            </div>
+          </div>
+        </section>
+
+        {/* Payroll Settings */}
+        <section className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-1">{t('locationForm.payrollSettings') || '薪資設定 (Payroll)'}</h3>
+          <p className="text-sm text-gray-500 mb-4">{t('locationForm.payrollSettingsDescription') || '設定此門市的國定假日計薪標準。'}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('locationForm.hourlyHolidayMultiplier') || '時薪制國定假日倍率'}</label>
+              <input
+                type="number"
+                value={form.hourlyNationalHolidayMultiplier}
+                onChange={(e) => updateField('hourlyNationalHolidayMultiplier', parseFloat(e.target.value) || 1)}
+                min={1}
+                step={0.5}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+            <div className="flex items-center pt-6">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={form.monthlyNationalHolidayOvertime}
+                  onChange={(e) => updateField('monthlyNationalHolidayOvertime', e.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700">{t('locationForm.monthlyHolidayOvertime') || '月薪制國定假日發給加班費'}</span>
+              </label>
             </div>
           </div>
         </section>

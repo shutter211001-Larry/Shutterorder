@@ -10,3 +10,10 @@
 - Do NOT just run `npx prisma db push` without generating a migration file. 
 - If you are operating in a non-interactive environment where `npx prisma migrate dev` fails, you must manually create a timestamped folder under `prisma/migrations` containing a `migration.sql` script with the exact SQL DDL statements for your changes, and mark it as resolved locally if necessary.
 - CRITICAL: When writing manual `migration.sql` scripts, you MUST write idempotent SQL (e.g., `ALTER TABLE "table" ADD COLUMN IF NOT EXISTS "column" TEXT;`). This prevents `502 Bad Gateway` deployment crash loops on Railway if the remote database already contains the schema changes.
+
+## 3. open-location-code Typings Workaround
+**Trigger**: When using or implementing the \open-location-code\ library in TypeScript.
+**Rule**: The \@types/open-location-code\ package incorrectly defines methods such as \isValid\, \isFull\, and \decode\ as \static\ methods. However, at runtime, these are instance methods on the prototype. To avoid TypeScript compilation errors (e.g., \Property 'isValid' does not exist on type 'OpenLocationCode'\), you MUST instantiate the class and cast it to \ny\ before calling these methods.
+- Correct usage: \const olc: any = new OpenLocationCode(); olc.isValid(code);\
+- Incorrect usage: \OpenLocationCode.isValid(code);\ (Fails at runtime)
+- Incorrect usage: \const olc = new OpenLocationCode(); olc.isValid(code);\ (Fails TS compilation)

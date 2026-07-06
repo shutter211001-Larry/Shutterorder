@@ -326,7 +326,22 @@
     "normal": "正常",
     "noRecords": "尚無紀錄",
     "actions": "操作",
-    "requestCorrection": "補登/異動"
+    "requestCorrection": "補登/異動",
+    "leaveTitle": "請假申請",
+    "requestLeave": "新增請假單",
+    "leaveType": "假別",
+    "leaveStartTime": "開始時間",
+    "leaveEndTime": "結束時間",
+    "leaveReason": "原因",
+    "leavePersonal": "事假",
+    "leaveSick": "病假",
+    "leaveAnnual": "特休",
+    "leaveOther": "其他",
+    "noLeaveRecords": "目前沒有請假紀錄",
+    "leaveApprovalTitle": "請假審核",
+    "employee": "員工",
+    "leaveSuccess": "請假單已送出",
+    "leaveStatusUpdated": "狀態已更新"
   },
   "attendancePayroll": {
     "payrollCsvHeader": "員工姓名,時薪,總工時(小時),應付薪資\\n",
@@ -341,7 +356,13 @@
     "hourlyWage": "時薪",
     "totalHours": "總工時 (小時)",
     "salaryPayable": "應付薪資",
-    "noPayrollRecords": "此月份尚無任何員工的打卡結算紀錄"
+    "noPayrollRecords": "此月份尚無任何員工的打卡結算紀錄",
+    "salaryType": "計薪方式",
+    "baseSalary": "底薪",
+    "holidayOvertimePay": "國定假日加班費/津貼",
+    "leaveDeduction": "請假扣款",
+    "typeMonthly": "月薪",
+    "typeHourly": "時薪"
   },
   "attendanceQRGenerator": {
     "generateClockInQrCode": "產生打卡 QR Code",
@@ -368,7 +389,8 @@
     "status": "狀態",
     "abnormalDistance": "距離異常",
     "normal": "正常",
-    "noMatchingRecordsFound": "找不到符合的紀錄"
+    "noMatchingRecordsFound": "找不到符合的紀錄",
+    "missingCheckout": "未下班"
   },
   "auditLog": {
     "auditLog": "稽核紀錄 (Audit Log)",
@@ -1079,7 +1101,11 @@
     "cancel": "取消",
     "saving": "儲存中...",
     "updateStoreInfo": "更新門市資訊",
-    "createStore": "建立門市"
+    "createStore": "建立門市",
+    "payrollSettings": "薪資設定 (Payroll)",
+    "payrollSettingsDescription": "設定此門市的國定假日計薪標準。",
+    "hourlyHolidayMultiplier": "時薪制國定假日薪資倍率",
+    "monthlyHolidayOvertime": "月薪制國定假日發給加班費"
   },
   "locationList": {
     "branchManagement": "分店管理 (Locations)",

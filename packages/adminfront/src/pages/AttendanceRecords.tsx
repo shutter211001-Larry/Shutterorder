@@ -158,7 +158,11 @@ export default function AttendanceRecords() {
                   {record.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {record.isOutOfRange ? (
+                  {!record.checkOut ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      {t('attendanceRecords.missingCheckout') || '未下班'}
+                    </span>
+                  ) : record.isOutOfRange ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                       {t('attendanceRecords.abnormalDistance')}
                     </span>
