@@ -70,6 +70,7 @@ import Approvals from './pages/Approvals.js';
 import AttendanceQRGenerator from './pages/AttendanceQRGenerator.js';
 import AttendancePayroll from './pages/AttendancePayroll.js';
 import JobRoleSettings from './pages/JobRoleSettings.js';
+import RosterManagement from './pages/RosterManagement.js';
 
 import './index.css';
 
@@ -182,6 +183,7 @@ function AppRoutes() {
         <Route path="/attendance/leave" element={<Leave />} />
         <Route path="/attendance/payroll" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><AttendancePayroll /></RequireRole>} />
         <Route path="/attendance/job-roles" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><JobRoleSettings /></RequireRole>} />
+        <Route path="/attendance/roster" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><RosterManagement /></RequireRole>} />
       </Routes>
     </AdminLayout>
   );
