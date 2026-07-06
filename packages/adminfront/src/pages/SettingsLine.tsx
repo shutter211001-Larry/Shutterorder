@@ -134,7 +134,7 @@ export default function SettingsLine() {
       </div>
 
       {/* Branch Override Selector */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="text-2xl">🏬</span>
           <div>

@@ -46,6 +46,8 @@ export async function listStaff(req: Request, res: Response): Promise<void> {
         hourlyWage: true,
         salaryType: true,
         monthlyWage: true,
+        maxDaysPerWeek: true,
+        maxHoursPerWeek: true,
         location: { select: { id: true, name: true } },
         createdAt: true,
       },
@@ -86,6 +88,9 @@ export async function getStaff(req: Request<{ id: string }>, res: Response): Pro
       hourlyWage: true,
       salaryType: true,
       monthlyWage: true,
+      maxDaysPerWeek: true,
+      maxHoursPerWeek: true,
+      availabilities: true,
       location: { select: { id: true, name: true } },
       createdAt: true,
       updatedAt: true,
@@ -112,6 +117,13 @@ const updateStaffSchema = z.object({
   hourlyWage: z.number().min(0).optional(),
   salaryType: z.enum(['HOURLY', 'MONTHLY']).optional(),
   monthlyWage: z.number().min(0).optional(),
+  maxDaysPerWeek: z.number().min(0).max(7).optional(),
+  maxHoursPerWeek: z.number().min(0).max(168).optional(),
+  availabilities: z.array(z.object({
+    dayOfWeek: z.number().min(0).max(6),
+    startTime: z.string(),
+    endTime: z.string(),
+  })).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -142,9 +154,20 @@ export async function updateStaff(req: Request<{ id: string }>, res: Response): 
     return;
   }
 
+  // Update user basic details
+  const { availabilities, ...userData } = parsed.data;
+
   const user = await prisma.user.update({
     where: { id: targetId },
-    data: parsed.data,
+    data: {
+      ...userData,
+      ...(availabilities !== undefined && {
+        availabilities: {
+          deleteMany: {},
+          create: availabilities,
+        },
+      }),
+    },
     select: {
       id: true,
       email: true,
@@ -156,6 +179,9 @@ export async function updateStaff(req: Request<{ id: string }>, res: Response): 
       hourlyWage: true,
       salaryType: true,
       monthlyWage: true,
+      maxDaysPerWeek: true,
+      maxHoursPerWeek: true,
+      availabilities: true,
       location: { select: { id: true, name: true } },
     },
   });

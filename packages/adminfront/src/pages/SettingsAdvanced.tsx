@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { ToggleRow } from '../components/ui/ToggleRow.js';
+import { ToggleRow } from '../components/ui/ToggleRow';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 function IPBlacklistManager({ token }: { token: string }) {
   const [list, setList] = useState<{ ip: string; reason: string | null; createdAt: string }[]>([]);
@@ -48,7 +49,7 @@ function IPBlacklistManager({ token }: { token: string }) {
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-black disabled:opacity-50"
+          className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50 whitespace-nowrap"
         >
           封鎖 IP
         </button>
@@ -58,9 +59,9 @@ function IPBlacklistManager({ token }: { token: string }) {
         <table className="w-full text-sm text-left">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-2 font-medium">IP 地址</th>
-              <th className="px-4 py-2 font-medium">原因</th>
-              <th className="px-4 py-2 font-medium text-right">操作</th>
+              <th className="px-4 py-3 font-semibold text-gray-700">IP 地址</th>
+              <th className="px-4 py-3 font-semibold text-gray-700">原因</th>
+              <th className="px-4 py-3 font-semibold text-gray-700 text-right">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -68,11 +69,11 @@ function IPBlacklistManager({ token }: { token: string }) {
               <tr><td colSpan={3} className="px-4 py-8 text-center text-gray-400">目前沒有黑名單 IP</td></tr>
             ) : (
               list.map(item => (
-                <tr key={item.ip}>
-                  <td className="px-4 py-2 font-mono text-xs">{item.ip}</td>
-                  <td className="px-4 py-2 text-gray-500">{item.reason || '—'}</td>
-                  <td className="px-4 py-2 text-right">
-                    <button onClick={() => handleRemove(item.ip)} className="text-red-600 hover:text-red-700 text-xs font-bold">解除</button>
+                <tr key={item.ip} className="bg-white">
+                  <td className="px-4 py-3 font-mono text-xs">{item.ip}</td>
+                  <td className="px-4 py-3 text-gray-500">{item.reason || '—'}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button onClick={() => handleRemove(item.ip)} className="text-red-600 hover:text-red-700 text-xs font-bold transition-colors">解除</button>
                   </td>
                 </tr>
               ))
@@ -194,186 +195,165 @@ export default function SettingsAdvanced() {
 
   const currentDesc = descriptions[steps[safeIndex]] || { desc: '', type: 'info' };
 
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? '儲存中...' : '儲存變更'}
+    </button>
+  );
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-2">
-      <div className="flex items-center justify-between mb-6 border-b border-gray-200 pb-4">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700 transition-colors font-medium flex items-center gap-1">
-            <ArrowLeft className="w-4 h-4" /> 返回系統設定
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">⚙️ 系統進階與效能設定</h1>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50"
-        >
-          {saving ? '儲存中...' : '儲存變更'}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader 
+        title="⚙️ 系統進階與效能設定"
+        backUrl="/settings"
+        backText="返回系統設定"
+        action={actionButton}
+      />
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm shadow-sm flex items-center gap-2">
-          <span>⚠️</span>
-          <div>{error}</div>
-        </div>
-      )}
-      {success && (
-        <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg text-sm shadow-sm flex items-center gap-2">
-          <span>✅</span>
-          <div>{success}</div>
-        </div>
-      )}
+      <PageContent>
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="space-y-6">
-        
-        {/* Section 1: Maintenance Mode */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            🚧 維護模式設定
-          </h2>
+        <div className="space-y-6">
           
-          <div>
+          {/* Section 1: Maintenance Mode */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              🚧 維護模式設定
+            </h2>
+            
+            <div>
+              <ToggleRow
+                title="啟用維護模式"
+                checked={maintenanceMode}
+                onChange={setMaintenanceMode}
+                className="bg-transparent border-none p-0"
+              />
+              {maintenanceMode && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
+                  ⚠️ 警告：啟用維護模式後，顧客端點餐網站將暫時阻擋，僅顯示下方的維護公告訊息。
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">維護公告訊息</label>
+              <textarea className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm min-h-[100px] resize-y" value={maintenanceMessage} onChange={(e) => setMaintenanceMessage(e.target.value)} rows={3} placeholder="網站維護中，請稍候再試。" />
+            </div>
+          </div>
+
+          {/* Google Integrations Redirect Info */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">🌐</div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">Google 整合服務 (Gemini AI, SSO)</h2>
+                <p className="text-sm text-gray-500 mb-3">
+                  Gemini AI 金鑰、第三方登入 (Google SSO) 以及其他 Google 服務已移至專屬設定頁面。
+                </p>
+                <Link to="/settings/google" className="inline-block px-4 py-2 bg-blue-50 text-blue-700 text-sm font-bold rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
+                  前往 Google 整合設定
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Performance Sync Frequency (The Gorgeous Slider!) */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  📈 總部食譜配方與庫存對帳同步設定 (Sync Frequency)
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  設定點單系統（加盟店端）的銷貨日誌，每隔多久同步扣減總部配方管理系統（ShutterERP）的原料庫存。
+                </p>
+              </div>
+              <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs rounded-full shadow-sm whitespace-nowrap ml-4">
+                省電保護中
+              </span>
+            </div>
+
+            {/* Interactive Range Slider UI */}
+            <div className="py-6 px-2 space-y-6">
+              <div className="relative">
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="range" min="0" max="7" value={safeIndex} onChange={(e) => setInventorySyncFrequency(steps[parseInt(e.target.value) || 0])} />
+                
+                {/* Range Scale Tick Labels */}
+                <div className="flex justify-between text-[10px] text-gray-500 font-semibold px-1 mt-2 select-none">
+                  <span>即時更新</span>
+                  <span>1小時</span>
+                  <span>3小時</span>
+                  <span className="text-emerald-600 font-bold">6小時</span>
+                  <span>12小時</span>
+                  <span>1天</span>
+                  <span>1週</span>
+                  <span>1個月</span>
+                </div>
+              </div>
+
+              {/* Dynamic Frequency Detail Widget */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs text-gray-500 font-bold block uppercase">當前同步排程</span>
+                  <span className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
+                    🔄 {labels[steps[safeIndex]]}
+                  </span>
+                </div>
+                
+                {/* Mini performance meter badge */}
+                <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-200 rounded-lg shadow-sm self-start md:self-auto">
+                  <span className="text-[10px] text-gray-500 font-bold">系統負載：</span>
+                  <span className={`text-xs font-bold ${
+                    steps[safeIndex] === 'realtime' ? 'text-red-600' :
+                    ['1h', '3h'].includes(steps[safeIndex]) ? 'text-yellow-600' : 'text-green-600'
+                  }`}>
+                    {steps[safeIndex] === 'realtime' ? '🔴 高負載' :
+                     ['1h', '3h'].includes(steps[safeIndex]) ? '🟡 中負載' : '🟢 極低負載'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Dynamic Dynamic cost efficiency and database load description box */}
+              <div className={`p-4 rounded-xl text-xs leading-relaxed border font-medium transition-all duration-300 ${
+                currentDesc.type === 'warning' ? 'bg-red-50 text-red-800 border-red-200' :
+                currentDesc.type === 'info' ? 'bg-blue-50 text-blue-800 border-blue-200' :
+                'bg-emerald-50 text-emerald-800 border-emerald-200'
+              }`}>
+                {currentDesc.desc}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Rate Limiting */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-2">
+              🛡️ 安全性防禦設定
+            </h2>
             <ToggleRow
-              title="啟用維護模式"
-              checked={maintenanceMode}
-              onChange={setMaintenanceMode}
+              title="啟用 API 請求速率限制 (Rate Limiting)"
+              description="開啟此功能後，系統會自動防止同一 IP 在極短時間內發送大量惡意點單請求，加固系統免受簡易的 CC 攻擊。"
+              checked={enableRateLimiting}
+              onChange={setEnableRateLimiting}
               className="bg-transparent border-none p-0"
             />
-            {maintenanceMode && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold">
-                ⚠️ 警告：啟用維護模式後，顧客端點餐網站將暫時阻擋，僅顯示下方的維護公告訊息。
-              </div>
-            )}
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">維護公告訊息</label>
-            <textarea className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm min-h-[100px] resize-y" value={maintenanceMessage} onChange={(e) => setMaintenanceMessage(e.target.value)} rows={3} placeholder="網站維護中，請稍候再試。" />
-          </div>
-        </div>
-
-        {/* Google Integrations Redirect Info */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
-          <div className="flex items-start gap-4">
-            <div className="text-3xl">🌐</div>
+          {/* Section 4: IP Blacklist Section */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 mb-1">Google 整合服務 (Gemini AI, SSO)</h2>
-              <p className="text-sm text-gray-500 mb-3">
-                Gemini AI 金鑰、第三方登入 (Google SSO) 以及其他 Google 服務已移至專屬設定頁面。
-              </p>
-              <a href="/settings/google" className="inline-block px-4 py-2 bg-blue-50 text-blue-700 text-sm font-bold rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
-                前往 Google 整合設定
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Section 2: Performance Sync Frequency (The Gorgeous Slider!) */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                📈 總部食譜配方與庫存對帳同步設定 (Sync Frequency)
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                🚫 惡意 IP 黑名單管理
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                設定點單系統（加盟店端）的銷貨日誌，每隔多久同步扣減總部配方管理系統（ShutterERP）的原料庫存。
-              </p>
+              <p className="text-sm text-gray-500 mt-1">在此手動封鎖惡意嘗試登入或破壞的 IP 地址，封鎖後將無法訪問任何服務。</p>
             </div>
-            <span className="px-3 py-1 bg-emerald-50 border border-emerald-100 text-emerald-800 font-bold text-xs rounded-full shadow-sm">
-              省電保護中
-            </span>
-          </div>
-
-          {/* Interactive Range Slider UI */}
-          <div className="py-6 px-2 space-y-6">
-            <div className="relative">
-              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="range" min="0" max="7" value={safeIndex} onChange={(e) => setInventorySyncFrequency(steps[parseInt(e.target.value) || 0])} />
-              
-              {/* Range Scale Tick Labels */}
-              <div className="flex justify-between text-[10px] text-gray-400 font-semibold px-1 mt-2 select-none">
-                <span>即時更新</span>
-                <span>1小時</span>
-                <span>3小時</span>
-                <span className="text-emerald-600 font-bold">6小時</span>
-                <span>12小時</span>
-                <span>1天</span>
-                <span>1週</span>
-                <span>1個月</span>
-              </div>
-            </div>
-
-            {/* Dynamic Frequency Detail Widget */}
-            <div className="bg-gray-50 border border-gray-200/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-xs text-gray-400 font-bold block uppercase">當前同步排程</span>
-                <span className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
-                  🔄 {labels[steps[safeIndex]]}
-                </span>
-              </div>
-              
-              {/* Mini performance meter badge */}
-              <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-150 rounded-xl shadow-xs self-start md:self-auto">
-                <span className="text-[10px] text-gray-400 font-bold">系統負載：</span>
-                <span className={`text-xs font-bold ${
-                  steps[safeIndex] === 'realtime' ? 'text-red-600' :
-                  ['1h', '3h'].includes(steps[safeIndex]) ? 'text-yellow-600' : 'text-green-600'
-                }`}>
-                  {steps[safeIndex] === 'realtime' ? '🔴 高負載' :
-                   ['1h', '3h'].includes(steps[safeIndex]) ? '🟡 中負載' : '🟢 極低負載'}
-                </span>
-              </div>
-            </div>
-
-            {/* Dynamic Dynamic cost efficiency and database load description box */}
-            <div className={`p-4 rounded-xl text-xs leading-relaxed border font-medium transition-all duration-300 ${
-              currentDesc.type === 'warning' ? 'bg-red-50 text-red-800 border-red-200' :
-              currentDesc.type === 'info' ? 'bg-blue-50 text-blue-800 border-blue-200' :
-              'bg-emerald-50 text-emerald-800 border-emerald-200'
-            }`}>
-              {currentDesc.desc}
-            </div>
+            
+            <IPBlacklistManager token={token} />
           </div>
         </div>
-
-        {/* Section 3: Rate Limiting */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-3">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-2">
-            🛡️ 安全性防禦設定
-          </h2>
-          <ToggleRow
-            title="啟用 API 請求速率限制 (Rate Limiting)"
-            description="開啟此功能後，系統會自動防止同一 IP 在極短時間內發送大量惡意點單請求，加固系統免受簡易的 CC 攻擊。"
-            checked={enableRateLimiting}
-            onChange={setEnableRateLimiting}
-            className="bg-transparent border-none p-0"
-          />
-        </div>
-
-        {/* Section 4: IP Blacklist Section */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
-          <div className="border-b border-gray-100 pb-3">
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              🚫 惡意 IP 黑名單管理
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5">在此手動封鎖惡意嘗試登入或破壞的 IP 地址，封鎖後將無法訪問任何服務。</p>
-          </div>
-          
-          <IPBlacklistManager token={token} />
-        </div>
-      </div>
-
-      <div className="flex justify-end pt-6 border-t border-gray-200 mt-8">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-10 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50 text-sm hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {saving ? '儲存中...' : '儲存所有系統設定'}
-        </button>
-      </div>
+      </PageContent>
     </div>
   );
 }

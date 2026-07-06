@@ -1876,7 +1876,11 @@
     "salaryType": "Tipo de salario",
     "hourly": "Salario por hora",
     "monthly": "Salario mensual",
-    "monthlyWage": "Salario mensual"
+    "monthlyWage": "Salario mensual",
+    "schedulingSettings": "[ES] 排班設定 (Scheduling Settings)",
+    "maxDaysPerWeek": "[ES] 每週最多排班天數 (Max Days per Week)",
+    "maxHoursPerWeek": "[ES] 每週最多排班時數 (Max Hours per Week)",
+    "availability": "[ES] 排班可用時段 (Available Days & Time Slots)"
   },
   "staffList": {
     "loading": "[EN] 載入中",
@@ -2013,5 +2017,14 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
+  },
+  "days": {
+    "sunday": "[ES] 星期日 (Sun)",
+    "monday": "[ES] 星期一 (Mon)",
+    "tuesday": "[ES] 星期二 (Tue)",
+    "wednesday": "[ES] 星期三 (Wed)",
+    "thursday": "[ES] 星期四 (Thu)",
+    "friday": "[ES] 星期五 (Fri)",
+    "saturday": "[ES] 星期六 (Sat)"
   }
 }

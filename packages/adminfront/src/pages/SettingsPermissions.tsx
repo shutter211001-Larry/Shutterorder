@@ -99,7 +99,7 @@ export default function SettingsPermissions() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Manager Column */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="bg-gray-50 p-4 border-b border-gray-200">
             <h2 className="font-bold text-gray-900 flex items-center gap-2">
               <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
@@ -126,7 +126,7 @@ export default function SettingsPermissions() {
         </div>
 
         {/* Staff Column */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="bg-gray-50 p-4 border-b border-gray-200">
             <h2 className="font-bold text-gray-900 flex items-center gap-2">
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>

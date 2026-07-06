@@ -15,6 +15,13 @@ interface Staff {
   hourlyWage: number;
   salaryType: 'HOURLY' | 'MONTHLY';
   monthlyWage: number;
+  maxDaysPerWeek: number;
+  maxHoursPerWeek: number;
+  availabilities: Array<{
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+  }>;
   location: { id: string; name: string } | null;
 }
 
@@ -38,6 +45,9 @@ export default function StaffEdit() {
   const [salaryType, setSalaryType] = useState<'HOURLY' | 'MONTHLY'>('HOURLY');
   const [hourlyWage, setHourlyWage] = useState(0);
   const [monthlyWage, setMonthlyWage] = useState(0);
+  const [maxDaysPerWeek, setMaxDaysPerWeek] = useState(5);
+  const [maxHoursPerWeek, setMaxHoursPerWeek] = useState(40);
+  const [availabilities, setAvailabilities] = useState<Array<{ dayOfWeek: number, startTime: string, endTime: string }>>([]);
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,6 +72,9 @@ export default function StaffEdit() {
         setSalaryType(s.salaryType || 'HOURLY');
         setHourlyWage(s.hourlyWage || 0);
         setMonthlyWage(s.monthlyWage || 0);
+        setMaxDaysPerWeek(s.maxDaysPerWeek ?? 5);
+        setMaxHoursPerWeek(s.maxHoursPerWeek ?? 40);
+        setAvailabilities(s.availabilities || []);
         setIsActive(s.isActive);
         if (locData.success) setLocations(locData.data || []);
       })
@@ -86,6 +99,9 @@ export default function StaffEdit() {
           salaryType,
           hourlyWage: Number(hourlyWage),
           monthlyWage: Number(monthlyWage),
+          maxDaysPerWeek: Number(maxDaysPerWeek),
+          maxHoursPerWeek: Number(maxHoursPerWeek),
+          availabilities,
           isActive,
         }),
       });
@@ -239,7 +255,94 @@ export default function StaffEdit() {
           </div>
         )}
 
-        <label className="flex items-center gap-2 cursor-pointer">
+        <div className="pt-4 border-t border-gray-200">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{t('staffEdit.schedulingSettings') || 'Scheduling Settings'}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.maxDaysPerWeek') || 'Max Days per Week'}</label>
+              <input
+                type="number"
+                min="0"
+                max="7"
+                step="1"
+                value={maxDaysPerWeek}
+                onChange={(e) => setMaxDaysPerWeek(Number(e.target.value))}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.maxHoursPerWeek') || 'Max Hours per Week'}</label>
+              <input
+                type="number"
+                min="0"
+                max="168"
+                step="1"
+                value={maxHoursPerWeek}
+                onChange={(e) => setMaxHoursPerWeek(Number(e.target.value))}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              />
+            </div>
+          </div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.availability') || 'Available Days (Time Slots)'}</label>
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
+            {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => {
+              const dayNames = [
+                t('days.sunday') || 'Sun', t('days.monday') || 'Mon', t('days.tuesday') || 'Tue',
+                t('days.wednesday') || 'Wed', t('days.thursday') || 'Thu', t('days.friday') || 'Fri', t('days.saturday') || 'Sat'
+              ];
+              const avail = availabilities.find(a => a.dayOfWeek === dayIndex);
+              const isAvailable = !!avail;
+
+              return (
+                <div key={dayIndex} className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 w-24">
+                    <input
+                      type="checkbox"
+                      checked={isAvailable}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAvailabilities([...availabilities, { dayOfWeek: dayIndex, startTime: '09:00', endTime: '18:00' }]);
+                        } else {
+                          setAvailabilities(availabilities.filter(a => a.dayOfWeek !== dayIndex));
+                        }
+                      }}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">{dayNames[dayIndex]}</span>
+                  </label>
+                  {isAvailable && (
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        type="time"
+                        value={avail.startTime}
+                        onChange={(e) => {
+                          setAvailabilities(availabilities.map(a => 
+                            a.dayOfWeek === dayIndex ? { ...a, startTime: e.target.value } : a
+                          ));
+                        }}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                      />
+                      <span className="text-gray-500 text-sm">to</span>
+                      <input
+                        type="time"
+                        value={avail.endTime}
+                        onChange={(e) => {
+                          setAvailabilities(availabilities.map(a => 
+                            a.dayOfWeek === dayIndex ? { ...a, endTime: e.target.value } : a
+                          ));
+                        }}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <label className="flex items-center gap-2 cursor-pointer pt-4 border-t border-gray-200">
           <ToggleSwitch
             checked={isActive}
             onChange={setIsActive}

@@ -1876,7 +1876,11 @@
     "salaryType": "計薪方式",
     "hourly": "時薪 (Hourly Wage)",
     "monthly": "月薪 (Monthly)",
-    "monthlyWage": "月薪 (Monthly Wage)"
+    "monthlyWage": "月薪 (Monthly Wage)",
+    "schedulingSettings": "[ZH-TW] 排班設定 (Scheduling Settings)",
+    "maxDaysPerWeek": "[ZH-TW] 每週最多排班天數 (Max Days per Week)",
+    "maxHoursPerWeek": "[ZH-TW] 每週最多排班時數 (Max Hours per Week)",
+    "availability": "[ZH-TW] 排班可用時段 (Available Days & Time Slots)"
   },
   "staffList": {
     "loading": "載入中",
@@ -2013,5 +2017,14 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
+  },
+  "days": {
+    "sunday": "[ZH-TW] 星期日 (Sun)",
+    "monday": "[ZH-TW] 星期一 (Mon)",
+    "tuesday": "[ZH-TW] 星期二 (Tue)",
+    "wednesday": "[ZH-TW] 星期三 (Wed)",
+    "thursday": "[ZH-TW] 星期四 (Thu)",
+    "friday": "[ZH-TW] 星期五 (Fri)",
+    "saturday": "[ZH-TW] 星期六 (Sat)"
   }
 }

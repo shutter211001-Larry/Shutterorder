@@ -1876,7 +1876,11 @@
     "salaryType": "Uri ng Sahod",
     "hourly": "Sahod kada Oras",
     "monthly": "Buwanang Sahod",
-    "monthlyWage": "Buwanang Sahod"
+    "monthlyWage": "Buwanang Sahod",
+    "schedulingSettings": "[TL] 排班設定 (Scheduling Settings)",
+    "maxDaysPerWeek": "[TL] 每週最多排班天數 (Max Days per Week)",
+    "maxHoursPerWeek": "[TL] 每週最多排班時數 (Max Hours per Week)",
+    "availability": "[TL] 排班可用時段 (Available Days & Time Slots)"
   },
   "staffList": {
     "loading": "[EN] 載入中",
@@ -2013,5 +2017,14 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
+  },
+  "days": {
+    "sunday": "[TL] 星期日 (Sun)",
+    "monday": "[TL] 星期一 (Mon)",
+    "tuesday": "[TL] 星期二 (Tue)",
+    "wednesday": "[TL] 星期三 (Wed)",
+    "thursday": "[TL] 星期四 (Thu)",
+    "friday": "[TL] 星期五 (Fri)",
+    "saturday": "[TL] 星期六 (Sat)"
   }
 }

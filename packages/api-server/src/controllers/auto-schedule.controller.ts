@@ -44,9 +44,13 @@ export async function autoSchedule(req: Request, res: Response): Promise<void> {
     },
   });
 
-  // Keep track of assigned hours per user (for FAIR mode or overtime limits)
+  // Keep track of assigned hours and assigned days per user (for FAIR mode or overtime limits)
   const userAssignedHours: Record<string, number> = {};
-  users.forEach(u => userAssignedHours[u.id] = 0);
+  const userAssignedDays: Record<string, Set<number>> = {};
+  users.forEach(u => {
+    userAssignedHours[u.id] = 0;
+    userAssignedDays[u.id] = new Set<number>();
+  });
 
   const newShifts: any[] = [];
 
@@ -88,6 +92,16 @@ export async function autoSchedule(req: Request, res: Response): Promise<void> {
       );
       if (hasConflict) return false;
 
+      // Check maxHoursPerWeek limit
+      const currentHours = userAssignedHours[user.id] || 0;
+      if (currentHours + reqDuration > user.maxHoursPerWeek) return false;
+
+      // Check maxDaysPerWeek limit
+      const currentDays = userAssignedDays[user.id];
+      if (!currentDays.has(req.date.getTime()) && currentDays.size >= user.maxDaysPerWeek) {
+        return false;
+      }
+
       return true;
     });
 
@@ -112,17 +126,19 @@ export async function autoSchedule(req: Request, res: Response): Promise<void> {
     // Take top N users to fill requirement
     const assignedUsers = eligibleUsers.slice(0, req.count);
 
-    for (const user of assignedUsers) {
-      newShifts.push({
-        userId: user.id,
+    for (const assignedUser of assignedUsers) {
+      const shiftData = {
+        userId: assignedUser.id,
         locationId: req.locationId,
         jobRoleId: req.jobRoleId,
         date: req.date,
         startTime: req.startTime,
         endTime: req.endTime,
         dayType: 'WORKDAY',
-      });
-      userAssignedHours[user.id] += reqDuration;
+      };
+      newShifts.push(shiftData);
+      userAssignedHours[assignedUser.id] += reqDuration;
+      userAssignedDays[assignedUser.id].add(req.date.getTime());
     }
   }
 

@@ -67,8 +67,27 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
       }
     });
 
-    // Monthly Staff not supported in schema yet
-    const monthlyPayroll = 0;
+    // B. Monthly Staff
+    const monthlyUsers = await adminPrisma.user.findMany({
+      where: {
+        salaryType: 'MONTHLY',
+        isActive: true, // Only count active staff, or we can count everyone to be accurate for historical, but let's stick to active for simplicity
+      },
+      select: { monthlyWage: true },
+    });
+
+    const msInRange = end.getTime() - start.getTime();
+    // Calculate days inclusive, if start and end are same day, it's 1 day. 
+    // Wait, end is usually 23:59:59 or something. Let's just do math.ceil(ms / day)
+    const daysInRange = Math.max(1, Math.ceil(msInRange / (1000 * 60 * 60 * 24)));
+    
+    // Standard accounting often uses 30 days for prorated monthly salary
+    const proportion = daysInRange / 30;
+
+    let monthlyPayroll = 0;
+    monthlyUsers.forEach((user) => {
+      monthlyPayroll += (user.monthlyWage || 0) * proportion;
+    });
 
     const totalPayroll = hourlyPayroll + monthlyPayroll;
 

@@ -1876,7 +1876,11 @@
     "salaryType": "Tipo di stipendio",
     "hourly": "Paga oraria",
     "monthly": "Stipendio mensile",
-    "monthlyWage": "Stipendio mensile"
+    "monthlyWage": "Stipendio mensile",
+    "schedulingSettings": "[IT] 排班設定 (Scheduling Settings)",
+    "maxDaysPerWeek": "[IT] 每週最多排班天數 (Max Days per Week)",
+    "maxHoursPerWeek": "[IT] 每週最多排班時數 (Max Hours per Week)",
+    "availability": "[IT] 排班可用時段 (Available Days & Time Slots)"
   },
   "staffList": {
     "loading": "[EN] 載入中",
@@ -2013,5 +2017,14 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
+  },
+  "days": {
+    "sunday": "[IT] 星期日 (Sun)",
+    "monday": "[IT] 星期一 (Mon)",
+    "tuesday": "[IT] 星期二 (Tue)",
+    "wednesday": "[IT] 星期三 (Wed)",
+    "thursday": "[IT] 星期四 (Thu)",
+    "friday": "[IT] 星期五 (Fri)",
+    "saturday": "[IT] 星期六 (Sat)"
   }
 }

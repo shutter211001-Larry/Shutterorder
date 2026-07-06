@@ -1876,7 +1876,11 @@
     "salaryType": "Jenis Gaji",
     "hourly": "Upah Per Jam",
     "monthly": "Gaji Bulanan",
-    "monthlyWage": "Gaji Bulanan"
+    "monthlyWage": "Gaji Bulanan",
+    "schedulingSettings": "[ID] 排班設定 (Scheduling Settings)",
+    "maxDaysPerWeek": "[ID] 每週最多排班天數 (Max Days per Week)",
+    "maxHoursPerWeek": "[ID] 每週最多排班時數 (Max Hours per Week)",
+    "availability": "[ID] 排班可用時段 (Available Days & Time Slots)"
   },
   "staffList": {
     "loading": "[EN] 載入中",
@@ -2013,5 +2017,14 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
+  },
+  "days": {
+    "sunday": "[ID] 星期日 (Sun)",
+    "monday": "[ID] 星期一 (Mon)",
+    "tuesday": "[ID] 星期二 (Tue)",
+    "wednesday": "[ID] 星期三 (Wed)",
+    "thursday": "[ID] 星期四 (Thu)",
+    "friday": "[ID] 星期五 (Fri)",
+    "saturday": "[ID] 星期六 (Sat)"
   }
 }

@@ -154,7 +154,7 @@ export default function SettingsNotifications() {
 
       <div className="grid grid-cols-1 gap-6">
         {/* Email Branding Customizer Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 relative overflow-hidden transition-all hover:shadow-md">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 relative overflow-hidden transition-all hover:shadow-md">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-indigo-500"></div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-2">
             🎨 郵件品牌與外觀設計 (Email Branding & Style)
@@ -350,7 +350,7 @@ export default function SettingsNotifications() {
                                   </div>
 
                                   {/* MAIL Preview */}
-                                  <div className="bg-white rounded-xl p-4 border border-gray-200 flex flex-col shadow-sm">
+                                  <div className="bg-white rounded-lg p-4 border border-gray-200 flex flex-col shadow-sm">
                                     <span className="text-xs font-bold text-gray-500 mb-3 flex items-center gap-1.5">
                                       <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                                       ✉️ 電子郵件收件箱效果預覽

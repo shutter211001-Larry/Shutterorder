@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 export default function SettingsInvoice() {
   const { t } = useTranslation();
@@ -67,75 +68,64 @@ export default function SettingsInvoice() {
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsInvoice.loading')}</div>;
 
+  const actionButton = (
+    <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
+      {saving ? t('settingsInvoice.saving') : t('settingsInvoice.saveChanges')}
+    </button>
+  );
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-2">
-      <div className="flex items-center justify-between mb-6 border-b border-gray-200 pb-4">
-        <div>
-          <Link to="/settings" className="text-sm text-primary-600 hover:text-primary-700 transition-colors font-medium flex items-center gap-1">
-            <ArrowLeft className="w-4 h-4" /> {t('settingsInvoice.backToSystemSettings')}
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">{t('settingsInvoice.eInvoiceSettings')}</h1>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50"
-        >
-          {saving ? t('settingsInvoice.saving') : t('settingsInvoice.saveChanges')}
-        </button>
-      </div>
+    <div className="pb-12">
+      <PageHeader 
+        title={t('settingsInvoice.eInvoiceSettings')}
+        backUrl="/settings"
+        backText={t('settingsInvoice.backToSystemSettings')}
+        action={actionButton}
+      />
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm shadow-sm flex items-center gap-2">
-          <span>⚠️</span>
-          <div>{error}</div>
-        </div>
-      )}
-      {success && (
-        <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg text-sm shadow-sm flex items-center gap-2">
-          <span>✅</span>
-          <div>{success}</div>
-        </div>
-      )}
+      <PageContent>
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-500"></div>
-          
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
-            {t('settingsInvoice.ecpayEInvoice')}
-          </h2>
-          <ToggleRow
-            title={t('settingsInvoice.enableEInvoice')}
-            checked={enabled}
-            onChange={setEnabled}
-            className="bg-transparent border-none p-0 mb-4"
-          />
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-500"></div>
+            
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
+              {t('settingsInvoice.ecpayEInvoice')}
+            </h2>
+            <ToggleRow
+              title={t('settingsInvoice.enableEInvoice')}
+              checked={enabled}
+              onChange={setEnabled}
+              className="bg-transparent border-none p-0 mb-4"
+            />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsInvoice.merchantId')}</label>
-              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={merchantId} onChange={(e) => setMerchantId(e.target.value)} placeholder={t('settingsInvoice.exampleMerchantId')} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsInvoice.merchantId')}</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={merchantId} onChange={(e) => setMerchantId(e.target.value)} placeholder={t('settingsInvoice.exampleMerchantId')} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">HashKey</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={hashKey} onChange={(e) => setHashKey(e.target.value)} placeholder={t('settingsInvoice.configuredKeepBlank')} />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">HashIV</label>
+                <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={hashIv} onChange={(e) => setHashIv(e.target.value)} placeholder={t('settingsInvoice.configuredKeepBlank')} />
+              </div>
+            </div>
+            
+            <div className="flex items-center mt-4">
+              <p className="text-xs text-gray-400 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100 w-full">
+                💡 <b>{t('settingsInvoice.note')}</b> {t('settingsInvoice.eInvoiceNoticeDescription')}
+              </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">HashKey</label>
-              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={hashKey} onChange={(e) => setHashKey(e.target.value)} placeholder={t('settingsInvoice.configuredKeepBlank')} />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">HashIV</label>
-              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={hashIv} onChange={(e) => setHashIv(e.target.value)} placeholder={t('settingsInvoice.configuredKeepBlank')} />
-            </div>
-          </div>
-          
-          <div className="flex items-center mt-4">
-            <p className="text-xs text-gray-400 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100 w-full">
-              💡 <b>{t('settingsInvoice.note')}</b> {t('settingsInvoice.eInvoiceNoticeDescription')}
-            </p>
-          </div>
         </div>
-      </div>
+      </PageContent>
     </div>
   );
 }

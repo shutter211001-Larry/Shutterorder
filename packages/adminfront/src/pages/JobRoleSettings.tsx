@@ -122,7 +122,7 @@ export default function JobRoleSettings() {
         職位與員工技能設定 (Job Roles)
       </h1>
       
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
         <h2 className="text-lg font-medium mb-4">新增職位</h2>
         <form onSubmit={handleCreateRole} className="flex gap-4">
           <input
@@ -141,7 +141,7 @@ export default function JobRoleSettings() {
         </form>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

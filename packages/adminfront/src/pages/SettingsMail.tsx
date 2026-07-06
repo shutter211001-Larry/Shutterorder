@@ -152,7 +152,7 @@ export default function SettingsMail() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="text-2xl">🏬</span>
           <div>
@@ -184,7 +184,7 @@ export default function SettingsMail() {
       )}
 
       <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 relative overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 space-y-4 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-indigo-500"></div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -247,7 +247,7 @@ export default function SettingsMail() {
         </div>
 
         {/* Section 2: Sender Info */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 space-y-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             👤 寄件人資訊欄位
           </h2>
@@ -268,7 +268,7 @@ export default function SettingsMail() {
         </div>
 
         {/* Section 3: Test Email */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
             🧪 測試發送信件連線
           </h2>

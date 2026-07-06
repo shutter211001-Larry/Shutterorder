@@ -245,7 +245,7 @@ export default function SettingsOrder() {
         </div>
 
         {/* Logistics Channels */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-lg font-semibold text-gray-900">物流通道預留設定 (Logistics API Channels)</h2>
             <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Future API</span>
@@ -426,7 +426,7 @@ export default function SettingsOrder() {
         </div>
 
         {/* Logistics Channels */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-lg font-semibold text-gray-900">物流通道預留設定 (Logistics API Channels)</h2>
             <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Future API</span>

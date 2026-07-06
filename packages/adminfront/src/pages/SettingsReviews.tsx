@@ -83,7 +83,7 @@ export default function SettingsReviews() {
       {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
       {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-      <div className="space-y-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
         <ToggleRow
           title={t('settingsReviews.enableCustomerReviews')}
           checked={enabled}

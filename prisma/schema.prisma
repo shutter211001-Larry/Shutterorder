@@ -26,6 +26,8 @@ model User {
   hourlyWage          Float                         @default(0)
   salaryType          SalaryType                    @default(HOURLY)
   monthlyWage         Float                         @default(0)
+  maxDaysPerWeek      Int                           @default(5)
+  maxHoursPerWeek     Int                           @default(40)
   assignedOrders      Order[]                       @relation("AssignedStaff")
   sentMessages        ChatMessage[]                 @relation("SentMessages")
   location            Location?                     @relation(fields: [locationId], references: [id])

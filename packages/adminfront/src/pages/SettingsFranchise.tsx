@@ -286,7 +286,7 @@ export default function SettingsFranchise() {
       {activeTab === 'stores' && (
         <div className="space-y-6">
           {isEditing ? (
-            <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm animate-fade-in">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm animate-fade-in">
               <h2 className="text-base font-black text-gray-900 mb-6 flex items-center gap-1.5 pb-3 border-b border-gray-100">
                 ✏️ {editStore.id?.includes('store-') && isNaN(Number(editStore.id?.split('-')[1])) ? t('settingsFranchise.createFranchiseContract') : t('settingsFranchise.editBranchContractSettings')}
               </h2>
@@ -352,7 +352,7 @@ export default function SettingsFranchise() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {stores.map(store => (
-                <div key={store.id} className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm relative group overflow-hidden hover:shadow-md transition-shadow">
+                <div key={store.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm relative group overflow-hidden hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-base font-black text-gray-900 tracking-tight">{store.name}</h3>
@@ -411,7 +411,7 @@ export default function SettingsFranchise() {
       {/* Tab Content: Diagnostics */}
       {activeTab === 'diagnostics' && (
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-gray-100">
               <div>
                 <h2 className="text-base font-black text-gray-900 tracking-tight">{t('settingsFranchise.remoteApiHealthPanel')}</h2>
@@ -511,7 +511,7 @@ export default function SettingsFranchise() {
           </div>
 
           {/* Diagnostic Log Output */}
-          <div className="bg-gray-900 rounded-3xl p-6 shadow-xl border border-gray-800 text-gray-200">
+          <div className="bg-gray-900 rounded-lg p-6 shadow-xl border border-gray-800 text-gray-200">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
               {t('settingsFranchise.autoDiagnosticTerminalLogs')}
             </h3>
@@ -537,7 +537,7 @@ export default function SettingsFranchise() {
       {/* Tab Content: Inventory Warnings */}
       {activeTab === 'inventory' && (
         <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="pb-4 border-b border-gray-100 mb-6">
               <h2 className="text-base font-black text-gray-900 tracking-tight">{t('settingsFranchise.franchiseStockShortageDashboard')}</h2>
               <p className="text-[10px] text-gray-500 font-semibold mt-0.5">
@@ -549,7 +549,7 @@ export default function SettingsFranchise() {
               {warnings.map((warning, idx) => {
                 const percentage = Math.min(100, Math.round((warning.currentStock / warning.minRequired) * 100));
                 return (
-                  <div key={idx} className="bg-gray-50/45 p-5 border border-gray-100 rounded-3xl relative overflow-hidden group hover:shadow-sm transition-all">
+                  <div key={idx} className="bg-gray-50/45 p-5 border border-gray-100 rounded-lg relative overflow-hidden group hover:shadow-sm transition-all">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
                       <div>
                         <span className="text-[9px] font-black uppercase text-primary-600 bg-primary-50 border border-primary-100 px-2 py-0.5 rounded-md">

@@ -85,8 +85,6 @@ export default function SettingsPayments() {
 
   if (loading) return <div className="p-6 text-gray-500">{t('settingsPayments.loading')}</div>;
 
-  
-      
   const actionButton = (
     <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50">
       {saving ? t('settingsPayments.saving') : t('settingsPayments.saveChanges')}
@@ -102,62 +100,60 @@ export default function SettingsPayments() {
         action={actionButton}
       />
       <PageContent>
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
 
-
-      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
-      {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
-
-      {/* Stripe */}
-      <div className="space-y-6">
-        <ToggleRow
-          title={t('settingsPayments.stripeCreditCard')}
-          checked={stripeEnabled && stripePublishableKey.trim() !== '' && stripeSecretKey.trim() !== ''}
-          onChange={setStripeEnabled}
-          disabled={stripePublishableKey.trim() === '' || stripeSecretKey.trim() === ''}
-          className="bg-transparent border-none p-0 mb-4"
-        />
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.publishableKey')}</label>
-            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={stripePublishableKey} onChange={(e) => setStripePublishableKey(e.target.value)} placeholder="pk_..." />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.secretKey')}</label>
-            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={stripeSecretKey} onChange={(e) => setStripeSecretKey(e.target.value)} placeholder="sk_..." />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.webhookSecretKey')}</label>
-            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={stripeWebhookSecret} onChange={(e) => setStripeWebhookSecret(e.target.value)} placeholder="whsec_..." />
-          </div>
-        </div>
-      </div>
-
-      {/* PayPal */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <ToggleRow
-          title="PayPal"
-          checked={paypalEnabled && paypalClientId.trim() !== '' && paypalClientSecret.trim() !== ''}
-          onChange={setPaypalEnabled}
-          disabled={paypalClientId.trim() === '' || paypalClientSecret.trim() === ''}
-          className="bg-transparent border-none p-0 mb-4"
-        />
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.clientId')}</label>
-            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.clientSecret')}</label>
-            <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={paypalClientSecret} onChange={(e) => setPaypalClientSecret(e.target.value)} />
-          </div>
+        {/* Stripe */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
           <ToggleRow
-            title={t('settingsPayments.sandboxMode')}
-            checked={paypalSandbox}
-            onChange={setPaypalSandbox}
-            className="bg-transparent border-none p-0 mt-2"
+            title={t('settingsPayments.stripeCreditCard')}
+            checked={stripeEnabled && stripePublishableKey.trim() !== '' && stripeSecretKey.trim() !== ''}
+            onChange={setStripeEnabled}
+            disabled={stripePublishableKey.trim() === '' || stripeSecretKey.trim() === ''}
+            className="bg-transparent border-none p-0 mb-4"
           />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.publishableKey')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={stripePublishableKey} onChange={(e) => setStripePublishableKey(e.target.value)} placeholder="pk_..." />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.secretKey')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={stripeSecretKey} onChange={(e) => setStripeSecretKey(e.target.value)} placeholder="sk_..." />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.webhookSecretKey')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={stripeWebhookSecret} onChange={(e) => setStripeWebhookSecret(e.target.value)} placeholder="whsec_..." />
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* PayPal */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <ToggleRow
+            title="PayPal"
+            checked={paypalEnabled && paypalClientId.trim() !== '' && paypalClientSecret.trim() !== ''}
+            onChange={setPaypalEnabled}
+            disabled={paypalClientId.trim() === '' || paypalClientSecret.trim() === ''}
+            className="bg-transparent border-none p-0 mb-4"
+          />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.clientId')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsPayments.clientSecret')}</label>
+              <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={paypalClientSecret} onChange={(e) => setPaypalClientSecret(e.target.value)} />
+            </div>
+            <ToggleRow
+              title={t('settingsPayments.sandboxMode')}
+              checked={paypalSandbox}
+              onChange={setPaypalSandbox}
+              className="bg-transparent border-none p-0 mt-2"
+            />
+          </div>
+        </div>
 
         {/* LINE Pay Redirect Info */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm flex items-start gap-4 mb-6">
@@ -173,14 +169,14 @@ export default function SettingsPayments() {
           </div>
         </div>
 
-      {/* Cash */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <ToggleRow
-          title={t('settingsPayments.cashOnDeliveryOrStore')}
-          checked={cashEnabled}
-          onChange={setCashEnabled}
-          className="bg-transparent border-none p-0"
-        />
+        {/* Cash */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <ToggleRow
+            title={t('settingsPayments.cashOnDeliveryOrStore')}
+            checked={cashEnabled}
+            onChange={setCashEnabled}
+            className="bg-transparent border-none p-0"
+          />
         </div>
       </PageContent>
     </div>

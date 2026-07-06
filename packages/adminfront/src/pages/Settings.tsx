@@ -218,7 +218,7 @@ export default function Settings() {
                   <Link
                     key={card.link}
                     to={card.link}
-                    className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md hover:border-primary-300 hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden flex flex-col justify-between min-h-[140px]"
+                    className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md hover:border-primary-300 hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden flex flex-col justify-between min-h-[140px]"
                   >
                     <div>
                       <div className="text-gray-400 group-hover:text-primary-500 transition-colors mb-3">
