@@ -8,6 +8,8 @@ import {
   saveAvailabilities,
   listRequirements,
   saveRequirements,
+  listWeeklyRequirements,
+  saveWeeklyRequirements,
 } from '../controllers/roster.controller.js';
 import { autoSchedule } from '../controllers/auto-schedule.controller.js';
 
@@ -24,9 +26,13 @@ router.delete('/shifts/:id', deleteShift);
 router.get('/availabilities', listAvailabilities);
 router.post('/availabilities', saveAvailabilities);
 
-// Requirements
+// Requirements (Overrides)
 router.get('/requirements', listRequirements);
 router.post('/requirements', saveRequirements);
+
+// Weekly Requirements (Templates)
+router.get('/weekly-requirements', listWeeklyRequirements);
+router.post('/weekly-requirements', saveWeeklyRequirements);
 
 // Auto-Scheduling
 router.post('/auto-schedule', autoSchedule);

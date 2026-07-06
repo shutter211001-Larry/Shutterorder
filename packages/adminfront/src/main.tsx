@@ -72,6 +72,7 @@ import AttendancePayroll from './pages/AttendancePayroll.js';
 import JobRoleSettings from './pages/JobRoleSettings.js';
 import RosterManagement from './pages/RosterManagement.js';
 import Finance from './pages/Finance.js';
+import { ShiftRequirementsPage } from './pages/ShiftRequirementsPage.js';
 
 import './index.css';
 
@@ -185,6 +186,7 @@ function AppRoutes() {
         <Route path="/attendance/payroll" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><AttendancePayroll /></RequireRole>} />
         <Route path="/attendance/job-roles" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><JobRoleSettings /></RequireRole>} />
         <Route path="/attendance/roster" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><RosterManagement /></RequireRole>} />
+        <Route path="/attendance/requirements" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><ShiftRequirementsPage /></RequireRole>} />
         <Route path="/finance" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><Finance /></RequireRole>} />
       </Routes>
     </AdminLayout>

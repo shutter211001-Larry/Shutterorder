@@ -167,22 +167,66 @@ export async function saveAvailabilities(req: Request, res: Response): Promise<v
 export async function listRequirements(req: Request, res: Response): Promise<void> {
   const { locationId, startDate, endDate } = req.query;
 
-  const where: any = {};
-  if (locationId) where.locationId = locationId;
-  if (startDate && endDate) {
-    where.date = {
-      gte: new Date(startDate as string),
-      lte: new Date(endDate as string),
-    };
+  if (!locationId || !startDate || !endDate) {
+    res.status(400).json({ success: false, error: 'Missing parameters' });
+    return;
   }
 
-  const reqs = await prisma.shiftRequirement.findMany({
-    where,
+  const start = new Date(startDate as string);
+  const end = new Date(endDate as string);
+
+  // 1. Get specific date overrides
+  const specificReqs = await prisma.shiftRequirement.findMany({
+    where: {
+      locationId: locationId as string,
+      date: { gte: start, lte: end },
+    },
     include: { jobRole: true },
-    orderBy: { date: 'asc' },
   });
 
-  res.json({ success: true, data: reqs });
+  // Group specific overrides by date
+  const overrideDates = new Set<string>();
+  specificReqs.forEach(r => overrideDates.add(r.date.toISOString().split('T')[0]));
+
+  // 2. Get weekly template
+  const weeklyReqs = await prisma.weeklyShiftRequirement.findMany({
+    where: { locationId: locationId as string },
+    include: { jobRole: true },
+  });
+
+  // 3. Merge: For each day in range, if no specific override, use weekly template
+  const finalReqs: any[] = [...specificReqs];
+
+  let current = new Date(start);
+  while (current <= end) {
+    const dateStr = current.toISOString().split('T')[0];
+    if (!overrideDates.has(dateStr)) {
+      const dayOfWeek = current.getDay();
+      const templateReqsForDay = weeklyReqs.filter(w => w.dayOfWeek === dayOfWeek);
+      for (const t of templateReqsForDay) {
+        finalReqs.push({
+          id: `virtual-${dateStr}-${t.id}`,
+          locationId: t.locationId,
+          date: new Date(current), // Clone date
+          jobRoleId: t.jobRoleId,
+          startTime: t.startTime,
+          endTime: t.endTime,
+          count: t.count,
+          jobRole: t.jobRole,
+          isFromTemplate: true,
+        });
+      }
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  // Sort by date then startTime
+  finalReqs.sort((a, b) => {
+    if (a.date.getTime() !== b.date.getTime()) return a.date.getTime() - b.date.getTime();
+    return a.startTime.localeCompare(b.startTime);
+  });
+
+  res.json({ success: true, data: finalReqs });
 }
 
 export async function saveRequirements(req: Request, res: Response): Promise<void> {
@@ -223,4 +267,61 @@ export async function saveRequirements(req: Request, res: Response): Promise<voi
   });
 
   res.json({ success: true, message: 'Requirements saved for date' });
+}
+
+// ============================================================
+// HANDLERS (WEEKLY REQUIREMENTS)
+// ============================================================
+
+export async function listWeeklyRequirements(req: Request, res: Response): Promise<void> {
+  const { locationId } = req.query;
+  if (!locationId) {
+    res.status(400).json({ success: false, error: 'Missing locationId' });
+    return;
+  }
+  const reqs = await prisma.weeklyShiftRequirement.findMany({
+    where: { locationId: locationId as string },
+    include: { jobRole: true },
+    orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+  });
+  res.json({ success: true, data: reqs });
+}
+
+export async function saveWeeklyRequirements(req: Request, res: Response): Promise<void> {
+  const schema = z.object({
+    locationId: z.string().min(1),
+    requirements: z.array(z.object({
+      dayOfWeek: z.number().int().min(0).max(6),
+      jobRoleId: z.string().min(1),
+      startTime: z.string().regex(/^\d{2}:\d{2}$/),
+      endTime: z.string().regex(/^\d{2}:\d{2}$/),
+      count: z.number().int().min(1),
+    })),
+  });
+
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, error: 'Invalid data', details: parsed.error.errors });
+    return;
+  }
+
+  const { locationId, requirements } = parsed.data;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.weeklyShiftRequirement.deleteMany({ where: { locationId } });
+    if (requirements.length > 0) {
+      await tx.weeklyShiftRequirement.createMany({
+        data: requirements.map(r => ({
+          locationId,
+          dayOfWeek: r.dayOfWeek,
+          jobRoleId: r.jobRoleId,
+          startTime: r.startTime,
+          endTime: r.endTime,
+          count: r.count,
+        })),
+      });
+    }
+  });
+
+  res.json({ success: true, message: 'Weekly requirements saved' });
 }
