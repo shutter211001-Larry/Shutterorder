@@ -484,7 +484,9 @@ export default function Attendance() {
                     <td className="px-4 py-2">{record.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '-'}</td>
                     <td className="px-4 py-2">{record.location?.name}</td>
                     <td className="px-4 py-2">
-                      {record.isOutOfRange ? (
+                      {!record.checkOut ? (
+                        <span className="text-yellow-600 font-medium">{t('attendanceRecords.missingCheckout') || '未下班'}</span>
+                      ) : record.isOutOfRange ? (
                         <span className="text-red-500 font-medium">{t('attendance.distanceAbnormal')}</span>
                       ) : (
                         <span className="text-green-500 font-medium">{t('attendance.normal')}</span>
