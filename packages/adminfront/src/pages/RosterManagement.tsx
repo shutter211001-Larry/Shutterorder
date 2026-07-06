@@ -172,7 +172,7 @@ export default function RosterManagement() {
         action={
           <div className="flex gap-2">
             <Link
-              to="/attendance/requirements"
+              to={`/attendance/requirements?locationId=${selectedLocation}`}
               className={`flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium shadow-sm transition-all active:scale-95 ${!selectedLocation ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
             >
               📊 門市人力需求設定

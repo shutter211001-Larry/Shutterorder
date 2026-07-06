@@ -4,8 +4,8 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.js';
-import { Calendar as CalendarIcon, CalendarRange, Clock, Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Calendar as CalendarIcon, Clock, Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface JobRole {
   id: string;
@@ -38,7 +38,10 @@ export function ShiftRequirementsPage() {
   const [dateReqs, setDateReqs] = useState<Requirement[]>([]);
   const [isOverride, setIsOverride] = useState(false); // Does this date have an override?
 
-  const locationId = user?.locationId;
+  const [searchParams] = useSearchParams();
+  const urlLocationId = searchParams.get('locationId');
+  const locationId = urlLocationId || user?.locationId;
+  
   const daysOfWeek = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
 
   useEffect(() => {
