@@ -35,3 +35,7 @@
 **Rule**: The custom API client in `adminfront` uses generics (e.g., `<T>`) and operates under strict TypeScript rules. If you do not provide a type argument, the response defaults to `unknown`, causing TS18046 build errors. You MUST always explicitly provide the expected generic type argument.
 - **Example**: `api.get<{ data: any[] }>('/path').then(res => set(res.data))`
 - **Important**: Unlike Axios, this custom client directly returns the JSON payload. Do NOT access `res.data.data` unless the server actually deeply nests the data. If the server sends `{ success: true, data: [...] }`, the generic type should be `<{ success?: boolean, data: T }>` and you access the array via `res.data`.
+
+## 8. Web Bluetooth API Typings Requirement
+**Trigger**: When encountering TypeScript build errors related to the Web Bluetooth API (e.g., `Cannot find name 'BluetoothDevice'` or `Property 'bluetooth' does not exist on type 'Navigator'`).
+**Rule**: The standard TypeScript `lib.dom.d.ts` does not include Web Bluetooth types. You MUST install the `@types/web-bluetooth` package as a dev dependency in the relevant workspace (e.g., `npm install -D @types/web-bluetooth -w @shutter/adminfront`) to resolve these errors.

@@ -68,6 +68,7 @@ const navItems: NavItem[] = [
   { category: 'people', path: '/customers', label: 'nav.customers', icon: <Users size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
   { category: 'people', path: '/staff', label: 'nav.staff', icon: <UserCog size={20} />, roles: ['SUPER_ADMIN'] },
   { category: 'people', path: '/attendance', label: 'nav.checkIn', icon: <Clock size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
+  { category: 'people', path: '/attendance/leave', label: 'attendance.leaveTitle', icon: <CalendarDays size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
   { category: 'people', path: '/attendance/approvals', label: '簽核中心', icon: <CheckSquare size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
   { category: 'people', path: '/attendance/roster', label: '排班管理', icon: <CalendarCheck size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },
   { category: 'people', path: '/attendance/payroll', label: '薪資結算', icon: <Banknote size={20} />, roles: ['SUPER_ADMIN', 'MANAGER'] },

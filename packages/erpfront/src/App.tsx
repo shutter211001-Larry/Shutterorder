@@ -9,7 +9,6 @@ import Suppliers from "./pages/Suppliers";
 import Recipes from "./pages/Recipes";
 import Settings from "./pages/Settings";
 import Labels from "./pages/Labels";
-import Finance from "./pages/Finance";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
 import Integration from "./pages/Integration";
@@ -63,7 +62,6 @@ function AppContent() {
           element={user.role === "ADMIN" ? <Users /> : <Dashboard />}
         />
         <Route path="/labels" element={<Labels />} />
-        <Route path="/finance" element={<Finance />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Layout>
