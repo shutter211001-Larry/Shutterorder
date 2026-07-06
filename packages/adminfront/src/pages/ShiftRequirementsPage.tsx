@@ -326,7 +326,7 @@ export function ShiftRequirementsPage() {
                       min="1"
                       value={req.count}
                       onChange={(e) => updateDateReq(i, 'count', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-3 py-2 text-center bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
                 </div>
@@ -460,14 +460,14 @@ export function ShiftRequirementsPage() {
                                         />
                                       </div>
                                     </div>
-                                    <div className="w-20">
+                                    <div className="w-28">
                                       <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">人數</label>
                                       <input
                                         type="number"
                                         min="1"
                                         value={req.count}
                                         onChange={(e) => updateWeeklyReq(index, 'count', parseInt(e.target.value))}
-                                        className="w-full px-2 py-1 text-sm bg-white border border-gray-200 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+                                        className="w-full px-2 py-1 text-sm text-center bg-white border border-gray-200 rounded focus:ring-2 focus:ring-primary-500 outline-none"
                                       />
                                     </div>
                                   </div>
