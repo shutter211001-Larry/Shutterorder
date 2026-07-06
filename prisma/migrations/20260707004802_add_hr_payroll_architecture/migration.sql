@@ -1,4 +1,4 @@
-﻿-- CreateEnum
+-- CreateEnum
 CREATE TYPE "PayrollStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'PAID');
 
 -- CreateEnum
