@@ -43,7 +43,7 @@ export default function ShiftRequirementsModal({ isOpen, onClose, locationId }: 
 
   const fetchJobRoles = async () => {
     try {
-      const res = await api.get<{ data: JobRole[] }>(`/job-roles?locationId=${locationId}`);
+      const res = await api.get<{ data: JobRole[] }>('/job-roles');
       setJobRoles(res.data || []);
     } catch (err) {
       console.error(err);
