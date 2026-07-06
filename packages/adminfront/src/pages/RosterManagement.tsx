@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.js';
+import StaffRosterSettingsModal from '../components/StaffRosterSettingsModal.js';
 
 interface Shift {
   id: string;
@@ -43,6 +44,7 @@ export default function RosterManagement() {
   const [requirements, setRequirements] = useState<ShiftRequirement[]>([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Initialize dates to current week
   useEffect(() => {
@@ -163,6 +165,13 @@ export default function RosterManagement() {
         </h1>
         
         <div className="flex gap-2">
+          <button
+            onClick={() => setIsSettingsModalOpen(true)}
+            disabled={!selectedLocation}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-all active:scale-95"
+          >
+            ⚙️ 員工排班限制設定
+          </button>
           <button
             onClick={() => handleAutoSchedule('COST_OPTIMIZED')}
             disabled={generating || !selectedLocation}
@@ -337,6 +346,12 @@ export default function RosterManagement() {
           </div>
         </div>
       </div>
+
+      <StaffRosterSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        locationId={selectedLocation}
+      />
     </div>
   );
 }
