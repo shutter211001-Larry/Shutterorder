@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api.js';
+import { PageHeader } from '../components/layout/PageHeader';
+import { PageContent } from '../components/layout/PageContent';
 
 interface OrderItem {
   id: string;
@@ -439,83 +441,89 @@ export default function CounterDisplay() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-100 relative">
+    <div className="pb-12 relative h-screen flex flex-col">
       {actionError && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium animate-bounce">
           {actionError}
         </div>
       )}
       
-      <div className="bg-purple-900 text-white px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-bold text-purple-300 font-sans">{t('counterDisplay.counterDisplay')}</h1>
-          
-          {/* Location Selector */}
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-purple-200">📍</span>
-            <select
-              value={selectedLocationId}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedLocationId(val);
-                localStorage.setItem('cds_location_id', val);
-              }}
-              className="bg-purple-800 text-xs text-white border border-purple-700 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 font-semibold font-sans cursor-pointer"
-            >
-              <option value="">{t('counterDisplay.allLocations')}</option>
-              {locations.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      <PageHeader
+        title={t('counterDisplay.counterDisplay')}
+        action={
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-4 border-r border-gray-200 pr-4">
+              {/* Location Selector */}
+              <div className="flex items-center gap-1">
+                <span className="text-sm text-gray-500">📍</span>
+                <select
+                  value={selectedLocationId}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedLocationId(val);
+                    localStorage.setItem('cds_location_id', val);
+                  }}
+                  className="bg-gray-50 text-sm text-gray-700 border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm transition-all cursor-pointer font-medium"
+                >
+                  <option value="">{t('counterDisplay.allLocations')}</option>
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
-            <span className="text-xs text-purple-200">
-              {isConnected ? t('counterDisplay.realtimeConnected') : t('counterDisplay.connectionDisconnected')}
-            </span>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-500 font-medium hidden sm:inline">
+                  {isConnected ? t('counterDisplay.realtimeConnected') : t('counterDisplay.connectionDisconnected')}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span className="hidden lg:inline">{orders.length} {t('counterDisplay.inProgressUpdatedTime')} {lastRefresh.toLocaleTimeString()}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setIsGroupCheckoutMode(!isGroupCheckoutMode);
+                    if (isGroupCheckoutMode) {
+                      setSelectedOrders(new Set());
+                      setGroupCashInput('');
+                    }
+                  }}
+                  className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 font-medium border text-sm ${isGroupCheckoutMode ? 'bg-primary-600 text-white border-primary-600 shadow-md ring-2 ring-primary-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200 shadow-sm'}`}
+                >
+                  <span>🔗 <span className="hidden sm:inline">{isGroupCheckoutMode ? t('counterDisplay.exitMergeMode') : t('counterDisplay.mergeCheckoutMode')}</span></span>
+                </button>
+                <button
+                  onClick={() => {
+                    const next = !enableSound;
+                    setEnableSound(next);
+                    localStorage.setItem('cds_enableSound', String(next));
+                    if (next) playNotificationSound();
+                  }}
+                  className="px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-xl transition-all flex items-center gap-1.5 shadow-sm text-sm font-medium"
+                  aria-label="Toggle sound notifications"
+                >
+                  <span>{enableSound ? t('counterDisplay.soundOn') : t('counterDisplay.soundOff')}</span>
+                </button>
+                <button onClick={() => fetchOrders()} className="px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-xl transition-all shadow-sm text-sm font-medium">
+                  {t('counterDisplay.refresh')}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-4 text-xs text-purple-200">
-          <span>{orders.length} {t('counterDisplay.inProgressUpdatedTime')} {lastRefresh.toLocaleTimeString()}</span>
-          <button
-            onClick={() => {
-              setIsGroupCheckoutMode(!isGroupCheckoutMode);
-              if (isGroupCheckoutMode) {
-                setSelectedOrders(new Set());
-                setGroupCashInput('');
-              }
-            }}
-            className={`px-3 py-1.5 rounded transition-all flex items-center gap-1.5 font-bold border ${isGroupCheckoutMode ? 'bg-indigo-600 text-white border-indigo-500 shadow-md ring-2 ring-indigo-400' : 'bg-purple-800 hover:bg-purple-700 border-purple-700/50'}`}
-          >
-            <span>🔗 {isGroupCheckoutMode ? t('counterDisplay.exitMergeMode') : t('counterDisplay.mergeCheckoutMode')}</span>
-          </button>
-          <button
-            onClick={() => {
-              const next = !enableSound;
-              setEnableSound(next);
-              localStorage.setItem('cds_enableSound', String(next));
-              if (next) playNotificationSound();
-            }}
-            className="bg-purple-800 hover:bg-purple-700 border border-purple-700/50 px-3 py-1.5 rounded transition-all flex items-center gap-1.5"
-            aria-label="Toggle sound notifications"
-          >
-            <span>{enableSound ? t('counterDisplay.soundOn') : t('counterDisplay.soundOff')}</span>
-          </button>
-          <button onClick={() => fetchOrders()} className="bg-purple-800 hover:bg-purple-700 px-3 py-1.5 rounded transition-colors">
-            {t('counterDisplay.refresh')}
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
         </div>
       ) : (
-        <>
+        <PageContent className="flex-1 flex flex-col min-h-0 pt-0" noPadding>
           {/* Scheduled orders banner - Grouped by Date */}
           {scheduledOrders.length > 0 && (
             <div className="mx-4 mt-4 space-y-2">
@@ -615,7 +623,7 @@ export default function CounterDisplay() {
             })}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 h-[calc(100vh-52px)] overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 flex-1 min-h-0 overflow-hidden">
           {ordersByStatus.map(({ status, config, orders: statusOrders }) => {
             const isTabActive = activeTab === status;
             return (
@@ -637,7 +645,7 @@ export default function CounterDisplay() {
                   <div
                     key={order.id}
                     onClick={() => toggleExpand(order.id)}
-                    className={`rounded-lg p-4 mx-1 cursor-pointer transition-all hover:border-purple-300 ${
+                    className={`rounded-lg p-4 mx-1 cursor-pointer transition-all hover:border-primary-300 ${
                       order.paymentStatus === 'PAID'
                         ? 'bg-emerald-50/10 border-emerald-500 border-2 shadow-sm shadow-emerald-100/50'
                         : 'bg-white border border-gray-200 shadow-sm'
@@ -645,7 +653,7 @@ export default function CounterDisplay() {
                       expandedOrders[order.id]
                         ? order.paymentStatus === 'PAID'
                           ? 'ring-2 ring-emerald-500'
-                          : 'ring-2 ring-purple-500'
+                          : 'ring-2 ring-primary-500/50 border-primary-500'
                         : ''
                     }`}
                   >
@@ -687,7 +695,7 @@ export default function CounterDisplay() {
                                 else newSet.delete(order.id);
                                 setSelectedOrders(newSet);
                               }}
-                              className="w-6 h-6 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                              className="w-6 h-6 text-primary-600 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
                             />
                           </div>
                         )}
@@ -832,7 +840,7 @@ export default function CounterDisplay() {
                           )}
                           <div className="flex justify-between font-extrabold text-gray-900 text-sm pt-2 border-t border-dashed border-gray-200">
                             <span>{t('counterDisplay.orderTotal')}</span>
-                            <span className="text-purple-600">${order.total?.toFixed(2) || '0.00'}</span>
+                            <span className="text-primary-600">${order.total?.toFixed(2) || '0.00'}</span>
                           </div>
                         </div>
 
@@ -843,7 +851,7 @@ export default function CounterDisplay() {
                               e.stopPropagation();
                               setMobileCheckoutOrderId(order.id);
                             }}
-                            className="w-full bg-purple-600 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-purple-700 shadow-sm active:scale-95 transition-all text-center"
+                            className="w-full bg-primary-600 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-primary-700 shadow-sm active:scale-95 transition-all text-center"
                           >
                             {t('counterDisplay.posCalculator')}
                           </button>
@@ -862,7 +870,7 @@ export default function CounterDisplay() {
                                   setAutoProrateDiscounts(val);
                                   localStorage.setItem('cds_autoProrate', String(val));
                                 }}
-                                className="w-3 h-3 text-purple-600 rounded focus:ring-0 cursor-pointer"
+                                className="w-3 h-3 text-primary-600 rounded focus:ring-0 cursor-pointer"
                               />
                               {t('counterDisplay.smartProportionalSplit')}
                             </label>
@@ -924,26 +932,26 @@ export default function CounterDisplay() {
                           <div className="grid grid-cols-5 gap-1 text-[10px] font-bold">
                             <button
                               onClick={() => handleQuickAmount(order.id, order.total.toFixed(2))}
-                              className="bg-purple-600 text-white rounded py-1 px-1 text-center hover:bg-purple-700 active:scale-95 transition-all shadow-sm truncate touch-manipulation select-none"
+                              className="bg-primary-600 text-white rounded py-1 px-1 text-center hover:bg-primary-700 active:scale-95 transition-all shadow-sm truncate touch-manipulation select-none"
                               title={t('counterDisplay.exact')}
                             >
                               {t('counterDisplay.exact')}
                             </button>
                             <button
                               onClick={() => handleQuickAmount(order.id, '100')}
-                              className="bg-white border border-purple-200 text-purple-700 rounded py-1 hover:bg-purple-50 active:scale-95 transition-all shadow-sm touch-manipulation select-none"
+                              className="bg-white border border-primary-200 text-primary-700 rounded py-1 hover:bg-primary-50 active:scale-95 transition-all shadow-sm touch-manipulation select-none"
                             >
                               $100
                             </button>
                             <button
                               onClick={() => handleQuickAmount(order.id, '500')}
-                              className="bg-white border border-purple-200 text-purple-700 rounded py-1 hover:bg-purple-50 active:scale-95 transition-all shadow-sm touch-manipulation select-none"
+                              className="bg-white border border-primary-200 text-primary-700 rounded py-1 hover:bg-primary-50 active:scale-95 transition-all shadow-sm touch-manipulation select-none"
                             >
                               $500
                             </button>
                             <button
                               onClick={() => handleQuickAmount(order.id, '1000')}
-                              className="bg-white border border-purple-200 text-purple-700 rounded py-1 hover:bg-purple-50 active:scale-95 transition-all shadow-sm touch-manipulation select-none"
+                              className="bg-white border border-primary-200 text-primary-700 rounded py-1 hover:bg-primary-50 active:scale-95 transition-all shadow-sm touch-manipulation select-none"
                             >
                               $1000
                             </button>
@@ -1008,7 +1016,7 @@ export default function CounterDisplay() {
 
                     <div className="flex gap-2">
                       {config.next && (
-                        <button onClick={(e) => { e.stopPropagation(); handleStatusUpdate(order.id, config.next!); }} disabled={updating === order.id} className="flex-1 bg-purple-600 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-purple-700 disabled:opacity-50 shadow-sm transition-all active:scale-95">
+                        <button onClick={(e) => { e.stopPropagation(); handleStatusUpdate(order.id, config.next!); }} disabled={updating === order.id} className="flex-1 bg-primary-600 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-primary-700 disabled:opacity-50 shadow-sm transition-all active:scale-95">
                           {NEXT_ACTION[status]}
                         </button>
                       )}
@@ -1039,7 +1047,7 @@ export default function CounterDisplay() {
             </div>
           );})}
         </div>
-      </>
+        </PageContent>
     )}
       {/* Mobile Bottom Sheet Drawer for POS Calculator */}
       {mobileCheckoutOrderId && (() => {
