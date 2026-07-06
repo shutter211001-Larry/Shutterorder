@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -22,6 +22,11 @@ interface ShiftRequirement {
   endTime: string;
   count: number;
   jobRole?: { name: string };
+}
+
+// Extend Shift to allow our fake shortage rows
+interface DisplayShift extends Shift {
+  isShortage?: boolean;
 }
 
 export default function RosterManagement() {
@@ -83,6 +88,50 @@ export default function RosterManagement() {
     fetchRosterData();
   }, [selectedLocation, startDate, endDate]);
 
+  const combinedShifts = useMemo(() => {
+    const combined: DisplayShift[] = [...shifts];
+    let shortageTotal = 0;
+    
+    requirements.forEach(req => {
+      const reqDateStr = new Date(req.date).toLocaleDateString();
+      
+      const fulfilledCount = shifts.filter(s => 
+        new Date(s.date).toLocaleDateString() === reqDateStr &&
+        s.jobRole?.name === req.jobRole?.name &&
+        s.startTime === req.startTime &&
+        s.endTime === req.endTime
+      ).length;
+
+      const shortage = req.count - fulfilledCount;
+      if (shortage > 0) {
+        shortageTotal += shortage;
+        for (let i = 0; i < shortage; i++) {
+          combined.push({
+            id: `shortage-${req.id}-${i}`,
+            userId: 'MISSING',
+            date: req.date,
+            startTime: req.startTime,
+            endTime: req.endTime,
+            dayType: 'WORKDAY',
+            user: { name: '⚠️ 缺額 (Shortage)' },
+            jobRole: { name: req.jobRole?.name || '無指定' },
+            isShortage: true
+          });
+        }
+      }
+    });
+    
+    // Sort combined by date then start time
+    combined.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      if (dateA !== dateB) return dateA - dateB;
+      return a.startTime.localeCompare(b.startTime);
+    });
+    
+    return { combined, shortageTotal };
+  }, [shifts, requirements]);
+
   const handleAutoSchedule = async (mode: 'COST_OPTIMIZED' | 'FAIR') => {
     if (!selectedLocation || !startDate || !endDate) return;
     if (!window.confirm(`確定要執行 ${mode === 'COST_OPTIMIZED' ? '支出優化' : '公平分配'} 自動排班嗎？這將覆蓋現有班表！`)) return;
@@ -95,7 +144,7 @@ export default function RosterManagement() {
         endDate,
         mode
       });
-      alert('自動排班完成！');
+      alert('排班指令已發送！如有人力不足的缺額將會標示於班表中。');
       fetchRosterData();
     } catch (err) {
       console.error(err);
@@ -228,7 +277,7 @@ export default function RosterManagement() {
             <div className="p-0 max-h-[600px] overflow-y-auto">
               {loading ? (
                 <div className="text-center py-12 text-gray-400">載入中...</div>
-              ) : shifts.length === 0 ? (
+              ) : combinedShifts.combined.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 px-4">
                   <div className="text-5xl mb-4">📭</div>
                   <h3 className="text-lg font-medium text-gray-900 mb-1">目前沒有排班資料</h3>
@@ -248,17 +297,17 @@ export default function RosterManagement() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
-                    {shifts.map((shift) => (
-                      <tr key={shift.id} className="hover:bg-gray-50 transition-colors">
+                    {combinedShifts.combined.map((shift) => (
+                      <tr key={shift.id} className={`transition-colors ${shift.isShortage ? 'bg-red-50' : 'hover:bg-gray-50'}`}>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">
                           {new Date(shift.date).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs font-bold">
-                              {shift.user?.name.charAt(0)}
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${shift.isShortage ? 'bg-red-100 text-red-700' : 'bg-primary-100 text-primary-700'}`}>
+                              {shift.isShortage ? '!' : shift.user?.name.charAt(0)}
                             </div>
-                            <span className="text-sm font-medium text-gray-900">{shift.user?.name}</span>
+                            <span className={`text-sm font-medium ${shift.isShortage ? 'text-red-700 font-bold' : 'text-gray-900'}`}>{shift.user?.name}</span>
                           </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
