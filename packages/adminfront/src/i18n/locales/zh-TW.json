@@ -1883,7 +1883,12 @@
     "availability": "排班可用時段 (Available Days & Time Slots)",
     "timeOffTitle": "指定休假/禁排日期 (Specific Dates Off)",
     "timeOffReason": "原因（選填）(Reason - Optional)",
-    "timeOffAdd": "新增日期 (Add Date)"
+    "timeOffAdd": "新增日期 (Add Date)",
+    "tabs": {
+      "basic": "基本資料",
+      "employment": "到職資訊",
+      "insurance": "勞健保資訊"
+    }
   },
   "staffList": {
     "loading": "載入中",
