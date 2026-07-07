@@ -1456,6 +1456,43 @@ async function notifyShutterErpOfDeduction(order: any) {
   }
 }
 
+// ERP Integration: Background call to restore inventory in ShutterERP
+async function notifyShutterErpOfRestoration(order: any) {
+  try {
+    let url = (process.env.API_URL_PUBLIC || 'http://localhost:3000').trim();
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `https://${url}`;
+    }
+    const erpUrl = url.includes('/shutter-erp') ? url : (url.endsWith('/') ? `${url}shutter-erp` : `${url}/shutter-erp`);
+    console.log(`[ERP Integration] Notifying ShutterERP for stock restoration. Order: #${order.orderNumber}`);
+    const response = await fetch(`${erpUrl}/api/integration/restore-inventory`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-integration-key': process.env.INTEGRATION_KEY || 'shutter-erp-integration-secret-key'
+      },
+      body: JSON.stringify({
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        items: order.items.map((item: any) => ({
+          menuItemId: item.menuItemId,
+          name: item.name,
+          quantity: item.quantity
+        }))
+      })
+    });
+    
+    const result = await response.json().catch(() => ({ success: false, error: 'Non-JSON response' }));
+    if (!response.ok || !result.success) {
+      console.error(`[ERP Integration] Failed to restore inventory on ShutterERP:`, result.error || response.statusText);
+    } else {
+      console.log(`[ERP Integration] Successfully restored inventory on ShutterERP for Order #${order.orderNumber}`);
+    }
+  } catch (err) {
+    console.error(`[ERP Integration] Error sending stock restoration to ShutterERP:`, err);
+  }
+}
+
 export async function updateOrderStatus(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;
   const { status, trackingNumber, logisticsProvider } = req.body;
@@ -1499,6 +1536,13 @@ export async function updateOrderStatus(req: Request<{ id: string }>, res: Respo
   if (status === 'CONFIRMED' || status === 'PREPARING') {
     notifyShutterErpOfDeduction(updated).catch(err => 
       console.error('[ERP Integration] Async inventory deduction call failed:', err)
+    );
+  }
+
+  // Trigger ERP stock restoration if a non-pending order is cancelled
+  if (status === 'CANCELLED' && order.status !== 'PENDING' && order.status !== 'CANCELLED') {
+    notifyShutterErpOfRestoration(updated).catch(err => 
+      console.error('[ERP Integration] Async inventory restoration call failed:', err)
     );
   }
 

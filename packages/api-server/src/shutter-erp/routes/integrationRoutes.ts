@@ -5,6 +5,7 @@ import {
   deleteMapping,
   getShutterData,
   deductInventory,
+  restoreInventory,
   getForecast,
   getProductRecipes
 } from '../controllers/integrationController.js';
@@ -25,6 +26,9 @@ router.get('/shutter-data', getShutterData);
 
 // Real-time order stock deduction (called by Shutter hook)
 router.post('/deduct-inventory', deductInventory);
+
+// Real-time order stock restoration (called by Shutter when confirmed order cancelled)
+router.post('/restore-inventory', restoreInventory);
 
 // Reservation-based intelligent ingredient demand forecasting
 router.get('/forecast', getForecast);

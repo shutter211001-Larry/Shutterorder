@@ -275,6 +275,107 @@ export const deductInventory = async (req: Request, res: Response) => {
   }
 };
 
+// 5.5 Restore Inventory (Idempotent)
+export const restoreInventory = async (req: Request, res: Response) => {
+  try {
+    // Check if integration key in header matches
+    const key = req.headers['x-integration-key'];
+    if (key !== getIntegrationKey()) {
+      return res.status(401).json({ success: false, error: 'Unauthorized integration key' });
+    }
+
+    const { orderId, orderNumber, items } = req.body;
+    
+    if (!orderNumber || !items || !Array.isArray(items)) {
+      return res.status(400).json({ success: false, error: 'Invalid payload: orderNumber and items array required' });
+    }
+
+    // 1. Idempotency Check: Check if we have already restored for this orderNumber
+    const existingLog = await prisma.inventoryLog.findFirst({
+      where: {
+        reason: {
+          contains: `線上訂餐取消回補 #${orderNumber}`
+        }
+      }
+    });
+
+    if (existingLog) {
+      console.log(`[Integration ERP] Idempotent trigger: Order #${orderNumber} already restored. Skipping.`);
+      return res.json({ success: true, message: 'Restoration already completed (idempotent step)', skipped: true });
+    }
+
+    console.log(`[Integration ERP] Processing stock restoration for cancelled Order #${orderNumber}...`);
+    const mappings = await mainPrisma.erpRecipeMapping.findMany();
+    const restorations: { ingredientId: string, name: string, amount: number, unit: string }[] = [];
+
+    // 2. Loop order items and calculate required quantities
+    for (const item of items) {
+      const mapping = mappings.find((m: any) => m.menuItemId === item.menuItemId);
+      if (!mapping) {
+        continue;
+      }
+
+      // Fetch R&D Recipe Stats
+      const stats = await calculateRecipeStats(mapping.recipeId);
+      const recipe = await prisma.recipe.findUnique({ where: { id: mapping.recipeId } });
+      const yieldAmount = recipe?.yieldAmount || 1;
+
+      for (const ingredient of stats.totalIngredients) {
+        // Consumed amount = (IngredientQty / YieldAmount) * OrderItemQty
+        const portion = ingredient.quantity / yieldAmount;
+        const consumed = portion * item.quantity;
+
+        const existing = restorations.find(d => d.ingredientId === ingredient.id);
+        if (existing) {
+          existing.amount += consumed;
+        } else {
+          restorations.push({
+            ingredientId: ingredient.id,
+            name: ingredient.name,
+            amount: consumed,
+            unit: ingredient.unit
+          });
+        }
+      }
+    }
+
+    // 3. Apply restorations in transaction to prevent partial updates
+    if (restorations.length > 0) {
+      await prisma.$transaction(async (tx) => {
+        for (const res of restorations) {
+          // Increment current stock
+          await tx.ingredient.update({
+            where: { id: res.ingredientId },
+            data: {
+              currentStock: {
+                increment: res.amount
+              }
+            }
+          });
+
+          // Log in Inventory Logs
+          await tx.inventoryLog.create({
+            data: {
+              ingredientId: res.ingredientId,
+              type: 'IN', // Using IN for restoration, can also be ADJUST
+              amount: res.amount,
+              reason: `線上訂餐取消回補 #${orderNumber} 自動加回 (品項明細: ${items.map(i => `${i.name}x${i.quantity}`).join(', ')})`
+            }
+          });
+        }
+      });
+      console.log(`[Integration ERP] Successfully restored stock for ${restorations.length} ingredients from cancelled Order #${orderNumber}`);
+    } else {
+      console.log(`[Integration ERP] No ingredients needed to be restored for cancelled Order #${orderNumber}`);
+    }
+
+    res.json({ success: true, restoredIngredients: restorations });
+  } catch (err: any) {
+    console.error(`[Integration ERP] Stock restoration failed:`, err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 // 6. Intelligent Demand Forecasting from upcoming reservations
 export const getForecast = async (req: Request, res: Response) => {
   try {
