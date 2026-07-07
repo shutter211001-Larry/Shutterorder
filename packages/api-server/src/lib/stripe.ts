@@ -1,14 +1,17 @@
 import Stripe from 'stripe';
 import prisma from './db.js';
+import { tenantStorage } from '../middleware/tenantMiddleware.js';
 
-let cachedStripe: Stripe | null = null;
-let cachedKey: string = '';
+const stripeCache = new Map<string, Stripe>();
 
 export async function getStripe(): Promise<Stripe> {
+  const store = tenantStorage.getStore();
+  const tenantId = store?.tenantId || 'default';
+
   let secretKey = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
 
   try {
-    const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    const settings = await prisma.siteSettings.findFirst();
     const payment = (settings?.paymentSettings as Record<string, any>) || {};
     if (payment.stripeSecretKey) {
       secretKey = payment.stripeSecretKey;
@@ -17,19 +20,21 @@ export async function getStripe(): Promise<Stripe> {
     // DB unavailable — fall back to env var
   }
 
-  if (cachedStripe && cachedKey === secretKey) {
-    return cachedStripe;
+  const cacheKey = `${tenantId}:${secretKey}`;
+  if (stripeCache.has(cacheKey)) {
+    return stripeCache.get(cacheKey)!;
   }
 
-  cachedStripe = new Stripe(secretKey, {
+  const stripeInstance = new Stripe(secretKey, {
     apiVersion: '2026-01-28.clover' as any,
   });
-  cachedKey = secretKey;
+  
+  stripeCache.set(cacheKey, stripeInstance);
 
-  return cachedStripe;
+  return stripeInstance;
 }
 
-// Default export for backwards compatibility
+// Deprecated: Do not use default export in multi-tenant environment
 export default new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2026-01-28.clover' as any,
 });

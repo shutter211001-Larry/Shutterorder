@@ -7,10 +7,25 @@ export const API_URL = rawApiUrl.replace(/\/$/, '');
 export const API_BASE = `${API_URL}/api`;
 export const RESOURCE_BASE = API_URL;
 
+const getTenantId = () => {
+  const saved = localStorage.getItem('tenantId');
+  if (saved) return saved;
+  const hostname = window.location.hostname;
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    const parts = hostname.split('.');
+    if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
+      return parts[0];
+    }
+  }
+  return '';
+};
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('token');
+  const tenantId = getTenantId();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
@@ -51,7 +66,9 @@ export const api = {
     request<T>(path, { method: 'DELETE' }),
   upload: async <T>(path: string, formData: FormData): Promise<T> => {
     const token = localStorage.getItem('token');
+    const tenantId = getTenantId();
     const headers: Record<string, string> = {};
+    if (tenantId) headers['x-tenant-id'] = tenantId;
     if (token) headers.Authorization = `Bearer ${token}`;
 
     const res = await fetch(`${API_BASE}${path}`, {

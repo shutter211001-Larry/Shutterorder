@@ -5,7 +5,7 @@ import { generateToken } from '../middleware/auth.js';
 import { grantRegistrationBonus } from '../lib/registrationBonus.js';
 
 async function getLineConfig(locationId?: string) {
-  const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+  const settings = await prisma.siteSettings.findFirst();
   
   let channelSecret = process.env.LINE_CHANNEL_SECRET;
   let channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -41,7 +41,7 @@ export async function getLineStatus(req: Request, res: Response) {
   const locationId = req.query.locationId as string | undefined;
 
   if (locationId) {
-    const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    const settings = await prisma.siteSettings.findFirst();
     const advancedSettings = (settings?.advancedSettings as any) || {};
     const overrides = advancedSettings.locationOverrides || {};
     const locationData = overrides[locationId]?.lineSettings || {};
@@ -59,7 +59,7 @@ export async function getLineStatus(req: Request, res: Response) {
     return;
   }
   
-  const settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+  const settings = await prisma.siteSettings.findFirst();
   const lineSettings = (settings?.lineSettings as any) || {};
 
   res.json({

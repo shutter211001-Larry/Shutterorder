@@ -43,6 +43,24 @@ router.get('/public-env', (req, res) => {
   });
 });
 
+// Public tenant settings for branding before login
+router.get('/public', async (req, res) => {
+  try {
+    // tenantId is injected by tenantMiddleware automatically into prisma queries
+    // So this just fetches the current tenant's settings
+    const settings = await prisma.siteSettings.findFirst({
+      select: {
+        siteName: true,
+        logo: true,
+        colorPrimary: true
+      }
+    });
+    res.json({ success: true, data: settings || { siteName: 'Kitchenasty', logo: null, colorPrimary: '#ea580c' } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch public settings' });
+  }
+});
+
 // Debug raw data
 router.get('/debug', debugSettings);
 

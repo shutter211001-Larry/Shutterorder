@@ -8,6 +8,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  domain    String?  @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  customers    Customer[]
+  locations    Location[]
+  categories   Category[]
+  menuItems    MenuItem[]
+  orders       Order[]
+  coupons      Coupon[]
+  siteSettings SiteSettings?
+
+  @@map("tenants")
+}
+
 model User {
   id                  String                        @id @default(cuid())
   email               String                        @unique
@@ -45,6 +65,9 @@ model User {
   leaveBalances       LeaveBalance[]
   payslips            Payslip[]
   documents           EmployeeDocument[]
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("users")
 }
@@ -89,6 +112,9 @@ model Customer {
   orders                    Order[]
   reservations              Reservation[]
   reviews                   Review[]
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("customers")
 }
@@ -182,6 +208,9 @@ model Location {
   shifts                          Shift[]
   payrollPeriods                  PayrollPeriod[]
 
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   @@map("locations")
 }
 
@@ -235,6 +264,9 @@ model Category {
   children                Category[] @relation("CategoryTree")
   menuItems               MenuItem[]
 
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   @@map("categories")
 }
 
@@ -269,6 +301,9 @@ model MenuItem {
   location                Location?                   @relation(fields: [locationId], references: [id])
   options                 MenuOption[]
   orderItems              OrderItem[]
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("menu_items")
 }
@@ -418,6 +453,9 @@ model Order {
   payments             Payment[]
   reviews              Review[]
 
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   @@index([createdAt])
   @@index([status])
   @@index([locationId])
@@ -527,6 +565,9 @@ model Coupon {
   orders      Order[]
   location    Location?  @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   @@map("coupons")
 }
 
@@ -608,6 +649,9 @@ model SiteSettings {
   menuSection         Json?
   invoiceSettings     Json?
   googleSettings      Json?
+
+  tenantId String? @unique
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("site_settings")
 }

@@ -57,6 +57,7 @@ import invoiceRoutes from './routes/invoice.routes.js';
 import jobRoleRoutes from './routes/job-role.routes.js';
 import rosterRoutes from './routes/roster.routes.js';
 import payrollRoutes from './routes/payroll.routes.js';
+import platformAdminRoutes from './routes/platform-admin.routes.js';
 import shutterErpRouter from './shutter-erp/index.js';
 import { openApiSpec } from './lib/openapi.js';
 import { initPassport } from './lib/passport.js';
@@ -66,6 +67,7 @@ import logger from './lib/logger.js';
 import { requestId } from './middleware/requestId.js';
 import { httpLogger } from './middleware/httpLogger.js';
 import { metricsCollector } from './middleware/metricsCollector.js';
+import { tenantMiddleware } from './middleware/tenantMiddleware.js';
 
 // Initialize automation event listeners
 import './lib/events.js';
@@ -163,6 +165,9 @@ export async function createApp() {
     app.use(httpLogger);
   }
 
+  // Multi-tenant middleware MUST run before routes
+  app.use(tenantMiddleware);
+
   // Health check (before rate limiter so monitoring/readiness probes always work)
   app.get('/api/health', (_req, res) => {
     res.json({
@@ -244,6 +249,7 @@ export async function createApp() {
   app.use('/api/job-roles', jobRoleRoutes);
   app.use('/api/roster', rosterRoutes);
   app.use('/api/payroll', payrollRoutes);
+  app.use('/api/platform-admin', platformAdminRoutes);
   app.use('/shutter-erp', shutterErpRouter);
 
   // 404 handler
