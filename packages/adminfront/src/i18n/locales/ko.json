@@ -1879,6 +1879,7 @@
     "saveAllChanges": "儲存所有變更"
   },
   "staffEdit": {
+    "jobRoles": "Job Roles",
     "hourlyWage": "시급",
     "salaryType": "급여 유형",
     "hourly": "시급",

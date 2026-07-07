@@ -1879,6 +1879,7 @@
     "saveAllChanges": "儲存所有變更"
   },
   "staffEdit": {
+    "jobRoles": "Job Roles",
     "hourlyWage": "時給",
     "salaryType": "給与形態",
     "hourly": "時給",

@@ -1879,6 +1879,7 @@
     "saveAllChanges": "儲存所有變更"
   },
   "staffEdit": {
+    "jobRoles": "職務角色",
     "hourlyWage": "時薪 (Hourly Wage)",
     "salaryType": "計薪方式",
     "hourly": "時薪 (Hourly Wage)",

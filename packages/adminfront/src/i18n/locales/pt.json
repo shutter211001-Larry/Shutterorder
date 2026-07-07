@@ -1879,6 +1879,7 @@
     "saveAllChanges": "儲存所有變更"
   },
   "staffEdit": {
+    "jobRoles": "Job Roles",
     "hourlyWage": "Salário por hora",
     "salaryType": "Tipo de salário",
     "hourly": "Salário por hora",

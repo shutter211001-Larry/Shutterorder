@@ -1879,6 +1879,7 @@
     "saveAllChanges": "儲存所有變更"
   },
   "staffEdit": {
+    "jobRoles": "Job Roles",
     "hourlyWage": "Lương theo giờ",
     "salaryType": "Loại lương",
     "hourly": "Lương theo giờ",
