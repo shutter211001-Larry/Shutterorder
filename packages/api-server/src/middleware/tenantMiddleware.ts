@@ -30,7 +30,7 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     } else {
       // 2. Lookup DB
       try {
-        const tenant = await prisma.tenant.findUnique({
+        const tenant = await (prisma as any).tenant.findUnique({
           where: { domain }
         });
         if (tenant) {
