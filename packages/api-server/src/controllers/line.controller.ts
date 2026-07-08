@@ -749,7 +749,8 @@ export async function lineLogin(req: Request, res: Response) {
     const token = generateToken({
       id: customer.id,
       email: customer.email,
-      type: 'customer'
+      type: 'customer',
+      tenantId: customer.tenantId
     });
 
     console.log(`[LINE Login] Success! Returning token for user ${customer.id}`);

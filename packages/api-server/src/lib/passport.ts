@@ -59,7 +59,7 @@ export const initPassport = async () => {
                   ...(!existingCustomer?.email ? { email: email } : {})
                 },
               });
-              return done(null, { id: customer.id, email: customer.email, type: 'customer' as const });
+              return done(null, { id: customer.id, email: customer.email, type: 'customer' as const, tenantId: customer.tenantId });
             }
 
             // LOGIN/REGISTER Flow
@@ -100,7 +100,7 @@ export const initPassport = async () => {
               });
             }
 
-            return done(null, { id: customer.id, email: customer.email, type: 'customer' as const });
+            return done(null, { id: customer.id, email: customer.email, type: 'customer' as const, tenantId: customer.tenantId });
           } catch (error) {
             return done(error as Error, false);
           }

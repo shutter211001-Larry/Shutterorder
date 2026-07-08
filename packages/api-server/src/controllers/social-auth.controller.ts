@@ -25,6 +25,7 @@ export function handleSocialCallback(req: Request, res: Response): void {
     id: customer.id,
     email: customer.email,
     type: 'customer',
+    tenantId: customer.tenantId,
   });
 
   // Check if the OAuth state indicates a mobile client

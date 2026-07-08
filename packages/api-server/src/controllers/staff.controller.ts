@@ -460,8 +460,9 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
         password: hashedPassword,
         name,
         role: invite.role,
+        tenantId: invite.tenantId,
       },
-      select: { id: true, email: true, name: true, role: true },
+      select: { id: true, email: true, name: true, role: true, tenantId: true },
     }),
     prisma.inviteToken.update({
       where: { id: invite.id },
@@ -474,6 +475,7 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
     email: user.email,
     type: 'staff',
     role: user.role,
+    tenantId: user.tenantId,
   });
 
   res.status(201).json({ success: true, data: { token: jwt, user } });
