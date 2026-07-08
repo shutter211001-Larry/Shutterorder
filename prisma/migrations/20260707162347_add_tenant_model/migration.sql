@@ -18,13 +18,6 @@ DO $$ BEGIN
   END IF; 
 END $$;
 
--- Create Unique Index for site_settings tenantId
-DO $$ BEGIN 
-  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'site_settings_tenantId_key') THEN 
-    CREATE UNIQUE INDEX "site_settings_tenantId_key" ON "site_settings"("tenantId"); 
-  END IF; 
-END $$;
-
 -- Add tenantId Columns
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
 ALTER TABLE "customers" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
@@ -34,6 +27,13 @@ ALTER TABLE "menu_items" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
 ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
 ALTER TABLE "coupons" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
 ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "tenantId" TEXT;
+
+-- Create Unique Index for site_settings tenantId
+DO $$ BEGIN 
+  IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'site_settings_tenantId_key') THEN 
+    CREATE UNIQUE INDEX "site_settings_tenantId_key" ON "site_settings"("tenantId"); 
+  END IF; 
+END $$;
 
 -- Add Foreign Key Constraints idempotently
 DO $$ 
