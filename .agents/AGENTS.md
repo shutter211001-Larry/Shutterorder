@@ -66,3 +66,21 @@
 **Rule**: Dates like `req.date` or `shift.date` are parsed by Prisma as UTC Midnight objects (e.g., `2026-07-10T00:00:00.000Z`). You MUST NEVER use `.getDay()`, `.getDate()`, or `.setDate()` on these objects, as it will evaluate the date in the local timezone of the deployment server (which may be in the US), causing "Timezone Drift" bugs where the day shifts to the previous day. 
 - **Correct usage**: `.getUTCDay()`, `.getUTCDate()`, `.setUTCDate()`
 - **Incorrect usage**: `.getDay()`, `.getDate()`, `.setDate()`
+
+## 13. Prisma JSON Serialization & Frontend Null Checks
+**Trigger**: When writing frontend logic that checks for `null` on data fetched from the backend (Prisma).
+**Rule**: Prisma's `select` omits unspecified fields entirely. When serialized to JSON, omitted fields become `undefined`, not `null`. You MUST ensure frontend checks account for both `null` and `undefined` (e.g., `user.tenantId !== null && user.tenantId !== undefined` or `user.tenantId != null` using loose equality) to prevent false-positive strict equality failures.
+
+## 14. PowerShell Backtick Escaping Danger (React/TSX)
+**Trigger**: When writing or replacing entire code files that contain template literals (`` ` ``), especially React/TSX files.
+**Rule**: NEVER use PowerShell here-strings (`@"..."@`) via `run_command` to write code containing backticks. PowerShell will evaluate the backticks as escape characters and destroy the template literals. You MUST ALWAYS use the native `write_to_file` or `replace_file_content` tools to write or modify source code.
+
+## 15. UI Text Language Requirement (Traditional Chinese)
+**Trigger**: When designing, generating, or modifying User Interface (UI) components, pages, or hardcoded strings.
+**Rule**: You MUST use Traditional Chinese (繁體中文) for all UI text, labels, and placeholders by default, unless the text is explicitly part of the i18n translation system (in which case you should follow Rule 1). Do not use English for user-facing UI elements unless specifically requested.
+
+## 16. SaaS Platform vs. Tenant Admin UI Distinction
+**Trigger**: When designing pages (especially Login pages and Dashboards) for the SaaS Super Admin platform (`saasfront`).
+**Rule**: You MUST visually differentiate the `saasfront` UI from the tenant-facing `adminfront` UI. 
+- Use distinct titles (e.g., "SaaS 平台超級管理員登入" instead of "餐廳管理員登入").
+- Use a distinct color scheme or branding elements so that the user immediately knows they are logging into the central SaaS control panel, not a specific restaurant's backend.

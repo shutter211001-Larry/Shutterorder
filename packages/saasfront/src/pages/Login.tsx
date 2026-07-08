@@ -85,16 +85,22 @@ export default function Login({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background decoration for SaaS distinction */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[100px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/10 blur-[100px]"></div>
+      </div>
+
+      <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-400">夏特點餐系統</h1>
-          <p className="text-gray-400 mt-1 text-sm">Admin Panel</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">夏特點餐平台系統</h1>
+          <p className="text-indigo-200/60 mt-2 text-sm uppercase tracking-widest font-medium">SaaS 超級管理中心</p>
         </div>
 
-        <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-5">
-          <h2 className="text-xl font-semibold text-gray-900 text-center">
-            {isForgotPassword ? '忘記密碼' : 'Sign In'}
+        <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-8 space-y-5">
+          <h2 className="text-xl font-semibold text-white text-center">
+            {isForgotPassword ? '忘記密碼' : '管理員登入'}
           </h2>
 
           {message && (
@@ -105,25 +111,26 @@ export default function Login({ onLogin }: Props) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-300 mb-1">電子郵件信箱</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               autoFocus
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              placeholder="admin@shutter.com"
             />
           </div>
 
           {!isForgotPassword && (
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <label className="block text-sm font-medium text-gray-300">密碼</label>
                 <button
                   type="button"
                   onClick={() => { setIsForgotPassword(true); setError(''); setMessage(''); }}
-                  className="text-xs text-primary-600 hover:text-primary-700 font-medium cursor-pointer"
+                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer transition-colors"
                 >
                   忘記密碼？
                 </button>
@@ -133,7 +140,8 @@ export default function Login({ onLogin }: Props) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required={!isForgotPassword}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                placeholder="••••••••"
               />
             </div>
           )}
@@ -141,9 +149,9 @@ export default function Login({ onLogin }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 cursor-pointer"
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-medium hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-indigo-500/25"
           >
-            {loading ? (isForgotPassword ? '發送中...' : 'Signing in...') : (isForgotPassword ? '發送重置信' : 'Sign In')}
+            {loading ? (isForgotPassword ? '發送中...' : '登入中...') : (isForgotPassword ? '發送重置信件' : '登入系統')}
           </button>
 
           {isForgotPassword && (
