@@ -66,6 +66,8 @@ export const requireTenant = (req: Request, res: Response, next: NextFunction) =
     // Whitelist global paths that are allowed to run without a specific tenant
     if (
       req.path.startsWith('/api/platform-admin') || 
+      req.path.startsWith('/api/auth') ||
+      req.path.startsWith('/api/dashboard') ||
       req.path.startsWith('/api/health') ||
       req.path.startsWith('/api/docs') ||
       req.path.startsWith('/api/openapi.json') ||
