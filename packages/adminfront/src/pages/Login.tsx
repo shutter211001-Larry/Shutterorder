@@ -45,6 +45,11 @@ export default function Login({ onLogin }: Props) {
       }
 
       if (!res.ok) throw new Error(data.error || 'Login failed');
+      
+      if (data.data?.user?.tenantId) {
+        localStorage.setItem('tenantId', data.data.user.tenantId);
+      }
+      
       onLogin(data.data.token);
     } catch (err: any) {
       setError(err.message);

@@ -49,6 +49,7 @@ export const createTenant = async (req: Request, res: Response) => {
         },
         siteSettings: {
           create: {
+            id: require('crypto').randomUUID(),
             siteName: name,
             siteTitle: `${name} - Order Online`,
             colorPrimary: '#ea580c'

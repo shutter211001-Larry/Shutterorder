@@ -84,3 +84,7 @@
 **Rule**: You MUST visually differentiate the `saasfront` UI from the tenant-facing `adminfront` UI. 
 - Use distinct titles (e.g., "SaaS 平台超級管理員登入" instead of "餐廳管理員登入").
 - Use a distinct color scheme or branding elements so that the user immediately knows they are logging into the central SaaS control panel, not a specific restaurant's backend.
+
+## 17. SiteSettings Hardcoded ID Workaround (Prisma)
+**Trigger**: When writing Prisma Client code to `create` a new `SiteSettings` record (e.g., as a nested `create` when creating a `Tenant`).
+**Rule**: The `SiteSettings` model in `schema.prisma` defines its primary key as `id String @id @default("default")`. If you do not explicitly provide an `id` when creating a record, Prisma will attempt to insert "default", leading to a `P2002` Unique Constraint violation if a settings record already exists. You MUST ALWAYS explicitly provide a generated UUID (e.g., `id: require('crypto').randomUUID()`) for the `id` field when creating a `SiteSettings` record.

@@ -14,7 +14,7 @@ import { sendEmail, staffPasswordResetEmail } from '../lib/email.js';
 
 const staffLoginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(1),
 });
 
 export async function getSetupStatus(req: Request, res: Response): Promise<void> {
@@ -80,7 +80,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
     email: user.email,
     type: 'staff',
     role: user.role,
-    tenantId: tenantStorage.getStore()?.tenantId || null,
+    tenantId: user.tenantId || tenantStorage.getStore()?.tenantId || null,
   });
 
   res.json({
@@ -95,6 +95,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
         lineUserId: user.lineUserId,
         lineDisplayName: user.lineDisplayName,
         hasPassword: !!user.password,
+        tenantId: user.tenantId,
       },
     },
   });

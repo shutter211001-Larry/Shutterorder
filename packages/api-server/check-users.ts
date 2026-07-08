@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const users = await prisma.user.findMany(); console.log('Users count:', users.length); const tenants = await prisma.tenant.findMany(); console.log('Tenants count:', tenants.length); } main();
