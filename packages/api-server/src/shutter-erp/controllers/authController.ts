@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { prisma } from '../lib/prisma.js';
+import mainPrisma from '../../lib/db.js';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import { sendEmail, passwordResetEmail, erpInviteEmail } from '../../lib/email.js';
 const JWT_SECRET = process.env.JWT_SECRET || 'pizza-master-jwt-secret-key-super-secure';
@@ -74,13 +75,40 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: '電子郵件或密碼不正確' });
+    let user = await prisma.user.findUnique({ where: { email } });
+    let isValidPassword = false;
+
+    if (user) {
+      isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    } else {
+      // SSO Fallback: Check SaaS Main DB
+      const saasUser = await mainPrisma.user.findUnique({
+        where: { email },
+        include: { tenant: true }
+      });
+
+      if (saasUser) {
+        isValidPassword = await bcrypt.compare(password, saasUser.password);
+        if (isValidPassword) {
+          // Check ERP Add-on Permission
+          if (!saasUser.tenant || !saasUser.tenant.hasErpAccess) {
+            return res.status(403).json({ error: 'SaaS 總部尚未為您開通 ERP 模組權限，請先升級解鎖。' });
+          }
+
+          // Auto-create shadow user in ERP DB for foreign key relations
+          user = await prisma.user.create({
+            data: {
+              email: saasUser.email,
+              name: saasUser.name || 'SaaS User',
+              passwordHash: saasUser.password, // Sync hash
+              role: saasUser.role === 'SUPER_ADMIN' ? 'ADMIN' : 'STAFF'
+            }
+          });
+        }
+      }
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-    if (!isValidPassword) {
+    if (!user || !isValidPassword) {
       return res.status(401).json({ error: '電子郵件或密碼不正確' });
     }
 
