@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api.js';
 
 function hexToHsl(hex: string): [number, number, number] {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -61,8 +62,8 @@ export default function DesignTheme() {
   const [darkMode, setDarkMode] = useState<'light' | 'dark' | 'system'>('light');
 
   useEffect(() => {
-    fetch('/api/settings')
-      .then((r) => r.json())
+    api.get('settings')
+      
       .then((res) => {
         if (res.success && res.data) {
           setColorPrimary(res.data.colorPrimary);
@@ -79,11 +80,7 @@ export default function DesignTheme() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ colorPrimary, colorSecondary, darkMode }),
-      });
+      const res = await api.put('settings', JSON.stringify({ colorPrimary, colorSecondary, darkMode }));
       const data = await res.json();
       if (data.success) {
         setSuccess(t('designTheme.themeSettingsUpdated'));

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { getFullUrl } from '../utils/url.js';
+import { api } from '../lib/api.js';
 
 export default function DesignBranding() {
   const { t } = useTranslation();
@@ -21,8 +22,8 @@ export default function DesignBranding() {
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch('/api/settings')
-      .then((r) => r.json())
+    api.get('settings')
+      
       .then((res) => {
         if (res.success && res.data) {
           setSiteName(res.data.siteName);
@@ -41,11 +42,7 @@ export default function DesignBranding() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ siteName, siteTitle, siteDescription }),
-      });
+      const res = await api.put('settings', JSON.stringify({ siteName, siteTitle, siteDescription }));
       const data = await res.json();
       if (data.success) {
         setSuccess(t('designBranding.brandSettingsUpdated'));
@@ -65,11 +62,7 @@ export default function DesignBranding() {
     formData.append(type, file);
 
     try {
-      const res = await fetch(`/api/settings/${type}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
+      const res = await api.post(`settings/${type}`, formData);
       const data = await res.json();
       if (data.success && data.data) {
         if (type === 'logo') setLogo(getFullUrl(data.data.logo));

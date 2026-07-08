@@ -88,3 +88,13 @@
 ## 17. SiteSettings Hardcoded ID Workaround (Prisma)
 **Trigger**: When writing Prisma Client code to `create` a new `SiteSettings` record (e.g., as a nested `create` when creating a `Tenant`).
 **Rule**: The `SiteSettings` model in `schema.prisma` defines its primary key as `id String @id @default("default")`. If you do not explicitly provide an `id` when creating a record, Prisma will attempt to insert "default", leading to a `P2002` Unique Constraint violation if a settings record already exists. You MUST ALWAYS explicitly provide a generated UUID (e.g., `id: require('crypto').randomUUID()`) for the `id` field when creating a `SiteSettings` record.
+
+## 18. AdminFront API Client Requirement (No Native Fetch)
+**Trigger**: When modifying, creating, or refactoring components/hooks in "adminfront" that make HTTP requests.
+**Rule**: NEVER use the native "fetch()" API. The backend requires multi-tenant headers ("x-tenant-id") to authorize requests on "localhost". The native "fetch()" does not append these headers, causing 401 Unauthorized or 400 Bad Request errors. You MUST always import the custom API client ("import { api } from '../lib/api.js';") and use "api.get", "api.post", "api.put", etc. If you see existing code using "fetch()", you should refactor it to use "api" during your edits.
+
+## 19. Prisma Multi-Tenancy Data Leak Prevention (Raw SQL & Child Models)
+**Trigger**: When writing or modifying Prisma queries in the backend API (specifically $queryRaw, $executeRaw, or querying child models like "OrderItem" that lack a direct "tenantId" column).
+**Rule**: The Prisma multi-tenancy extension in "db.ts" ONLY automatically injects "tenantId" filters into standard operations for models explicitly listed in "tenantAwareModels". 
+- **Raw SQL**: The extension does NOT intercept "" or "". You MUST manually extract "tenantId" ("const tenantId = tenantStorage.getStore()?.tenantId;") and explicitly add "AND "tenantId" = " to the "WHERE" clause of your raw SQL.
+- **Child Models**: Models like "OrderItem" are not tenant-aware directly. When querying or grouping them, you MUST manually add a relation filter (e.g., "where: { order: { tenantId } }") to prevent global data leakage across tenants.

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 export default function SettingsInvoice() {
   const { t } = useTranslation();
@@ -20,8 +21,8 @@ export default function SettingsInvoice() {
   const [hashIv, setHashIv] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings/invoice', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('settings/invoice')
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -40,16 +41,12 @@ export default function SettingsInvoice() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/invoice', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
+      const res = await api.put('settings/invoice', JSON.stringify({
           enabled,
           merchantId,
           hashKey,
           hashIv,
-        }),
-      });
+        }));
       const data = await res.json();
       if (data.success) {
         if (data.data?.hashKey) setHashKey(data.data.hashKey);

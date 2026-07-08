@@ -2,8 +2,17 @@ import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../lib/db.js';
 
+import { tenantStorage } from '../middleware/tenantStorage.js';
+
 export async function getDashboardStats(req: Request, res: Response): Promise<void> {
   try {
+    const store = tenantStorage.getStore();
+    const tenantId = store?.tenantId;
+    if (!tenantId) {
+      res.status(400).json({ success: false, error: 'Tenant context required' });
+      return;
+    }
+
     const now = new Date();
     const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     const weekStart = new Date(todayStart);
@@ -27,6 +36,7 @@ export async function getDashboardStats(req: Request, res: Response): Promise<vo
         COUNT(*)::bigint AS "totalOrders",
         COALESCE(SUM(CASE WHEN status != 'CANCELLED' THEN total ELSE 0 END), 0)::double precision AS "totalRevenue"
       FROM "orders"
+      WHERE "tenantId" = ${tenantId}
     `;
 
     const [
@@ -62,6 +72,7 @@ export async function getDashboardStats(req: Request, res: Response): Promise<vo
       // Top selling items (by order item count)
       prisma.orderItem.groupBy({
         by: ['menuItemId', 'name'],
+        where: { order: { tenantId } },
         _sum: { quantity: true },
         orderBy: { _sum: { quantity: 'desc' } },
         take: 5,
@@ -101,6 +112,13 @@ export async function getDashboardStats(req: Request, res: Response): Promise<vo
 }
 
 export async function getAnalytics(req: Request, res: Response): Promise<void> {
+  const store = tenantStorage.getStore();
+  const tenantId = store?.tenantId;
+  if (!tenantId) {
+    res.status(400).json({ success: false, error: 'Tenant context required' });
+    return;
+  }
+
   const days = Math.min(90, Math.max(7, parseInt(req.query.days as string) || 30));
   const startDate = new Date();
   startDate.setUTCDate(startDate.getUTCDate() - days);
@@ -114,7 +132,7 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
         COUNT(*)::bigint AS orders,
         COALESCE(SUM(CASE WHEN status != 'CANCELLED' THEN total ELSE 0 END), 0) AS revenue
       FROM "orders"
-      WHERE "createdAt" >= ${startDate}
+      WHERE "createdAt" >= ${startDate} AND "tenantId" = ${tenantId}
       GROUP BY "createdAt"::date
       ORDER BY "createdAt"::date
     `
@@ -141,7 +159,7 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
         EXTRACT(HOUR FROM "createdAt")::int AS hour,
         COUNT(*)::bigint AS orders
       FROM "orders"
-      WHERE "createdAt" >= ${startDate}
+      WHERE "createdAt" >= ${startDate} AND "tenantId" = ${tenantId}
       GROUP BY EXTRACT(HOUR FROM "createdAt")
       ORDER BY hour
     `
@@ -158,7 +176,7 @@ export async function getAnalytics(req: Request, res: Response): Promise<void> {
       JOIN "menu_items" mi ON oi."menuItemId" = mi.id
       JOIN "categories" c ON mi."categoryId" = c.id
       JOIN "orders" o ON oi."orderId" = o.id
-      WHERE o."createdAt" >= ${startDate} AND o.status != 'CANCELLED'
+      WHERE o."createdAt" >= ${startDate} AND o."tenantId" = ${tenantId} AND o.status != 'CANCELLED'
       GROUP BY c.id, c.name
       ORDER BY revenue DESC
       LIMIT 10

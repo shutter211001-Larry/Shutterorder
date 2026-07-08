@@ -1,4 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { api } from '../lib/api.js';
 
 interface Props {
   onLogin: (token: string) => void;
@@ -14,8 +15,8 @@ export default function Login({ onLogin }: Props) {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/staff/setup-status')
-      .then(res => res.json())
+    api.get('auth/staff/setup-status')
+      
       .then(data => {
         if (data && typeof data.hasSuperAdmin === 'boolean') {
           setHasSuperAdmin(data.hasSuperAdmin);
@@ -31,11 +32,7 @@ export default function Login({ onLogin }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/staff/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await api.post('auth/staff/login', JSON.stringify({ email, password }));
       
       let data: any;
       try {
@@ -69,11 +66,7 @@ export default function Login({ onLogin }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/staff/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      const res = await api.post('auth/staff/forgot-password', JSON.stringify({ email }));
       
       let data: any = {};
       try {

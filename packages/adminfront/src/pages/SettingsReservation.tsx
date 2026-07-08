@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 export default function SettingsReservation() {
   const { t } = useTranslation();
@@ -22,8 +23,8 @@ export default function SettingsReservation() {
   const [autoConfirm, setAutoConfirm] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings/reservation', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('settings/reservation')
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -44,11 +45,7 @@ export default function SettingsReservation() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/reservation', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ enabled, timeInterval, stayTime, maxAdvanceBookingDays, minCancellationNoticeHours, autoConfirm }),
-      });
+      const res = await api.put('settings/reservation', JSON.stringify({ enabled, timeInterval, stayTime, maxAdvanceBookingDays, minCancellationNoticeHours, autoConfirm }));
       const data = await res.json();
       if (data.success) {
         setSuccess('Reservation settings updated');

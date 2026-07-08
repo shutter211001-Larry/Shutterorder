@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 interface Staff {
   id: string;
@@ -54,13 +55,8 @@ export default function StaffList() {
     if (roleFilter) params.set('role', roleFilter);
     if (search) params.set('search', search);
 
-    fetch(`/api/staff?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load staff');
-        return res.json();
-      })
+    api.get(`staff?${params}`)
+      
       .then((data) => {
         setStaff(data.data);
         setPagination(data.pagination);
@@ -71,11 +67,7 @@ export default function StaffList() {
 
   async function toggleActive(id: string, isActive: boolean) {
     try {
-      const res = await fetch(`/api/staff/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ isActive }),
-      });
+      const res = await api.patch(`staff/${id}`, JSON.stringify({ isActive }));
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to update');

@@ -62,13 +62,8 @@ export default function CouponForm() {
 
     if (!id) return;
     setLoading(true);
-    fetch(`/api/coupons/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load coupon');
-        return res.json();
-      })
+    api.get(`coupons/${id}`)
+      
       .then((data) => {
         const c = data.data;
         setCode(c.code || '');

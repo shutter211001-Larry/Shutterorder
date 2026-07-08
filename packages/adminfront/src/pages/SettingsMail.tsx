@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { api } from '../lib/api.js';
 
 export default function SettingsMail() {
   const token = localStorage.getItem('token') || '';
@@ -29,8 +30,8 @@ export default function SettingsMail() {
   const [selectedLocationId, setSelectedLocationId] = useState('');
 
   useEffect(() => {
-    fetch('/api/locations', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('locations')
+      
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
           setLocations(res.data);
@@ -43,7 +44,7 @@ export default function SettingsMail() {
     setLoading(true);
     const url = selectedLocationId ? `/api/settings/mail?locationId=${selectedLocationId}` : '/api/settings/mail';
     fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;

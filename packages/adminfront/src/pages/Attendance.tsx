@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.js';
 import toast from 'react-hot-toast';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useRef } from 'react';
+import { api } from '../lib/api.js';
 
 export default function Attendance() {
   const { t } = useTranslation();
@@ -160,9 +161,7 @@ export default function Attendance() {
 
   async function fetchLocations() {
     try {
-      const res = await fetch('/api/locations', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('locations');
       const data = await res.json();
       if (data.success) {
         setLocations(data.data);
@@ -174,9 +173,7 @@ export default function Attendance() {
 
   async function fetchMyRecords() {
     try {
-      const res = await fetch('/api/attendance/my-records', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('attendance/my-records');
       const data = await res.json();
       if (data.success) {
         setMyRecords(data.data);
@@ -188,9 +185,7 @@ export default function Attendance() {
 
   async function fetchMyCorrections() {
     try {
-      const res = await fetch('/api/attendance/corrections/my-records', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('attendance/corrections/my-records');
       const data = await res.json();
       if (data.success) {
         setMyCorrections(data.data);
@@ -213,20 +208,13 @@ export default function Attendance() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/attendance/check-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      const res = await api.post('attendance/check-in', JSON.stringify({
           locationId: selectedLocation || 'scan',
           lat: currentLat,
           lng: currentLng,
           device: navigator.userAgent,
           qrToken
-        })
-      });
+        }));
       const data = await res.json();
       if (data.success) {
         if (data.data.isOutOfRange) {
@@ -248,12 +236,7 @@ export default function Attendance() {
   const handleCheckOut = async (id: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/attendance/check-out/${id}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const res = await api.post(`attendance/check-out/${id}`);
       const data = await res.json();
       if (data.success) {
         toast.success(t('attendance.clockOutSuccess'));
@@ -295,14 +278,7 @@ export default function Attendance() {
         reason: correctionForm.reason
       };
 
-      const res = await fetch('/api/attendance/corrections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
+      const res = await api.post('attendance/corrections', JSON.stringify(payload));
       
       const data = await res.json();
       if (data.success) {

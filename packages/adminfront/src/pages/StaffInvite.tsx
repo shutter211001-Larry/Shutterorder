@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 export default function StaffInvite() {
   const { t } = useTranslation();
@@ -21,11 +22,7 @@ export default function StaffInvite() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/staff/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ email, name: name || undefined, role }),
-      });
+      const res = await api.post('staff/invite', JSON.stringify({ email, name: name || undefined, role }));
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to send invite');
       setSuccess(true);

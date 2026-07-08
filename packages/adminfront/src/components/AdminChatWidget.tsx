@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api.js';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL_PUBLIC || '';
 
@@ -45,10 +46,8 @@ export default function AdminChatWidget() {
   // Fetch locations for SUPER_ADMIN / MANAGER
   useEffect(() => {
     if (!token || user?.role === 'STAFF') return;
-    fetch('/api/locations?limit=100', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(r => r.json())
+    api.get('locations?limit=100')
+      
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
           setLocations(res.data);
@@ -65,7 +64,7 @@ export default function AdminChatWidget() {
     fetch(url, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      
       .then(data => {
         if (data.success) {
           setMessages(data.data);
@@ -132,17 +131,10 @@ export default function AdminChatWidget() {
     setInput('');
 
     try {
-      const res = await fetch('/api/chat/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
+      const res = await api.post('chat/messages', JSON.stringify({ 
           content: currentInput,
           locationId: activeLocationId
-        })
-      });
+        }));
       const data = await res.json();
       if (!data.success) {
         console.error('Failed to send message:', data.message);

@@ -1,5 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api.js';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -35,11 +36,7 @@ export default function ResetPassword() {
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/auth/staff/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenParam, newPassword: password }),
-      });
+      const res = await api.post('auth/staff/reset-password', JSON.stringify({ token: tokenParam, newPassword: password }));
       
       let data: any = {};
       try {

@@ -4,6 +4,7 @@ import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
+import { api } from '../lib/api.js';
 
 interface MetricsSummary {
   totalRequests: number;
@@ -60,12 +61,8 @@ export default function DeveloperMetrics() {
     const params = new URLSearchParams({ hours: String(hours) });
 
     Promise.all([
-      fetch(`/api/developer/metrics?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((r) => r.json()),
-      fetch(`/api/developer/metrics/endpoints?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((r) => r.json()),
+      api.get(`developer/metrics?${params}`),
+      api.get(`developer/metrics/endpoints?${params}`),
     ])
       .then(([metricsRes, endpointsRes]) => {
         if (metricsRes.success) {
@@ -94,10 +91,7 @@ export default function DeveloperMetrics() {
             onClick={async () => {
               if (!confirm(t('developerMetrics.confirmSyncDatabase'))) return;
               try {
-                const res = await fetch('/api/developer/sync-db', {
-                  method: 'POST',
-                  headers: { Authorization: `Bearer ${token}` },
-                });
+                const res = await api.post('developer/sync-db');
                 const data = await res.json();
                 if (data.success) {
                   alert(t('developerMetrics.databaseSyncSuccess'));
@@ -121,10 +115,7 @@ export default function DeveloperMetrics() {
               if (!confirm(t('developerMetrics.confirmAiTranslation'))) return;
               setSyncingLocales(true);
               try {
-                const res = await fetch('/api/developer/sync-locales', {
-                  method: 'POST',
-                  headers: { Authorization: `Bearer ${token}` },
-                });
+                const res = await api.post('developer/sync-locales');
                 const data = await res.json();
                 if (data.success) {
                   alert(`語系同步成功！已補齊 ${data.updatedCount} 筆翻譯。`);

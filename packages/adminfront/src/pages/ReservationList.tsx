@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 interface Reservation {
   id: string;
@@ -50,13 +51,8 @@ export default function ReservationList() {
     if (statusFilter) params.set('status', statusFilter);
     if (dateFilter) params.set('date', dateFilter);
 
-    fetch(`/api/reservations?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load reservations');
-        return res.json();
-      })
+    api.get(`reservations?${params}`)
+      
       .then((data) => {
         setReservations(data.data);
         setPagination(data.pagination);
@@ -67,14 +63,7 @@ export default function ReservationList() {
 
   async function updateStatus(id: string, status: string) {
     try {
-      const res = await fetch(`/api/reservations/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      });
+      const res = await api.patch(`reservations/${id}`, JSON.stringify({ status }));
       if (!res.ok) throw new Error('Failed to update');
       setReservations((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status } : r))

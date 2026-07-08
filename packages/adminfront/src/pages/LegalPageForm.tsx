@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api.js';
 
 export default function LegalPageForm() {
   const { slug } = useParams<{ slug: string }>();
@@ -13,10 +14,8 @@ export default function LegalPageForm() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`/api/legal/${slug}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    api.get(`legal/${slug}`)
+      
       .then((res) => {
         if (res.success && res.data) {
           setTitle(res.data.title);
@@ -36,11 +35,7 @@ export default function LegalPageForm() {
     setError('');
 
     try {
-      const res = await fetch(`/api/legal/${slug}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title, content }),
-      });
+      const res = await api.put(`legal/${slug}`, JSON.stringify({ title, content }));
       const data = await res.json();
       if (data.success) {
         navigate('/legal/pages');

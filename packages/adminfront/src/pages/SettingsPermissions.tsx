@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 export default function SettingsPermissions() {
   const { t } = useTranslation();
@@ -26,8 +27,8 @@ export default function SettingsPermissions() {
   });
 
   useEffect(() => {
-    fetch('/api/settings/general', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
+    api.get('settings/general')
+      
       .then(res => {
         if (res.success && res.data) {
           if (res.data.permissions) {
@@ -44,11 +45,7 @@ export default function SettingsPermissions() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/general', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ permissions }),
-      });
+      const res = await api.put('settings/general', JSON.stringify({ permissions }));
       const data = await res.json();
       if (data.success) {
         setSuccess(t('settingsPermissions.permissionsUpdated'));

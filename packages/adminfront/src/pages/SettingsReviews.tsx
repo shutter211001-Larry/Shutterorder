@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { api } from '../lib/api.js';
 
 export default function SettingsReviews() {
   const { t } = useTranslation();
@@ -20,8 +21,8 @@ export default function SettingsReviews() {
   const [minimumRating, setMinimumRating] = useState(1);
 
   useEffect(() => {
-    fetch('/api/settings/review', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('settings/review')
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -40,11 +41,7 @@ export default function SettingsReviews() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/review', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ enabled, requireOrder, autoApprove, minimumRating }),
-      });
+      const res = await api.put('settings/review', JSON.stringify({ enabled, requireOrder, autoApprove, minimumRating }));
       const data = await res.json();
       if (data.success) {
         setSuccess(t('settingsReviews.reviewSettingsUpdated'));

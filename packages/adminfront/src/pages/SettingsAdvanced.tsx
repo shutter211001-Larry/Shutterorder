@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 function IPBlacklistManager({ token }: { token: string }) {
   const [list, setList] = useState<{ ip: string; reason: string | null; createdAt: string }[]>([]);
@@ -11,8 +12,8 @@ function IPBlacklistManager({ token }: { token: string }) {
   const [loading, setLoading] = useState(false);
 
   const fetchList = () => {
-    fetch('/api/settings/ip-blacklist', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
+    api.get('settings/ip-blacklist')
+      
       .then(res => { if (res.success) setList(res.data); });
   };
 
@@ -21,11 +22,7 @@ function IPBlacklistManager({ token }: { token: string }) {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await fetch('/api/settings/ip-blacklist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ ip: newIp, reason: newReason })
-    });
+    await api.post('settings/ip-blacklist', JSON.stringify({ ip: newIp, reason: newReason }));
     setNewIp('');
     setNewReason('');
     fetchList();
@@ -34,10 +31,7 @@ function IPBlacklistManager({ token }: { token: string }) {
 
   const handleRemove = async (ip: string) => {
     if (!confirm(`確定要解除封鎖 ${ip} 嗎？`)) return;
-    await fetch(`/api/settings/ip-blacklist/${ip}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await api.delete(`settings/ip-blacklist/${ip}`);
     fetchList();
   };
 
@@ -98,8 +92,8 @@ export default function SettingsAdvanced() {
   const [inventorySyncFrequency, setInventorySyncFrequency] = useState('6h');
 
   useEffect(() => {
-    fetch('/api/settings/advanced', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('settings/advanced')
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -118,16 +112,12 @@ export default function SettingsAdvanced() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/advanced', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
+      const res = await api.put('settings/advanced', JSON.stringify({
           maintenanceMode,
           maintenanceMessage,
           enableRateLimiting,
           inventorySyncFrequency,
-        }),
-      });
+        }));
       const data = await res.json();
       if (data.success) {
         setSuccess('進階設定已更新');

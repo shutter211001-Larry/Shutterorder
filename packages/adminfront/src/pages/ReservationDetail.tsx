@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 interface Table {
   id: string;
@@ -42,21 +43,14 @@ export default function ReservationDetail() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch(`/api/reservations/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load reservation');
-        return res.json();
-      })
+    api.get(`reservations/${id}`)
+      
       .then((data) => {
         setReservation(data.data);
         // Fetch tables for the location
-        return fetch(`/api/locations/${data.data.location.id}/tables`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        return api.get(`locations/${data.data.location.id}/tables`);
       })
-      .then((res) => res.json())
+      
       .then((data) => setTables(data.data || []))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -65,14 +59,7 @@ export default function ReservationDetail() {
   async function updateReservation(updates: Record<string, unknown>) {
     setUpdating(true);
     try {
-      const res = await fetch(`/api/reservations/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updates),
-      });
+      const res = await api.patch(`reservations/${id}`, JSON.stringify(updates));
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setReservation(data.data);

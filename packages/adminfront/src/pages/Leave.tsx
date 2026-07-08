@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { api } from '../lib/api.js';
 
 export default function Leave() {
   const { t } = useTranslation();
@@ -24,9 +25,7 @@ export default function Leave() {
 
   async function fetchMyLeaves() {
     try {
-      const res = await fetch('/api/leaves/my-records', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('leaves/my-records');
       const data = await res.json();
       if (data.success) setMyLeaves(data.data);
     } catch (err) {
@@ -39,14 +38,7 @@ export default function Leave() {
     setLoading(true);
     
     try {
-      const res = await fetch('/api/leaves', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(form)
-      });
+      const res = await api.post('leaves', JSON.stringify(form));
       
       const data = await res.json();
       if (data.success) {

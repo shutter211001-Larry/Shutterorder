@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api.js';
 
 interface Review {
   id: string;
@@ -45,13 +46,8 @@ export default function ReviewList() {
     const params = new URLSearchParams({ page: String(page), limit: '20' });
     if (filter) params.set('isApproved', filter);
 
-    fetch(`/api/reviews?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load reviews');
-        return res.json();
-      })
+    api.get(`reviews?${params}`)
+      
       .then((data) => {
         setReviews(data.data);
         setPagination(data.pagination);
@@ -62,11 +58,7 @@ export default function ReviewList() {
 
   async function moderate(id: string, isApproved: boolean) {
     try {
-      const res = await fetch(`/api/reviews/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ isApproved }),
-      });
+      const res = await api.patch(`reviews/${id}`, JSON.stringify({ isApproved }));
       if (!res.ok) throw new Error('Failed to update');
       setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, isApproved } : r)));
     } catch (err: any) {
@@ -76,10 +68,7 @@ export default function ReviewList() {
 
   async function deleteReview(id: string) {
     try {
-      const res = await fetch(`/api/reviews/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.delete(`reviews/${id}`);
       if (!res.ok) throw new Error('Failed to delete');
       setReviews((prev) => prev.filter((r) => r.id !== id));
     } catch (err: any) {

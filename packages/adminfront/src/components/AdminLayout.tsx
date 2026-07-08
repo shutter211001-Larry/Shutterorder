@@ -37,6 +37,7 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
+import { api } from '../lib/api.js';
 
 type Role = 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
 
@@ -180,17 +181,13 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
     async function fetchData() {
       try {
-        const statsRes = await fetch('/api/dashboard/stats', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const statsRes = await api.get('dashboard/stats');
         const statsData = await statsRes.json();
         if (statsData.success && statsData.data) {
           setPendingCount(statsData.data.pendingOrders ?? 0);
         }
 
-        const settingsRes = await fetch('/api/settings/order', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const settingsRes = await api.get('settings/order');
         const settingsData = await settingsRes.json();
         if (settingsData.success && settingsData.data) {
           setEnableCounterDisplay(!!settingsData.data.enableCounterDisplay);

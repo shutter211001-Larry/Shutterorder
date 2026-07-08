@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { api } from '../lib/api.js';
 
 interface User {
   id: string;
@@ -39,13 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     setLoading(true);
 
-    fetch('/api/auth/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
+    api.get<{ data: { user: User } }>('/auth/me')
       .then((data) => {
         if (!cancelled) {
           setUser(data.data.user);
@@ -82,12 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function refreshUser() {
     if (!token) return;
     try {
-      const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.data.user);
+      const res = await api.get<{ data: { user: User } }>('/auth/me');
+      if (res) {
+        setUser(res.data.user);
       }
     } catch (error) {
       console.error('Failed to refresh user', error);

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api.js';
 
 interface CookieCategory {
   id: string;
@@ -25,10 +26,8 @@ export default function CookieCategoryList() {
   const token = localStorage.getItem('token') || '';
 
   function loadCategories() {
-    fetch('/api/legal/cookie-categories', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    api.get('legal/cookie-categories')
+      
       .then((res) => {
         if (res.success) setCategories(res.data);
       })
@@ -70,10 +69,7 @@ export default function CookieCategoryList() {
   async function handleDelete(id: string) {
     if (!confirm(t('cookieCategoryList.confirmDeleteCookieCategory'))) return;
     try {
-      const res = await fetch(`/api/legal/cookie-categories/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.delete(`legal/cookie-categories/${id}`);
       const data = await res.json();
       if (data.success) loadCategories();
     } catch {}

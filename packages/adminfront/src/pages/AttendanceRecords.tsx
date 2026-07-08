@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import toast from 'react-hot-toast';
+import { api } from '../lib/api.js';
 
 export default function AttendanceRecords() {
   const { t } = useTranslation();
@@ -24,9 +25,7 @@ export default function AttendanceRecords() {
 
   async function fetchLocations() {
     try {
-      const res = await fetch('/api/locations', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('locations');
       const data = await res.json();
       if (data.success) {
         setLocations(data.data);
@@ -45,9 +44,7 @@ export default function AttendanceRecords() {
       if (endDate) query.append('endDate', endDate);
       if (isOutOfRange) query.append('isOutOfRange', 'true');
 
-      const res = await fetch(`/api/attendance/records?${query.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get(`attendance/records?${query.toString()}`);
       const data = await res.json();
       if (data.success) {
         setRecords(data.data);

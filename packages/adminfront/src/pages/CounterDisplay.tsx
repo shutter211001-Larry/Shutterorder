@@ -207,8 +207,8 @@ export default function CounterDisplay() {
   });
 
   useEffect(() => {
-    fetch('/api/locations?limit=100', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json())
+    api.get('locations?limit=100')
+      
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
           setLocations(res.data);
@@ -253,8 +253,8 @@ export default function CounterDisplay() {
     if (localLeadTime !== null) {
       setBoardLeadTime(parseInt(localLeadTime) || 60);
     } else {
-      fetch('/api/settings/order', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-        .then(r => r.json())
+      api.get('settings/order')
+        
         .then(res => {
           if (res.success && res.data && res.data.boardLeadTime !== undefined) {
             setBoardLeadTime(res.data.boardLeadTime);

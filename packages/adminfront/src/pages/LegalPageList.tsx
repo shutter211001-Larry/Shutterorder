@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../lib/api.js';
 
 interface LegalPage {
   id: string;
@@ -17,10 +18,8 @@ export default function LegalPageList() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch('/api/legal', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    api.get('legal')
+      
       .then((res) => {
         if (res.success) setPages(res.data);
       })

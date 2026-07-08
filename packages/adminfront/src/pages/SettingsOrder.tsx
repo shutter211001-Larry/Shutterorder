@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow.js';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 export default function SettingsOrder() {
   const { t } = useTranslation();
@@ -62,8 +63,8 @@ export default function SettingsOrder() {
   const [ecpayHashIv, setEcpayHashIv] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings/order', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('settings/order')
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -115,10 +116,7 @@ export default function SettingsOrder() {
     setSuccess('');
     const tipOptions = tipOptionsStr.split(',').map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
     try {
-      const res = await fetch('/api/settings/order', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ 
+      const res = await api.put('settings/order', JSON.stringify({ 
           enabled, 
           deliveryEnabled, 
           pickupEnabled, 
@@ -153,8 +151,7 @@ export default function SettingsOrder() {
           ecpayHashIv,
           deliveryLeadTime: Number(deliveryLeadTime),
           emailNotifications 
-        }),
-      });
+        }));
       const data = await res.json();
       if (data.success) {
         setSuccess(t('settingsOrder.orderSettingsUpdated'));

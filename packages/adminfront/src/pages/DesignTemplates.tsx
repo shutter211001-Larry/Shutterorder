@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api.js';
 
 interface TemplateDef {
   id: string;
@@ -305,8 +306,8 @@ export default function DesignTemplates() {
   const [current, setCurrent] = useState('classic');
 
   useEffect(() => {
-    fetch('/api/settings')
-      .then((r) => r.json())
+    api.get('settings')
+      
       .then((res) => {
         if (res.success && res.data) {
           setCurrent(res.data.storefrontTemplate || 'classic');
@@ -321,11 +322,7 @@ export default function DesignTemplates() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ storefrontTemplate: id }),
-      });
+      const res = await api.put('settings', JSON.stringify({ storefrontTemplate: id }));
       const data = await res.json();
       if (data.success) {
         setCurrent(id);

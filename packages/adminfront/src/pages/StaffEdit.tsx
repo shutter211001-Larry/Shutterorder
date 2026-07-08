@@ -5,6 +5,7 @@ import { ToggleSwitch } from '../components/ui/ToggleRow';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
+import { api } from '../lib/api.js';
 
 interface Staff {
   id: string;
@@ -103,9 +104,9 @@ export default function StaffEdit() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/staff/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
-      fetch('/api/locations?limit=100', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
-      fetch('/api/job-roles', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+      api.get(`staff/${id}`),
+      api.get('locations?limit=100'),
+      api.get('job-roles'),
     ])
       .then(([staffData, locData, rolesData]) => {
         if (!staffData.success) throw new Error(staffData.error || 'Failed to load staff');
@@ -161,10 +162,7 @@ export default function StaffEdit() {
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/staff/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
+      const res = await api.patch(`staff/${id}`, JSON.stringify({
           name,
           role,
           phone: phone || null,
@@ -193,8 +191,7 @@ export default function StaffEdit() {
             pensionEmployee: Number(pensionEmployee),
             dependents: Number(dependents),
           }
-        }),
-      });
+        }));
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update');
       navigate('/staff');
@@ -209,10 +206,7 @@ export default function StaffEdit() {
     if (!window.confirm(t('staff.deleteConfirm') || 'Are you sure you want to delete this staff member? This action cannot be undone.')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/staff/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.delete(`staff/${id}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to delete');
       navigate('/staff');

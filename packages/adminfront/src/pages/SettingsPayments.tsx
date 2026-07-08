@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { api } from '../lib/api.js';
 
 export default function SettingsPayments() {
   const { t } = useTranslation();
@@ -30,8 +31,8 @@ export default function SettingsPayments() {
   const [cashEnabled, setCashEnabled] = useState(true);
 
   useEffect(() => {
-    fetch('/api/settings/payment', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get('settings/payment')
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -55,15 +56,11 @@ export default function SettingsPayments() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/payment', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
+      const res = await api.put('settings/payment', JSON.stringify({
           stripeEnabled, stripePublishableKey, stripeSecretKey, stripeWebhookSecret,
           paypalEnabled, paypalClientId, paypalClientSecret, paypalSandbox,
           cashEnabled
-        }),
-      });
+        }));
       const data = await res.json();
       if (data.success) {
         if (data.data) {

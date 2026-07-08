@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../lib/api.js';
 
 interface Customer {
   id: string;
@@ -60,13 +61,8 @@ export default function CustomerList() {
     if (search) params.set('search', search);
     if (isGuestFilter) params.set('isGuest', isGuestFilter);
 
-    fetch(`/api/customers?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load customers');
-        return res.json();
-      })
+    api.get(`customers?${params}`)
+      
       .then((data) => {
         setCustomers(data.data);
         setPagination(data.pagination);
@@ -84,17 +80,10 @@ export default function CustomerList() {
     setPromoSending(true);
     setPromoStatus('');
     try {
-      const res = await fetch('/api/customers/promo-email', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      const res = await api.post('customers/promo-email', JSON.stringify({
           subject: promoSubject,
           content: promoContent
-        }),
-      });
+        }));
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to send');
       setPromoStatus('success');
@@ -128,14 +117,7 @@ export default function CustomerList() {
     if (!editingCustomer) return;
     setEditLoading(true);
     try {
-      const res = await fetch(`/api/customers/${editingCustomer.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(editForm),
-      });
+      const res = await api.put(`customers/${editingCustomer.id}`, JSON.stringify(editForm));
       if (!res.ok) throw new Error('Update failed');
       setShowEditModal(false);
       fetchCustomers();
@@ -150,10 +132,7 @@ export default function CustomerList() {
     if (!deletingId) return;
     setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/customers/${deletingId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.delete(`customers/${deletingId}`);
       if (!res.ok) throw new Error('Delete failed');
       setShowDeleteModal(false);
       fetchCustomers();

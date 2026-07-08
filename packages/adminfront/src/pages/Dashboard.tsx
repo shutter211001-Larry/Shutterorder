@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api.js';
 import { useTranslation } from 'react-i18next';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -74,13 +75,7 @@ export default function Dashboard() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch(`/api/dashboard/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load dashboard');
-        return res.json();
-      })
+    api.get<{ data: DashboardData }>(`/dashboard/stats`)
       .then((result) => setData(result.data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -88,13 +83,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setAnalyticsLoading(true);
-    fetch(`/api/dashboard/analytics?days=${analyticsDays}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load analytics');
-        return res.json();
-      })
+    api.get<{ data: AnalyticsData }>(`/dashboard/analytics?days=${analyticsDays}`)
       .then((result) => setAnalytics(result.data))
       .catch(() => { })
       .finally(() => setAnalyticsLoading(false));

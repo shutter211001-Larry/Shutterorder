@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api.js';
 
 interface ConsentRecord {
   id: string;
@@ -37,10 +38,8 @@ export default function ConsentLog() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch('/api/consent/stats', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    api.get('consent/stats')
+      
       .then((res) => {
         if (res.success) setStats(res.data);
       })
@@ -52,10 +51,8 @@ export default function ConsentLog() {
     const params = new URLSearchParams({ page: String(page), limit: '20' });
     if (categoryFilter) params.set('categoryId', categoryFilter);
 
-    fetch(`/api/consent?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    api.get(`consent?${params}`)
+      
       .then((res) => {
         if (res.success) {
           setConsents(res.data);

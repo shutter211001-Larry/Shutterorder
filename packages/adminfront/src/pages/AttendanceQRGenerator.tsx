@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
+import { api } from '../lib/api.js';
 
 export default function AttendanceQRGenerator() {
   const { t } = useTranslation();
@@ -48,9 +49,7 @@ export default function AttendanceQRGenerator() {
 
   async function fetchLocations() {
     try {
-      const res = await fetch('/api/locations', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('locations');
       const data = await res.json();
       if (data.success) {
         setLocations(data.data);
@@ -63,9 +62,7 @@ export default function AttendanceQRGenerator() {
   async function fetchQrToken() {
     if (!selectedLocation) return;
     try {
-      const res = await fetch(`/api/attendance/qr-token?locationId=${selectedLocation}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get(`attendance/qr-token?locationId=${selectedLocation}`);
       const data = await res.json();
       if (data.success) {
         setQrToken(data.data.token);

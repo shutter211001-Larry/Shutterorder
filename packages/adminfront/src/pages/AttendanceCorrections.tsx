@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import toast from 'react-hot-toast';
+import { api } from '../lib/api.js';
 
 export default function AttendanceCorrections() {
   const { t } = useTranslation();
@@ -21,9 +22,7 @@ export default function AttendanceCorrections() {
       const query = new URLSearchParams();
       if (statusFilter) query.append('status', statusFilter);
 
-      const res = await fetch(`/api/attendance/corrections?${query.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get(`attendance/corrections?${query.toString()}`);
       const data = await res.json();
       if (data.success) {
         setRequests(data.data);
@@ -41,14 +40,7 @@ export default function AttendanceCorrections() {
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/attendance/corrections/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
+      const res = await api.put(`attendance/corrections/${id}/status`, JSON.stringify({ status: newStatus }));
       const data = await res.json();
       if (data.success) {
         toast.success(t('attendanceCorrections.updateSuccess'));
