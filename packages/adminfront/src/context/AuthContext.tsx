@@ -12,6 +12,8 @@ interface User {
   lineDisplayName?: string | null;
   locationId?: string | null;
   preferredLanguage?: string | null;
+  tenantId?: string | null;
+  hasErpAccess?: boolean;
 }
 
 interface AuthContextValue {

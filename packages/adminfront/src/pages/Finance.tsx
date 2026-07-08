@@ -146,7 +146,7 @@ export default function Finance() {
             />
             <StatCard 
               title="薪資費用" 
-              amount={data.payroll.total} 
+              amount={data.payroll?.total || 0} 
               icon={Users} 
               color="text-blue-600"
               bg="bg-blue-100"

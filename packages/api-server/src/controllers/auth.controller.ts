@@ -51,7 +51,10 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
     });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ 
+    where: { email },
+    include: { tenant: { select: { hasErpAccess: true } } }
+  });
 
   if (!user) {
     console.log(`[AUTH DEBUG] User not found for email: "${email}"`);
@@ -96,6 +99,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
         lineDisplayName: user.lineDisplayName,
         hasPassword: !!user.password,
         tenantId: user.tenantId,
+        hasErpAccess: user.tenant?.hasErpAccess,
       },
     },
   });
@@ -338,13 +342,13 @@ export async function getMe(req: Request, res: Response): Promise<void> {
   if (req.user.type === 'staff') {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, email: true, name: true, role: true, phone: true, avatar: true, lineUserId: true, lineDisplayName: true, locationId: true, preferredLanguage: true, tenantId: true },
+      select: { id: true, email: true, name: true, role: true, phone: true, avatar: true, lineUserId: true, lineDisplayName: true, locationId: true, preferredLanguage: true, tenantId: true, tenant: { select: { hasErpAccess: true } } },
     });
     if (!user) {
       res.status(401).json({ success: false, error: 'User not found' });
       return;
     }
-    res.json({ success: true, data: { type: 'staff', user } });
+    res.json({ success: true, data: { type: 'staff', user: { ...user, hasErpAccess: user.tenant?.hasErpAccess } } });
   } else {
     const customer = await prisma.customer.findUnique({
       where: { id: req.user.id },

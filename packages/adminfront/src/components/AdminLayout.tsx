@@ -150,7 +150,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
   const location = useLocation();
   const { user, token } = useAuth();
   const { settings } = useTenant();
-  const hasErpAccess = settings?.hasErpAccess ?? false;
+  const hasErpAccess = user?.hasErpAccess ?? settings?.hasErpAccess ?? false;
   const [pendingCount, setPendingCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

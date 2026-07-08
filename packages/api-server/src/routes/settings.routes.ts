@@ -43,7 +43,7 @@ router.get('/public-env', (req, res) => {
   });
 });
 
-import { tenantStorage } from '../middleware/tenantMiddleware.js';
+import { tenantStorage } from '../middleware/tenantStorage.js';
 
 // Public tenant settings for branding before login
 router.get('/public', async (req, res) => {
