@@ -9,6 +9,7 @@ interface Tenant {
   name: string;
   domain: string | null;
   isActive: boolean;
+  hasErpAccess: boolean;
   createdAt: string;
   _count?: {
     users: number;
@@ -51,6 +52,18 @@ export default function TenantList() {
     }
   };
 
+  const toggleErpAccess = async (tenant: Tenant) => {
+    try {
+      await api.patch<{ data: Tenant }>(`/platform-admin/tenants/${tenant.id}`, {
+        hasErpAccess: !tenant.hasErpAccess
+      });
+      toast.success(tenant.hasErpAccess ? '已關閉 ERP 權限' : '已開通 ERP 權限');
+      fetchTenants();
+    } catch (error) {
+      toast.error('無法更新 ERP 權限');
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-gray-400 animate-pulse">載入租戶資料中...</div>;
   }
@@ -82,6 +95,7 @@ export default function TenantList() {
               <th className="px-6 py-4 font-semibold">自訂網域</th>
               <th className="px-6 py-4 font-semibold">統計數據</th>
               <th className="px-6 py-4 font-semibold">狀態</th>
+              <th className="px-6 py-4 font-semibold">ERP 模組</th>
               <th className="px-6 py-4 font-semibold">加入日期</th>
               <th className="px-6 py-4 font-semibold text-right">操作</th>
             </tr>
@@ -101,6 +115,14 @@ export default function TenantList() {
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${t.isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                     {t.isActive ? '啟用中' : '已停權'}
                   </span>
+                </td>
+                <td className="px-6 py-4">
+                  <button 
+                    onClick={() => toggleErpAccess(t)}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold border transition-all ${t.hasErpAccess ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 hover:bg-amber-500/30' : 'bg-gray-800 text-gray-500 border-gray-700 hover:bg-gray-700 hover:text-gray-300'}`}
+                  >
+                    {t.hasErpAccess ? '✨ 已開通' : '🔒 未開通'}
+                  </button>
                 </td>
                 <td className="px-6 py-4 text-gray-400">
                   {new Date(t.createdAt).toLocaleDateString()}

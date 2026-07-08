@@ -44,7 +44,7 @@ export const createTenant = async (req: Request, res: Response) => {
             email: adminEmail,
             name: adminName || 'Admin',
             password: hashedPassword,
-            role: 'MANAGER', // The boss of the tenant
+            role: 'SUPER_ADMIN', // The boss of the tenant
           }
         },
         siteSettings: {
@@ -73,14 +73,15 @@ export const createTenant = async (req: Request, res: Response) => {
 export const updateTenant = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
-    const { name, domain, isActive } = req.body;
+    const { name, domain, isActive, hasErpAccess } = req.body;
 
     const tenant = await (prisma as any).tenant.update({
       where: { id },
       data: {
         name,
         domain,
-        isActive
+        isActive,
+        hasErpAccess
       }
     });
 

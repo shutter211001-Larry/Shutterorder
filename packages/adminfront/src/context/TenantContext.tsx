@@ -5,6 +5,7 @@ interface TenantSettings {
   siteName: string;
   logo: string | null;
   colorPrimary: string;
+  hasErpAccess?: boolean;
 }
 
 interface TenantContextType {

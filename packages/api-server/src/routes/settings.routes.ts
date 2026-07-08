@@ -43,6 +43,8 @@ router.get('/public-env', (req, res) => {
   });
 });
 
+import { tenantStorage } from '../middleware/tenantMiddleware.js';
+
 // Public tenant settings for branding before login
 router.get('/public', async (req, res) => {
   try {
@@ -55,7 +57,21 @@ router.get('/public', async (req, res) => {
         colorPrimary: true
       }
     });
-    res.json({ success: true, data: settings || { siteName: 'Kitchenasty', logo: null, colorPrimary: '#ea580c' } });
+
+    let hasErpAccess = false;
+    const store = tenantStorage.getStore();
+    if (store?.tenantId) {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: store.tenantId },
+        select: { hasErpAccess: true }
+      });
+      if (tenant) {
+        hasErpAccess = tenant.hasErpAccess;
+      }
+    }
+
+    const defaultSettings = { siteName: 'Kitchenasty', logo: null, colorPrimary: '#ea580c' };
+    res.json({ success: true, data: { ...(settings || defaultSettings), hasErpAccess } });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch public settings' });
   }

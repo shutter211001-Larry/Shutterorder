@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
+import { useTenant } from '../context/TenantContext.js';
 import AdminChatWidget from './AdminChatWidget';
 
 import { 
@@ -51,6 +52,7 @@ interface NavItem {
     path: string;
     label: string;
     roles: Role[];
+    isErp?: boolean;
   }[];
 }
 
@@ -65,7 +67,7 @@ const navItems: NavItem[] = [
       { path: '/kitchen', label: 'nav.kitchen', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
       { path: '/orders', label: 'nav.orders', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
       { path: '/reservations', label: 'nav.reservations', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/finance', label: 'nav.finance', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/finance', label: 'nav.finance', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
     ]
   },
   {
@@ -76,7 +78,7 @@ const navItems: NavItem[] = [
     children: [
       { path: '/menu/items', label: 'nav.menuItems', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/categories', label: 'nav.categories', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/menu/stock', label: 'nav.stockOverview', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/menu/stock', label: 'nav.stockOverview', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
       { path: '/menu/allergens', label: 'nav.allergens', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/dietary', label: 'nav.dietary', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/mealtimes', label: 'nav.mealtimes', roles: ['SUPER_ADMIN', 'MANAGER'] },
@@ -147,6 +149,8 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
   const { t } = useTranslation();
   const location = useLocation();
   const { user, token } = useAuth();
+  const { settings } = useTenant();
+  const hasErpAccess = settings?.hasErpAccess ?? false;
   const [pendingCount, setPendingCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -300,6 +304,22 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                       <div className="bg-gray-900/50 py-1">
                         {item.children!.map(child => {
                           const isChildActiveNode = location.pathname === child.path || location.pathname.startsWith(child.path + '/');
+                          
+                          if (child.isErp && !hasErpAccess) {
+                            return (
+                              <div
+                                key={child.path}
+                                className="flex items-center pl-14 pr-6 py-2 text-sm text-gray-500 cursor-not-allowed group relative"
+                                title="此為加值服務，請聯繫 SaaS 總部開通"
+                              >
+                                {t(child.label) || child.label}
+                                <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-400 group-hover:text-amber-400 group-hover:border-amber-500/50 transition-colors">
+                                  🔒 升級解鎖
+                                </span>
+                              </div>
+                            );
+                          }
+
                           return (
                             <Link
                               key={child.path}
