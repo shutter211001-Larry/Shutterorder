@@ -16,7 +16,8 @@
   - Wrap `CREATE TYPE` (Enums) in a DO block: `DO $$ BEGIN CREATE TYPE "Type" AS ENUM ('A'); EXCEPTION WHEN duplicate_object THEN null; END $$;`
   - Use `IF NOT EXISTS` for columns: `ALTER TABLE "table" ADD COLUMN IF NOT EXISTS "column" TEXT;`
   - Wrap `ADD CONSTRAINT` (Foreign Keys) in a DO block: `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_name') THEN ALTER TABLE "table" ADD CONSTRAINT "fk_name" FOREIGN KEY ...; END IF; END $$;`
-- CRITICAL (Recovery): If a deployment fails due to a migration error on Railway, the database will be locked. You must use `npx prisma migrate resolve --rolled-back <migration_name>` with the target `DATABASE_URL` to unblock it.
+- CRITICAL (Recovery): If a deployment fails due to a migration error on Railway (e.g. `string contains embedded null`), the database will be locked. You must use `npx prisma migrate resolve --rolled-back <migration_name>` with the target `DATABASE_URL` to unblock it.
+- If a migration file is already corrupted with a UTF-16 BOM, DO NOT use standard shell commands to fix it. You must write a Node.js script using `fs.readFileSync` to read the raw buffer, detect `0xff 0xfe` or null bytes, and rewrite it explicitly as `utf8` before pushing the fix.
 
 ## 3. open-location-code Typings Workaround
 **Trigger**: When using or implementing the \open-location-code\ library in TypeScript.
@@ -133,3 +134,7 @@ When listing environment variables for URLs, ensure all 4 frontends are accounte
 4. **HR & Payroll (TW Labor Law Compliant)**: (QR Code Attendance, Payroll calculations, Shift/Roster Requirements, Leave Approvals, Job Roles)
 5. **CRM & Marketing**: (Customer Loyalty, Coupons, LINE OA integration, Automation Rules, Consent/Audit Logs)
 When working on any of these areas, always refer to this architecture to ensure you are modifying the correct domain files (e.g., `adminfront/src/pages` or `api-server/src/routes`).
+
+## 23. Express CORS & URL Normalization Sync
+**Trigger**: When adding a new frontend application to the SaaS architecture (e.g., adding `SAAS_URL_PUBLIC`) or modifying frontend URLs.
+**Rule**: You MUST ensure that the new URL environment variable is added to BOTH the URL normalization array (around line 10) AND the `corsOrigins` array in `packages/api-server/src/app.ts`. The `api-server` manually normalizes and whitelists these specific keys. If you omit the new variable, the frontend will be permanently blocked by CORS on production deployments.
