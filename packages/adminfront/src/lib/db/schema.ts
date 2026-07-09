@@ -32,7 +32,35 @@ export const menuItemSchemaLiteral = {
     name: { type: 'string' },
     price: { type: 'number' },
     isActive: { type: 'boolean' },
-    updatedAt: { type: 'string', format: 'date-time' }
+    updatedAt: { type: 'string', format: 'date-time' },
+    category: {
+      type: ['object', 'null'],
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' }
+      }
+    },
+    options: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          values: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+                priceModifier: { type: 'number' }
+              }
+            }
+          }
+        }
+      }
+    }
   },
   required: ['id', 'name', 'price', 'isActive']
 } as const;
@@ -52,7 +80,12 @@ export const orderSchemaLiteral = {
     locationId: { type: 'string', maxLength: 100 },
     status: { type: 'string' },
     totalAmount: { type: 'number' },
+    orderType: { type: 'string' },
+    guestName: { type: ['string', 'null'] },
+    guestPhone: { type: ['string', 'null'] },
+    guestEmail: { type: ['string', 'null'] },
     createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time' },
     items: {
       type: 'array',
       items: {

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/db.js';
 import { auditLog } from '../lib/audit.js';
+import { calculateHourlyPayroll } from '../utils/payroll.js';
 
 // ============================================================
 // LIST PAYROLL PERIODS
@@ -167,21 +168,31 @@ export async function generatePayslips(req: Request<{ id: string }>, res: Respon
     const items: any[] = [];
 
     if (user.salaryType === 'HOURLY') {
-      // Calculate total hours from attendances
-      let totalHours = 0;
-      for (const att of user.attendances) {
+      const attendances = user.attendances.map(att => {
         if (att.checkIn && att.checkOut) {
-          const hours = (att.checkOut.getTime() - att.checkIn.getTime()) / (1000 * 60 * 60);
-          totalHours += hours;
+          return { hours: (att.checkOut.getTime() - att.checkIn.getTime()) / (1000 * 60 * 60) };
         }
-      }
-      baseSalary = totalHours * user.hourlyWage;
+        return { hours: 0 };
+      });
+
+      const { basePay, overtimePay, totalPay } = calculateHourlyPayroll(attendances, user.hourlyWage);
+      
+      baseSalary = basePay;
+      totalOvertime = overtimePay;
       
       items.push({
         name: 'Basic Hourly Pay',
         type: 'BASE_PAY',
-        amount: baseSalary
+        amount: basePay
       });
+
+      if (overtimePay > 0) {
+        items.push({
+          name: 'Overtime Pay',
+          type: 'OVERTIME_PAY',
+          amount: overtimePay
+        });
+      }
 
     } else if (user.salaryType === 'MONTHLY') {
       baseSalary = user.monthlyWage;

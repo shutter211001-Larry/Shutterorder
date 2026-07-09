@@ -42,6 +42,7 @@ import automationRoutes from './routes/automation.routes.js';
 import loyaltyRoutes from './routes/loyalty.routes.js';
 import legalRoutes from './routes/legal.routes.js';
 import consentRoutes from './routes/consent.routes.js';
+import replicationRoutes from './routes/replication.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import staffRoutes from './routes/staff.routes.js';
 import customerRoutes from './routes/customer.routes.js';
@@ -235,8 +236,9 @@ export async function createApp() {
   app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/automation-rules', automationRoutes);
   app.use('/api/loyalty', loyaltyRoutes);
-  app.use('/api/legal', legalRoutes);
+  app.use('/api/legal-pages', legalRoutes);
   app.use('/api/consent', consentRoutes);
+  app.use('/api/replication', replicationRoutes);
   app.use('/api/settings', settingsRoutes);
   app.use('/api/staff', staffRoutes);
   app.use('/api/customers', customerRoutes);

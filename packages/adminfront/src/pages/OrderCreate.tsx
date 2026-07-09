@@ -251,29 +251,26 @@ export default function OrderCreate() {
     setError('');
 
     try {
-      const orderData = {
-        orderType,
+      const db = await getDatabase();
+      const orderId = crypto.randomUUID();
+      const newOrder = {
+        id: orderId,
         locationId: selectedLocationId,
+        status: 'PENDING', // 預設狀態
+        totalAmount: total,
+        createdAt: new Date().toISOString(),
         items: cart.map(item => ({
           menuItemId: item.menuItemId,
           quantity: item.quantity,
-          options: item.options,
+          price: item.unitPrice,
+          notes: ''
         })),
-        guestName,
-        guestPhone,
-        guestEmail,
-        address: (orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') ? address : undefined,
-        frozenDeliveryMethod: orderType === 'FROZEN_DELIVERY' ? frozenDeliveryMethod : undefined,
-        trackingNumber: orderType === 'FROZEN_DELIVERY' ? trackingNumber : undefined,
-        logisticsProvider: orderType === 'FROZEN_DELIVERY' ? logisticsProvider : undefined,
-        couponCode: couponCode || undefined,
-        manualDiscount: manualDiscount > 0 ? manualDiscount : undefined,
-        manualDeliveryFee: manualDeliveryFee !== '' ? manualDeliveryFee : undefined,
-        manualTax: manualTax !== '' ? manualTax : undefined,
+        _isSynced: false
       };
 
-      const res = await api.post<{ data: { id: string } }>('/orders', orderData);
-      navigate(`/orders/${res.data.id}`);
+      await db.orders.insert(newOrder);
+      // 原本是跳轉到線上訂單頁面，這邊直接跳轉或顯示成功
+      navigate(`/orders/${orderId}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
