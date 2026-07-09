@@ -114,17 +114,17 @@ export async function cleanupS3Images(referencedImages: Set<string>) {
       let deletedCount = 0;
 
       do {
-        const listCommand = new ListObjectsV2Command({
+        const listCommand: any = new ListObjectsV2Command({
           Bucket: s3Settings.bucket,
           ContinuationToken: continuationToken,
         });
 
-        const listResponse = await s3Client.send(listCommand);
+        const listResponse: any = await s3Client.send(listCommand);
         const objects = listResponse.Contents || [];
 
         const objectsToDelete = objects
-          .filter(obj => obj.Key && !referencedImages.has(obj.Key))
-          .map(obj => ({ Key: obj.Key as string }));
+          .filter((obj: any) => obj.Key && !referencedImages.has(obj.Key))
+          .map((obj: any) => ({ Key: obj.Key as string }));
 
         if (objectsToDelete.length > 0) {
           const deleteCommand = new DeleteObjectsCommand({

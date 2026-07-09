@@ -7,7 +7,7 @@ import 'express-async-errors';
 
 // Globally normalize all public URLs to ensure they have the correct protocol prefix
 // This fixes broken image URLs in LINE Flex messages, OAuth callbacks, and CORS issues
-['API_URL_PUBLIC', 'STORE_URL_PUBLIC', 'ADMIN_URL_PUBLIC', 'ERP_URL_PUBLIC'].forEach(key => {
+['API_URL_PUBLIC', 'STORE_URL_PUBLIC', 'ADMIN_URL_PUBLIC', 'ERP_URL_PUBLIC', 'SAAS_URL_PUBLIC'].forEach(key => {
   let val = process.env[key];
   if (val) {
     val = val.trim().replace(/\/$/, '');
@@ -130,6 +130,7 @@ export async function createApp() {
     process.env.STORE_URL_PUBLIC,
     process.env.ADMIN_URL_PUBLIC,
     process.env.ERP_URL_PUBLIC,
+    process.env.SAAS_URL_PUBLIC,
     'http://localhost:5173', 
     'http://localhost:5174', 
     'http://localhost:5175',

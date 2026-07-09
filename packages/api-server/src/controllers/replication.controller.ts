@@ -108,7 +108,7 @@ export async function pushReplication(req: Request, res: Response): Promise<void
   }
 
   try {
-    const conflicts = [];
+    const conflicts: any[] = [];
     
     if (collection === 'orders') {
       for (const doc of documents) {
@@ -120,14 +120,17 @@ export async function pushReplication(req: Request, res: Response): Promise<void
             id: doc.id,
             tenantId,
             locationId: doc.locationId,
+            orderNumber: doc.orderNumber || `R-${doc.id.substring(0, 8)}`,
+            orderType: doc.orderType || 'DINE_IN',
+            subtotal: doc.subtotal || doc.total || doc.totalAmount || 0,
             status: doc.status || 'PENDING',
-            totalAmount: doc.totalAmount,
+            total: doc.total || doc.totalAmount || 0,
             createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
             updatedAt: new Date()
           },
           update: {
             status: doc.status,
-            totalAmount: doc.totalAmount,
+            total: doc.total || doc.totalAmount || 0,
             updatedAt: new Date()
           }
         });
