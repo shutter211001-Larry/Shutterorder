@@ -110,8 +110,8 @@ export default function OrderCreate() {
 
     // 從本地 RxDB 讀取菜單資料 (支援離線 0 延遲渲染)
     let sub: any;
-    getDatabase().then(db => {
-      sub = db.menuItems.find().$.subscribe(items => {
+    getDatabase().then((db: any) => {
+      sub = db.menuItems.find().$.subscribe((items: any) => {
         // @ts-ignore
         setMenuItems(items.map(i => i.toJSON()).filter(i => i.isActive));
       });

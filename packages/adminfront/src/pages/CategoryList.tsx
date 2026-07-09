@@ -23,7 +23,7 @@ export default function CategoryList() {
   const { t } = useTranslation();
 
   const { data: response, isLoading: loading, error, refetch } = useGetCategoriesQuery();
-  const categories = response?.data || [];
+  const categories = response || [];
 
   const topLevel = categories.filter((c: Category) => !c.parentId);
 
@@ -50,7 +50,7 @@ export default function CategoryList() {
       </div>
 
       {loading && <p className="text-gray-500">{t('categoryList.loadingCategories')}</p>}
-      {error && <p className="text-red-600">{t('categoryList.error')} {error}</p>}
+      {error && <p className="text-red-600">{t('categoryList.error')} {(error as any)?.message || JSON.stringify(error)}</p>}
 
       {!loading && !error && topLevel.length === 0 && (
         <div className="bg-white rounded-lg shadow p-8 text-center">
@@ -76,7 +76,7 @@ export default function CategoryList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {topLevel.map((cat) => (
+              {topLevel.map((cat: any) => (
                 <tr key={cat.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{cat.name}</div>
@@ -106,7 +106,7 @@ export default function CategoryList() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {cat.children.length > 0
-                      ? cat.children.map((c) => c.name).join(', ')
+                      ? cat.children.map((c: any) => c.name).join(', ')
                       : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -136,7 +136,7 @@ export default function CategoryList() {
                   <div className="text-xs text-gray-400">all</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {categories.reduce((sum, c) => sum + (c._count?.menuItems || 0), 0)}
+                  {categories.reduce((sum: number, c: any) => sum + (c._count?.menuItems || 0), 0)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   -

@@ -65,7 +65,7 @@ export default function AdminChatWidget() {
       headers: { Authorization: `Bearer ${token}` }
     })
       
-      .then(data => {
+      .then((data: any) => {
         if (data.success) {
           setMessages(data.data);
           scrollToBottom();
@@ -131,7 +131,7 @@ export default function AdminChatWidget() {
     setInput('');
 
     try {
-      const res = await api.post('chat/messages', JSON.stringify({ 
+      const res = await api.post<any>('chat/messages', JSON.stringify({ 
           content: currentInput,
           locationId: activeLocationId
         }));

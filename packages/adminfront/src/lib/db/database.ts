@@ -33,7 +33,7 @@ const createDatabase = async () => {
       collection,
       replicationIdentifier: `pull_${name}`,
       pull: {
-        async handler(lastCheckpoint) {
+        async handler(lastCheckpoint: any) {
           try {
             const query = new URLSearchParams();
             if (lastCheckpoint) {

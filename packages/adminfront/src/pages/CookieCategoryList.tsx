@@ -41,17 +41,13 @@ export default function CookieCategoryList() {
     e.preventDefault();
     setError('');
 
-    const url = editingId
-      ? `/api/legal/cookie-categories/${editingId}`
-      : '/api/legal/cookie-categories';
-    const method = editingId ? 'PATCH' : 'POST';
-
     try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(form),
-      });
+      let res;
+      if (editingId) {
+        res = await api.put<any>(`/legal/cookie-categories/${editingId}`, form);
+      } else {
+        res = await api.post<any>('/legal/cookie-categories', form);
+      }
       const data = res;
       if (data.success) {
         setForm(emptyForm);
@@ -69,7 +65,7 @@ export default function CookieCategoryList() {
   async function handleDelete(id: string) {
     if (!confirm(t('cookieCategoryList.confirmDeleteCookieCategory'))) return;
     try {
-      const res = await api.delete(`legal/cookie-categories/${id}`);
+      const res = await api.delete<any>(`legal/cookie-categories/${id}`);
       const data = res;
       if (data.success) loadCategories();
     } catch {}
