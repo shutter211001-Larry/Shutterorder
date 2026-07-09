@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
@@ -29,7 +29,7 @@ export default function SettingsGoogle() {
 
   useEffect(() => {
     api.get<any>('/api/settings/google')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -169,3 +169,4 @@ export default function SettingsGoogle() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow';
@@ -93,7 +93,7 @@ export default function SettingsAdvanced() {
 
   useEffect(() => {
     api.get<any>('/api/settings/advanced')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -341,3 +341,4 @@ export default function SettingsAdvanced() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -32,7 +32,7 @@ export default function SettingsPayments() {
 
   useEffect(() => {
     api.get<any>('/api/settings/payment')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -174,3 +174,4 @@ export default function SettingsPayments() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -31,7 +31,7 @@ export default function SettingsMail() {
 
   useEffect(() => {
     api.get<any>('/api/locations')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
           setLocations(res.data);
@@ -44,7 +44,7 @@ export default function SettingsMail() {
     setLoading(true);
     const url = selectedLocationId ? `/api/settings/mail?locationId=${selectedLocationId}` : '/api/settings/mail';
     api.get<any>(url)
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -282,3 +282,4 @@ export default function SettingsMail() {
     </div>
   );
 }
+

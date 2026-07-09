@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { API_BASE } from '../lib/api.js';
 import { getFullUrl } from '../utils/url.js';
@@ -212,7 +212,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     api.get<any>(`${API_BASE}/settings`)
-      .then((res) => res.json())
+      
       .then((json) => {
         if (json.success && json.data) {
           const data = json.data;
@@ -308,3 +308,4 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   return useContext(ThemeContext);
 }
+

@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import { API_BASE } from '../lib/api.js';
 import { Link, useNavigate } from 'react-router-dom';
@@ -234,7 +234,7 @@ export default function Checkout() {
   // Check busy mode on mount
   useEffect(() => {
     fetch(`${API_BASE}/locations`)
-      .then((res) => res.json())
+      
       .then((data) => {
         const loc = data.data?.[0];
         if (loc) {
@@ -256,7 +256,7 @@ export default function Checkout() {
   useEffect(() => {
     if (locationId && orderSettings?.enableFutureOrdering) {
       fetch(`${API_BASE}/locations/${locationId}/available-slots?orderType=${orderType}`)
-        .then((res) => res.json())
+        
         .then((data) => {
           if (data.success) {
             setSlotsByDay(data.data);
@@ -309,7 +309,7 @@ export default function Checkout() {
       fetch(`${API_BASE}/loyalty/balance`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-        .then((res) => res.json())
+        
         .then((data) => {
           if (data.success) setLoyaltyBalance(data.data.points);
         })
@@ -1554,3 +1554,4 @@ function getDefaultScheduleTime(): string {
   d.setHours(d.getHours() + 1, 0, 0, 0);
   return d.toISOString().slice(0, 16);
 }
+

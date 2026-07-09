@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
@@ -104,9 +104,9 @@ export default function StaffEdit() {
 
   useEffect(() => {
     Promise.all([
-      api.get<any>(`/api/staff/${id}`).then((r) => r.json()),
-      api.get<any>('/api/locations?limit=100').then((r) => r.json()),
-      api.get<any>('/api/job-roles').then((r) => r.json()),
+      api.get<any>(`/api/staff/${id}`),
+      api.get<any>('/api/locations?limit=100'),
+      api.get<any>('/api/job-roles'),
     ])
       .then(([staffData, locData, rolesData]) => {
         if (!staffData.success) throw new Error(staffData.error || 'Failed to load staff');
@@ -569,3 +569,4 @@ export default function StaffEdit() {
     </div>
   );
 }
+

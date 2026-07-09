@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -39,7 +39,7 @@ export default function ConsentLog() {
 
   useEffect(() => {
     api.get<any>('/api/consent/stats')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success) setStats(res.data);
       })
@@ -52,7 +52,7 @@ export default function ConsentLog() {
     if (categoryFilter) params.set('categoryId', categoryFilter);
 
     api.get<any>(`/api/consent?${params}`)
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success) {
           setConsents(res.data);
@@ -184,3 +184,4 @@ export default function ConsentLog() {
     </div>
   );
 }
+

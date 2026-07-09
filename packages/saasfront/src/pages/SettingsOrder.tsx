@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -64,7 +64,7 @@ export default function SettingsOrder() {
 
   useEffect(() => {
     api.get<any>('/api/settings/order')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -390,3 +390,4 @@ export default function SettingsOrder() {
     </div>
   );
 }
+

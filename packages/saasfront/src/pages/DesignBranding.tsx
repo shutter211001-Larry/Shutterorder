@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { getFullUrl } from '../utils/url.js';
@@ -23,7 +23,7 @@ export default function DesignBranding() {
 
   useEffect(() => {
     api.get<any>('/api/settings')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           setSiteName(res.data.siteName);
@@ -201,3 +201,4 @@ export default function DesignBranding() {
     </div>
   );
 }
+

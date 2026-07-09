@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -52,7 +52,7 @@ export default function ReservationDetail() {
         // Fetch tables for the location
         return api.get<any>(`/api/locations/${data.data.location.id}/tables`);
       })
-      .then((res) => res.json())
+      
       .then((data) => setTables(data.data || []))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -215,3 +215,4 @@ export default function ReservationDetail() {
     </div>
   );
 }
+

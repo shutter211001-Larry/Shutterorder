@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
@@ -58,7 +58,7 @@ export default function Reservations() {
   // Load locations
   useEffect(() => {
     api.get<any>(`${API_BASE}/locations`)
-      .then((res) => res.json())
+      
       .then((data) => setLocations(data.data || []))
       .catch(() => {});
   }, []);
@@ -67,7 +67,7 @@ export default function Reservations() {
   useEffect(() => {
     if (!token) return;
     api.get<any>(`${API_BASE}/reservations/my-reservations`)
-      .then((res) => res.json())
+      
       .then((data) => setMyReservations(data.data || []))
       .catch(() => {});
   }, [token, success]);
@@ -81,7 +81,7 @@ export default function Reservations() {
     setLoadingSlots(true);
     const params = new URLSearchParams({ locationId, date, partySize: String(partySize) });
     api.get<any>(`${API_BASE}/reservations/availability?${params}`)
-      .then((res) => res.json())
+      
       .then((data) => setSlots(data.data?.slots || []))
       .catch(() => {})
       .finally(() => setLoadingSlots(false));
@@ -263,3 +263,4 @@ export default function Reservations() {
     </div>
   );
 }
+

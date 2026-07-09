@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -19,7 +19,7 @@ export default function LegalPageList() {
 
   useEffect(() => {
     api.get<any>('/api/legal')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success) setPages(res.data);
       })
@@ -81,3 +81,4 @@ export default function LegalPageList() {
     </div>
   );
 }
+

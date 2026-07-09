@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ export default function LegalPageForm() {
 
   useEffect(() => {
     api.get<any>(`/api/legal/${slug}`)
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           setTitle(res.data.title);
@@ -111,3 +111,4 @@ export default function LegalPageForm() {
     </div>
   );
 }
+

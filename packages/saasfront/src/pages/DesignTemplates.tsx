@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -307,7 +307,7 @@ export default function DesignTemplates() {
 
   useEffect(() => {
     api.get<any>('/api/settings')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           setCurrent(res.data.storefrontTemplate || 'classic');
@@ -412,3 +412,4 @@ export default function DesignTemplates() {
     </div>
   );
 }
+

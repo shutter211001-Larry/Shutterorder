@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
@@ -61,8 +61,8 @@ export default function DeveloperMetrics() {
     const params = new URLSearchParams({ hours: String(hours) });
 
     Promise.all([
-      api.get<any>(`/api/developer/metrics?${params}`).then((r) => r.json()),
-      api.get<any>(`/api/developer/metrics/endpoints?${params}`).then((r) => r.json()),
+      api.get<any>(`/api/developer/metrics?${params}`),
+      api.get<any>(`/api/developer/metrics/endpoints?${params}`),
     ])
       .then(([metricsRes, endpointsRes]) => {
         if (metricsRes.success) {
@@ -277,3 +277,4 @@ export default function DeveloperMetrics() {
     </div>
   );
 }
+

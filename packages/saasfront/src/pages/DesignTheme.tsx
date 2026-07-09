@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -63,7 +63,7 @@ export default function DesignTheme() {
 
   useEffect(() => {
     api.get<any>('/api/settings')
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success && res.data) {
           setColorPrimary(res.data.colorPrimary);
@@ -217,3 +217,4 @@ export default function DesignTheme() {
     </div>
   );
 }
+

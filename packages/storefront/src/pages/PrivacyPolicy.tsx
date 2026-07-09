@@ -1,4 +1,4 @@
-import { api } from '../lib/api';
+﻿import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '../lib/api.js';
@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
 
   useEffect(() => {
     api.get<any>(`${API_BASE}/legal/privacy-policy`)
-      .then((r) => r.json())
+      
       .then((res) => {
         if (res.success) setPage(res.data);
       })
@@ -38,3 +38,4 @@ export default function PrivacyPolicy() {
     </div>
   );
 }
+
