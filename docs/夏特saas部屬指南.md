@@ -106,6 +106,35 @@ LINE Pay 在 Sandbox 或正式環境中，**強制要求伺服器必須有固定
 
 ### 💬 5. LINE 機器人 (訂單通知)
 1. 前往 [LINE Developers Console](https://developers.line.biz/console/) 登入。
+2. 點擊 Provider，建立一個 **Messaging API** Channel。
+3. 獲取 `Channel Secret` 與 `Channel Access Token`，並填入 `adminfront` 中。
+4. 將 Webhook URL 設定為：`https://<你的後端API網址>/api/webhook/line/<租戶ID>`，並啟用 Webhook 功能。
+
+### 📧 6. 系統寄信設定 (SMTP / Gmail App Password)
+系統發送「邀請管理員信件」或「註冊驗證信」時，會需要一組發信伺服器的帳密。
+您可以選擇直接在 **`saasfront` 的「進階與效能設定 > 郵件伺服器設定」** 裡面動態填寫，或是寫死在 Railway 後端 (`api-server`) 的環境變數中：
+
+**選項 A：使用一般的 SMTP (例如 Resend, SendGrid, Amazon SES)**
+如果您有專業的寄信服務，請在 Railway 加入以下環境變數：
+- `SMTP_HOST` = `smtp.resend.com`
+- `SMTP_PORT` = `465` (或 587)
+- `SMTP_USER` = `resend` (或您的帳號)
+- `SMTP_PASS` = `re_xxxxx...` (您的 SMTP API 金鑰)
+- `EMAIL_FROM` = `noreply@yourdomain.com`
+- `EMAIL_SENDER_NAME` = `夏特點餐平台`
+
+**選項 B：使用 Gmail 應用程式密碼 (最適合初期免費測試)**
+1. 登入要用來寄信的 Google 帳號，前往 [Google 帳戶安全性設定](https://myaccount.google.com/security)。
+2. 開啟 **「兩步驟驗證」**。
+3. 搜尋或點擊進入 **「應用程式密碼 (App Passwords)」**。
+4. 建立一組新的應用程式密碼 (如: `shutter-saas`)，Google 會產生一組 16 碼的英文密碼。
+5. 在 Railway 中設定：
+   - `SMTP_HOST` = `smtp.gmail.com`
+   - `SMTP_PORT` = `465`
+   - `SMTP_USER` = `你的gmail信箱@gmail.com`
+   - `SMTP_PASS` = `這16碼密碼(不含空格)`
+   - `EMAIL_FROM` = `你的gmail信箱@gmail.com`
+
 2. 建立一個新的 **Provider**。
 3. 點擊 **Create a Messaging API channel**。
 4. 填寫機器人名稱與圖示後建立。
