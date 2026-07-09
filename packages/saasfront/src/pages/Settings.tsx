@@ -24,28 +24,6 @@ export default function Settings() {
         description: t('settings.manageBrandAndFranchise'),
         cards: [
           {
-            title: t('settings.generalSettings'),
-            description: t('settings.restaurantBasicInfo'),
-            link: '/settings/general',
-            roles: ['SUPER_ADMIN', 'MANAGER'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-              </svg>
-            ),
-          },
-          {
-            title: t('settings.headquartersBranchManagement'),
-            description: t('settings.manageFranchiseAndDiagnostics'),
-            link: '/settings/franchise',
-            roles: ['SUPER_ADMIN'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72M6.75 18h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .414.336.75.75.75z" />
-              </svg>
-            ),
-          },
-          {
             title: t('settings.advancedSettings'),
             description: t('settings.maintenanceAndRateLimits'),
             link: '/settings/advanced',
@@ -56,95 +34,30 @@ export default function Settings() {
               </svg>
             ),
           },
-        ]
-      },
-      {
-        categoryName: t('settings.customerServiceOrdering'),
-        description: t('settings.configureOrderingAndFeedback'),
-        cards: [
           {
-            title: t('settings.ordersAndDelivery'),
-            description: t('settings.deliveryAndTaxSettings'),
-            link: '/settings/order',
-            roles: ['SUPER_ADMIN', 'MANAGER'],
+            title: t('settings.googleIntegration'),
+            description: t('settings.googleServicesConfig'),
+            link: '/settings/google',
+            roles: ['SUPER_ADMIN'],
             icon: (
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
               </svg>
             ),
           },
           {
-            title: t('settings.reservationService'),
-            description: t('settings.reservationTimeSettings'),
-            link: '/settings/reservation',
-            roles: ['SUPER_ADMIN', 'MANAGER'],
+            title: t('settings.emailSettings'),
+            description: t('settings.smtpServerConfig'),
+            link: '/settings/mail',
+            roles: ['SUPER_ADMIN'],
             icon: (
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-              </svg>
-            ),
-          },
-          {
-            title: t('settings.customerReviewsSettings'),
-            description: t('settings.reviewApprovalSettings'),
-            link: '/settings/review',
-            roles: ['SUPER_ADMIN', 'MANAGER'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
               </svg>
             ),
           },
         ]
       },
-      {
-        categoryName: t('settings.paymentAndCommunication'),
-        description: t('settings.configurePaymentAndNotifications'),
-        cards: [
-          {
-            title: t('settings.paymentMethods'),
-            description: t('settings.paymentGatewayConfig'),
-            link: '/settings/payment',
-            roles: ['SUPER_ADMIN'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-              </svg>
-            ),
-          },
-          {
-            title: t('settings.eInvoice'),
-            description: t('settings.ecpayInvoiceSettings'),
-            link: '/settings/invoice',
-            roles: ['SUPER_ADMIN'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-              </svg>
-            ),
-          },
-          {
-            title: t('settings.sendNotifications'),
-            description: t('settings.notificationTriggerSettings'),
-            link: '/settings/notifications',
-            roles: ['SUPER_ADMIN', 'MANAGER'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-              </svg>
-            ),
-          },
-          {
-            title: t('settings.lineIntegration'),
-            description: t('settings.lineAccountSettings'),
-            link: '/settings/line',
-            roles: ['SUPER_ADMIN'],
-            icon: (
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25-9 3.694-9 8.25c0 2.336 1.054 4.436 2.743 5.922-.163.6-.59 2.164-.675 2.476-.11.403.116.377.243.292.12-.08.6-.39 1.144-.757.173.11.353.212.54.306 1.554.78 3.328 1.21 5.005 1.21z" />
-              </svg>
-            ),
-          },
           {
             title: t('settings.googleIntegration'),
             description: t('settings.googleServicesConfig'),

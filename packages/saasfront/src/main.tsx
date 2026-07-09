@@ -12,8 +12,11 @@ import Dashboard from './pages/Dashboard.js';
 import TenantList from './pages/TenantList.tsx';
 import TenantCreate from './pages/TenantCreate.tsx';
 import TenantIntegrations from './pages/TenantIntegrations.tsx';
+import Settings from './pages/Settings.tsx';
 import SettingsMail from './pages/SettingsMail.tsx';
-
+import SettingsGoogle from './pages/SettingsGoogle.tsx';
+import SettingsPermissions from './pages/SettingsPermissions.tsx';
+import SettingsAdvanced from './pages/SettingsAdvanced.tsx';
 import './index.css';
 
 function AppRoutes() {
@@ -48,7 +51,11 @@ function AppRoutes() {
         <Route path="/tenants/:id/integrations" element={<TenantIntegrations />} />
         
         {/* Settings */}
+        <Route path="/settings" element={<Settings />} />
         <Route path="/settings/mail" element={<SettingsMail />} />
+        <Route path="/settings/google" element={<SettingsGoogle />} />
+        <Route path="/settings/permissions" element={<SettingsPermissions />} />
+        <Route path="/settings/advanced" element={<SettingsAdvanced />} />
         
       </Routes>
     </AdminLayout>
