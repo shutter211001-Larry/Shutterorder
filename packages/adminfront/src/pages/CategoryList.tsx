@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import { useGetCategoriesQuery } from '../store/apiSlice.js';
 
 interface Category {
   id: string;
@@ -21,23 +22,16 @@ interface Category {
 export default function CategoryList() {
   const { t } = useTranslation();
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: response, isLoading: loading, error, refetch } = useGetCategoriesQuery();
+  const categories = response?.data || [];
 
-  useEffect(() => {
-    api.get<{ data: Category[] }>('/menu/categories')
-      .then((res) => { setCategories(res.data); setLoading(false); })
-      .catch((err) => { setError(err.message); setLoading(false); });
-  }, []);
-
-  const topLevel = categories.filter((c) => !c.parentId);
+  const topLevel = categories.filter((c: Category) => !c.parentId);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`確定要刪除分類 "${name}" 嗎？`)) return;
     try {
       await api.delete(`/menu/categories/${id}`);
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+      refetch();
     } catch (err: any) {
       alert(err.message);
     }

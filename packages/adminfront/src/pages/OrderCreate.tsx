@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import { getDatabase } from '../lib/db/database.js';
 import { useAuth } from '../context/AuthContext.js';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
@@ -99,17 +100,26 @@ export default function OrderCreate() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([
-      api.get<{ data: Location[] }>('/locations'),
-      api.get<{ data: MenuItem[] }>('/menu/items?include=options'),
-    ])
-      .then(([locs, items]) => {
-        setLocations(locs.data);
-        if (locs.data.length > 0) setSelectedLocationId(locs.data[0].id);
-        setMenuItems(items.data.filter(i => i.isActive));
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    // 獲取店鋪列表
+    api.get<{ data: Location[] }>('/locations').then((res) => {
+      setLocations(res.data);
+      if (res.data.length > 0) {
+        setSelectedLocationId(res.data[0].id);
+      }
+    }).catch(err => setError(err.message)).finally(() => setLoading(false));
+
+    // 從本地 RxDB 讀取菜單資料 (支援離線 0 延遲渲染)
+    let sub: any;
+    getDatabase().then(db => {
+      sub = db.menuItems.find().$.subscribe(items => {
+        // @ts-ignore
+        setMenuItems(items.map(i => i.toJSON()).filter(i => i.isActive));
+      });
+    });
+
+    return () => {
+      if (sub) sub.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

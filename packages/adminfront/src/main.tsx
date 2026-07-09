@@ -4,6 +4,13 @@ import './i18n/index.js';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.js';
 import { TenantProvider } from './context/TenantContext.js';
+import { getDatabase } from './lib/db/database.js';
+
+// 初始化本地資料庫
+getDatabase().catch(console.error);
+
+import { Provider } from 'react-redux';
+import { store } from './store/index.js';
 import AdminLayout from './components/AdminLayout.js';
 import RequireRole from './components/RequireRole.js';
 import Login from './pages/Login.js';
@@ -218,8 +225,10 @@ if (overrideTenantId) {
   window.location.href = window.location.pathname;
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
 );

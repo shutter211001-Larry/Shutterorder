@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../lib/db.js';
+import { startOfDay, startOfMonth, subDays } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 import { tenantStorage } from '../middleware/tenantStorage.js';
 
@@ -13,17 +15,18 @@ export async function getDashboardStats(req: Request, res: Response): Promise<vo
       return;
     }
 
-    const now = new Date();
-    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    const weekStart = new Date(todayStart);
-    weekStart.setUTCDate(weekStart.getUTCDate() - 7);
-    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-
     const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
     const generalSettings = typeof siteSettings?.generalSettings === 'string' 
       ? JSON.parse(siteSettings.generalSettings) 
       : siteSettings?.generalSettings || {};
     const currencyDecimals = generalSettings.currencyDecimals !== undefined ? Number(generalSettings.currencyDecimals) : 2;
+    const timezone = generalSettings.timezone || 'Asia/Taipei';
+
+    const now = new Date();
+    const localNow = toZonedTime(now, timezone);
+    const todayStart = startOfDay(localNow);
+    const weekStart = subDays(todayStart, 7);
+    const monthStart = startOfMonth(localNow);
 
     const [orderMetrics] = await prisma.$queryRaw<any[]>`
       SELECT
