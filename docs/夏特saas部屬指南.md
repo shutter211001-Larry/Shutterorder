@@ -135,6 +135,28 @@ LINE Pay 在 Sandbox 或正式環境中，**強制要求伺服器必須有固定
 > [!IMPORTANT]
 > 前端環境變數打包後即固定。請務必在前端服務的 Variables 頁籤中，設定 `VITE_API_URL_PUBLIC` 指向 `api-server` 的公開網址。若您日後更改了 API 網址，必須重新觸發前端的 Build 流程才會生效。
 
+### 3. Monorepo Watch Paths 設定 (重要最佳化)
+
+在 Monorepo 架構下，若沒有設定 Watch Paths，每次 Push 程式碼都會觸發所有 5 個服務同時重新建置（極度耗時且浪費資源）。
+請在 Railway 中每個服務的 **Settings -> Deployments -> Watch Paths** 依序填入以下規則，確保只有在相關檔案更動時才觸發建置：
+
+**api-server (後端)**
+```text
+/packages/api-server/**
+/packages/shared/**
+/prisma/**
+/package.json
+/package-lock.json
+```
+
+**adminfront, storefront, erpfront, saasfront (所有前端專案通用)**
+```text
+/packages/<對應的前端資料夾名稱>/**
+/packages/shared/**
+/package.json
+/package-lock.json
+```
+
 ---
 
 ## 第五部分：資料庫初始化與預設資料 (首次部署)
