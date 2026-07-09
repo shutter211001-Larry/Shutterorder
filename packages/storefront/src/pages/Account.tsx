@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { Navigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext.js';
-import { API_BASE } from '../lib/api.js';
+import { API_BASE, api } from '../lib/api';
 
 export default function Account() {
   const { t } = useTranslation();
@@ -114,10 +114,7 @@ export default function Account() {
         setNewPassword('');
         setOldPassword('');
         // Refresh user data to update hasPassword state
-        const meRes = await fetch(`${API_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const meData = await meRes.json();
+        const meData = await api.get<any>('/auth/me');
         if (meData.success) updateUser(meData.data.customer);
       } else {
         alert(data.error || t('account.setupFailed'));
@@ -131,10 +128,7 @@ export default function Account() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_BASE}/loyalty/balance`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
+    api.get<any>('/loyalty/balance')
       .then((data) => {
         if (data.success) setLoyaltyPoints(data.data.points);
       })
@@ -143,11 +137,7 @@ export default function Account() {
 
   const handleUnbind = async () => {
     try {
-      const res = await fetch(`${API_BASE}/line/unbind`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await api.post<any>('/line/unbind', {});
       if (data.success) {
         window.location.reload();
       } else {
@@ -851,11 +841,7 @@ export default function Account() {
                     } else {
                       if (!confirm(t('account.confirmUnlinkGoogle'))) return;
                       try {
-                        const res = await fetch(`${API_BASE}/auth/google/unbind`, {
-                          method: 'POST',
-                          headers: { Authorization: `Bearer ${token}` },
-                        });
-                        const data = await res.json();
+                        const data = await api.post<any>('/auth/google/unbind', {});
                         if (data.success) {
                           window.location.reload();
                         } else {

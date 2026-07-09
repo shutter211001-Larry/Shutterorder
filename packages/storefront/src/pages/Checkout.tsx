@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import { API_BASE } from '../lib/api.js';
 import { Link, useNavigate } from 'react-router-dom';
@@ -589,17 +590,11 @@ export default function Checkout() {
                           try {
                             setError('');
                             setLoading(true);
-                            const locRes = await fetch(`${API_BASE}/locations`);
-                            const locData = await locRes.json();
+                            const locData = await api.get<any>('/locations');
                             const locId = locData.data?.[0]?.id;
                             if (!locId) throw new Error('Location not found');
 
-                            const res = await fetch(`${API_BASE}/group-orders/create`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ locationId: locId, tableName })
-                            });
-                            const data = await res.json();
+                            const data = await api.post<any>('/group-orders/create', { locationId: locId, tableName });
                             if (!data.success) throw new Error(data.error || t('groupOrder.errorStartFailed'));
 
                             setGroupSession(data.data.id, data.data.pin);
@@ -641,17 +636,11 @@ export default function Checkout() {
                             try {
                               setLoading(true);
                               setError('');
-                              const locRes = await fetch(`${API_BASE}/locations`);
-                              const locData = await locRes.json();
+                              const locData = await api.get<any>('/locations');
                               const locId = locData.data?.[0]?.id;
                               if (!locId) throw new Error('Location not found');
 
-                              const res = await fetch(`${API_BASE}/group-orders/join`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ locationId: locId, tableName, pin: pinInput })
-                              });
-                              const data = await res.json();
+                              const data = await api.post<any>('/group-orders/join', { locationId: locId, tableName, pin: pinInput });
                               if (!data.success) throw new Error(data.error || t('groupOrder.errorInvalidCode'));
 
                               setGroupSession(data.data.id, data.data.pin);
@@ -1264,17 +1253,12 @@ export default function Checkout() {
                               const profile = await liff.getProfile();
                               const userEmail = liff.getDecodedIDToken()?.email;
 
-                              const res = await fetch(`${API_BASE}/line/login`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
+                              const data = await api.post<any>('/line/login', {
                                   lineUserId: profile.userId,
                                   lineDisplayName: profile.displayName,
                                   email: userEmail,
                                   name: profile.displayName
-                                }),
-                              });
-                              const data = await res.json();
+                                });
                               if (data.success) {
                                 localStorage.setItem('token', data.data.token);
                                 window.location.href = '/checkout';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext.js';
-import { API_BASE } from '../lib/api.js';
+import { API_BASE, api } from '../lib/api';
 
 export default function GroupOrderDialog() {
   const { t } = useTranslation();
@@ -14,8 +14,7 @@ export default function GroupOrderDialog() {
   const [error, setError] = useState('');
 
   const getLocationId = async () => {
-    const res = await fetch(`${API_BASE}/locations`);
-    const data = await res.json();
+    const data = await api.get<any>('/locations');
     return data.data?.[0]?.id;
   };
 
@@ -26,12 +25,7 @@ export default function GroupOrderDialog() {
       const locId = await getLocationId();
       if (!locId) throw new Error('Location not found');
 
-      const res = await fetch(`${API_BASE}/group-orders/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locationId: locId, tableName })
-      });
-      const data = await res.json();
+      const data = await api.post<any>('/group-orders/create', { locationId: locId, tableName });
       if (!data.success) throw new Error(data.error || t('groupOrder.errorStartFailed'));
 
       setGroupSession(data.data.id, data.data.pin);
@@ -53,12 +47,7 @@ export default function GroupOrderDialog() {
       const locId = await getLocationId();
       if (!locId) throw new Error('Location not found');
 
-      const res = await fetch(`${API_BASE}/group-orders/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locationId: locId, tableName, pin: pinInput })
-      });
-      const data = await res.json();
+      const data = await api.post<any>('/group-orders/join', { locationId: locId, tableName, pin: pinInput });
       if (!data.success) throw new Error(data.error || t('groupOrder.errorInvalidCode'));
 
       setGroupSession(data.data.id, data.data.pin);

@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
@@ -132,18 +133,7 @@ export default function AdminChatWidget() {
     setInput('');
 
     try {
-      const res = await fetch('/api/chat/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          content: currentInput,
-          locationId: activeLocationId
-        })
-      });
-      const data = await res.json();
+      const data = await api.post<any>('/api/chat/messages', {});
       if (!data.success) {
         console.error('Failed to send message:', data.message);
       }

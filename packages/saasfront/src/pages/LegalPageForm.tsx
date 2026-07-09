@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -13,9 +14,7 @@ export default function LegalPageForm() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`/api/legal/${slug}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>(`/api/legal/${slug}`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -36,12 +35,7 @@ export default function LegalPageForm() {
     setError('');
 
     try {
-      const res = await fetch(`/api/legal/${slug}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title, content }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>(`/api/legal/${slug}`, {});
       if (data.success) {
         navigate('/legal/pages');
       } else {

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { api } from '../lib/api';
 
 interface User {
   id: string;
@@ -40,13 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     setLoading(true);
 
-    fetch('/api/auth/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
+    api.get<any>('/auth/me')
       .then((data) => {
         if (!cancelled) {
           const fetchedUser = data.data.user;
@@ -88,17 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function refreshUser() {
     if (!token) return;
     try {
-      const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const data = await api.get<any>('/auth/me');
         const fetchedUser = data.data.user;
         if (fetchedUser.role !== 'SUPER_ADMIN' || (fetchedUser.tenantId !== null && fetchedUser.tenantId !== undefined)) {
           throw new Error('SaaS Platform Admin access required');
         }
         setUser(fetchedUser);
-      }
     } catch (error) {
       console.error('Failed to refresh user', error);
     }

@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -46,9 +47,7 @@ export default function AuditLog() {
     if (actionFilter) params.set('action', actionFilter);
     if (search) params.set('search', search);
 
-    fetch(`/api/developer/audit-logs?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>(`/api/developer/audit-logs?${params}`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {

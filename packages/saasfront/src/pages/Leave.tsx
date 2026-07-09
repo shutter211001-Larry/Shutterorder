@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -24,10 +25,7 @@ export default function Leave() {
 
   async function fetchMyLeaves() {
     try {
-      const res = await fetch('/api/leaves/my-records', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/leaves/my-records');
       if (data.success) setMyLeaves(data.data);
     } catch (err) {
       console.error(err);
@@ -39,16 +37,7 @@ export default function Leave() {
     setLoading(true);
     
     try {
-      const res = await fetch('/api/leaves', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(form)
-      });
-      
-      const data = await res.json();
+      const data = await api.post<any>('/leaves', form);
       if (data.success) {
         toast.success(t('attendance.leaveSuccess') || 'Leave request submitted');
         setShowModal(false);

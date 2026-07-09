@@ -152,8 +152,8 @@ export default function KitchenDisplay() {
   });
 
   useEffect(() => {
-    fetch('/api/locations?limit=100', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json())
+    api.get<any>('/api/locations?limit=100')
+      
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
           setLocations(res.data);
@@ -174,8 +174,8 @@ export default function KitchenDisplay() {
     }
 
     if (localLeadTime === null || localCounter === null) {
-      fetch('/api/settings/order', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-        .then(r => r.json())
+      api.get<any>('/api/settings/order')
+        
         .then(res => {
           if (res.success && res.data) {
             if (localCounter === null) {

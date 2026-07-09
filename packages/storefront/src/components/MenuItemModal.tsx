@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
@@ -82,9 +83,8 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_BASE}/menu/items/${itemId}`)
+    api.get<any>(`${API_BASE}/menu/items/${itemId}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to load item');
         return res.json();
       })
       .then((json) => {

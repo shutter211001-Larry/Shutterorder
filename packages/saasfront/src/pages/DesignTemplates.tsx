@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -305,7 +306,7 @@ export default function DesignTemplates() {
   const [current, setCurrent] = useState('classic');
 
   useEffect(() => {
-    fetch('/api/settings')
+    api.get<any>('/api/settings')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -321,12 +322,7 @@ export default function DesignTemplates() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ storefrontTemplate: id }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings', {});
       if (data.success) {
         setCurrent(id);
         setSuccess(`模板 "${templates.find((t) => t.id === id)?.name}" 已成功套用`);

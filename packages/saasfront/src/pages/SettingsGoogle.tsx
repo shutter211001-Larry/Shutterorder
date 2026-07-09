@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
@@ -27,7 +28,7 @@ export default function SettingsGoogle() {
   const [googleMapsApiKey, setGoogleMapsApiKey] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings/google', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/settings/google')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -48,20 +49,7 @@ export default function SettingsGoogle() {
   async function handleSave() {
     setSaving(true);
     try {
-      const res = await fetch('/api/settings/google', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          geminiApiKey,
-          googleLoginClientId,
-          googleLoginClientSecret,
-          gmailClientId,
-          gmailClientSecret,
-          gmailRefreshToken,
-          googleMapsApiKey,
-        }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/google', {});
       if (data.success) {
         if (data.data?.geminiApiKey) setGeminiApiKey(data.data.geminiApiKey);
         if (data.data?.googleLoginClientSecret) setGoogleLoginClientSecret(data.data.googleLoginClientSecret);

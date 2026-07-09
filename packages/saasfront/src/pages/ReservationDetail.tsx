@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -42,19 +43,14 @@ export default function ReservationDetail() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch(`/api/reservations/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>(`/api/reservations/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to load reservation');
         return res.json();
       })
       .then((data) => {
         setReservation(data.data);
         // Fetch tables for the location
-        return fetch(`/api/locations/${data.data.location.id}/tables`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        return api.get<any>(`/api/locations/${data.data.location.id}/tables`);
       })
       .then((res) => res.json())
       .then((data) => setTables(data.data || []))
@@ -65,16 +61,7 @@ export default function ReservationDetail() {
   async function updateReservation(updates: Record<string, unknown>) {
     setUpdating(true);
     try {
-      const res = await fetch(`/api/reservations/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updates),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await api.patch<any>(`/api/reservations/${id}`, {});
       setReservation(data.data);
     } catch (err: any) {
       setError(err.message);

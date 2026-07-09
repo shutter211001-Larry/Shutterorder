@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext.js';
 import { useTheme } from '../context/ThemeContext.js';
-import { API_BASE } from '../lib/api.js';
+import { API_BASE, api } from '../lib/api';
 import { formatToFullDateTime } from '../utils/date.js';
 
 interface OrderItem {
@@ -105,14 +105,7 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
     
     setCancelling(true);
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const res = await fetch(`${API_BASE}/orders/${id}/cancel`, {
-        method: 'POST',
-        headers,
-      });
-      const data = await res.json();
+      const data = await api.post<any>(`/orders/${id}/cancel`, {});
       if (data.success) {
         setOrder({ ...order, status: 'CANCELLED' });
       } else {
@@ -148,9 +141,6 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
       return;
     }
 
-    const headers: Record<string, string> = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
-
     // Try to load from cache first for instant feedback
     const cachedOrder = localStorage.getItem(`order_cache_${id}`);
     if (cachedOrder) {
@@ -162,33 +152,25 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
       }
     }
 
-    fetch(`${API_BASE}/orders/${id}`, { headers })
-      .then((res) => {
-        if (res.status === 401) {
-          logout();
-          throw new Error('UNAUTHORIZED_SILENT');
-        }
-        if (res.status === 403) throw new Error('LINKED_TO_ACCOUNT');
-        if (!res.ok) throw new Error(`API_ERROR_${res.status}`);
-        return res.json();
-      })
+    api.get<any>(`/orders/${id}`)
       .then((data) => {
-        setOrder(data.data);
-        if (data.data) {
+        setOrder(data.data || data);
+        if (data.data || data) {
+          const orderData = data.data || data;
           // Update cache
-          localStorage.setItem(`order_cache_${id}`, JSON.stringify(data.data));
+          localStorage.setItem(`order_cache_${id}`, JSON.stringify(orderData));
           
           addOrder({
-            id: data.data.id,
-            orderNumber: data.data.orderNumber,
-            date: data.data.createdAt,
-            total: data.data.total,
-            orderType: data.data.orderType,
-            itemCount: data.data.items?.length || 0
+            id: orderData.id,
+            orderNumber: orderData.orderNumber,
+            date: orderData.createdAt,
+            total: orderData.total,
+            orderType: orderData.orderType,
+            itemCount: orderData.items?.length || 0
           });
         }
       })
-      .catch((err) => {
+      .catch((err: any) => {
         if (err.message === 'UNAUTHORIZED_SILENT') return;
         console.error('Order fetch failed:', err);
         if (err.message === 'LINKED_TO_ACCOUNT') {
@@ -204,11 +186,7 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
     if (!token) return;
     setClaiming(true);
     try {
-      const res = await fetch(`${API_BASE}/orders/${id}/claim`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.post<any>(`/orders/${id}/claim`, {});
       if (data.success) {
         setClaimSuccess(true);
         setOrder({ ...order, customerId: user?.id });

@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '../lib/api.js';
@@ -7,7 +8,7 @@ export default function Impressum() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE}/legal/impressum`)
+    api.get<any>(`${API_BASE}/legal/impressum`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success) setPage(res.data);

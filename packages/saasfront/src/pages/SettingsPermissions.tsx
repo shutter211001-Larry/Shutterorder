@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -26,8 +27,8 @@ export default function SettingsPermissions() {
   });
 
   useEffect(() => {
-    fetch('/api/settings/general', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
+    api.get<any>('/api/settings/general')
+      
       .then(res => {
         if (res.success && res.data) {
           if (res.data.permissions) {
@@ -44,12 +45,7 @@ export default function SettingsPermissions() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/general', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ permissions }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/general', {});
       if (data.success) {
         setSuccess(t('settingsPermissions.permissionsUpdated'));
         setTimeout(() => setSuccess(''), 3000);

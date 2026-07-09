@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { API_BASE } from '../lib/api.js';
@@ -36,13 +37,7 @@ export default function LinePayConfirm() {
         };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const res = await fetch(`${API_BASE}/payments/linepay/confirm`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ transactionId, orderId }),
-        });
-        
-        const data = await res.json();
+        const data = await api.post<any>(`${API_BASE}/payments/linepay/confirm`, {});
         
         if (data.success) {
           setStatus('success');

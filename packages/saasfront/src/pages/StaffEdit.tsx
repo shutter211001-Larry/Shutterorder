@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
@@ -103,9 +104,9 @@ export default function StaffEdit() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/staff/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
-      fetch('/api/locations?limit=100', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
-      fetch('/api/job-roles', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+      api.get<any>(`/api/staff/${id}`).then((r) => r.json()),
+      api.get<any>('/api/locations?limit=100').then((r) => r.json()),
+      api.get<any>('/api/job-roles').then((r) => r.json()),
     ])
       .then(([staffData, locData, rolesData]) => {
         if (!staffData.success) throw new Error(staffData.error || 'Failed to load staff');
@@ -161,42 +162,7 @@ export default function StaffEdit() {
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/staff/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          name,
-          role,
-          phone: phone || null,
-          locationId: locationId || null,
-          salaryType,
-          hourlyWage: Number(hourlyWage),
-          monthlyWage: Number(monthlyWage),
-          maxDaysPerWeek: Number(maxDaysPerWeek),
-          maxHoursPerWeek: Number(maxHoursPerWeek),
-          availabilities,
-          timeOffs,
-          isActive,
-          jobRoleIds,
-          employmentRecord: hireDate ? {
-            hireDate,
-            terminationDate: terminationDate || null,
-            status: employmentStatus,
-            bankName: bankName || null,
-            bankBranch: bankBranch || null,
-            bankAccountNumber: bankAccountNumber || null,
-          } : null,
-          insuranceProfile: {
-            laborInsuranceBracket: Number(laborInsuranceBracket),
-            healthInsuranceBracket: Number(healthInsuranceBracket),
-            pensionEmployer: Number(pensionEmployer),
-            pensionEmployee: Number(pensionEmployee),
-            dependents: Number(dependents),
-          }
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to update');
+      const data = await api.patch<any>(`/api/staff/${id}`, {});
       navigate('/staff');
     } catch (err: any) {
       setError(err.message);
@@ -209,12 +175,7 @@ export default function StaffEdit() {
     if (!window.confirm(t('staff.deleteConfirm') || 'Are you sure you want to delete this staff member? This action cannot be undone.')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/staff/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to delete');
+      const data = await api.delete<any>(`/api/staff/${id}`);
       navigate('/staff');
     } catch (err: any) {
       setError(err.message);

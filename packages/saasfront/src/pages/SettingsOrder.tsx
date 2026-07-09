@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -62,7 +63,7 @@ export default function SettingsOrder() {
   const [ecpayHashIv, setEcpayHashIv] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings/order', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/settings/order')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -115,47 +116,7 @@ export default function SettingsOrder() {
     setSuccess('');
     const tipOptions = tipOptionsStr.split(',').map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
     try {
-      const res = await fetch('/api/settings/order', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ 
-          enabled, 
-          deliveryEnabled, 
-          pickupEnabled, 
-          frozenDeliveryEnabled,
-          allowGuestCheckout,
-          minOrderDelivery, 
-          minOrderPickup, 
-          minOrderFrozen,
-          pickupLeadTime, 
-          frozenLeadTime,
-          frozenDeliveryFee, 
-          enableFutureOrdering, 
-          preOpeningBuffer,
-          postClosingBuffer,
-          timeSlotInterval,
-          enableTipping, 
-          enableCounterDisplay,
-          tipOptions, 
-          taxRate,
-          boardLeadTime,
-          loyaltyEarnRate,
-          loyaltyRedeemRate,
-          enableTCat,
-          tcatCustomerId,
-          tcatApiKey,
-          enablePelican,
-          pelicanMerchantId,
-          pelicanApiKey,
-          enableECPay,
-          ecpayMerchantId,
-          ecpayHashKey,
-          ecpayHashIv,
-          deliveryLeadTime: Number(deliveryLeadTime),
-          emailNotifications 
-        }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/order', {});
       if (data.success) {
         setSuccess(t('settingsOrder.orderSettingsUpdated'));
         setTimeout(() => setSuccess(''), 3000);

@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.js';
+import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api';
 
 export default function AcceptInvite() {
   const [searchParams] = useSearchParams();
@@ -26,8 +27,7 @@ export default function AcceptInvite() {
       return;
     }
 
-    fetch(`/api/staff/invite/${tokenParam}`)
-      .then((res) => res.json())
+    api.get<any>(`/staff/invite/${tokenParam}`)
       .then((data) => {
         if (!data.success) throw new Error(data.error || 'Invalid invite');
         setEmail(data.data.email);
@@ -49,13 +49,8 @@ export default function AcceptInvite() {
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/staff/accept-invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenParam, name, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to accept invite');
+      const data = await api.post<any>('/staff/accept-invite', { token: tokenParam, name, password });
+      if (!data.success) throw new Error(data.error || 'Failed to accept invite');
 
       login(data.data.token);
       navigate('/');

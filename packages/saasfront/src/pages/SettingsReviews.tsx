@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -20,7 +21,7 @@ export default function SettingsReviews() {
   const [minimumRating, setMinimumRating] = useState(1);
 
   useEffect(() => {
-    fetch('/api/settings/review', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/settings/review')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -40,12 +41,7 @@ export default function SettingsReviews() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/review', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ enabled, requireOrder, autoApprove, minimumRating }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/review', {});
       if (data.success) {
         setSuccess(t('settingsReviews.reviewSettingsUpdated'));
         setTimeout(() => setSuccess(''), 3000);

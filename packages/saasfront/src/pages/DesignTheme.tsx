@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -61,7 +62,7 @@ export default function DesignTheme() {
   const [darkMode, setDarkMode] = useState<'light' | 'dark' | 'system'>('light');
 
   useEffect(() => {
-    fetch('/api/settings')
+    api.get<any>('/api/settings')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -79,12 +80,7 @@ export default function DesignTheme() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ colorPrimary, colorSecondary, darkMode }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings', {});
       if (data.success) {
         setSuccess(t('designTheme.themeSettingsUpdated'));
         setTimeout(() => setSuccess(''), 3000);

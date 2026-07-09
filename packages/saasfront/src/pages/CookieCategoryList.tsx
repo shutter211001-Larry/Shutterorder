@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { Trash2, Edit2, Check, X, Plus } from 'lucide-react';
+import { api } from '../lib/api';
 
 interface CookieCategory {
   id: string;
@@ -25,10 +27,7 @@ export default function CookieCategoryList() {
   const token = localStorage.getItem('token') || '';
 
   function loadCategories() {
-    fetch('/api/legal/cookie-categories', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    api.get<any>('/legal/cookie-categories')
       .then((res) => {
         if (res.success) setCategories(res.data);
       })
@@ -48,12 +47,7 @@ export default function CookieCategoryList() {
     const method = editingId ? 'PATCH' : 'POST';
 
     try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
+      const data = method === 'POST' ? await api.post<any>(url, form) : await api.patch<any>(url, form);
       if (data.success) {
         setForm(emptyForm);
         setEditingId(null);
@@ -70,11 +64,7 @@ export default function CookieCategoryList() {
   async function handleDelete(id: string) {
     if (!confirm(t('cookieCategoryList.confirmDeleteCookieCategory'))) return;
     try {
-      const res = await fetch(`/api/legal/cookie-categories/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await api.delete<any>(`/legal/cookie-categories/${id}`);
       if (data.success) loadCategories();
     } catch {}
   }

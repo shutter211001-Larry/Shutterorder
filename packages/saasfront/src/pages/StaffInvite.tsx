@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -21,13 +22,7 @@ export default function StaffInvite() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/staff/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ email, name: name || undefined, role }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send invite');
+      const data = await api.post<any>('/api/staff/invite', {});
       setSuccess(true);
     } catch (err: any) {
       setError(err.message);

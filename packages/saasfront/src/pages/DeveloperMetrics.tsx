@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import {
@@ -60,12 +61,8 @@ export default function DeveloperMetrics() {
     const params = new URLSearchParams({ hours: String(hours) });
 
     Promise.all([
-      fetch(`/api/developer/metrics?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((r) => r.json()),
-      fetch(`/api/developer/metrics/endpoints?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((r) => r.json()),
+      api.get<any>(`/api/developer/metrics?${params}`).then((r) => r.json()),
+      api.get<any>(`/api/developer/metrics/endpoints?${params}`).then((r) => r.json()),
     ])
       .then(([metricsRes, endpointsRes]) => {
         if (metricsRes.success) {
@@ -94,11 +91,7 @@ export default function DeveloperMetrics() {
             onClick={async () => {
               if (!confirm(t('developerMetrics.confirmSyncDatabase'))) return;
               try {
-                const res = await fetch('/api/developer/sync-db', {
-                  method: 'POST',
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await res.json();
+                const data = await api.post<any>('/api/developer/sync-db', {});
                 if (data.success) {
                   alert(t('developerMetrics.databaseSyncSuccess'));
                 } else {
@@ -121,11 +114,7 @@ export default function DeveloperMetrics() {
               if (!confirm(t('developerMetrics.confirmAiTranslation'))) return;
               setSyncingLocales(true);
               try {
-                const res = await fetch('/api/developer/sync-locales', {
-                  method: 'POST',
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await res.json();
+                const data = await api.post<any>('/api/developer/sync-locales', {});
                 if (data.success) {
                   alert(`語系同步成功！已補齊 ${data.updatedCount} 筆翻譯。`);
                 } else {

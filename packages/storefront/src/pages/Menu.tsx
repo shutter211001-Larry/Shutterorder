@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -129,9 +130,8 @@ export default function Menu() {const { t, i18n } = useTranslation();
 
     setItemsLoading(true);
     setItemsError(null);
-    fetch(itemsUrl)
+    api.get<any>(itemsUrl)
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to load menu');
         return res.json();
       })
       .then((json) => {

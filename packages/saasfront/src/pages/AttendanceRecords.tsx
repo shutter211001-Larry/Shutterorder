@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
@@ -24,10 +25,7 @@ export default function AttendanceRecords() {
 
   async function fetchLocations() {
     try {
-      const res = await fetch('/api/locations', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/api/locations');
       if (data.success) {
         setLocations(data.data);
       }
@@ -45,10 +43,7 @@ export default function AttendanceRecords() {
       if (endDate) query.append('endDate', endDate);
       if (isOutOfRange) query.append('isOutOfRange', 'true');
 
-      const res = await fetch(`/api/attendance/records?${query.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>(`/api/attendance/records?${query.toString()}`);
       if (data.success) {
         setRecords(data.data);
       } else {

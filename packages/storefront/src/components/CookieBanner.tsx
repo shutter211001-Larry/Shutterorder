@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { API_BASE } from '../lib/api.js';
+import { API_BASE, api } from '../lib/api';
 
 interface CookieCategory {
   id: string;
@@ -24,8 +24,7 @@ export default function CookieBanner() {
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY)) return;
 
-    fetch(`${API_BASE}/legal/cookie-categories`)
-      .then((r) => r.json())
+    api.get<any>('/legal/cookie-categories')
       .then((res) => {
         if (res.success && res.data.length > 0) {
           setCategories(res.data);
@@ -47,11 +46,8 @@ export default function CookieBanner() {
         accepted,
       }));
 
-      fetch(`${API_BASE}/consent`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ consents }),
-      }).catch(() => {});
+      api.post<any>('/consent', { consents })
+        .catch(() => {});
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
       setVisible(false);

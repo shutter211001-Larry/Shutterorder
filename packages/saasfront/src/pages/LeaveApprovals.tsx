@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -16,10 +17,7 @@ export default function LeaveApprovals() {
 
   async function fetchLeaves() {
     try {
-      const res = await fetch('/api/leaves', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/leaves');
       if (data.success) setLeaves(data.data);
     } catch (err) {
       console.error(err);
@@ -29,16 +27,7 @@ export default function LeaveApprovals() {
   const handleUpdateStatus = async (id: string, status: 'APPROVED' | 'REJECTED') => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/leaves/${id}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status })
-      });
-      
-      const data = await res.json();
+      const data = await api.put<any>(`/leaves/${id}/status`, { status });
       if (data.success) {
         toast.success(t('attendance.leaveStatusUpdated') || 'Status updated');
         fetchLeaves();

@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -48,10 +49,7 @@ export default function AttendanceQRGenerator() {
 
   async function fetchLocations() {
     try {
-      const res = await fetch('/api/locations', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/api/locations');
       if (data.success) {
         setLocations(data.data);
       }
@@ -63,10 +61,7 @@ export default function AttendanceQRGenerator() {
   async function fetchQrToken() {
     if (!selectedLocation) return;
     try {
-      const res = await fetch(`/api/attendance/qr-token?locationId=${selectedLocation}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>(`/api/attendance/qr-token?locationId=${selectedLocation}`);
       if (data.success) {
         setQrToken(data.data.token);
         setTimeLeft(30);

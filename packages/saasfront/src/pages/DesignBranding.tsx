@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { getFullUrl } from '../utils/url.js';
@@ -21,7 +22,7 @@ export default function DesignBranding() {
   const faviconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch('/api/settings')
+    api.get<any>('/api/settings')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -41,12 +42,7 @@ export default function DesignBranding() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ siteName, siteTitle, siteDescription }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings', {});
       if (data.success) {
         setSuccess(t('designBranding.brandSettingsUpdated'));
         setTimeout(() => setSuccess(''), 3000);
@@ -65,12 +61,7 @@ export default function DesignBranding() {
     formData.append(type, file);
 
     try {
-      const res = await fetch(`/api/settings/${type}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      const data = await res.json();
+      const data = await api.post<any>(`/api/settings/${type}`, {});
       if (data.success && data.data) {
         if (type === 'logo') setLogo(getFullUrl(data.data.logo));
         else setFavicon(getFullUrl(data.data.favicon));

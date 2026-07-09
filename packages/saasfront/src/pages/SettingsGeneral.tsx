@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from '../i18n/index.js';
 import { useAuth } from '../context/AuthContext.js';
+import { api } from '../lib/api.js';
 import { ToggleRow } from '../components/ui/ToggleRow';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
@@ -62,8 +63,7 @@ export default function SettingsGeneral() {
   }, [user?.preferredLanguage]);
 
   useEffect(() => {
-    fetch('/api/settings/general', { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+    api.get<any>('/settings/general')
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -93,27 +93,18 @@ export default function SettingsGeneral() {
     setError('');
     setSuccess('');
     try {
-      const p1 = fetch('/api/settings/general', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          domain, contactEmail, contactPhone, timezone, distanceUnit, defaultCurrency,
-          currencySymbol, currencyPosition, currencyDecimals,
-          navShowHome, navShowLocations, navShowMenu, navShowReservations, showMembership, showLanguageEmoji
-        }),
+      const p1 = api.put<any>('/settings/general', {
+        domain, contactEmail, contactPhone, timezone, distanceUnit, defaultCurrency,
+        currencySymbol, currencyPosition, currencyDecimals,
+        navShowHome, navShowLocations, navShowMenu, navShowReservations, showMembership, showLanguageEmoji
       });
 
-      const p2 = fetch('/api/auth/me/language', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ language }),
-      });
+      const p2 = api.patch<any>('/auth/me/language', { language });
 
-      const [res, langRes] = await Promise.all([p1, p2]);
-      const data = await res.json();
+      const [data, langRes] = await Promise.all([p1, p2]);
       
       if (data.success) {
-        if (langRes.ok) {
+        if (langRes.success || langRes.user) {
           i18n.changeLanguage(language);
           if (refreshUser) refreshUser();
         }

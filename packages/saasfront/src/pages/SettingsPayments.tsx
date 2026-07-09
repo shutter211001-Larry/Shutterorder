@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -30,7 +31,7 @@ export default function SettingsPayments() {
   const [cashEnabled, setCashEnabled] = useState(true);
 
   useEffect(() => {
-    fetch('/api/settings/payment', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/settings/payment')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -55,16 +56,7 @@ export default function SettingsPayments() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/payment', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          stripeEnabled, stripePublishableKey, stripeSecretKey, stripeWebhookSecret,
-          paypalEnabled, paypalClientId, paypalClientSecret, paypalSandbox,
-          cashEnabled
-        }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/payment', {});
       if (data.success) {
         if (data.data) {
           if (data.data.stripeSecretKey) setStripeSecretKey(data.data.stripeSecretKey);

@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -20,7 +21,7 @@ export default function SettingsInvoice() {
   const [hashIv, setHashIv] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings/invoice', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/settings/invoice')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -40,17 +41,7 @@ export default function SettingsInvoice() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/invoice', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          enabled,
-          merchantId,
-          hashKey,
-          hashIv,
-        }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/invoice', {});
       if (data.success) {
         if (data.data?.hashKey) setHashKey(data.data.hashKey);
         if (data.data?.hashIv) setHashIv(data.data.hashIv);

@@ -62,11 +62,8 @@ export default function CouponForm() {
 
     if (!id) return;
     setLoading(true);
-    fetch(`/api/coupons/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>(`/api/coupons/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to load coupon');
         return res.json();
       })
       .then((data) => {
@@ -170,13 +167,7 @@ export default function CouponForm() {
 
     try {
       const url = isEdit ? `/api/coupons/${id}` : `/api/coupons`;
-      const res = await fetch(url, {
-        method: isEdit ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : 'Failed to save');
+      const data = await api.get<any>(url);
       navigate('/promotions');
     } catch (err: any) {
       setError(err.message);

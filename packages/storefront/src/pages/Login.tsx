@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -52,17 +53,7 @@ export default function Login() {
       const userEmail = liff.getDecodedIDToken()?.email;
 
       console.log('[Login] LINE Profile obtained, authenticating with backend...');
-      const res = await fetch(`${API_BASE}/line/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lineUserId: profile.userId,
-          lineDisplayName: profile.displayName,
-          email: userEmail,
-          name: profile.displayName
-        }),
-      });
-      const data = await res.json();
+      const data = await api.get<any>(`${API_BASE}/line/login`);
       if (data.success) {
         console.log('[Login] LINE Login successful!');
         setSuccess(true);

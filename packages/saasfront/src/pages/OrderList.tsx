@@ -60,15 +60,7 @@ export default function OrderList() {
   async function togglePaymentStatus(id: string, currentStatus: string | null | undefined) {
     const nextStatus = currentStatus === 'PAID' ? 'UNPAID' : 'PAID';
     try {
-      const res = await fetch(`/api/orders/${id}/payment-status`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify({ paymentStatus: nextStatus })
-      });
-      if (!res.ok) throw new Error(t('orderList.updatePaymentStatusFailed'));
+      await api.patch<any>(`/orders/${id}/payment-status`, { paymentStatus: nextStatus });
       setOrders(orders.map(o => o.id === id ? { ...o, paymentStatus: nextStatus } : o));
     } catch (err: any) {
       setError(err.message);
@@ -83,13 +75,7 @@ export default function OrderList() {
     if (statusFilter) params.set('status', statusFilter);
     if (typeFilter) params.set('orderType', typeFilter);
 
-    fetch(`/api/orders?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load orders');
-        return res.json();
-      })
+    api.get<any>(`/orders?${params}`)
       .then((data) => {
         setOrders(data.data);
         setPagination(data.pagination);
@@ -115,11 +101,7 @@ export default function OrderList() {
       setDeleteConfirmId(null);
       try {
         setLoading(true);
-        const res = await fetch(`/api/orders/${id}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error(t('orderList.deleteFailed'));
+        await api.delete<any>(`/orders/${id}`);
         setOrders(orders.filter(o => o.id !== id));
       } catch (err: any) {
         setError(err.message);
@@ -147,7 +129,7 @@ export default function OrderList() {
     try {
       setLoading(true);
       const res = await fetch(`/api/orders/export?startDate=${startDate}&endDate=${endDate}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "x-tenant-id": localStorage.getItem("tenantId") || "default" }
       });
       if (!res.ok) throw new Error(t('orderList.exportFailed'));
       const blob = await res.blob();
@@ -192,7 +174,7 @@ export default function OrderList() {
     try {
       setLoading(true);
       const res = await fetch('/api/orders/template', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "x-tenant-id": localStorage.getItem("tenantId") || "default" }
       });
       if (!res.ok) throw new Error(t('orderList.downloadFailed'));
       const blob = await res.blob();
@@ -213,12 +195,7 @@ export default function OrderList() {
   async function handleCheckReminders() {
     try {
       setLoading(true);
-      const res = await fetch('/api/orders/reminders', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send reminders');
+      const data = await api.post<any>('/orders/reminders', {});
       alert(`提醒已發送！\n${data.data.message}`);
     } catch (err: any) {
       setError(err.message);

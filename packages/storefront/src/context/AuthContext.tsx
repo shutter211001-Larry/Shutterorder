@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { API_BASE } from '../lib/api.js';
-import { useTheme } from './ThemeContext.js';
+import { API_BASE, api } from '../lib/api';
+import { useTheme } from './ThemeContext';
 
 interface User {
   id: string;
@@ -82,23 +82,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const profile = await liff.getProfile();
           const userEmail = liff.getDecodedIDToken()?.email;
 
-          const res = await fetch(`${API_BASE}/line/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          try {
+            const data = await api.post<any>('/line/login', {
               lineUserId: profile.userId,
               lineDisplayName: profile.displayName,
               email: userEmail,
               name: profile.displayName
-            }),
-          });
+            });
 
-          const data = await res.json();
-          if (data.success) {
-            localStorage.setItem('token', data.data.token);
-            setToken(data.data.token);
-            setUser(data.data.customer || data.data.user || data.data);
-          }
+            if (data.success) {
+              localStorage.setItem('token', data.data.token);
+              setToken(data.data.token);
+              setUser(data.data.customer || data.data.user || data.data);
+            }
+          } catch (e) { console.warn('Line login error', e) }
         }
       } catch (err) {
         console.warn('Global LIFF init/login skipped:', err);
@@ -117,13 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setIsLoading(true);
-    fetch(`${API_BASE}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Invalid token');
-        return res.json();
-      })
+    api.get<any>('/auth/me')
       .then((data) => setUser(data.data.customer || data.data.user || data.data))
       // ✅ Use silentClearSession (not logout) so LIFF can re-authenticate after expiry
       .catch(() => silentClearSession())
@@ -133,23 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, password: string) {
     console.log('[Auth] Attempting login for:', email);
     try {
-      const res = await fetch(`${API_BASE}/auth/customer/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      let data: any;
-      try {
-        data = await res.json();
-      } catch (parseErr) {
-        throw new Error(t('authContext.serverConnectionFailed'));
-      }
-
-      if (!res.ok) {
-        console.error('[Auth] Login API failed:', data.error);
-        throw new Error(data.error || 'Login failed');
-      }
+      const data = await api.post<any>('/auth/customer/login', { email, password });
       
       console.log('[Auth] Login successful, storing token...');
       localStorage.setItem('token', data.data.token);
@@ -174,20 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function register(input: { email: string; password: string; name: string; phone?: string; address?: string }) {
-    const res = await fetch(`${API_BASE}/auth/customer/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    });
-    
-    let data: any;
-    try {
-      data = await res.json();
-    } catch (parseErr) {
-      throw new Error(t('authContext.serverMaintenanceOrFailed'));
-    }
-
-    if (!res.ok) throw new Error(data.error || 'Registration failed');
+    const data = await api.post<any>('/auth/customer/register', input);
     localStorage.setItem('token', data.data.token);
     localStorage.removeItem('explicit_logout');
     setToken(data.data.token);

@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -22,7 +23,7 @@ export default function SettingsReservation() {
   const [autoConfirm, setAutoConfirm] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings/reservation', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/settings/reservation')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -44,12 +45,7 @@ export default function SettingsReservation() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('/api/settings/reservation', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ enabled, timeInterval, stayTime, maxAdvanceBookingDays, minCancellationNoticeHours, autoConfirm }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>('/api/settings/reservation', {});
       if (data.success) {
         setSuccess('Reservation settings updated');
         setTimeout(() => setSuccess(''), 3000);

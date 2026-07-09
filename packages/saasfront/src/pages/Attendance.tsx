@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
@@ -160,10 +161,7 @@ export default function Attendance() {
 
   async function fetchLocations() {
     try {
-      const res = await fetch('/api/locations', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/locations');
       if (data.success) {
         setLocations(data.data);
       }
@@ -174,10 +172,7 @@ export default function Attendance() {
 
   async function fetchMyRecords() {
     try {
-      const res = await fetch('/api/attendance/my-records', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/attendance/my-records');
       if (data.success) {
         setMyRecords(data.data);
       }
@@ -188,10 +183,7 @@ export default function Attendance() {
 
   async function fetchMyCorrections() {
     try {
-      const res = await fetch('/api/attendance/corrections/my-records', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const data = await api.get<any>('/attendance/corrections/my-records');
       if (data.success) {
         setMyCorrections(data.data);
       }
@@ -213,21 +205,13 @@ export default function Attendance() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/attendance/check-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          locationId: selectedLocation || 'scan',
-          lat: currentLat,
-          lng: currentLng,
-          device: navigator.userAgent,
-          qrToken
-        })
+      const data = await api.post<any>('/attendance/check-in', {
+        locationId: selectedLocation || 'scan',
+        lat: currentLat,
+        lng: currentLng,
+        device: navigator.userAgent,
+        qrToken
       });
-      const data = await res.json();
       if (data.success) {
         if (data.data.isOutOfRange) {
            toast.success(t('attendance.clockInSuccessAbnormalDistance'), { icon: '⚠️' });
@@ -248,13 +232,7 @@ export default function Attendance() {
   const handleCheckOut = async (id: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/attendance/check-out/${id}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      const data = await res.json();
+      const data = await api.post<any>(`/attendance/check-out/${id}`, {});
       if (data.success) {
         toast.success(t('attendance.clockOutSuccess'));
         fetchMyRecords();
@@ -295,16 +273,7 @@ export default function Attendance() {
         reason: correctionForm.reason
       };
 
-      const res = await fetch('/api/attendance/corrections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      
-      const data = await res.json();
+      const data = await api.post<any>('/attendance/corrections', payload);
       if (data.success) {
         toast.success(t('attendanceCorrections.success'));
         setShowCorrectionModal(false);

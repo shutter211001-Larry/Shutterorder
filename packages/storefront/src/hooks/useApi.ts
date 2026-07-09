@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 
 interface UseApiResult<T> {
   data: T | null;
@@ -22,12 +23,8 @@ export function useApi<T>(url: string | null): UseApiResult<T> {
     setIsLoading(true);
     setError(null);
 
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Request failed (${res.status})`);
-        return res.json();
-      })
-      .then((json) => setData(json.data))
+    api.get<T>(url)
+      .then((data: any) => setData(data.data || data))
       .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
   }, [url, counter]);

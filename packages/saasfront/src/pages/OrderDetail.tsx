@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext.js';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
@@ -80,14 +81,8 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/orders/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(res => {
-        if (!res.ok) throw new Error('Failed to load order');
-        return res.json();
-      }),
-      fetch(`/api/settings/order`, { headers: { Authorization: `Bearer ${token}` } }).then(res => {
-        if (!res.ok) return null;
-        return res.json();
-      })
+      api.get<any>(`/orders/${id}`).then((data: any) => data.data),
+      api.get<any>(`/settings/order`).catch(() => null)
     ])
       .then(([orderData, settingsData]) => {
         setOrder(orderData.data);
@@ -128,16 +123,7 @@ export default function OrderDetailPage() {
         bodyPayload.logisticsProvider = trackingData.logisticsProvider;
       }
       
-      const res = await fetch(`/api/orders/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(bodyPayload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      await api.patch<any>(`/orders/${id}/status`, bodyPayload);
       setOrder((prev) => prev ? { 
         ...prev, 
         status: newStatus,
@@ -161,16 +147,7 @@ export default function OrderDetailPage() {
   async function updatePaymentStatus(newPaymentStatus: string) {
     setUpdating(true);
     try {
-      const res = await fetch(`/api/orders/${id}/payment-status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ paymentStatus: newPaymentStatus }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      await api.patch<any>(`/orders/${id}/payment-status`, { paymentStatus: newPaymentStatus });
       setOrder((prev) => prev ? { ...prev, paymentStatus: newPaymentStatus } : prev);
     } catch (err: any) {
       setError(err.message);
@@ -187,16 +164,7 @@ export default function OrderDetailPage() {
     }
     setUpdating(true);
     try {
-      const res = await fetch(`/api/orders/${id}/discount`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ adjustedTotal: val }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t('orderDetail.adjustDiscountFailed'));
+      const data = await api.patch<any>(`/orders/${id}/discount`, { adjustedTotal: val });
       setOrder((prev) => prev ? { ...prev, ...data.data } : data.data);
       const unrounded = data.data.subtotal + data.data.tax + data.data.deliveryFee - data.data.discount;
       const roundedTotal = Number(unrounded.toFixed(currencyDecimals));
@@ -213,11 +181,7 @@ export default function OrderDetailPage() {
     if (!window.confirm(t('orderDetail.confirmDeleteOrder'))) return;
     try {
       setUpdating(true);
-      const res = await fetch(`/api/orders/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(t('orderDetail.deleteFailed'));
+      await api.delete<any>(`/orders/${id}`);
       window.location.href = '/orders';
     } catch (err: any) {
       setError(err.message);

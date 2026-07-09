@@ -337,8 +337,7 @@ export default function StockManagement() {
                 let url = import.meta.env.VITE_ERP_URL_PUBLIC;
                 if (!url) {
                   try {
-                    const res = await fetch('/api/settings/public-env');
-                    const data = await res.json();
+                    const data = await api.get<any>('/api/settings/public-env');
                     url = data.erpUrl;
                   } catch (e) {
                     console.error('Failed to fetch public env vars', e);

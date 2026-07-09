@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 
@@ -37,9 +38,7 @@ export default function ConsentLog() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    fetch('/api/consent/stats', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>('/api/consent/stats')
       .then((r) => r.json())
       .then((res) => {
         if (res.success) setStats(res.data);
@@ -52,9 +51,7 @@ export default function ConsentLog() {
     const params = new URLSearchParams({ page: String(page), limit: '20' });
     if (categoryFilter) params.set('categoryId', categoryFilter);
 
-    fetch(`/api/consent?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>(`/api/consent?${params}`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {

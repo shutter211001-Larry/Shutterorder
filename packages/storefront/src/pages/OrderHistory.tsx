@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -81,8 +82,7 @@ export default function OrderHistory() {
     setLookupError('');
     try {
       const num = lookupNumber.startsWith('#') ? lookupNumber : `#${lookupNumber}`;
-      const res = await fetch(`${API_BASE}/orders/lookup?email=${encodeURIComponent(lookupEmail)}&phone=${encodeURIComponent(lookupPhone)}&orderNumber=${encodeURIComponent(num)}`);
-      const data = await res.json();
+      const data = await api.get<any>(`${API_BASE}/orders/lookup?email=${encodeURIComponent(lookupEmail)}&phone=${encodeURIComponent(lookupPhone)}&orderNumber=${encodeURIComponent(num)}`);
       if (data.success && data.data) {
         // Add to local history
         addOrder({
@@ -122,15 +122,12 @@ export default function OrderHistory() {
     }
 
     setLoading(true);
-    fetch(`${API_BASE}/orders/my-orders?page=${page}&limit=10`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    api.get<any>(`${API_BASE}/orders/my-orders?page=${page}&limit=10`)
       .then((res) => {
         if (res.status === 401) {
           logout();
           throw new Error('UNAUTHORIZED_SILENT');
         }
-        if (!res.ok) throw new Error(`API_ERROR_${res.status}`);
         return res.json();
       })
       .then((data) => {

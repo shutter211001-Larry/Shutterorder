@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -44,13 +45,7 @@ export default function CouponList() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/coupons?page=${page}&limit=20`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load coupons');
-        return res.json();
-      })
+    api.get<any>(`/coupons?page=${page}&limit=20`)
       .then((data) => {
         setCoupons(data.data);
         setPagination(data.pagination);
@@ -61,12 +56,7 @@ export default function CouponList() {
 
   async function toggleActive(id: string, isActive: boolean) {
     try {
-      const res = await fetch(`/api/coupons/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ isActive }),
-      });
-      if (!res.ok) throw new Error('Failed to update');
+      const data = await api.patch<any>(`/coupons/${id}`, { isActive });
       setCoupons((prev) => prev.map((c) => (c.id === id ? { ...c, isActive } : c)));
     } catch (err: any) {
       setError(err.message);
@@ -76,12 +66,8 @@ export default function CouponList() {
   async function handleDelete(id: string, code: string) {
     if (!window.confirm(`您確定要刪除優惠券 ${code} 嗎？此操作將無法復原。`)) return;
     try {
-      const res = await fetch(`/api/coupons/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t('couponList.deleteFailed'));
+      const data = await api.delete<any>(`/coupons/${id}`);
+      if (!data.success) throw new Error(data.error || t('couponList.deleteFailed'));
       setCoupons((prev) => prev.filter((c) => c.id !== id));
     } catch (err: any) {
       alert(err.message);

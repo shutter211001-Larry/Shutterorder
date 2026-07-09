@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -29,7 +30,7 @@ export default function SettingsMail() {
   const [selectedLocationId, setSelectedLocationId] = useState('');
 
   useEffect(() => {
-    fetch('/api/locations', { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>('/api/locations')
       .then((r) => r.json())
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
@@ -42,7 +43,7 @@ export default function SettingsMail() {
   useEffect(() => {
     setLoading(true);
     const url = selectedLocationId ? `/api/settings/mail?locationId=${selectedLocationId}` : '/api/settings/mail';
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    api.get<any>(url)
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
@@ -68,23 +69,7 @@ export default function SettingsMail() {
     setSuccess('');
     try {
       const url = selectedLocationId ? `/api/settings/mail?locationId=${selectedLocationId}` : '/api/settings/mail';
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          smtpHost,
-          smtpPort,
-          smtpUser,
-          smtpPass,
-          senderName,
-          senderEmail,
-          encryption,
-          emailHeaderColor,
-          emailBgColor,
-          mailServiceType,
-        }),
-      });
-      const data = await res.json();
+      const data = await api.put<any>(url, {});
       if (data.success) {
         if (data.data?.smtpPass) setSmtpPass(data.data.smtpPass);
         setSuccess('設定已儲存 (系統已重新載入郵件設定)');
@@ -105,12 +90,7 @@ export default function SettingsMail() {
     setTestResult('');
     try {
       const url = selectedLocationId ? `/api/settings/mail/test?locationId=${selectedLocationId}` : '/api/settings/mail/test';
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ to: testEmail }),
-      });
-      const data = await res.json();
+      const data = await api.post<any>(url, {});
       setTestResult(data.success ? '測試信已發送！' : (data.error || '發送失敗'));
     } catch {
       setTestResult('網路連線錯誤');

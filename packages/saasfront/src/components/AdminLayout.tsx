@@ -1,3 +1,4 @@
+import { api } from '../lib/api';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -117,10 +118,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
     async function fetchData() {
       try {
-        const statsRes = await fetch('/api/dashboard/stats', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const statsData = await statsRes.json();
+        const statsData = await api.get<any>('/api/dashboard/stats');
         if (statsData.success && statsData.data) {
           setPendingCount(statsData.data.pendingOrders ?? 0);
         }

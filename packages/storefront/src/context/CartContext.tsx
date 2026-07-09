@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { API_BASE, API_URL } from '../lib/api.js';
+import { API_BASE, API_URL, api } from '../lib/api';
 
 export interface CartItemOption {
   optionId: string;
@@ -143,11 +143,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const syncCartToServer = async (newItems: CartItem[]) => {
     if (!groupSessionId) return;
     try {
-      await fetch(`${API_BASE}/group-orders/${groupSessionId}/cart`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cartItems: newItems })
-      });
+      await api.patch<any>(`/group-orders/${groupSessionId}/cart`, { cartItems: newItems });
     } catch (e) {
       console.error('Failed to sync group cart', e);
     }

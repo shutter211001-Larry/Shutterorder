@@ -77,7 +77,7 @@ export default function SettingsNotifications() {
     try {
       const [res, mailRes] = await Promise.all([
         api.get<{ success: boolean; data: any }>('/settings'),
-        fetch('/api/settings/mail', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json())
+        api.get<any>('/settings/mail')
       ]);
 
       if (res.success && res.data) {
@@ -111,15 +111,11 @@ export default function SettingsNotifications() {
           orderSettings: { emailNotifications },
           lineSettings: { notifications: lineNotifications }
         }),
-        fetch('/api/settings/mail', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({
-            emailBrandName,
-            emailHeaderColor,
-            emailBgColor
-          })
-        }).then(r => r.json())
+        api.put<any>('/settings/mail', {
+          emailBrandName,
+          emailHeaderColor,
+          emailBgColor
+        })
       ]);
       setSuccess('通知設定與郵件外觀已成功儲存');
       setTimeout(() => setSuccess(''), 3000);
