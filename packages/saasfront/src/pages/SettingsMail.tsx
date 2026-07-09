@@ -29,8 +29,8 @@ export default function SettingsMail() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      api.get<any>('/api/settings/mail'),
-      api.get<any>('/api/settings/google')
+      api.get<any>('/settings/mail'),
+      api.get<any>('/settings/google')
     ])
     .then(([mailRes, googleRes]) => {
       if (mailRes.success && mailRes.data) {
@@ -65,8 +65,8 @@ export default function SettingsMail() {
       };
 
       const [mailRes, googleRes] = await Promise.all([
-        api.put<any>('/api/settings/mail', mailPayload),
-        api.put<any>('/api/settings/google', googlePayload)
+        api.put<any>('/settings/mail', mailPayload),
+        api.put<any>('/settings/google', googlePayload)
       ]);
 
       if (mailRes.success && googleRes.success) {
@@ -87,7 +87,7 @@ export default function SettingsMail() {
     setTestSending(true);
     setTestResult('');
     try {
-      const data = await api.post<any>('/api/settings/mail/test', { to: testEmail });
+      const data = await api.post<any>('/settings/mail/test', { to: testEmail });
       setTestResult(data.success ? '測試信已發送！' : (data.error || '發送失敗'));
     } catch {
       setTestResult('網路連線錯誤');
