@@ -69,9 +69,9 @@ const updateSettingsSchema = z.object({
 });
 
 async function getOrCreateSettings() {
-  let settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+  let settings = await prisma.siteSettings.findFirst();
   if (!settings) {
-    settings = await prisma.siteSettings.create({ data: { id: 'default' } });
+    settings = await prisma.siteSettings.create({ data: { id: require('crypto').randomUUID() } });
   }
   return settings;
 }
@@ -198,8 +198,9 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
         },
       };
 
+      const existingSettings = await getOrCreateSettings();
       const updatedSettings = await prisma.siteSettings.update({
-        where: { id: 'default' },
+        where: { id: existingSettings.id },
         data: {
           advancedSettings: {
             ...advanced,
@@ -208,7 +209,7 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
         },
       });
 
-      auditLog(req, { action: 'update', entity: 'SiteSettings', entityId: 'default', details: { locationId, fields: ['lineSettings'] } });
+      auditLog(req, { action: 'update', entity: 'SiteSettings', entityId: existingSettings.id, details: { locationId, fields: ['lineSettings'] } });
       res.json({ success: true, data: toPublicSettings(updatedSettings) });
       return;
     }
@@ -236,11 +237,11 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
   const translatedData = await autoTranslateSiteSettings(dataToUpdate, existingSettings);
 
   const settings = await prisma.siteSettings.update({
-    where: { id: 'default' },
+    where: { id: existingSettings.id },
     data: translatedData,
   });
 
-  auditLog(req, { action: 'update', entity: 'SiteSettings', entityId: 'default', details: { fields: Object.keys(parsed.data) } });
+  auditLog(req, { action: 'update', entity: 'SiteSettings', entityId: existingSettings.id, details: { fields: Object.keys(parsed.data) } });
 
   res.json({ success: true, data: toPublicSettings(settings) });
 }
@@ -257,7 +258,7 @@ export async function uploadLogo(req: Request, res: Response): Promise<void> {
 
   const logoPath = await uploadImage(req.file, s3Settings);
   const updatedSettings = await prisma.siteSettings.update({
-    where: { id: 'default' },
+    where: { id: settings.id },
     data: { logo: logoPath },
   });
 
@@ -276,7 +277,7 @@ export async function uploadFavicon(req: Request, res: Response): Promise<void> 
 
   const faviconPath = await uploadImage(req.file, s3Settings);
   const updatedSettings = await prisma.siteSettings.update({
-    where: { id: 'default' },
+    where: { id: settings.id },
     data: { favicon: faviconPath },
   });
 
@@ -297,7 +298,7 @@ export async function uploadHeroBackground(req: Request, res: Response): Promise
   const imagePath = await uploadImage(req.file, s3Settings);
   
   const updated = await prisma.siteSettings.update({
-    where: { id: 'default' },
+    where: { id: settings.id },
     data: { 
       heroSection: { 
         ...heroSection, 
@@ -349,9 +350,9 @@ export async function getSettingsGroup(field: SettingsField): Promise<Record<str
 }
 
 export async function updateSettingsGroup(field: SettingsField, data: Record<string, any>): Promise<Record<string, any>> {
-  await getOrCreateSettings();
+  const settings = await getOrCreateSettings();
   const updated = await prisma.siteSettings.update({
-    where: { id: 'default' },
+    where: { id: settings.id },
     data: { [field]: data },
   });
   return (updated[field] as Record<string, any>) || {};
