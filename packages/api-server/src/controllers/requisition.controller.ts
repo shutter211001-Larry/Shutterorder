@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { prisma } from "../../lib/db.js";
-import { tenantStorage } from "../../lib/db.js"; // Ensure tenant isolation
+import prisma from "../lib/db.js";
+import { tenantStorage } from "../middleware/tenantStorage.js"; // Ensure tenant isolation
 
 export const getBranchInventory = async (req: any, res: any) => {
   try {
