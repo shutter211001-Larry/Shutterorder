@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS "RequisitionItem" (
 CREATE UNIQUE INDEX IF NOT EXISTS "LocationInventory_locationId_ingredientId_key" ON "LocationInventory"("locationId", "ingredientId");
 
 -- AddForeignKey
-DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'LocationInventory_tenantId_fkey') THEN ALTER TABLE "LocationInventory" ADD CONSTRAINT "LocationInventory_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'LocationInventory_tenantId_fkey') THEN ALTER TABLE "LocationInventory" ADD CONSTRAINT "LocationInventory_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
 
 -- AddForeignKey
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'LocationInventory_locationId_fkey') THEN ALTER TABLE "LocationInventory" ADD CONSTRAINT "LocationInventory_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
@@ -48,7 +48,7 @@ DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Location
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'LocationInventory_ingredientId_fkey') THEN ALTER TABLE "LocationInventory" ADD CONSTRAINT "LocationInventory_ingredientId_fkey" FOREIGN KEY ("ingredientId") REFERENCES "Ingredient"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
 
 -- AddForeignKey
-DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Requisition_tenantId_fkey') THEN ALTER TABLE "Requisition" ADD CONSTRAINT "Requisition_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Requisition_tenantId_fkey') THEN ALTER TABLE "Requisition" ADD CONSTRAINT "Requisition_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
 
 -- AddForeignKey
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Requisition_locationId_fkey') THEN ALTER TABLE "Requisition" ADD CONSTRAINT "Requisition_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
@@ -58,3 +58,4 @@ DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Requisit
 
 -- AddForeignKey
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'RequisitionItem_ingredientId_fkey') THEN ALTER TABLE "RequisitionItem" ADD CONSTRAINT "RequisitionItem_ingredientId_fkey" FOREIGN KEY ("ingredientId") REFERENCES "Ingredient"("id") ON DELETE CASCADE ON UPDATE CASCADE; END IF; END $$;
+
