@@ -3,6 +3,7 @@ import { api } from '../lib/api.js';
 import { toast } from 'react-hot-toast';
 import { Plus, Server, Edit, Trash2, Key, Globe, Check, X, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader } from '../components/layout/PageHeader';
 
 interface Tenant {
   id: string;
@@ -149,44 +150,45 @@ export default function TenantList() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-white flex items-center gap-3">
+      <PageHeader
+        title={
+          <div className="flex items-center gap-3">
             <Server className="w-6 h-6 text-indigo-400" />
             租戶管理
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">管理 SaaS 實例、網域與訂閱。</p>
-        </div>
-        <div className="flex gap-3 items-center">
-          {confirmReset ? (
-            <div className="flex items-center gap-2 bg-red-900/30 border border-red-500/50 px-3 py-1.5 rounded-lg">
-              <span className="text-sm text-red-400 font-medium mr-2">確定重設？</span>
-              <button onClick={handleResetDemo} className="p-1 hover:bg-red-500/20 text-red-400 rounded">
-                <Check className="w-4 h-4" />
+          </div>
+        }
+        subtitle="管理 SaaS 實例、網域與訂閱。"
+        action={
+          <div className="flex gap-3 items-center">
+            {confirmReset ? (
+              <div className="flex items-center gap-2 bg-red-900/30 border border-red-500/50 px-3 py-1.5 rounded-lg">
+                <span className="text-sm text-red-400 font-medium mr-2">確定重設？</span>
+                <button onClick={handleResetDemo} className="p-1 hover:bg-red-500/20 text-red-400 rounded">
+                  <Check className="w-4 h-4" />
+                </button>
+                <button onClick={() => setConfirmReset(false)} className="p-1 hover:bg-gray-700 text-gray-400 rounded">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmReset(true)}
+                className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-700"
+              >
+                重設示範資料
               </button>
-              <button onClick={() => setConfirmReset(false)} className="p-1 hover:bg-gray-700 text-gray-400 rounded">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
+            )}
+            
             <button
-              onClick={() => setConfirmReset(true)}
-              className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-gray-700"
+              onClick={() => navigate('/tenants/new')}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-900/20 flex items-center gap-2"
             >
-              重設示範資料
+              <Plus className="w-4 h-4" />
+              新增租戶
             </button>
-          )}
-          
-          <button
-            onClick={() => navigate('/tenants/new')}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-900/20 flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            新增租戶
-          </button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Top Summary Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
