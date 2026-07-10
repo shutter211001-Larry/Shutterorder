@@ -97,7 +97,19 @@ export const deleteTenant = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
 
-    // Hard delete utilizing Prisma cascade
+    // Manually delete blocking records to prevent Foreign Key Constraint errors 
+    // due to missing onDelete: Cascade on some cross-relations (like Order -> Location)
+    await (prisma as any).order.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).reservation.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).review.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).loyaltyTransaction.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).chatMessage.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).shift.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).attendanceCorrectionRequest.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).leaveRequest.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).staffAttendance.deleteMany({ where: { tenantId: id } });
+    
+    // Now delete the tenant itself (Prisma will cascade the rest like MenuItem, Location, User)
     await (prisma as any).tenant.delete({
       where: { id }
     });
@@ -118,9 +130,22 @@ const execAsync = util.promisify(exec);
 
 export const resetDemoTenant = async (req: Request, res: Response) => {
   try {
+    const id = 'demo-tenant-id';
+    
+    // Manually delete blocking records to prevent Foreign Key Constraint errors
+    await (prisma as any).order.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).reservation.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).review.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).loyaltyTransaction.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).chatMessage.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).shift.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).attendanceCorrectionRequest.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).leaveRequest.deleteMany({ where: { tenantId: id } });
+    await (prisma as any).staffAttendance.deleteMany({ where: { tenantId: id } });
+
     // Delete the demo tenant to cascade wipe everything
     await (prisma as any).tenant.deleteMany({
-      where: { id: 'demo-tenant-id' }
+      where: { id }
     });
 
     res.json({ success: true, message: 'Reset started' });
