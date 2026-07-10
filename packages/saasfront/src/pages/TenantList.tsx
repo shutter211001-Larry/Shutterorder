@@ -280,15 +280,6 @@ export default function TenantList() {
                           <div className="text-xs text-gray-400">
                             使用者: {t._count?.users || 0} <span className="mx-1 text-gray-600">|</span> 門市: {t._count?.locations || 0}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); toggleErpAccess(t); }}
-                              className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors focus:outline-none ${t.hasErpAccess ? 'bg-indigo-500' : 'bg-gray-700'}`}
-                            >
-                              <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${t.hasErpAccess ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
-                            </button>
-                            <span className="text-xs text-gray-500">ERP 模組</span>
-                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-500 text-xs">

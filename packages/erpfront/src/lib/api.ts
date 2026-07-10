@@ -1,0 +1,91 @@
+/// <reference types="vite/client" />
+let rawApiUrl = import.meta.env.VITE_API_URL_PUBLIC || import.meta.env.VITE_API_URL || 'http://localhost:3000';
+if (rawApiUrl && !rawApiUrl.startsWith('http')) {
+  rawApiUrl = `https://${rawApiUrl}`;
+}
+export const API_URL = rawApiUrl.replace(/\/$/, '').replace(/\/api$/, '');
+export const API_BASE = `${API_URL}/shutter-erp/api`;
+export const RESOURCE_BASE = API_URL;
+
+const getTenantId = () => {
+  const saved = localStorage.getItem('tenantId');
+  if (saved) return saved;
+  // Never infer from subdomain; let the backend resolve it via x-tenant-domain
+  return '';
+};
+
+async function request<T = any>(path: string, options?: RequestInit): Promise<T> {
+  const token = localStorage.getItem('token');
+  const tenantId = getTenantId();
+  const domain = window.location.hostname;
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
+    'x-tenant-domain': domain,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
+  const fullPath = path.startsWith('/') ? path : `/${path}`;
+  const res = await fetch(`${API_BASE}${fullPath}`, {
+    ...options,
+    headers: { ...headers, ...options?.headers },
+  });
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
+  
+  if (!res.ok) {
+    throw new Error(data.error || data.message || `API request failed: [Status ${res.status}] ${text.substring(0, 100)}`);
+  }
+  
+  return data;
+}
+
+function prepareBody(body: unknown) {
+  if (body === undefined || body === null) return undefined;
+  let parsed = body;
+  if (typeof body === 'string') {
+    try { parsed = JSON.parse(body); } catch { return body; } // If it's a plain string, just return it
+  }
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    parsed = { ...parsed, idempotencyKey: crypto.randomUUID() };
+  }
+  return JSON.stringify(parsed);
+}
+
+export const api = {
+  get: async <T = any>(path: string) => ({ data: await request<T>(path) }),
+  post: async <T = any>(path: string, body?: unknown) =>
+    ({ data: await request<T>(path, { method: 'POST', body: prepareBody(body) }) }),
+  patch: async <T = any>(path: string, body?: unknown) =>
+    ({ data: await request<T>(path, { method: 'PATCH', body: prepareBody(body) }) }),
+  put: async <T = any>(path: string, body?: unknown) =>
+    ({ data: await request<T>(path, { method: 'PUT', body: prepareBody(body) }) }),
+  delete: async <T = any>(path: string) =>
+    ({ data: await request<T>(path, { method: 'DELETE' }) }),
+  upload: async <T = any>(path: string, formData: FormData): Promise<T> => {
+    const token = localStorage.getItem('token');
+    const tenantId = getTenantId();
+    const domain = window.location.hostname;
+    const headers: Record<string, string> = {};
+    if (tenantId) headers['x-tenant-id'] = tenantId;
+    headers['x-tenant-domain'] = domain;
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    
+    if (!res.ok) {
+      throw new Error(data.error || data.message || 'Upload failed');
+    }
+    
+    return data;
+  },
+};
