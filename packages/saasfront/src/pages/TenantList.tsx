@@ -291,21 +291,69 @@ export default function TenantList() {
                               
                               if (t.domain && !isLocal) {
                                 const protocol = t.domain.includes('localhost') ? 'http' : 'https';
-                                let adminHost = `admin.${t.domain}`;
+                                let targetHost = `store.${t.domain}`;
                                 if (t.domain.endsWith('.shutterorder.pro')) {
                                   const subdomain = t.domain.replace('.shutterorder.pro', '');
-                                  adminHost = `${subdomain}.admin.shutterorder.pro`;
+                                  targetHost = `${subdomain}.store.shutterorder.pro`;
                                 }
-                                window.open(`${protocol}://${adminHost}`, '_blank');
+                                window.open(`${protocol}://${targetHost}`, '_blank');
+                              } else {
+                                const baseUrl = import.meta.env.VITE_STORE_URL_PUBLIC || 'http://localhost:3000';
+                                window.open(`${baseUrl}?set_tenant_id=${t.id}`, '_blank');
+                              }
+                            }}
+                            className="px-2 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-xs font-medium transition-colors border border-gray-700"
+                          >
+                            前台
+                          </button>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
+                              
+                              if (t.domain && !isLocal) {
+                                const protocol = t.domain.includes('localhost') ? 'http' : 'https';
+                                let targetHost = `admin.${t.domain}`;
+                                if (t.domain.endsWith('.shutterorder.pro')) {
+                                  const subdomain = t.domain.replace('.shutterorder.pro', '');
+                                  targetHost = `${subdomain}.admin.shutterorder.pro`;
+                                }
+                                window.open(`${protocol}://${targetHost}`, '_blank');
                               } else {
                                 const baseUrl = import.meta.env.VITE_ADMIN_URL_PUBLIC || 'http://localhost:5173';
                                 window.open(`${baseUrl}?set_tenant_id=${t.id}`, '_blank');
                               }
                             }}
-                            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-xs font-medium transition-colors border border-gray-700"
+                            className="px-2 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-xs font-medium transition-colors border border-gray-700"
                           >
-                            開啟後台
+                            後台
                           </button>
+
+                          {t.hasErpAccess && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
+                                
+                                if (t.domain && !isLocal) {
+                                  const protocol = t.domain.includes('localhost') ? 'http' : 'https';
+                                  let targetHost = `erp.${t.domain}`;
+                                  if (t.domain.endsWith('.shutterorder.pro')) {
+                                    const subdomain = t.domain.replace('.shutterorder.pro', '');
+                                    targetHost = `${subdomain}.erp.shutterorder.pro`;
+                                  }
+                                  window.open(`${protocol}://${targetHost}`, '_blank');
+                                } else {
+                                  const baseUrl = import.meta.env.VITE_ERP_URL_PUBLIC || 'http://localhost:3002';
+                                  window.open(`${baseUrl}?set_tenant_id=${t.id}`, '_blank');
+                                }
+                              }}
+                              className="px-2 py-1.5 bg-indigo-900/40 hover:bg-indigo-800 text-indigo-300 rounded-md text-xs font-medium transition-colors border border-indigo-700/50"
+                            >
+                              ERP
+                            </button>
+                          )}
                           <span className="text-xs text-indigo-400 ml-2">
                             {expandedTenantId === t.id ? '收合' : '設定'}
                           </span>
