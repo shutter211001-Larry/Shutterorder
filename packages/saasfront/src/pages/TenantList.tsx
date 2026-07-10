@@ -270,8 +270,13 @@ export default function TenantList() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
-                            const baseUrl = import.meta.env.VITE_ADMIN_URL_PUBLIC || 'http://localhost:5173';
-                            window.open(`${baseUrl}?set_tenant_id=${t.id}`, '_blank');
+                            if (t.domain) {
+                              const protocol = t.domain.includes('localhost') ? 'http' : 'https';
+                              window.open(`${protocol}://admin.${t.domain}`, '_blank');
+                            } else {
+                              const baseUrl = import.meta.env.VITE_ADMIN_URL_PUBLIC || 'http://localhost:5173';
+                              window.open(`${baseUrl}?set_tenant_id=${t.id}`, '_blank');
+                            }
                           }}
                           className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-xs font-medium transition-colors border border-gray-700"
                         >
