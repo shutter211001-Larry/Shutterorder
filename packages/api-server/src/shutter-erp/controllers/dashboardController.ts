@@ -1,8 +1,14 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
+import { tenantStorage } from '../../middleware/tenantStorage.js';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
+    const store = tenantStorage.getStore();
+    const tenantId = store?.tenantId;
+    if (!tenantId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
 
     const totalIngredients = await prisma.ingredient.count();
     const totalRecipes = await prisma.recipe.count();
@@ -12,7 +18,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     const lowStockIngredients = await prisma.$queryRaw<any[]>`
       SELECT id, name, category, unit, "currentStock", "safetyStock"
       FROM "Ingredient"
-      WHERE "safetyStock" IS NOT NULL AND "currentStock" <= "safetyStock"
+      WHERE "tenantId" = ${tenantId} AND "safetyStock" IS NOT NULL AND "currentStock" <= "safetyStock"
       ORDER BY name ASC
     `;
 

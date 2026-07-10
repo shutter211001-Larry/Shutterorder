@@ -24,7 +24,7 @@ export default function CookieBanner() {
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY)) return;
 
-    api.get<any>('/legal/cookie-categories')
+    api.get<any>('/legal-pages/cookie-categories')
       .then((res) => {
         if (res.success && res.data.length > 0) {
           setCategories(res.data);

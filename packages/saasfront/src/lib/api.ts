@@ -31,9 +31,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     headers: { ...headers, ...options?.headers },
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     const error = data.error || `Request failed: ${res.status}`;
     const errorMsg = typeof error === 'string' ? error : JSON.stringify(error);
     const err = new Error(errorMsg);

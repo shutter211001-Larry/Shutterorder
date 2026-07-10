@@ -1,4 +1,4 @@
-﻿import { api } from '../lib/api';
+import { api } from '../lib/api';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { API_BASE } from '../lib/api.js';
 import { getFullUrl } from '../utils/url.js';
@@ -191,7 +191,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const refreshSettings = async () => {
     try {
-      const json = await api.get<any>(`${API_BASE}/settings`);
+      const json = await api.get<any>('/settings');
       if (json.success && json.data) {
         const data = json.data;
         if (data.logo) data.logo = getFullUrl(data.logo);
@@ -211,7 +211,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    api.get<any>(`${API_BASE}/settings`)
+    api.get<any>('/settings')
       
       .then((json) => {
         if (json.success && json.data) {

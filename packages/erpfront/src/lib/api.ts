@@ -36,6 +36,10 @@ async function request<T = any>(path: string, options?: RequestInit): Promise<T>
   const data = text ? JSON.parse(text) : {};
   
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     throw new Error(data.error || data.message || `API request failed: [Status ${res.status}] ${text.substring(0, 100)}`);
   }
   
