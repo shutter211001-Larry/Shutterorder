@@ -58,6 +58,8 @@ model Tenant {
   insuranceProfiles            InsuranceProfile[]
   employmentRecords            EmploymentRecord[]
   leaveBalances                LeaveBalance[]
+  locationInventories          LocationInventory[]
+  requisitions                 Requisition[]
   attendanceAnomalies          AttendanceAnomaly[]
   employeeDocuments            EmployeeDocument[]
   Ingredient                   Ingredient[]
@@ -233,8 +235,12 @@ model Location {
   minOrderPickup                  Float                    @default(0)
   deliveryLeadTime                Int                      @default(30)
   pickupLeadTime                  Int                      @default(15)
-  createdAt                       DateTime                 @default(now()) @db.Timestamptz
-  updatedAt                       DateTime                 @updatedAt @db.Timestamptz
+  tenantId                        String?
+  tenant                          Tenant?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt                       DateTime            @default(now()) @db.Timestamptz
+  updatedAt                       DateTime            @updatedAt @db.Timestamptz
+  locationInventories             LocationInventory[]
+  requisitions                    Requisition[]
   isBusy                          Boolean                  @default(false)
   busyMessage                     String?
   owner                           String?                  @default("未指派")
@@ -268,9 +274,6 @@ model Location {
   weeklyShiftRequirements         WeeklyShiftRequirement[]
   shifts                          Shift[]
   payrollPeriods                  PayrollPeriod[]
-
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("locations")
 }
@@ -1107,6 +1110,50 @@ model StaffTimeOff {
   @@map("staff_time_off")
 }
 
+// --- BRANCH INVENTORY & REQUISITIONS ---
+
+model LocationInventory {
+  id           String     @id @default(cuid())
+  tenantId     String
+  locationId   String
+  ingredientId String
+  currentStock Float      @default(0)
+  safetyStock  Float      @default(0)
+
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location     Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  
+  @@unique([locationId, ingredientId])
+}
+
+model Requisition {
+  id           String   @id @default(cuid())
+  tenantId     String
+  locationId   String
+  status       String   // PENDING, APPROVED, SHIPPED, RECEIVED, REJECTED
+  totalCost    Float?
+  expectedDate DateTime? @db.Timestamptz
+  
+  createdAt    DateTime @default(now()) @db.Timestamptz
+  updatedAt    DateTime @updatedAt @db.Timestamptz
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  items        RequisitionItem[]
+}
+
+model RequisitionItem {
+  id            String   @id @default(cuid())
+  requisitionId String
+  ingredientId  String
+  quantity      Float
+  fulfilledQty  Float    @default(0)
+
+  requisition   Requisition @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+}
+
 enum DayType {
   WORKDAY
   REST_DAY
@@ -1386,6 +1433,8 @@ model Ingredient {
   unitConversions UnitConversion[]
   allergens       Allergen[]
   recipeOutputs   RecipeOutput[]
+  locationInventories LocationInventory[]
+  requisitionItems    RequisitionItem[]
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz

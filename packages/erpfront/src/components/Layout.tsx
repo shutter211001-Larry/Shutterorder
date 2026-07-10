@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   DollarSign,
+  Truck,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAuth } from "../context/AuthContext";
@@ -150,6 +151,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onClick={closeMobileMenu}
           />
           <SidebarItem
+            icon={Truck}
+            label="分店叫貨單"
+            path="/requisitions"
+            onClick={closeMobileMenu}
+          />
+          <SidebarItem
             icon={DollarSign}
             label="帳務管理"
             path="/expenses"
@@ -245,6 +252,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             path="/ingredients"
           />
           <SidebarItem icon={Archive} label={t("erp_189")} path="/inventory" />
+          <SidebarItem icon={Truck} label="分店叫貨單" path="/requisitions" />
           <SidebarItem icon={DollarSign} label="帳務管理" path="/expenses" />
           <SidebarItem icon={Utensils} label={t("erp_190")} path="/recipes" />
           <SidebarItem

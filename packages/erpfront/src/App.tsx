@@ -14,6 +14,7 @@ import Labels from "./pages/Labels";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
 import Integration from "./pages/Integration";
+import Requisitions from "./pages/Requisitions";
 import AcceptInvite from "./pages/AcceptInvite";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -59,6 +60,7 @@ function AppContent() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/suppliers" element={<Suppliers />} />
         <Route path="/integration" element={<Integration />} />
+        <Route path="/requisitions" element={<Requisitions />} />
         <Route
           path="/users"
           element={user.role === "ADMIN" ? <Users /> : <Dashboard />}

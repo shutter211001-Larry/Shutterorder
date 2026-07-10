@@ -79,6 +79,7 @@ const navItems: NavItem[] = [
       { path: '/menu/items', label: 'nav.menuItems', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/categories', label: 'nav.categories', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/stock', label: 'nav.stockOverview', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
+      { path: '/menu/requisitions', label: '門市叫貨單', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
       { path: '/menu/allergens', label: 'nav.allergens', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/dietary', label: 'nav.dietary', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/mealtimes', label: 'nav.mealtimes', roles: ['SUPER_ADMIN', 'MANAGER'] },

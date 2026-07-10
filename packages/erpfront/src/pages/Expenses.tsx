@@ -86,15 +86,10 @@ export default function Expenses() {
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
-      const res = await api.patch(`/expenses/${id}/status`, { status: newStatus });
-      
-      if (res.status === 200 || res.status === 204) {
-        toast.success(`狀態已更新為 ${newStatus === 'PAID' ? '已付款' : '未付款'}`);
-        fetchExpenses();
-        fetchAnalytics();
-      } else {
-        toast.error("更新失敗");
-      }
+      await api.patch(`/expenses/${id}/status`, { status: newStatus });
+      toast.success(`狀態已更新為 ${newStatus === 'PAID' ? '已付款' : '未付款'}`);
+      fetchExpenses();
+      fetchAnalytics();
     } catch (error) {
       toast.error("更新失敗");
     }
@@ -103,12 +98,10 @@ export default function Expenses() {
   const handleDeleteExpense = async (id: string) => {
     if (!await confirm("確定要刪除這筆帳款嗎？")) return;
     try {
-      const res = await api.delete(`/expenses/${id}`);
-      if (res.status === 204 || res.status === 200) {
-        toast.success("已成功刪除帳款");
-        fetchExpenses();
-        fetchAnalytics();
-      }
+      await api.delete(`/expenses/${id}`);
+      toast.success("已成功刪除帳款");
+      fetchExpenses();
+      fetchAnalytics();
     } catch (error) {
       toast.error("刪除失敗");
     }

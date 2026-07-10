@@ -30,7 +30,7 @@ export default function AcceptInvite() {
       return;
     }
 
-    axios
+    api
       .get(`/auth/invite/${tokenParam}`)
       .then((res) => {
         if (!res.data.success) throw new Error("Invalid invite");
@@ -38,9 +38,10 @@ export default function AcceptInvite() {
         setRole(res.data.data.role);
       })
       .catch((err) => {
-        setTokenError(err.response?.data?.error || err.message);
-      })
-      .finally(() => setValidating(false));
+        setTokenError(
+          err?.response?.data?.error || t("erp_invite_invalid", "邀請已失效或錯誤")
+        );
+      }).finally(() => setValidating(false));
   }, [tokenParam, t]);
 
   async function handleSubmit(e: FormEvent) {
