@@ -8,7 +8,7 @@ export async function seedUsers(prisma: PrismaClient) {
   // Create demo user
   const demoHashedPassword = await bcrypt.hash('admin123', 10);
   await prisma.user.upsert({
-    where: { email: 'demo@shutter.com' },
+    where: { id: 'demo-account-id' },
     update: {},
     create: {
       id: 'demo-account-id',
@@ -24,9 +24,10 @@ export async function seedUsers(prisma: PrismaClient) {
 
   // Create staff user
   await prisma.user.upsert({
-    where: { email: 'staff@shutter.com' },
+    where: { id: 'staff-account-id' },
     update: {},
     create: {
+      id: 'staff-account-id',
       email: 'staff@shutter.com',
       password: demoHashedPassword,
       name: '陳店員',
@@ -55,9 +56,10 @@ export async function seedUsers(prisma: PrismaClient) {
   // Create a customer
   const customerPassword = await bcrypt.hash('customer123', 10);
   await prisma.customer.upsert({
-    where: { email: 'customer@example.com' },
+    where: { id: 'demo-customer-id' },
     update: {},
     create: {
+      id: 'demo-customer-id',
       email: 'customer@example.com',
       password: customerPassword,
       name: '王大明',

@@ -13,6 +13,14 @@ export async function seedSystem(prisma: PrismaClient) {
       domain: 'demo.shutterorder.pro',
       hasErpAccess: true,
       isActive: true,
+      siteSettings: {
+        create: {
+          id: 'demo-tenant-settings',
+          siteName: '夏特示範餐廳',
+          siteTitle: '夏特示範餐廳 - 線上點餐',
+          colorPrimary: '#ea580c'
+        }
+      }
     }
   });
 
