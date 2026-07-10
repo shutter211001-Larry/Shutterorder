@@ -10,6 +10,7 @@ interface Tenant {
   domain: string | null;
   isActive: boolean;
   hasErpAccess: boolean;
+  subscriptionEndsAt: string | null;
   createdAt: string;
   _count?: {
     users: number;
@@ -64,6 +65,25 @@ export default function TenantList() {
     }
   };
 
+  const deleteTenant = async (tenant: Tenant) => {
+    const confirmName = window.prompt(`【危險操作】\n這將永久刪除「${tenant.name}」及其所有歷史訂單、菜單、顧客與員工資料！\n若您確定要刪除，請輸入完整的租戶名稱以確認：`);
+    
+    if (confirmName === null) return; // User cancelled
+    
+    if (confirmName !== tenant.name) {
+      return toast.error('輸入名稱不符，取消刪除');
+    }
+
+    const loadingToast = toast.loading('正在刪除租戶與關聯資料...');
+    try {
+      await api.delete(`/platform-admin/tenants/${tenant.id}`);
+      toast.success('租戶已徹底刪除', { id: loadingToast });
+      fetchTenants();
+    } catch (error: any) {
+      toast.error(error.message || '刪除失敗', { id: loadingToast });
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-gray-400 animate-pulse">載入租戶資料中...</div>;
   }
@@ -113,7 +133,7 @@ export default function TenantList() {
               <th className="px-6 py-4 font-semibold">租戶名稱</th>
               <th className="px-6 py-4 font-semibold">自訂網域</th>
               <th className="px-6 py-4 font-semibold">統計數據</th>
-              <th className="px-6 py-4 font-semibold">狀態</th>
+              <th className="px-6 py-4 font-semibold">狀態與到期日</th>
               <th className="px-6 py-4 font-semibold">ERP 模組</th>
               <th className="px-6 py-4 font-semibold">加入日期</th>
               <th className="px-6 py-4 font-semibold text-right">操作</th>
@@ -152,9 +172,31 @@ export default function TenantList() {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${t.isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                    {t.isActive ? '啟用中' : '已停權'}
-                  </span>
+                  <div className="space-y-2">
+                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${t.isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                      {t.isActive ? '啟用中' : '已停權'}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <button
+                        onClick={async () => {
+                          const newDate = window.prompt('請輸入新的到期日 (格式 YYYY-MM-DD)，留白表示無期限', t.subscriptionEndsAt ? new Date(t.subscriptionEndsAt).toISOString().split('T')[0] : '');
+                          if (newDate !== null) {
+                            try {
+                              await api.patch(`/platform-admin/tenants/${t.id}`, { subscriptionEndsAt: newDate || null });
+                              toast.success('到期日已更新');
+                              fetchTenants();
+                            } catch (e) {
+                              toast.error('日期格式錯誤或更新失敗');
+                            }
+                          }
+                        }}
+                        className="text-gray-400 hover:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        <Edit className="w-3 h-3" />
+                        {t.subscriptionEndsAt ? new Date(t.subscriptionEndsAt).toLocaleDateString() : '無期限'}
+                      </button>
+                    </div>
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <button 
@@ -188,6 +230,9 @@ export default function TenantList() {
                     </button>
                     <button onClick={() => toggleStatus(t)} className="text-gray-400 hover:text-white transition-colors" title="編輯狀態">
                       <Edit className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => deleteTenant(t)} className="text-gray-500 hover:text-red-500 transition-colors" title="刪除租戶 (危險)">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>

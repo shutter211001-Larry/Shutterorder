@@ -9,7 +9,8 @@ export default function TenantCreate() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    domain: '',
+    slug: '',
+    customDomain: '',
     adminEmail: '',
     adminName: '',
     adminPassword: ''
@@ -18,13 +19,25 @@ export default function TenantCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.adminEmail || !formData.adminPassword) {
+    if (!formData.name || !formData.slug || !formData.adminEmail || !formData.adminPassword) {
       return toast.error('請填寫所有必填欄位');
     }
 
+    const finalDomain = formData.customDomain.trim() 
+      ? formData.customDomain.trim().toLowerCase() 
+      : `${formData.slug.trim().toLowerCase()}.shutterorder.pro`;
+
+    const payload = {
+      name: formData.name,
+      domain: finalDomain,
+      adminEmail: formData.adminEmail,
+      adminName: formData.adminName,
+      adminPassword: formData.adminPassword
+    };
+
     setLoading(true);
     try {
-      await api.post('/platform-admin/tenants', formData);
+      await api.post('/platform-admin/tenants', payload);
       toast.success('成功建立新租戶');
       navigate('/tenants');
     } catch (error: any) {
@@ -67,17 +80,33 @@ export default function TenantCreate() {
                 placeholder="e.g. Yummy Steak"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">自訂網域 (選填)</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">系統專屬代號 (Slug) <span className="text-red-500">*</span></label>
+            <div className="flex bg-gray-800 border border-gray-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
               <input
                 type="text"
-                value={formData.domain}
-                onChange={e => setFormData({ ...formData, domain: e.target.value.toLowerCase() })}
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                placeholder="例如: yummy-steak.com"
+                required
+                value={formData.slug}
+                onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                className="w-full bg-transparent text-white px-4 py-2.5 outline-none"
+                placeholder="例如: yummy-steak"
               />
-              <p className="text-xs text-gray-500 mt-2">若不設定，將預設使用系統自動產生的 ID 網址。</p>
+              <span className="flex items-center px-4 bg-gray-700/50 text-gray-400 text-sm border-l border-gray-700 whitespace-nowrap">
+                .shutterorder.pro
+              </span>
             </div>
+          </div>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">自訂獨立網域 (Custom Domain) <span className="text-gray-500 font-normal ml-1">選填</span></label>
+            <input
+              type="text"
+              value={formData.customDomain}
+              onChange={e => setFormData({ ...formData, customDomain: e.target.value.toLowerCase() })}
+              className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+              placeholder="例如: yummysteak.com"
+            />
+            <p className="text-xs text-gray-500 mt-2">若填寫此欄位，系統將優先使用此獨立網域 (如: admin.yummysteak.com)。若不填寫，將使用上方代號產生預設網址。</p>
+          </div>
           </div>
         </div>
 

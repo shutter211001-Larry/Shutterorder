@@ -5,12 +5,12 @@ export async function seedSystem(prisma: PrismaClient) {
 
   // Demo Tenant
   const demoTenant = await prisma.tenant.upsert({
-    where: { domain: 'demo.shutter.com' },
+    where: { domain: 'demo.shutterorder.pro' },
     update: {},
     create: {
       id: 'demo-tenant-id',
       name: '夏特示範餐廳',
-      domain: 'demo.shutter.com',
+      domain: 'demo.shutterorder.pro',
       hasErpAccess: true,
       isActive: true,
     }

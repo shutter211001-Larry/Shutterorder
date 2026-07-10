@@ -10,13 +10,7 @@ export const RESOURCE_BASE = API_URL;
 const getTenantId = () => {
   const saved = localStorage.getItem('tenantId');
   if (saved) return saved;
-  const hostname = window.location.hostname;
-  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-    const parts = hostname.split('.');
-    if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'admin') {
-      return parts[0];
-    }
-  }
+  // Never infer from subdomain; let the backend resolve it via x-tenant-domain
   return '';
 };
 

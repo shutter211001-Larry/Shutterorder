@@ -73,7 +73,7 @@ export const createTenant = async (req: Request, res: Response) => {
 export const updateTenant = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
-    const { name, domain, isActive, hasErpAccess } = req.body;
+    const { name, domain, isActive, hasErpAccess, subscriptionEndsAt } = req.body;
 
     const tenant = await (prisma as any).tenant.update({
       where: { id },
@@ -81,7 +81,8 @@ export const updateTenant = async (req: Request, res: Response) => {
         name,
         domain,
         isActive,
-        hasErpAccess
+        hasErpAccess,
+        subscriptionEndsAt: subscriptionEndsAt ? new Date(subscriptionEndsAt) : null
       }
     });
 
@@ -89,6 +90,22 @@ export const updateTenant = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error({ err: error }, 'Failed to update tenant');
     res.status(500).json({ success: false, error: 'Failed to update tenant' });
+  }
+};
+
+export const deleteTenant = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+
+    // Hard delete utilizing Prisma cascade
+    await (prisma as any).tenant.delete({
+      where: { id }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to delete tenant');
+    res.status(500).json({ success: false, error: 'Failed to delete tenant' });
   }
 };
 

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { listTenants, createTenant, updateTenant, resetDemoTenant, getTenantIntegrations, updateTenantIntegrations } from '../controllers/platform-admin.controller.js';
+import { listTenants, createTenant, updateTenant, deleteTenant, resetDemoTenant, getTenantIntegrations, updateTenantIntegrations } from '../controllers/platform-admin.controller.js';
 import { authenticate, requireGlobalAdmin } from '../middleware/auth.js';
 import { tenantStorage } from '../middleware/tenantStorage.js';
 
@@ -18,6 +18,7 @@ router.get('/tenants', listTenants);
 router.post('/tenants/reset-demo', resetDemoTenant);
 router.post('/tenants', createTenant);
 router.patch('/tenants/:id', updateTenant);
+router.delete('/tenants/:id', deleteTenant);
 router.get('/tenants/:id/integrations', getTenantIntegrations);
 router.put('/tenants/:id/integrations', updateTenantIntegrations);
 
