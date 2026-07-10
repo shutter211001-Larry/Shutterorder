@@ -36,6 +36,9 @@ interface OrderDetail {
   scheduledAt: string | null;
   createdAt: string;
   customer: { id: string; name: string; email: string; phone: string | null } | null;
+  guestName?: string | null;
+  guestEmail?: string | null;
+  guestPhone?: string | null;
   location: { id: string; name: string };
   table?: { id: string; name: string } | null;
   items: OrderItem[];
@@ -492,6 +495,12 @@ export default function OrderDetailPage() {
                       {order.customer.phone && (
                         <span className="block text-xs text-gray-400">{order.customer.phone}</span>
                       )}
+                    </>
+                  ) : order.guestName || order.guestPhone ? (
+                    <>
+                      {order.guestName || <span className="text-gray-400">{t('common.guest') || t('orderDetail.guest')}</span>}
+                      {order.guestEmail && <span className="block text-xs text-gray-400">{order.guestEmail}</span>}
+                      {order.guestPhone && <span className="block text-xs text-gray-400">{order.guestPhone}</span>}
                     </>
                   ) : (
                     <span className="text-gray-400">{t('common.guest') || t('orderDetail.guest')}</span>
