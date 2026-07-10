@@ -1032,7 +1032,9 @@
     "startDelivery": "開始外送",
     "completePickup": "完成取餐",
     "confirmCancelOrder": "確定要取消此訂單嗎？",
-    "cancelOrder": "取消訂單"
+    "cancelOrder": "取消訂單",
+    "pickupTime": "Thời gian lấy hàng",
+    "deliveryTime": "Thời gian giao hàng"
   },
   "legalPageList": {
     "loadingEllipsis": "載入中...",

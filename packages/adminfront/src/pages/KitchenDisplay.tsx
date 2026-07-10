@@ -52,7 +52,7 @@ const getAudioContext = (): AudioContext | null => {
 };
 
 export default function KitchenDisplay() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
     const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; next: string | null }> = {
       PENDING: { label: t('kitchenDisplay.newOrder'), color: 'text-yellow-800', bg: 'bg-yellow-50 border-yellow-300', next: 'CONFIRMED' },
       CONFIRMED: { label: t('kitchenDisplay.confirmed'), color: 'text-blue-800', bg: 'bg-blue-50 border-blue-300', next: 'PREPARING' },
@@ -471,7 +471,7 @@ export default function KitchenDisplay() {
                               </span>
                             )}
                             <span className="ml-2 text-indigo-600 font-medium">
-                              {new Date(order.scheduledAt!).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(order.scheduledAt!).toLocaleString(i18n.language || [], { hour: '2-digit', minute: '2-digit', hour12: true })}
                             </span>
                             <span className="ml-2 text-gray-800 font-bold">
                               {order.customer?.name || order.guestName || t('common.guest')}
@@ -633,7 +633,7 @@ export default function KitchenDisplay() {
                               const isToday = d.getDate() === today.getDate() &&
                                               d.getMonth() === today.getMonth() &&
                                               d.getFullYear() === today.getFullYear();
-                              const timeStr = d.toLocaleString([], { hour: '2-digit', minute: '2-digit' });
+                              const timeStr = d.toLocaleString(i18n.language || [], { hour: '2-digit', minute: '2-digit', hour12: true });
                               if (isToday) return timeStr;
                               const dateStr = d.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
                               return `${dateStr} ${timeStr}`;
