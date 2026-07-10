@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api.js';
 import { toast } from 'react-hot-toast';
-import { Key, Save, Mail, CreditCard, MessageSquare, MapPin, Truck, FileText, ArrowLeft } from 'lucide-react';
+import { Key, Save, Mail, CreditCard, MessageSquare, MapPin, Truck, FileText, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 export default function TenantIntegrations() {
@@ -10,12 +10,15 @@ export default function TenantIntegrations() {
   const location = useLocation();
   const tenantName = (location.state as any)?.tenantName || '載入中...';
 
-  const [activeTab, setActiveTab] = useState<'line' | 'google' | 'mail' | 'invoice' | 'payment' | 'logistics'>('line');
+  const [activeTab, setActiveTab] = useState<'s3' | 'line' | 'google' | 'mail' | 'invoice' | 'payment' | 'logistics'>('line');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [originalKeys, setOriginalKeys] = useState<typeof keys | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [changedCategories, setChangedCategories] = useState<{ id: string; name: string; icon: any }[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+  const [notifyEmail, setNotifyEmail] = useState('');
 
   const [keys, setKeys] = useState({
     line: {
@@ -43,17 +46,39 @@ export default function TenantIntegrations() {
       ecpayMerchantId: '', ecpayHashKey: '', ecpayHashIv: '',
       tcatCustomerId: '', tcatApiKey: '',
       pelicanMerchantId: '', pelicanApiKey: ''
+    },
+    s3: {
+      endpoint: '', bucket: '', accessKey: '', secretKey: '', publicUrl: ''
     }
   });
 
   useEffect(() => {
-    fetchKeys();
+    if (id) {
+      fetchLocations();
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchKeys();
+  }, [id, selectedLocationId]);
+
+  const fetchLocations = async () => {
+    try {
+      const res = await api.get<{ data: any[] }>(`/platform-admin/tenants/${id}/locations`);
+      setLocations(res.data);
+    } catch (error) {
+      console.error('Failed to fetch locations');
+    }
+  };
 
   const fetchKeys = async () => {
     if (!id) return;
+    setLoading(true);
     try {
-      const res = await api.get<{ data: any }>(`/platform-admin/tenants/${id}/integrations`);
+      const url = selectedLocationId 
+        ? `/platform-admin/tenants/${id}/integrations?locationId=${selectedLocationId}`
+        : `/platform-admin/tenants/${id}/integrations`;
+      const res = await api.get<{ data: any }>(url);
       setKeys(res.data);
       setOriginalKeys(res.data);
     } catch (error) {
@@ -63,14 +88,25 @@ export default function TenantIntegrations() {
     }
   };
 
-  const tabs = [
-    { id: 'line', name: 'LINE 整合設定', icon: MessageSquare },
-    { id: 'google', name: 'Google API 設定', icon: MapPin },
-    { id: 'mail', name: '電子郵件發送', icon: Mail },
-    { id: 'invoice', name: '電子發票介接', icon: FileText },
-    { id: 'payment', name: '第三方金流', icon: CreditCard },
-    { id: 'logistics', name: '物流與店到店', icon: Truck },
+  const allTabs = [
+    { id: 's3', name: 'S3 圖床 (Cloudflare)', icon: ImageIcon, isGlobal: true },
+    { id: 'line', name: 'LINE 整合設定', icon: MessageSquare, isGlobal: false },
+    { id: 'google', name: 'Google API 設定', icon: MapPin, isGlobal: true },
+    { id: 'mail', name: '電子郵件發送', icon: Mail, isGlobal: false },
+    { id: 'invoice', name: '電子發票介接', icon: FileText, isGlobal: false },
+    { id: 'payment', name: '第三方金流', icon: CreditCard, isGlobal: false },
+    { id: 'logistics', name: '物流與店到店', icon: Truck, isGlobal: true },
   ] as const;
+
+  const tabs = selectedLocationId 
+    ? allTabs.filter(t => !t.isGlobal) 
+    : allTabs;
+
+  useEffect(() => {
+    if (selectedLocationId && !['line', 'mail', 'invoice', 'payment'].includes(activeTab)) {
+      setActiveTab('line');
+    }
+  }, [selectedLocationId, activeTab]);
 
   const handleSaveClick = () => {
     if (!originalKeys) return;
@@ -95,8 +131,11 @@ export default function TenantIntegrations() {
     setIsConfirmModalOpen(false);
     setSaving(true);
     try {
-      await api.put(`/platform-admin/tenants/${id}/integrations`, keys);
-      toast.success('已發送確認信，等待店家管理員同意套用！', { duration: 5000 });
+      const url = selectedLocationId 
+        ? `/platform-admin/tenants/${id}/integrations?locationId=${selectedLocationId}`
+        : `/platform-admin/tenants/${id}/integrations`;
+      await api.put(url, { ...keys, notifyEmail });
+      toast.success(notifyEmail ? '已發送確認信！' : '儲存成功！', { duration: 5000 });
       navigate('/tenants');
     } catch (error) {
       toast.error('儲存失敗');
@@ -135,11 +174,50 @@ export default function TenantIntegrations() {
           </h1>
           <p className="text-gray-400 text-sm mt-1">您正在修改該店家的第三方服務金鑰。隱藏的金鑰會顯示為 ********，若不修改請保持原樣。</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleSaveClick} disabled={saving} className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all shadow-lg shadow-orange-600/20 flex items-center gap-2">
-            <Save className="w-4 h-4" />
-            {saving ? '處理中...' : '儲存並發送確認信給店家'}
-          </button>
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex items-center gap-3 bg-gray-800 px-4 py-2 rounded-xl">
+            <span className="text-sm text-gray-400 font-medium whitespace-nowrap">分店切換</span>
+            <select
+              value={selectedLocationId}
+              onChange={(e) => setSelectedLocationId(e.target.value)}
+              className="bg-gray-900 border border-gray-700 text-sm text-white rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-orange-500/50"
+            >
+              <option value="">全域系統預設設定</option>
+              {locations.map(loc => (
+                <option key={loc.id} value={loc.id}>{loc.name} (分店獨立設定)</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
+              <input 
+                type="checkbox" 
+                id="notify" 
+                checked={!!notifyEmail}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setNotifyEmail('@gmail.com'); // Placeholder for them to type
+                  } else {
+                    setNotifyEmail('');
+                  }
+                }}
+                className="w-4 h-4 text-orange-500 rounded border-gray-600 focus:ring-orange-500 focus:ring-2 bg-gray-700" 
+              />
+              <label htmlFor="notify" className="text-sm text-gray-300">儲存並發送確認信給</label>
+              <input 
+                type="email" 
+                value={notifyEmail}
+                onChange={e => setNotifyEmail(e.target.value)}
+                disabled={notifyEmail === '' && !(document.getElementById('notify') as HTMLInputElement)?.checked}
+                className="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-xs text-white outline-none focus:border-orange-500 disabled:opacity-50 w-48"
+                placeholder="輸入 Email..."
+              />
+            </div>
+            <button onClick={handleSaveClick} disabled={saving} className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all shadow-lg shadow-orange-600/20 flex items-center gap-2">
+              <Save className="w-4 h-4" />
+              {saving ? '處理中...' : '儲存變更'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -165,6 +243,46 @@ export default function TenantIntegrations() {
         </div>
 
         <div className="flex-1 bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-xl">
+          {activeTab === 's3' && (
+            <div className="space-y-8 animate-fadeIn">
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-5 mb-6">
+                <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5" />
+                  圖床與靜態資源設定
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  支援相容 Amazon S3 API 的儲存服務（如 Cloudflare R2、AWS S3、MinIO 等），用來存放餐廳商標與菜單圖片。
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">S3 連線參數</h3>
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Endpoint URL</label>
+                    <input type="text" value={keys.s3.endpoint} onChange={e => handleChange('s3', 'endpoint', e.target.value)} placeholder="https://<account-id>.r2.cloudflarestorage.com" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Bucket Name</label>
+                    <input type="text" value={keys.s3.bucket} onChange={e => handleChange('s3', 'bucket', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Access Key ID</label>
+                    <input type="text" value={keys.s3.accessKey} onChange={e => handleChange('s3', 'accessKey', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Secret Access Key</label>
+                    <input type="password" value={keys.s3.secretKey} onChange={e => handleChange('s3', 'secretKey', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Public URL (公開存取網址)</label>
+                    <input type="text" value={keys.s3.publicUrl} onChange={e => handleChange('s3', 'publicUrl', e.target.value)} placeholder="https://pub-xxxxxx.r2.dev" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'line' && (
             <div className="space-y-8 animate-fadeIn">
               

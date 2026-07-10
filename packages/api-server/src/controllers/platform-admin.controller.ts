@@ -199,19 +199,61 @@ const parseJson = (val: any) => {
   return val || {};
 };
 
+export const getTenantLocations = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const locations = await (prisma as any).location.findMany({
+      where: { tenantId: id, isActive: true },
+      select: { id: true, name: true }
+    });
+    res.json({ success: true, data: locations });
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to get tenant locations');
+    res.status(500).json({ success: false, error: 'Failed to get tenant locations' });
+  }
+};
+
 export const getTenantIntegrations = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const settings = await (prisma as any).siteSettings.findFirst({
-      where: { tenantId: id }
-    });
+    const locationId = req.query.locationId as string;
 
-    const line = parseJson(settings?.lineSettings);
-    const google = parseJson(settings?.googleSettings);
-    const mail = parseJson(settings?.mailSettings);
-    const payment = parseJson(settings?.paymentSettings);
-    const invoice = parseJson(settings?.invoiceSettings);
-    const order = parseJson(settings?.orderSettings);
+    let line: any = {};
+    let google: any = {};
+    let mail: any = {};
+    let payment: any = {};
+    let invoice: any = {};
+    let order: any = {};
+    let s3: any = {};
+
+    if (locationId) {
+      const settings = await (prisma as any).siteSettings.findFirst({
+        where: { tenantId: id }
+      });
+      const advanced = parseJson(settings?.advancedSettings);
+      const overrides = advanced.locationOverrides || {};
+      const locationOverride = overrides[locationId] || {};
+      
+      line = parseJson(locationOverride.lineSettings);
+      google = parseJson(locationOverride.googleSettings);
+      mail = parseJson(locationOverride.mailSettings);
+      payment = parseJson(locationOverride.paymentSettings);
+      invoice = parseJson(locationOverride.invoiceSettings);
+      order = parseJson(locationOverride.orderSettings);
+      s3 = parseJson(locationOverride.s3Settings);
+    } else {
+      const settings = await (prisma as any).siteSettings.findFirst({
+        where: { tenantId: id }
+      });
+      line = parseJson(settings?.lineSettings);
+      google = parseJson(settings?.googleSettings);
+      mail = parseJson(settings?.mailSettings);
+      payment = parseJson(settings?.paymentSettings);
+      invoice = parseJson(settings?.invoiceSettings);
+      order = parseJson(settings?.orderSettings);
+      const advanced = parseJson(settings?.advancedSettings);
+      s3 = advanced.s3Settings || {};
+    }
 
     const data = {
       line: {
@@ -264,6 +306,13 @@ export const getTenantIntegrations = async (req: Request, res: Response) => {
         tcatApiKey: maskSecret(order.tcatApiKey),
         pelicanMerchantId: order.pelicanMerchantId || '',
         pelicanApiKey: maskSecret(order.pelicanApiKey),
+      },
+      s3: {
+        endpoint: s3.endpoint || '',
+        bucket: s3.bucket || '',
+        accessKey: s3.accessKey || '',
+        secretKey: maskSecret(s3.secretKey),
+        publicUrl: s3.publicUrl || '',
       }
     };
 
@@ -277,30 +326,8 @@ export const getTenantIntegrations = async (req: Request, res: Response) => {
 export const updateTenantIntegrations = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { line, google, mail, payment, invoice, logistics } = req.body;
-
-    let currentSettings = await (prisma as any).siteSettings.findFirst({
-      where: { tenantId: id }
-    });
-
-    if (!currentSettings) {
-      currentSettings = await (prisma as any).siteSettings.create({
-        data: {
-          id: require('crypto').randomUUID(),
-          tenantId: id,
-          siteName: 'Shutter',
-          siteTitle: 'Shutter - Order Online',
-          colorPrimary: '#ea580c'
-        }
-      });
-    }
-
-    const currentLine = parseJson(currentSettings.lineSettings);
-    const currentGoogle = parseJson(currentSettings.googleSettings);
-    const currentMail = parseJson(currentSettings.mailSettings);
-    const currentPayment = parseJson(currentSettings.paymentSettings);
-    const currentInvoice = parseJson(currentSettings.invoiceSettings);
-    const currentOrder = parseJson(currentSettings.orderSettings);
+    const locationId = req.query.locationId as string;
+    const { line, google, mail, payment, invoice, logistics, s3, notifyEmail } = req.body;
 
     const applyUpdate = (current: any, update: any, keys: string[]) => {
       const result = { ...current };
@@ -314,124 +341,170 @@ export const updateTenantIntegrations = async (req: Request, res: Response) => {
       return result;
     };
 
-    const newLine = applyUpdate(currentLine, line, [
-      'liffId', 'channelAccessToken', 'channelSecret', 
-      'lineLoginChannelId', 'lineLoginChannelSecret', 
-      'linePayChannelId', 'linePayChannelSecret',
-      'linePayApiUrl', 'linePayProxyUrl', 'linePayReturnUrl'
-    ]);
-
-    const newGoogle = applyUpdate(currentGoogle, google, [
-      'googleLoginClientId', 'googleLoginClientSecret',
-      'gmailClientId', 'gmailClientSecret', 'gmailRefreshToken', 
-      'googleMapsApiKey', 'geminiApiKey'
-    ]);
-
-    const newMail = applyUpdate(currentMail, mail, [
-      'smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'senderEmail', 'senderName', 'mailServiceType'
-    ]);
-
-    const newPayment = applyUpdate(currentPayment, payment, [
-      'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
-      'paypalClientId', 'paypalClientSecret'
-    ]);
-
-    const newInvoice = applyUpdate(currentInvoice, invoice, [
-      'merchantId', 'hashKey', 'hashIv'
-    ]);
-
-    const newOrder = applyUpdate(currentOrder, logistics, [
-      'ecpayMerchantId', 'ecpayHashKey', 'ecpayHashIv',
-      'tcatCustomerId', 'tcatApiKey',
-      'pelicanMerchantId', 'pelicanApiKey'
-    ]);
-
-    const pendingPayload = {
-      lineSettings: newLine,
-      googleSettings: newGoogle,
-      mailSettings: newMail,
-      paymentSettings: newPayment,
-      invoiceSettings: newInvoice,
-      orderSettings: newOrder
-    };
-
-    const token = require('crypto').randomBytes(32).toString('hex');
-
-    await (prisma as any).siteSettings.update({
-      where: { id: currentSettings.id },
-      data: {
-        pendingIntegrations: pendingPayload,
-        pendingIntegrationsToken: token
+    if (locationId) {
+      const currentSettings = await (prisma as any).siteSettings.findFirst({
+        where: { tenantId: id }
+      });
+      if (!currentSettings) {
+        return res.status(404).json({ success: false, error: 'Tenant settings not found' });
       }
-    });
 
-    res.json({ success: true, message: '已發送確認信給該店超級管理員' });
+      const currentAdvanced = parseJson(currentSettings.advancedSettings);
+      const overrides = { ...(currentAdvanced.locationOverrides || {}) };
+      const locationOverride = overrides[locationId] || {};
 
-    // Send email notification to tenant's SUPER_ADMIN asynchronously
-    (async () => {
-      try {
-        const tenant = await (prisma as any).tenant.findUnique({ where: { id } });
-        const tenantAdmins = await (prisma as any).user.findMany({
-          where: { tenantId: id, role: 'SUPER_ADMIN', email: { not: null } }
-        });
+      const currentLine = parseJson(locationOverride.lineSettings);
+      const currentMail = parseJson(locationOverride.mailSettings);
+      const currentInvoice = parseJson(locationOverride.invoiceSettings);
+      const currentPayment = parseJson(locationOverride.paymentSettings);
 
-        if (tenantAdmins.length > 0 && tenant) {
-          const { tenantStorage } = await import('../middleware/tenantStorage.js');
-          const { sendEmail } = await import('../lib/email.js');
-          
-          const isProd = process.env.NODE_ENV === 'production';
-          const protocol = isProd ? 'https' : 'http';
-          const hostname = tenant.domain || `${tenant.id}.localhost`;
-          const port = isProd ? '' : ':5173';
-          const approvalLink = `${protocol}://${hostname}${port}/approve-integrations?token=${token}`;
-          
-          // Fetch global settings for custom template
-          const globalSettings = await (prisma as any).siteSettings.findUnique({
-            where: { id: 'default' }
-          });
-          const mailSettings = typeof globalSettings?.mailSettings === 'string'
-            ? JSON.parse(globalSettings.mailSettings)
-            : (globalSettings?.mailSettings || {});
-            
-          const template = mailSettings.integrationUpdateEmailTemplate;
-          
-          tenantStorage.run({ tenantId: null }, () => {
-            for (const admin of tenantAdmins) {
-              const defaultSubject = 'SaaS 平台系統通知：整合金鑰設定審核';
-              const defaultHtml = `<div style="font-family: sans-serif; padding: 20px;">
-                        <h2>整合金鑰更新確認</h2>
-                        <p>親愛的 ${admin.name}，您好：</p>
-                        <p>系統管理員為您的餐廳配置了新的第三方整合金鑰。</p>
-                        <p>請點擊下方按鈕進行確認並套用設定：</p>
-                        <a href="${approvalLink}" style="display: inline-block; padding: 12px 24px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">確認並套用設定</a>
-                        <p style="color: #666; font-size: 14px;">如果您沒有提出此要求，請忽略此信件。</p>
-                        <p>祝您生意興隆！<br/>夏特點餐系統 團隊</p>
-                       </div>`;
-                       
-              let subject = defaultSubject;
-              let htmlBody = defaultHtml;
-              
-              if (template && template.subject && template.body) {
-                subject = template.subject;
-                let rawBody = template.body
-                  .replace(/\{adminName\}/g, admin.name || '')
-                  .replace(/\{approvalLink\}/g, approvalLink);
-                htmlBody = rawBody.replace(/\n/g, '<br/>');
-              }
-              
-              sendEmail({
-                to: admin.email,
-                subject,
-                html: htmlBody
-              });
-            }
-          });
+      const newLine = applyUpdate(currentLine, line, [
+        'liffId', 'channelAccessToken', 'channelSecret', 
+        'lineLoginChannelId', 'lineLoginChannelSecret', 
+        'linePayChannelId', 'linePayChannelSecret', 'linePayEnabled', 'linePaySandbox',
+        'linePayApiUrl', 'linePayProxyUrl', 'linePayReturnUrl'
+      ]);
+
+      const newMail = applyUpdate(currentMail, mail, [
+        'smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'senderEmail', 'senderName', 'mailServiceType'
+      ]);
+
+      const newInvoice = applyUpdate(currentInvoice, invoice, [
+        'merchantId', 'hashKey', 'hashIv'
+      ]);
+
+      const newPayment = applyUpdate(currentPayment, payment, [
+        'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
+        'paypalClientId', 'paypalClientSecret'
+      ]);
+
+      overrides[locationId] = {
+        ...locationOverride,
+        lineSettings: newLine,
+        mailSettings: newMail,
+        invoiceSettings: newInvoice,
+        paymentSettings: newPayment
+      };
+
+      await (prisma as any).siteSettings.update({
+        where: { id: currentSettings.id },
+        data: {
+          advancedSettings: JSON.stringify({
+            ...currentAdvanced,
+            locationOverrides: overrides
+          })
         }
-      } catch (err) {
-        logger.error({ err }, 'Failed to send integration update email');
-      }
-    })();
+      });
+    } else {
+      let currentSettings = await (prisma as any).siteSettings.findFirst({
+        where: { tenantId: id }
+      });
 
+      if (!currentSettings) {
+        currentSettings = await (prisma as any).siteSettings.create({
+          data: {
+            id: require('crypto').randomUUID(),
+            tenantId: id,
+            siteName: 'Shutter',
+            siteTitle: 'Shutter - Order Online',
+            colorPrimary: '#ea580c'
+          }
+        });
+      }
+
+      const currentLine = parseJson(currentSettings.lineSettings);
+      const currentGoogle = parseJson(currentSettings.googleSettings);
+      const currentMail = parseJson(currentSettings.mailSettings);
+      const currentPayment = parseJson(currentSettings.paymentSettings);
+      const currentInvoice = parseJson(currentSettings.invoiceSettings);
+      const currentOrder = parseJson(currentSettings.orderSettings);
+      const currentAdvanced = parseJson(currentSettings.advancedSettings);
+
+      const newLine = applyUpdate(currentLine, line, [
+        'liffId', 'channelAccessToken', 'channelSecret', 
+        'lineLoginChannelId', 'lineLoginChannelSecret', 
+        'linePayChannelId', 'linePayChannelSecret', 'linePayEnabled', 'linePaySandbox',
+        'linePayApiUrl', 'linePayProxyUrl', 'linePayReturnUrl'
+      ]);
+
+      const newGoogle = applyUpdate(currentGoogle, google, [
+        'googleLoginClientId', 'googleLoginClientSecret',
+        'gmailClientId', 'gmailClientSecret', 'gmailRefreshToken', 
+        'googleMapsApiKey', 'geminiApiKey'
+      ]);
+
+      const newMail = applyUpdate(currentMail, mail, [
+        'smtpHost', 'smtpPort', 'smtpUser', 'smtpPass', 'senderEmail', 'senderName', 'mailServiceType'
+      ]);
+
+      const newPayment = applyUpdate(currentPayment, payment, [
+        'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
+        'paypalClientId', 'paypalClientSecret'
+      ]);
+
+      const newInvoice = applyUpdate(currentInvoice, invoice, [
+        'merchantId', 'hashKey', 'hashIv'
+      ]);
+
+      const newOrder = applyUpdate(currentOrder, logistics, [
+        'ecpayMerchantId', 'ecpayHashKey', 'ecpayHashIv',
+        'tcatCustomerId', 'tcatApiKey',
+        'pelicanMerchantId', 'pelicanApiKey'
+      ]);
+
+      const newS3 = applyUpdate(currentAdvanced.s3Settings || {}, s3, [
+        'endpoint', 'bucket', 'accessKey', 'secretKey', 'publicUrl'
+      ]);
+
+      const payload = {
+        lineSettings: JSON.stringify(newLine),
+        googleSettings: JSON.stringify(newGoogle),
+        mailSettings: JSON.stringify(newMail),
+        paymentSettings: JSON.stringify(newPayment),
+        invoiceSettings: JSON.stringify(newInvoice),
+        orderSettings: JSON.stringify(newOrder),
+        advancedSettings: JSON.stringify({
+          ...currentAdvanced,
+          s3Settings: newS3
+        })
+      };
+
+      await (prisma as any).siteSettings.update({
+        where: { id: currentSettings.id },
+        data: payload
+      });
+    }
+
+    if (notifyEmail) {
+      // Send email notification dynamically to the provided email
+      (async () => {
+        try {
+          const tenant = await (prisma as any).tenant.findUnique({ where: { id } });
+          if (tenant) {
+            const { tenantStorage } = await import('../middleware/tenantStorage.js');
+            const { sendEmail } = await import('../lib/email.js');
+            
+            tenantStorage.run({ tenantId: null }, () => {
+              sendEmail({
+                to: notifyEmail,
+                subject: 'SaaS 平台系統通知：整合金鑰設定已更新',
+                html: `<div style="font-family: sans-serif; padding: 20px;">
+                          <h2>第三方服務整合金鑰已更新</h2>
+                          <p>您好：</p>
+                          <p>系統管理員已為您的餐廳（${tenant.name}）配置了新的第三方整合金鑰或服務串接。</p>
+                          <p>若有任何疑問，請聯繫 SaaS 平台客服中心。</p>
+                          <p>祝您生意興隆！<br/>夏特點餐系統 團隊</p>
+                         </div>`
+              });
+            });
+          }
+        } catch (err) {
+          logger.error({ err }, 'Failed to send integration update email to ' + notifyEmail);
+        }
+      })();
+    }
+
+    res.json({ success: true, message: notifyEmail ? '設定已儲存並發送通知' : '設定已儲存' });
   } catch (error) {
     logger.error({ err: error }, 'Failed to update tenant integrations');
     res.status(500).json({ success: false, error: 'Failed to update tenant integrations' });
