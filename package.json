@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "pg": "^8.21.0"
+    "pg": "^8.22.0"
   },
   "overrides": {
     "react": "^18.3.1",
