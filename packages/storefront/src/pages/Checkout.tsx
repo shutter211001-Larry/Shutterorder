@@ -258,7 +258,8 @@ export default function Checkout() {
   // Fetch available slots when location or order type changes
   useEffect(() => {
     if (locationId && orderSettings?.enableFutureOrdering) {
-      fetch(`${API_BASE}/locations/${locationId}/available-slots?orderType=${orderType}`)
+      const cartPrepTime = items.reduce((acc, item) => acc + ((item.menuItem?.prepTime || item.prepTime || 0) * item.quantity), 0);
+      fetch(`${API_BASE}/locations/${locationId}/available-slots?orderType=${orderType}&cartPrepTime=${cartPrepTime}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -267,7 +268,7 @@ export default function Checkout() {
         })
         .catch(() => {});
     }
-  }, [locationId, orderType, orderSettings?.enableFutureOrdering]);
+  }, [locationId, orderType, orderSettings?.enableFutureOrdering, items]);
 
   // Intersection Observer for the checkout button
   useEffect(() => {
