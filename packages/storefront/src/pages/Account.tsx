@@ -69,15 +69,7 @@ export default function Account() {
   const handleUpdateProfile = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(editForm),
-      });
-      const data = await res.json();
+      const data = await api.patch<any>('/auth/me', editForm);
       if (data.success) {
         updateUser(data.data);
         setIsEditing(false);
@@ -166,19 +158,13 @@ export default function Account() {
       // If we got the profile, it means we've successfully re-authenticated.
       setIsSocialVerified(true);
 
-      const res = await fetch(`${API_BASE}/line/bind`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ lineUserId: profile.userId, lineDisplayName: profile.displayName }),
+      const data = await api.post<any>('/line/bind', {
+        lineUserId: profile.userId, 
+        lineDisplayName: profile.displayName 
       });
 
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        toast.error(t('account.lineLinkSuccess'));
+      if (data.success) {
+        toast.success(t('account.lineLinkSuccess'));
         window.location.reload();
       } else {
         const errorMsg = data.error || '';
@@ -203,15 +189,7 @@ export default function Account() {
     setIsSettingPassword(true);
     try {
       // 1. Set password
-      const pRes = await fetch(`${API_BASE}/auth/set-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ password: newPassword }),
-      });
-      const pData = await pRes.json();
+      const pData = await api.post<any>('/auth/set-password', { password: newPassword });
       if (!pData.success) {
         toast.error(pData.error || t('account.passwordSetupFailed'));
         setIsSettingPassword(false);
@@ -229,21 +207,13 @@ export default function Account() {
     if (!showMergePrompt || (!mergePassword && !isSocialVerified)) return;
     setIsMerging(true);
     try {
-      const res = await fetch(`${API_BASE}/auth/social/merge`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          provider: showMergePrompt.provider,
-          socialId: showMergePrompt.id,
-          password: mergePassword
-        }),
+      const data = await api.post<any>('/auth/social/merge', {
+        provider: showMergePrompt.provider,
+        socialId: showMergePrompt.id,
+        password: mergePassword
       });
-      const data = await res.json();
       if (data.success) {
-        toast.error(data.message || t('account.accountIntegrationSuccess'));
+        toast.success(data.message || t('account.accountIntegrationSuccess'));
         window.location.reload();
       } else {
         toast.error(data.error || t('account.integrationFailed'));
@@ -551,13 +521,8 @@ export default function Account() {
               onClick={async () => {
                 const newValue = !editForm.emailNotificationsEnabled;
                 setEditForm(prev => ({ ...prev, emailNotificationsEnabled: newValue }));
-                // Auto-save for these toggles
                 try {
-                  await fetch(`${API_BASE}/auth/me`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ emailNotificationsEnabled: newValue }),
-                  });
+                  await api.patch('/auth/me', { emailNotificationsEnabled: newValue });
                 } catch (e) {}
               }}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${editForm.emailNotificationsEnabled ? 'bg-primary-600' : 'bg-gray-300'}`}
@@ -579,11 +544,7 @@ export default function Account() {
                 const newValue = !editForm.lineNotificationsEnabled;
                 setEditForm(prev => ({ ...prev, lineNotificationsEnabled: newValue }));
                 try {
-                  await fetch(`${API_BASE}/auth/me`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ lineNotificationsEnabled: newValue }),
-                  });
+                  await api.patch('/auth/me', { lineNotificationsEnabled: newValue });
                 } catch (e) {}
               }}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${!user.lineUserId ? 'opacity-50 cursor-not-allowed' : ''} ${editForm.lineNotificationsEnabled && user.lineUserId ? 'bg-[#06C755]' : 'bg-gray-300'}`}
@@ -894,13 +855,9 @@ export default function Account() {
                     if (!await confirm(t('footer.deleteAccountFinalCheck'))) return;
 
                     try {
-                      const res = await fetch(`${API_BASE}/auth/me`, {
-                        method: 'DELETE',
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      const data = await res.json();
+                      const data = await api.delete<any>('/auth/me');
                       if (data.success) {
-                        toast.error(t('account.accountDeletedSuccessfully'));
+                        toast.success(t('account.accountDeletedSuccessfully'));
                         logout();
                       } else {
                         toast.error(data.error || t('account.deleteFailed'));

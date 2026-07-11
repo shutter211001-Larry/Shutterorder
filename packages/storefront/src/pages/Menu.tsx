@@ -131,9 +131,6 @@ export default function Menu() {const { t, i18n } = useTranslation();
     setItemsLoading(true);
     setItemsError(null);
     api.get<any>(itemsUrl)
-      .then((res) => {
-        return res.json();
-      })
       .then((json) => {
         const data = json.data.map((item: MenuItem & { imageVariants?: any }) => {
           let mappedVariants = item.imageVariants;

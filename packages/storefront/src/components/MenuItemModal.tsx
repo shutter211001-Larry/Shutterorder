@@ -85,9 +85,6 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
   useEffect(() => {
     setLoading(true);
     api.get<any>(`${API_BASE}/menu/items/${itemId}`)
-      .then((res) => {
-        return res.json();
-      })
       .then((json) => {
         const data = json.data;
         if (data.image) data.image = getFullUrl(data.image);

@@ -123,13 +123,6 @@ export default function OrderHistory() {
 
     setLoading(true);
     api.get<any>(`${API_BASE}/orders/my-orders?page=${page}&limit=10`)
-      .then((res) => {
-        if (res.status === 401) {
-          logout();
-          throw new Error('UNAUTHORIZED_SILENT');
-        }
-        return res.json();
-      })
       .then((data) => {
         setOrders(data.data);
         setPagination(data.pagination);

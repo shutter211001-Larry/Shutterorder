@@ -168,12 +168,7 @@ export default function Checkout() {
           body.address = address;
         }
 
-        const res = await fetch(`${API_BASE}/orders/summary`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        const data = await res.json();
+        const data = await api.post<any>('/orders/summary', body);
         if (data.success) {
           setSummary(data.data);
         }
@@ -236,8 +231,7 @@ export default function Checkout() {
 
   // Check busy mode on mount
   useEffect(() => {
-    fetch(`${API_BASE}/locations`)
-      .then(res => res.json())
+    api.get<any>('/locations')
       .then((data) => {
         const loc = data.data?.[0];
         if (loc) {
@@ -259,8 +253,7 @@ export default function Checkout() {
   useEffect(() => {
     if (locationId && orderSettings?.enableFutureOrdering) {
       const cartPrepTime = items.reduce((sum, item) => sum + (item.prepTime || 0) * item.quantity, 0);
-      fetch(`${API_BASE}/locations/${locationId}/available-slots?orderType=${orderType}&cartPrepTime=${cartPrepTime}`)
-        .then(res => res.json())
+      api.get<any>(`/locations/${locationId}/available-slots?orderType=${orderType}&cartPrepTime=${cartPrepTime}`)
         .then((data) => {
           if (data.success) {
             setSlotsByDay(data.data);
@@ -310,10 +303,7 @@ export default function Checkout() {
   // Fetch loyalty balance for logged-in users
   useEffect(() => {
     if (token) {
-      fetch(`${API_BASE}/loyalty/balance`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then(res => res.json())
+      api.get<any>('/loyalty/balance')
         .then((data) => {
           if (data.success) setLoyaltyBalance(data.data.points);
         })
@@ -452,19 +442,7 @@ export default function Checkout() {
         body.loyaltyPointsRedeem = loyaltyRedeem;
       }
 
-      const headers: Record<string, string> = { 
-        'Content-Type': 'application/json',
-        'Accept-Language': i18n.language || 'zh-TW',
-      };
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const res = await fetch(`${API_BASE}/orders`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to place order');
+      const data = await api.post<any>('/orders', body);
 
       // Sync address and phone to user profile if updated
       if (token && user) {
@@ -473,16 +451,9 @@ export default function Checkout() {
         
         if (isPhoneUpdated || isAddressUpdated) {
           try {
-            await fetch(`${API_BASE}/auth/me`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                ...(isPhoneUpdated ? { phone: guestPhone } : {}),
-                ...(isAddressUpdated ? { address: address.line1 } : {})
-              })
+            await api.patch('/auth/me', {
+              ...(isPhoneUpdated ? { phone: guestPhone } : {}),
+              ...(isAddressUpdated ? { address: address.line1 } : {})
             });
           } catch (profileErr) {
             console.error('Failed to sync profile updates:', profileErr);
@@ -501,12 +472,7 @@ export default function Checkout() {
       };
 
       if (paymentMethod === 'linepay') {
-        const lineRes = await fetch(`${API_BASE}/payments/linepay/create`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ orderId: data.data.id })
-        });
-        const lineData = await lineRes.json();
+        const lineData = await api.post<any>('/payments/linepay/create', { orderId: data.data.id });
         if (lineData.success && lineData.data.paymentUrl) {
           redirecting = true;
           clear();
