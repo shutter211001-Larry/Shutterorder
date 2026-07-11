@@ -364,6 +364,8 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
 
     // Now filter available slots for the CURRENT cart
     const filteredSlots: string[] = [];
+    const maxLookbackSlots = Math.max(1, Math.ceil(cartPrepTime / interval));
+
     for (let i = 0; i < allRawSlots.length; i++) {
       const slot = allRawSlots[i];
       let needed = cartPrepTime;
@@ -371,8 +373,9 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
       
       // Check if we can fit `needed` by looking backwards from `i`
       let j = i;
+      let slotsChecked = 0;
       while (needed > 0) {
-        if (j < 0) {
+        if (j < 0 || slotsChecked >= maxLookbackSlots) {
           possible = false;
           break; // Hit the beginning of available slots before fulfilling needed
         }
@@ -392,6 +395,7 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
         const avail = capacities.get(checkSlot) || 0;
         needed -= avail;
         j--;
+        slotsChecked++;
       }
 
       if (possible) {
