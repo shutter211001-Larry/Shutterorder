@@ -365,6 +365,8 @@ export async function getAvailableSlots(req: Request, res: Response): Promise<vo
     // Now filter available slots for the CURRENT cart
     const filteredSlots: string[] = [];
     const maxLookbackSlots = Math.max(1, Math.ceil(cartPrepTime / interval));
+    console.log(`[Capacity] cartPrepTime: ${cartPrepTime}, interval: ${interval}, maxLookbackSlots: ${maxLookbackSlots}`);
+    console.log(`[Capacity] capacities map:`, Object.fromEntries(capacities));
 
     for (let i = 0; i < allRawSlots.length; i++) {
       const slot = allRawSlots[i];

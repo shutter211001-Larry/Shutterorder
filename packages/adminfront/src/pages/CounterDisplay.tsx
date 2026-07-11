@@ -573,6 +573,19 @@ export default function CounterDisplay() {
                               ({order.customer?.phone || order.guestPhone})
                             </span>
                             <span className="ml-2 text-gray-400">{t('kitchen.itemsCount', { count: order.items.length })}</span>
+                            {order.status === 'PENDING' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusUpdate(order.id, 'CONFIRMED');
+                                }}
+                                disabled={updating === order.id}
+                                className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 rounded font-bold transition-colors disabled:opacity-50"
+                                title={t('counterDisplay.confirmOrder')}
+                              >
+                                {t('counterDisplay.confirmOrder')}
+                              </button>
+                            )}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
