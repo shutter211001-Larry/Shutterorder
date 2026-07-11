@@ -1,6 +1,5 @@
-import { api } from '../lib/api';
 import { useState, useEffect, FormEvent, useRef } from 'react';
-import { API_BASE } from '../lib/api.js';
+import { api, API_BASE } from '../lib/api.js';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
@@ -11,7 +10,7 @@ import { getTranslated } from '../utils/translation.js';
 import { useRecentOrders } from '../hooks/useRecentOrders.js';
 import { formatToLocalDate, formatToLocalTime, formatToFullDateTime, getDateFriendlyLabel } from '../utils/date.js';
 import taiwanDistricts from '../lib/taiwan-districts.json';
-import { confirm } from "../lib/confirm";
+import { confirm } from "../lib/confirm.js";
 
 type OrderType = 'delivery' | 'pickup' | 'frozen_delivery';
 type PaymentMethod = 'cash' | 'stripe' | 'paypal' | 'linepay';
@@ -289,8 +288,6 @@ export default function Checkout() {
   }, [items.length]);
 
   const scrollToSubmit = () => {
-  const { t } = useTranslation();
-
     if (!paymentMethod) {
       setShowPaymentError(true);
       paymentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
