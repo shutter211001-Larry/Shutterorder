@@ -26,7 +26,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const fullPath = path.startsWith('/') ? path : `/${path}`;
+  const finalUrl = path.startsWith('http') ? path : `${API_BASE}${fullPath}`;
+  const res = await fetch(finalUrl, {
     ...options,
     headers: { ...headers, ...options?.headers },
   });

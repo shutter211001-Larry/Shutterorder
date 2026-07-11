@@ -27,7 +27,8 @@ async function request<T = any>(path: string, options?: RequestInit): Promise<T>
   };
 
   const fullPath = path.startsWith('/') ? path : `/${path}`;
-  const res = await fetch(`${API_BASE}${fullPath}`, {
+  const finalUrl = path.startsWith('http') ? path : `${API_BASE}${fullPath}`;
+  const res = await fetch(finalUrl, {
     ...options,
     headers: { ...headers, ...options?.headers },
   });
