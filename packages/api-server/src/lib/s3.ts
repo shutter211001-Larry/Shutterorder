@@ -12,6 +12,8 @@ export interface S3Settings {
   publicUrl: string; // e.g. https://pub-xxx.r2.dev
 }
 
+import prisma from './db.js';
+
 /**
  * Parses and validates S3 settings from JSON object
  */
@@ -24,6 +26,32 @@ export function parseS3Settings(settings: any): S3Settings | null {
   }
 
   return { endpoint, bucket, accessKey, secretKey, publicUrl };
+}
+
+/**
+ * Resolves S3 settings by checking tenant-specific settings first,
+ * then falling back to the global SaaS platform settings.
+ */
+export async function getResolvedS3Settings(tenantId?: string | null): Promise<S3Settings | null> {
+  let s3Settings = null;
+
+  if (tenantId) {
+    const tenantSettings = await (prisma as any).siteSettings.findUnique({
+      where: { tenantId }
+    });
+    const advanced = tenantSettings?.advancedSettings as any;
+    s3Settings = parseS3Settings(advanced?.s3Settings);
+  }
+
+  if (!s3Settings) {
+    const globalSettings = await (prisma as any).siteSettings.findUnique({
+      where: { id: 'default' }
+    });
+    const globalAdvanced = globalSettings?.advancedSettings as any;
+    s3Settings = parseS3Settings(globalAdvanced?.s3Settings);
+  }
+
+  return s3Settings;
 }
 
 /**
