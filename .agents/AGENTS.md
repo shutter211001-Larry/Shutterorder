@@ -66,3 +66,9 @@
 **Rule**: Dates like `req.date` or `shift.date` are parsed by Prisma as UTC Midnight objects (e.g., `2026-07-10T00:00:00.000Z`). You MUST NEVER use `.getDay()`, `.getDate()`, or `.setDate()` on these objects, as it will evaluate the date in the local timezone of the deployment server (which may be in the US), causing "Timezone Drift" bugs where the day shifts to the previous day. 
 - **Correct usage**: `.getUTCDay()`, `.getUTCDate()`, `.setUTCDate()`
 - **Incorrect usage**: `.getDay()`, `.getDate()`, `.setDate()`
+
+## 13. 精準檔案修改原則 (Targeted File Replacements in JSX/TSX)
+**Trigger**: When editing React components or any large files (JSX/TSX).
+**Rule**: Do NOT use `replace_file_content` to replace massive blocks of code (e.g. replacing an entire component body, or replacing large segments spanning over 20-30 lines) all at once. Doing so is highly prone to dropping closing tags (`</div>`, `</>`), breaking braces, and unintentionally overwriting existing state variables or logic.
+- Instead, you MUST break down your edits and use `multi_replace_file_content` to make multiple small, surgical, and targeted replacements on the exact lines that need to be modified.
+- Keep the `TargetContent` and `ReplacementContent` as minimal as possible while remaining unique.
