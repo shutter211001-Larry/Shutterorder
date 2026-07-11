@@ -524,12 +524,26 @@ export async function sendWelcomeEmailCore(tenant: any) {
       ? JSON.parse(settings.mailSettings) 
       : (settings?.mailSettings || {});
       
-    const template = mailSettings.welcomeEmailTemplate;
+    const template = mailSettings.welcomeEmailTemplate || {};
     
-    if (!template || !template.subject || !template.body) {
-      logger.warn('Welcome email template is not configured');
-      return;
-    }
+    const subject = template.subject || '歡迎使用 夏特 SaaS 平台 - 您的專屬系統已建立';
+    const body = template.body || `<div style="font-family: sans-serif; padding: 20px;">
+      <h2>歡迎加入 夏特 SaaS 平台</h2>
+      <p>親愛的 {tenantName} 您好：</p>
+      <p>您的專屬系統已經為您準備完畢！</p>
+      <br/>
+      <h3>管理後台連結</h3>
+      <ul>
+        <li>租戶管理端：<a href="{adminUrl}">{adminUrl}</a></li>
+        <li>總部 ERP 端：<a href="{erpUrl}">{erpUrl}</a></li>
+        <li>顧客點餐端：<a href="{storeUrl}">{storeUrl}</a></li>
+      </ul>
+      <br/>
+      <p>您的系統使用期限至：{expirationDate}</p>
+      <br/>
+      <p>若您對系統有任何疑問或需要修改第三方金鑰，請隨時聯繫 SaaS 平台客服人員。</p>
+      <p>祝您生意興隆！<br/>夏特團隊</p>
+    </div>`;
     
     // Find the tenant admin user
     const adminUser = await (prisma as any).user.findFirst({
@@ -566,7 +580,7 @@ export async function sendWelcomeEmailCore(tenant: any) {
       ? new Date(tenant.subscriptionEndsAt).toISOString().split('T')[0] 
       : '無期限';
       
-    let htmlBody = template.body
+    let htmlBody = body
       .replace(/{tenantName}/g, tenant.name)
       .replace(/{expirationDate}/g, expirationDate)
       .replace(/{storeUrl}/g, storeUrl)
@@ -580,7 +594,7 @@ export async function sendWelcomeEmailCore(tenant: any) {
     tenantStorage.run({ tenantId: null }, () => {
       sendEmail({
         to: adminUser.email,
-        subject: template.subject,
+        subject: subject,
         html: htmlBody
       });
     });
