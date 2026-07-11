@@ -162,9 +162,12 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
   if (process.env.NODE_ENV === 'test') return;
   if (options.to && options.to.endsWith('@line.shutterorder.com')) return;
 
+  const currentTenantId = tenantStorage.getStore()?.tenantId || null;
+
   // Run in a self-contained async block to avoid blocking the caller's thread
-  (async () => {
-    try {
+  tenantStorage.run({ tenantId: currentTenantId }, () => {
+    (async () => {
+      try {
       // Load Settings from DB
       let mailSettings: any = {};
       let googleSettings: any = {};
@@ -247,6 +250,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       emailLogger.error({ err, options }, 'Background email sending failed');
     }
   })();
+  });
 }
 
 async function sendMailgunEmail(options: EmailOptions & { erpBranding?: any }) {
