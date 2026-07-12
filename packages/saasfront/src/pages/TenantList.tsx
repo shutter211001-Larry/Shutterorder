@@ -31,11 +31,20 @@ export default function TenantList() {
   const [expandedTenantId, setExpandedTenantId] = useState<string | null>(null);
   
   // Inline editing states
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [nameValue, setNameValue] = useState('');
+  
   const [editingDomainId, setEditingDomainId] = useState<string | null>(null);
   const [domainValue, setDomainValue] = useState('');
   
   const [editingExpId, setEditingExpId] = useState<string | null>(null);
   const [expValue, setExpValue] = useState('');
+  
+  const [editingPurchaserId, setEditingPurchaserId] = useState<string | null>(null);
+  const [purchaserName, setPurchaserName] = useState('');
+  const [purchaserEmail, setPurchaserEmail] = useState('');
+  const [purchaserPhone, setPurchaserPhone] = useState('');
+  const [purchaserPassword, setPurchaserPassword] = useState('');
   
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
@@ -94,14 +103,43 @@ export default function TenantList() {
     }
   };
 
+  const saveName = async (tenant: Tenant) => {
+    try {
+      if (!nameValue.trim()) return toast.error('名稱不可為空');
+      await api.patch(`/platform-admin/tenants/${tenant.id}`, { name: nameValue.trim() });
+      toast.success('租戶名稱更新成功');
+      setEditingNameId(null);
+      fetchTenants();
+    } catch (error: any) {
+      toast.error(error.message || '無法更新名稱');
+    }
+  };
+
   const saveExpiration = async (tenant: Tenant) => {
     try {
       await api.patch(`/platform-admin/tenants/${tenant.id}`, { subscriptionEndsAt: expValue || null });
       toast.success('到期日更新成功');
       setEditingExpId(null);
       fetchTenants();
-    } catch (e) {
-      toast.error('日期格式無效或更新失敗');
+    } catch (error: any) {
+      toast.error(error.message || '無法更新到期日');
+    }
+  };
+
+  const savePurchaser = async (tenant: Tenant) => {
+    try {
+      const payload: any = {};
+      if (purchaserName !== undefined) payload.adminName = purchaserName;
+      if (purchaserEmail !== undefined) payload.adminEmail = purchaserEmail;
+      if (purchaserPhone !== undefined) payload.adminPhone = purchaserPhone;
+      if (purchaserPassword) payload.adminPassword = purchaserPassword;
+
+      await api.patch(`/platform-admin/tenants/${tenant.id}`, payload);
+      toast.success('購買者資料更新成功');
+      setEditingPurchaserId(null);
+      fetchTenants();
+    } catch (error: any) {
+      toast.error(error.message || '無法更新購買者資料');
     }
   };
 
@@ -259,10 +297,25 @@ export default function TenantList() {
                           <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 font-medium border border-gray-700">
                             {t.name.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <p className="font-medium text-white">{t.name}</p>
-                            <p className="text-xs text-gray-500 font-mono mt-0.5">{t.domain || '無自訂網域'}</p>
-                          </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                {editingNameId === t.id ? (
+                                  <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                    <input type="text" value={nameValue} onChange={(e) => setNameValue(e.target.value)} className="bg-gray-900 border border-gray-700 text-white text-sm rounded px-2 py-0.5 focus:outline-none focus:border-indigo-500 w-32 sm:w-48" autoFocus />
+                                    <button onClick={(e) => { e.stopPropagation(); saveName(t); }} className="p-1 bg-indigo-600 hover:bg-indigo-500 transition-colors text-white rounded shadow-sm"><Check className="w-3 h-3" /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); setEditingNameId(null); }} className="p-1 bg-gray-700 hover:bg-gray-600 transition-colors text-white rounded"><X className="w-3 h-3" /></button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <p className="font-medium text-white">{t.name}</p>
+                                    <button onClick={(e) => { e.stopPropagation(); setEditingNameId(t.id); setNameValue(t.name); }} className="text-gray-500 hover:text-indigo-400 transition-colors">
+                                      <Edit className="w-3.5 h-3.5" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 font-mono mt-0.5">{t.domain || '無自訂網域'}</p>
+                            </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -380,24 +433,57 @@ export default function TenantList() {
                             
                             {/* Card 1: 購買者基本資料 */}
                             <div className="bg-gray-900/80 border border-gray-800 rounded-xl p-5 shadow-sm">
-                              <h4 className="font-medium text-gray-400 text-xs tracking-wider uppercase mb-4 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
-                                購買者基本資料
-                              </h4>
-                              <div className="space-y-4">
-                                <div>
-                                  <p className="text-gray-500 text-xs mb-1">姓名</p>
-                                  <p className="text-gray-100 font-medium">{t.users?.[0]?.name || '未提供'}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500 text-xs mb-1">電子信箱 (Mail)</p>
-                                  <p className="text-gray-100 font-medium">{t.users?.[0]?.email || '未提供'}</p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500 text-xs mb-1">聯絡電話</p>
-                                  <p className="text-gray-100 font-medium">{t.users?.[0]?.phone || '未提供'}</p>
-                                </div>
+                              <div className="flex justify-between items-center mb-4">
+                                <h4 className="font-medium text-gray-400 text-xs tracking-wider uppercase flex items-center gap-2">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+                                  購買者基本資料
+                                </h4>
+                                {editingPurchaserId !== t.id && (
+                                  <button onClick={(e) => { e.stopPropagation(); setEditingPurchaserId(t.id); setPurchaserName(t.users?.[0]?.name || ''); setPurchaserEmail(t.users?.[0]?.email || ''); setPurchaserPhone(t.users?.[0]?.phone || ''); setPurchaserPassword(''); }} className="text-indigo-400 hover:text-indigo-300">
+                                    <Edit className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
                               </div>
+                              
+                              {editingPurchaserId === t.id ? (
+                                <div className="space-y-3">
+                                  <div>
+                                    <p className="text-gray-500 text-[10px] mb-1">姓名</p>
+                                    <input type="text" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} className="w-full bg-gray-950 border border-gray-700 text-white text-xs rounded px-2 py-1.5 focus:border-indigo-500 outline-none" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 text-[10px] mb-1">電子信箱</p>
+                                    <input type="email" value={purchaserEmail} onChange={e => setPurchaserEmail(e.target.value)} className="w-full bg-gray-950 border border-gray-700 text-white text-xs rounded px-2 py-1.5 focus:border-indigo-500 outline-none" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 text-[10px] mb-1">電話</p>
+                                    <input type="text" value={purchaserPhone} onChange={e => setPurchaserPhone(e.target.value)} className="w-full bg-gray-950 border border-gray-700 text-white text-xs rounded px-2 py-1.5 focus:border-indigo-500 outline-none" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 text-[10px] mb-1">重設密碼 (留空代表不修改)</p>
+                                    <input type="password" value={purchaserPassword} onChange={e => setPurchaserPassword(e.target.value)} placeholder="輸入新密碼" className="w-full bg-gray-950 border border-gray-700 text-white text-xs rounded px-2 py-1.5 focus:border-indigo-500 outline-none" />
+                                  </div>
+                                  <div className="flex gap-2 pt-2">
+                                    <button onClick={() => savePurchaser(t)} className="flex-1 bg-indigo-600 text-white text-xs py-1.5 rounded font-medium hover:bg-indigo-500">儲存</button>
+                                    <button onClick={() => setEditingPurchaserId(null)} className="flex-1 bg-gray-700 text-white text-xs py-1.5 rounded font-medium hover:bg-gray-600">取消</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="space-y-4">
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">姓名</p>
+                                    <p className="text-gray-100 font-medium">{t.users?.[0]?.name || '未提供'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">電子信箱 (Mail)</p>
+                                    <p className="text-gray-100 font-medium">{t.users?.[0]?.email || '未提供'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">聯絡電話</p>
+                                    <p className="text-gray-100 font-medium">{t.users?.[0]?.phone || '未提供'}</p>
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             {/* Card 2: 租約與網域 */}

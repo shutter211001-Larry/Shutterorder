@@ -91,7 +91,7 @@ export const createTenant = async (req: Request, res: Response) => {
 export const updateTenant = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
-    const { name, domain, isActive, hasErpAccess, subscriptionEndsAt } = req.body;
+    const { name, domain, isActive, hasErpAccess, subscriptionEndsAt, adminName, adminEmail, adminPhone, adminPassword } = req.body;
 
     const tenant = await (prisma as any).tenant.update({
       where: { id },
@@ -103,6 +103,29 @@ export const updateTenant = async (req: Request, res: Response) => {
         subscriptionEndsAt: subscriptionEndsAt ? new Date(subscriptionEndsAt) : null
       }
     });
+
+    // Update primary super admin if requested
+    if (adminName !== undefined || adminEmail !== undefined || adminPhone !== undefined || adminPassword) {
+      const superAdmin = await (prisma as any).user.findFirst({
+        where: { tenantId: id, role: 'SUPER_ADMIN' },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      if (superAdmin) {
+        const updateData: any = {};
+        if (adminName !== undefined) updateData.name = adminName;
+        if (adminEmail !== undefined) updateData.email = adminEmail;
+        if (adminPhone !== undefined) updateData.phone = adminPhone;
+        if (adminPassword) {
+          const bcrypt = require('bcryptjs');
+          updateData.password = await bcrypt.hash(adminPassword, 10);
+        }
+        await (prisma as any).user.update({
+          where: { id: superAdmin.id },
+          data: updateData
+        });
+      }
+    }
 
     res.json({ success: true, data: tenant });
   } catch (error) {
