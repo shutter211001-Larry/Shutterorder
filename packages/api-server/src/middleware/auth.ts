@@ -47,9 +47,10 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     const store = tenantStorage.getStore();
     const currentTenantId = store?.tenantId || null;
     
-    // For Super Admins or global routes, tenantId might be null. 
-    // We only enforce tenant checking if the token HAS a tenantId.
-    if (decoded.tenantId && decoded.tenantId !== currentTenantId && decoded.role !== 'SUPER_ADMIN') {
+    // Strict Tenant Isolation Check
+    // If the request is mapped to a specific tenant (currentTenantId !== null),
+    // then the token MUST belong to that specific tenant.
+    if (currentTenantId !== null && decoded.tenantId !== currentTenantId) {
       res.status(401).json({ success: false, error: 'Token is not valid for this domain' });
       return;
     }
@@ -153,7 +154,7 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
       const store = tenantStorage.getStore();
       const currentTenantId = store?.tenantId || null;
       
-      if (!decoded.tenantId || decoded.tenantId === currentTenantId || decoded.role === 'SUPER_ADMIN') {
+      if (currentTenantId === null || decoded.tenantId === currentTenantId) {
         req.user = decoded;
       }
     } catch {

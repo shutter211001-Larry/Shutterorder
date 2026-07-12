@@ -386,13 +386,23 @@ export const updateTenantIntegrations = async (req: Request, res: Response) => {
         paymentSettings: newPayment
       };
 
+      const crypto = require('crypto');
+      const token = crypto.randomBytes(32).toString('hex');
+
       await (prisma as any).siteSettings.update({
         where: { id: currentSettings.id },
         data: {
-          advancedSettings: {
-            ...currentAdvanced,
-            locationOverrides: overrides
-          }
+          pendingIntegrations: {
+            type: 'LOCATION',
+            locationId: locationId,
+            payload: {
+              advancedSettings: {
+                ...currentAdvanced,
+                locationOverrides: overrides
+              }
+            }
+          },
+          pendingIntegrationsToken: token
         }
       });
     } else {
@@ -469,9 +479,18 @@ export const updateTenantIntegrations = async (req: Request, res: Response) => {
         }
       };
 
+      const crypto = require('crypto');
+      const token = crypto.randomBytes(32).toString('hex');
+
       await (prisma as any).siteSettings.update({
         where: { id: currentSettings.id },
-        data: payload
+        data: {
+          pendingIntegrations: {
+            type: 'GLOBAL',
+            payload: payload
+          },
+          pendingIntegrationsToken: token
+        }
       });
     }
 
@@ -486,14 +505,32 @@ export const updateTenantIntegrations = async (req: Request, res: Response) => {
           await new Promise<void>((resolve, reject) => {
             tenantStorage.run({ tenantId: null }, async () => {
               try {
+                let adminUrl = process.env.ADMIN_URL_PUBLIC || 'http://localhost:5173';
+                if (tenant.domain) {
+                  adminUrl = `https://admin.${tenant.domain}`;
+                  if (tenant.domain.endsWith('.shutterorder.pro')) {
+                    const subdomain = tenant.domain.replace('.shutterorder.pro', '');
+                    adminUrl = `https://${subdomain}.admin.shutterorder.pro`;
+                  }
+                }
+                
+                // Get the token we just saved
+                const settings = await (prisma as any).siteSettings.findFirst({ where: { tenantId: id } });
+                const token = settings?.pendingIntegrationsToken || '';
+                const confirmLink = `${adminUrl}/settings/advanced?confirmToken=${token}`;
+
                 await sendEmail({
                   to: notifyEmail,
-                  subject: 'SaaS 平台系統通知：整合金鑰設定已更新',
+                  subject: 'SaaS 平台系統通知：整合金鑰設定等待確認',
                   throwOnError: true,
                   html: `<div style="font-family: sans-serif; padding: 20px;">
-                            <h2>第三方服務整合金鑰已更新</h2>
+                            <h2>第三方服務整合金鑰等待您的確認</h2>
                             <p>您好：</p>
                             <p>系統管理員已為您的餐廳（${tenant.name}）配置了新的第三方整合金鑰或服務串接。</p>
+                            <p>為了確保安全性，這些設定變更必須由您親自確認後才會生效。</p>
+                            <br/>
+                            <a href="${confirmLink}" style="display:inline-block;padding:12px 24px;background:#ea580c;color:#fff;text-decoration:none;border-radius:4px;font-weight:bold;">確認並套用設定</a>
+                            <br/><br/>
                             <p>若有任何疑問，請聯繫 SaaS 平台客服中心。</p>
                             <p>祝您生意興隆！<br/>夏特點餐系統 團隊</p>
                            </div>`

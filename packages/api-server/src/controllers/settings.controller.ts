@@ -1205,19 +1205,47 @@ export async function approvePendingIntegrations(req: Request, res: Response): P
     ? JSON.parse(settings.pendingIntegrations) 
     : settings.pendingIntegrations;
 
-  await prisma.siteSettings.update({
-    where: { id: settings.id },
-    data: {
-      lineSettings: pending.lineSettings || settings.lineSettings,
-      googleSettings: pending.googleSettings || settings.googleSettings,
-      mailSettings: pending.mailSettings || settings.mailSettings,
-      paymentSettings: pending.paymentSettings || settings.paymentSettings,
-      invoiceSettings: pending.invoiceSettings || settings.invoiceSettings,
-      orderSettings: pending.orderSettings || settings.orderSettings,
-      pendingIntegrations: null as any,
-      pendingIntegrationsToken: null
-    }
-  });
+  if (pending.type === 'LOCATION') {
+    await prisma.siteSettings.update({
+      where: { id: settings.id },
+      data: {
+        advancedSettings: pending.payload.advancedSettings,
+        pendingIntegrations: null as any,
+        pendingIntegrationsToken: null
+      }
+    });
+  } else if (pending.type === 'GLOBAL') {
+    const payload = pending.payload || {};
+    await prisma.siteSettings.update({
+      where: { id: settings.id },
+      data: {
+        lineSettings: payload.lineSettings || settings.lineSettings,
+        googleSettings: payload.googleSettings || settings.googleSettings,
+        mailSettings: payload.mailSettings || settings.mailSettings,
+        paymentSettings: payload.paymentSettings || settings.paymentSettings,
+        invoiceSettings: payload.invoiceSettings || settings.invoiceSettings,
+        orderSettings: payload.orderSettings || settings.orderSettings,
+        advancedSettings: payload.advancedSettings || settings.advancedSettings,
+        pendingIntegrations: null as any,
+        pendingIntegrationsToken: null
+      }
+    });
+  } else {
+    // Fallback for older structure if any
+    await prisma.siteSettings.update({
+      where: { id: settings.id },
+      data: {
+        lineSettings: pending.lineSettings || settings.lineSettings,
+        googleSettings: pending.googleSettings || settings.googleSettings,
+        mailSettings: pending.mailSettings || settings.mailSettings,
+        paymentSettings: pending.paymentSettings || settings.paymentSettings,
+        invoiceSettings: pending.invoiceSettings || settings.invoiceSettings,
+        orderSettings: pending.orderSettings || settings.orderSettings,
+        pendingIntegrations: null as any,
+        pendingIntegrationsToken: null
+      }
+    });
+  }
 
   res.json({ success: true, message: '整合金鑰已成功套用' });
 }

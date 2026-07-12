@@ -104,7 +104,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
       email: user.email,
       type: 'staff',
       role: user.role,
-      tenantId: user.role === 'SUPER_ADMIN' ? null : user.tenantId,
+      tenantId: user.tenantId,
     });
   
     res.json({
@@ -128,7 +128,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
 
   // If specifically targeting a tenant via subdomain
   if (requestTenantId) {
-    const targetUser = validUsers.find(u => u.tenantId === requestTenantId || u.role === 'SUPER_ADMIN');
+    const targetUser = validUsers.find(u => u.tenantId === requestTenantId);
     if (!targetUser) {
       res.status(401).json({ success: false, error: 'Invalid credentials for this domain' });
       return;
@@ -250,7 +250,7 @@ export async function staffRegister(req: Request, res: Response): Promise<void> 
 
   const user = await prisma.user.create({
     data: { email, password: hashedPassword, name, role: role || 'STAFF' },
-    select: { id: true, email: true, name: true, role: true },
+    select: { id: true, email: true, name: true, role: true, tenantId: true },
   });
 
   const token = generateToken({
@@ -258,7 +258,7 @@ export async function staffRegister(req: Request, res: Response): Promise<void> 
     email: user.email,
     type: 'staff',
     role: user.role,
-    tenantId: user.role === 'SUPER_ADMIN' ? null : (tenantStorage.getStore()?.tenantId || null),
+    tenantId: user.tenantId,
   });
 
   res.status(201).json({ success: true, data: { token, user } });

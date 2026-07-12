@@ -3,9 +3,34 @@ import logger from './logger.js';
 import prisma from './db.js';
 
 async function getApiKey() {
-  const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
-  const googleSettings = siteSettings?.googleSettings ? (typeof siteSettings.googleSettings === 'string' ? JSON.parse(siteSettings.googleSettings) : siteSettings.googleSettings) : {};
-  return googleSettings.geminiApiKey || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  let geminiApiKey = '';
+
+  try {
+    // Try to get tenant-specific settings first
+    const { getOrCreateSettings } = await import('../controllers/settings.controller.js');
+    const settings = await getOrCreateSettings();
+    if (settings?.googleSettings) {
+      const googleSettings = typeof settings.googleSettings === 'string' 
+        ? JSON.parse(settings.googleSettings) 
+        : settings.googleSettings;
+      geminiApiKey = googleSettings.geminiApiKey;
+    }
+  } catch (e) {
+    // Ignore error
+  }
+
+  // Fallback to global default if tenant has no key
+  if (!geminiApiKey) {
+    const globalSettings = await (prisma as any).siteSettings.findUnique({ where: { id: 'default' } });
+    if (globalSettings?.googleSettings) {
+      const globalGoogleSettings = typeof globalSettings.googleSettings === 'string' 
+        ? JSON.parse(globalSettings.googleSettings) 
+        : globalSettings.googleSettings;
+      geminiApiKey = globalGoogleSettings.geminiApiKey;
+    }
+  }
+
+  return geminiApiKey || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 }
 
 let cachedOrderedModels: string[] | null = null;

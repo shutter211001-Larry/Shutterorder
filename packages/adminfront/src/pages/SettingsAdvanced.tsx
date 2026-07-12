@@ -100,6 +100,24 @@ export default function SettingsAdvanced() {
   const [s3PublicUrl, setS3PublicUrl] = useState('');
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const confirmToken = params.get('confirmToken');
+    if (confirmToken) {
+      setLoading(true);
+      api.post('settings/integrations/approve', { token: confirmToken })
+        .then((res) => {
+          if (res.success) {
+            setSuccess('第三方整合金鑰已成功確認並套用！');
+          } else {
+            setError(typeof res.error === 'string' ? res.error : '金鑰確認失敗，可能已過期');
+          }
+          // Remove token from URL
+          window.history.replaceState({}, '', window.location.pathname);
+        })
+        .catch(() => setError('網路連線錯誤，無法確認金鑰'))
+        .finally(() => setLoading(false));
+    }
+
     api.get('settings/advanced')
       
       .then((res) => {
