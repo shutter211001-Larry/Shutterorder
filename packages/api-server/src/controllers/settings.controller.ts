@@ -68,9 +68,9 @@ const updateSettingsSchema = z.object({
   }).optional(),
 });
 
-export async function getOrCreateSettings() {
+export async function getOrCreateSettings(overrideTenantId?: string | null) {
   const store = (await import('../middleware/tenantStorage.js')).tenantStorage.getStore();
-  const tenantId = store?.tenantId;
+  const tenantId = overrideTenantId !== undefined ? overrideTenantId : store?.tenantId;
 
   if (!tenantId) {
     let settings = await (prisma as any).siteSettings.findUnique({ where: { id: 'default' } });
@@ -265,7 +265,8 @@ export async function uploadLogo(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const settings = await getOrCreateSettings();
+  const tenantId = (req as any).tenantId;
+  const settings = await getOrCreateSettings(tenantId);
   const { getResolvedS3Settings } = await import('../lib/s3.js');
   const s3Settings = await getResolvedS3Settings(settings.tenantId);
 
@@ -284,7 +285,8 @@ export async function uploadFavicon(req: Request, res: Response): Promise<void> 
     return;
   }
 
-  const settings = await getOrCreateSettings();
+  const tenantId = (req as any).tenantId;
+  const settings = await getOrCreateSettings(tenantId);
   const { getResolvedS3Settings } = await import('../lib/s3.js');
   const s3Settings = await getResolvedS3Settings(settings.tenantId);
 
@@ -303,7 +305,8 @@ export async function uploadHeroBackground(req: Request, res: Response): Promise
     return;
   }
 
-  const settings = await getOrCreateSettings();
+  const tenantId = (req as any).tenantId;
+  const settings = await getOrCreateSettings(tenantId);
   const heroSection = (settings.heroSection as any) || {};
   const { getResolvedS3Settings } = await import('../lib/s3.js');
   const s3Settings = await getResolvedS3Settings(settings.tenantId);

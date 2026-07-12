@@ -58,6 +58,8 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     logger.debug({ tenantId, domain, path: req.path }, 'Tenant resolved from request');
   }
 
+  (req as any).tenantId = tenantId || null;
+
   tenantStorage.run({ tenantId: tenantId || null }, () => {
     next();
   });
