@@ -29,25 +29,33 @@ export function parseS3Settings(settings: any): S3Settings | null {
 }
 
 /**
- * Resolves S3 settings by checking tenant-specific settings first,
- * then falling back to the global SaaS platform settings.
+ * Resolves S3 settings by checking tenant-specific settings first.
+ * If tenantId is not provided, it fetches the global SaaS platform settings.
+ * It strictly avoids falling back to SaaS global settings for tenant uploads.
  */
 export async function getResolvedS3Settings(tenantId?: string | null): Promise<S3Settings | null> {
   let s3Settings = null;
 
   if (tenantId) {
+    // 租戶上傳：只讀取租戶自己的設定，絕對不退回到 SaaS 全域設定。
     const tenantSettings = await (prisma as any).siteSettings.findUnique({
       where: { tenantId }
     });
-    const advanced = tenantSettings?.advancedSettings as any;
+    // 相容舊資料被雙重字串化的情況
+    let advanced = tenantSettings?.advancedSettings;
+    if (typeof advanced === 'string') {
+      try { advanced = JSON.parse(advanced); } catch {}
+    }
     s3Settings = parseS3Settings(advanced?.s3Settings);
-  }
-
-  if (!s3Settings) {
+  } else {
+    // SaaS 全域上傳：讀取 id: 'default'
     const globalSettings = await (prisma as any).siteSettings.findUnique({
       where: { id: 'default' }
     });
-    const globalAdvanced = globalSettings?.advancedSettings as any;
+    let globalAdvanced = globalSettings?.advancedSettings;
+    if (typeof globalAdvanced === 'string') {
+      try { globalAdvanced = JSON.parse(globalAdvanced); } catch {}
+    }
     s3Settings = parseS3Settings(globalAdvanced?.s3Settings);
   }
 

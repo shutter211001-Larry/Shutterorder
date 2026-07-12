@@ -389,10 +389,10 @@ export const updateTenantIntegrations = async (req: Request, res: Response) => {
       await (prisma as any).siteSettings.update({
         where: { id: currentSettings.id },
         data: {
-          advancedSettings: JSON.stringify({
+          advancedSettings: {
             ...currentAdvanced,
             locationOverrides: overrides
-          })
+          }
         }
       });
     } else {
@@ -457,16 +457,16 @@ export const updateTenantIntegrations = async (req: Request, res: Response) => {
       ]);
 
       const payload = {
-        lineSettings: JSON.stringify(newLine),
-        googleSettings: JSON.stringify(newGoogle),
-        mailSettings: JSON.stringify(newMail),
-        paymentSettings: JSON.stringify(newPayment),
-        invoiceSettings: JSON.stringify(newInvoice),
-        orderSettings: JSON.stringify(newOrder),
-        advancedSettings: JSON.stringify({
+        lineSettings: newLine,
+        googleSettings: newGoogle,
+        mailSettings: newMail,
+        paymentSettings: newPayment,
+        invoiceSettings: newInvoice,
+        orderSettings: newOrder,
+        advancedSettings: {
           ...currentAdvanced,
           s3Settings: newS3
-        })
+        }
       };
 
       await (prisma as any).siteSettings.update({
