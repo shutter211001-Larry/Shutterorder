@@ -164,6 +164,40 @@ LINE Pay 在 Sandbox 或正式環境中，**強制要求伺服器必須有固定
 7. 點擊 **Issue** 產生長期 Token 並複製。
 8. 將這兩把金鑰存入 `adminfront` 系統後台。
 
+### ☁️ 7. 雲端圖床 S3 (以 Cloudflare R2 為例)
+系統中的商品圖片、餐廳 Logo 等靜態資源需要儲存在相容 S3 的圖床中。強烈推薦使用 Cloudflare R2，並綁定自訂網域。
+
+**步驟一：建立貯體與金鑰**
+1. 登入 Cloudflare 控制台，進入 **R2**，點擊 **「建立貯體 (Create bucket)」**，例如命名為 `pizzastudio26-upload`。
+2. 回到 R2 總覽頁面，點擊右側的 **「管理 R2 API 權杖 (Manage R2 API Tokens)」**。
+3. 點擊 **「建立 API 權杖」**：
+   - 權限選擇：**「物件讀取與寫入 (Object Read & Write)」**。
+   - 適用範圍：指定給剛剛建立的貯體。
+4. 建立後，畫面上會顯示兩組金鑰，請**忽略第一組的「Account API Token」**。
+5. 請往下捲動，複製 **「針對 S3 用戶端使用下方的認證」** 區塊中的：
+   - **Access Key ID** (存取金鑰識別碼)
+   - **Secret Access Key** (秘密存取金鑰)
+   - **管轄區域特定端點** (Endpoint URL，如 `https://<account_id>.r2.cloudflarestorage.com`)
+
+**步驟二：綁定公開網域 (Public URL)**
+1. 進入您剛建立的 R2 貯體，點擊 **「設定 (Settings)」** 頁籤。
+2. 找到 **「公開存取 (Public Access)」** 區塊，點擊 **「連接自訂網域 (Connect Custom Domain)」**。
+3. 輸入您的專屬網域（例如 `assets.pizzastudio26.com`），並依照指示完成 DNS 設定。這會成為您在系統後台填寫的 **Public URL**。
+
+**步驟三：解決 Cloudflare CDN 快取導致的 CORS 錯誤 (極度重要 ⚠️)**
+當系統（例如 RxDB 離線資料庫）嘗試使用 `fetch` 抓取圖片時，Cloudflare 的邊緣快取 (Edge Cache) 經常會因為第一次載入時瀏覽器沒有帶 Origin 標頭，而把「沒有 CORS 標頭的圖片」給快取起來，導致後續出現 CORS 阻擋錯誤。您必須建立轉換規則來強迫 Cloudflare 永遠輸出 CORS 標頭：
+1. 退回 Cloudflare 最外層首頁，點擊進入您綁定圖片的**網站 (Websites)**（例如 `pizzastudio26.com`），**請注意：不是在 R2 設定裡面！**
+2. 在左側選單點擊 **「規則 (Rules)」** > **「轉換規則 (Transform Rules)」**。
+3. 在畫面上方的頁籤，點擊 **「修改回應標頭 (Modify Response Header)」**。
+4. 點擊 **「建立規則 (Create rule)」**，並依照以下設定填寫：
+   - **規則名稱**：`Force CORS for R2`
+   - **若傳入要求符合...**：選擇 **「自訂篩選條件運算式 (Custom filter expression)」**。
+   - **欄位**：`主機名稱 (Hostname)` / **運算子**：`等於 (equals)` / **值**：您在步驟二綁定的網域（如 `assets.pizzastudio26.com`）
+   - **接著修改... (修改回應標頭)**：
+     - 點擊「設定靜態 (Set static)」 -> 標頭名稱：`Access-Control-Allow-Origin` / 值：`*`
+     - 點擊「+ 新增標頭」 -> 「設定靜態 (Set static)」 -> 標頭名稱：`Access-Control-Allow-Methods` / 值：`GET, PUT, POST, DELETE, HEAD`
+5. 點擊右下角的 **部署 (Deploy)**。部署完成後，圖片 CORS 阻擋問題將永久解決。
+
 ---
 
 ## 第四部分：部署各個獨立服務 (Railway / 雲端平台)
