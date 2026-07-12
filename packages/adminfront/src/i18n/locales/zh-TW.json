@@ -2040,7 +2040,8 @@
     "employee": "員工",
     "manager": "審核主管",
     "date": "日期",
-    "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)"
+    "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)",
+    "adminOverrideReason": "管理員手動調整"
   },
   "days": {
     "sunday": "星期日 (Sun)",
