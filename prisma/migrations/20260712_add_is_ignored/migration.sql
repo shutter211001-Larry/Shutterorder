@@ -1,0 +1,1 @@
+ALTER TABLE "staff_attendance" ADD COLUMN IF NOT EXISTS "isIgnored" BOOLEAN NOT NULL DEFAULT false;

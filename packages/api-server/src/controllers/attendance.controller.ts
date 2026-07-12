@@ -153,13 +153,40 @@ export const checkOut = async (req: Request, res: Response) => {
   res.json({ success: true, data: updated });
 };
 
+export const toggleIgnoreRecord = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  const { isIgnored } = req.body;
+
+  if (typeof isIgnored !== 'boolean') {
+    return res.status(400).json({ success: false, error: 'Invalid isIgnored value' });
+  }
+
+  const record = await prisma.staffAttendance.findUnique({
+    where: { id }
+  });
+
+  if (!record) {
+    return res.status(404).json({ success: false, error: 'Record not found' });
+  }
+
+  const updated = await prisma.staffAttendance.update({
+    where: { id },
+    data: { isIgnored }
+  });
+
+  res.json({ success: true, data: updated });
+};
+
 export const getMyRecords = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
 
   const records = await prisma.staffAttendance.findMany({
     where: { userId },
-    include: { location: { select: { name: true } } },
+    include: { 
+      location: { select: { name: true } },
+      user: { select: { location: { select: { name: true } } } }
+    },
     orderBy: { checkIn: 'desc' },
     take: 50
   });
@@ -201,7 +228,13 @@ export const getRecords = async (req: Request, res: Response) => {
     where,
     include: {
       location: { select: { name: true } },
-      user: { select: { name: true, email: true } }
+      user: { 
+        select: { 
+          name: true, 
+          email: true,
+          location: { select: { name: true } }
+        } 
+      }
     },
     orderBy: { checkIn: 'desc' },
     take: 100
@@ -252,7 +285,8 @@ export const getPayroll = async (req: Request, res: Response) => {
       },
       attendances: {
         where: {
-          checkIn: { gte: startDate, lte: endDate }
+          checkIn: { gte: startDate, lte: endDate },
+          isIgnored: false
         }
       },
       shifts: {

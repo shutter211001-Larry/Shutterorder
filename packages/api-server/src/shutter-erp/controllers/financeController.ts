@@ -45,13 +45,14 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
     // 3. Calculate Payroll (Admin DB)
     // A. Hourly Staff
     const attendances = await adminPrisma.staffAttendance.findMany({
-      where: {
-        checkIn: {
-          gte: start,
-          lte: end,
+        where: {
+          checkIn: {
+            gte: start,
+            lte: end,
+          },
+          checkOut: { not: null },
+          isIgnored: false,
         },
-        checkOut: { not: null },
-      },
       include: {
         user: {
           select: { hourlyWage: true },

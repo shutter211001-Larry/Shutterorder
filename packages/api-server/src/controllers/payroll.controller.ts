@@ -147,7 +147,8 @@ export async function generatePayslips(req: Request<{ id: string }>, res: Respon
       },
       attendances: {
         where: {
-          checkIn: { gte: period.startDate, lte: period.endDate }
+          checkIn: { gte: period.startDate, lte: period.endDate },
+          isIgnored: false
         }
       }
     }

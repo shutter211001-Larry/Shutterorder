@@ -79,6 +79,26 @@ export default function AttendanceRecords() {
     }
   };
 
+  const toggleIgnore = async (id: string, currentIsIgnored: boolean) => {
+    if (!window.confirm(currentIsIgnored ? '確定要還原此紀錄嗎？' : '確定要排除此紀錄嗎？(排除後將不計入薪資與損益)')) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await api.put(`attendance/records/${id}/ignore`, { isIgnored: !currentIsIgnored });
+      if (res.success) {
+        toast.success(currentIsIgnored ? '紀錄已還原' : '紀錄已排除');
+        fetchRecords();
+      } else {
+        toast.error(res.error || 'Failed');
+      }
+    } catch (err) {
+      toast.error('系統錯誤');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchLocations();
     fetchRecords();
@@ -199,25 +219,29 @@ export default function AttendanceRecords() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {records.map(record => (
-              <tr key={record.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <tr key={record.id} className={record.isIgnored ? "opacity-50 bg-gray-50" : ""}>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
                   {new Date(record.checkIn).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
                   {record.user?.name}
                   <span className="block text-xs text-gray-500">{record.user?.email}</span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {record.location?.name}
+                <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
+                  {record.location?.name || record.user?.location?.name || '-'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
                   {new Date(record.checkIn).toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
                   {record.checkOut ? new Date(record.checkOut).toLocaleString() : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {!record.checkOut ? (
+                  {record.isIgnored ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      已排除
+                    </span>
+                  ) : !record.checkOut ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                       {t('attendanceRecords.missingCheckout') || '未下班'}
                     </span>
@@ -231,10 +255,17 @@ export default function AttendanceRecords() {
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                  <button
+                    onClick={() => toggleIgnore(record.id, !!record.isIgnored)}
+                    className={`${record.isIgnored ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'}`}
+                  >
+                    {record.isIgnored ? '還原' : '排除'}
+                  </button>
                   <button
                     onClick={() => openCorrectionForRecord(record)}
                     className="text-primary-600 hover:text-primary-900"
+                    disabled={record.isIgnored}
                   >
                     {t('common.edit') || '編輯'}
                   </button>

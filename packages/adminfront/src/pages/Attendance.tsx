@@ -458,7 +458,7 @@ export default function Attendance() {
                     <td className="px-4 py-2">{new Date(record.checkIn).toLocaleDateString()}</td>
                     <td className="px-4 py-2">{new Date(record.checkIn).toLocaleString()}</td>
                     <td className="px-4 py-2">{record.checkOut ? new Date(record.checkOut).toLocaleString() : '-'}</td>
-                    <td className="px-4 py-2">{record.location?.name}</td>
+                    <td className="px-4 py-2">{record.location?.name || record.user?.location?.name || '-'}</td>
                     <td className="px-4 py-2">
                       {!record.checkOut ? (
                         <span className="text-yellow-600 font-medium">{t('attendanceRecords.missingCheckout') || '未下班'}</span>

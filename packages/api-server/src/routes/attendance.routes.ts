@@ -10,6 +10,7 @@ import {
   getMyCorrectionRequests,
   getCorrectionRequests,
   updateCorrectionRequestStatus,
+  toggleIgnoreRecord,
 } from '../controllers/attendance.controller.js';
 import { authenticate, requireStaff, requireRole } from '../middleware/auth.js';
 
@@ -28,6 +29,7 @@ router.get('/my-records', authenticate, requireStaff, getMyRecords);
 
 // Admin endpoints
 router.get('/records', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), getRecords);
+router.put('/records/:id/ignore', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), toggleIgnoreRecord);
 
 // Correction Request endpoints (Staff)
 router.post('/corrections', authenticate, requireStaff, createCorrectionRequest);

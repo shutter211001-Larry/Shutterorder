@@ -994,6 +994,7 @@ model StaffAttendance {
   lng                Float?
   device             String?
   isOutOfRange       Boolean                       @default(false)
+  isIgnored          Boolean                       @default(false)
   createdAt          DateTime                      @default(now()) @db.Timestamptz
   updatedAt          DateTime                      @updatedAt @db.Timestamptz
   correctionRequests AttendanceCorrectionRequest[]
