@@ -231,29 +231,37 @@ export default function AttendanceRecords() {
                   {record.location?.name || record.user?.location?.name || '-'}
                 </td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
-                  {new Date(record.checkIn).toLocaleString()}
+                  {new Date(record.checkIn).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                 </td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.isIgnored ? 'line-through' : ''}`}>
-                  {record.checkOut ? new Date(record.checkOut).toLocaleString() : '-'}
+                  {record.checkOut ? new Date(record.checkOut).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {record.isIgnored ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      已排除
-                    </span>
-                  ) : !record.checkOut ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      {t('attendanceRecords.missingCheckout') || '未下班'}
-                    </span>
-                  ) : record.isOutOfRange ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      {t('attendanceRecords.abnormalDistance')}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {t('attendanceRecords.normal')}
-                    </span>
-                  )}
+                  <div className="flex flex-col gap-1">
+                    {record.isIgnored ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 w-max">
+                        已排除
+                      </span>
+                    ) : !record.checkOut ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 w-max">
+                        {t('attendanceRecords.missingCheckout') || '未下班'}
+                      </span>
+                    ) : record.isOutOfRange ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 w-max">
+                        {t('attendanceRecords.abnormalDistance')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 w-max">
+                        {t('attendanceRecords.normal')}
+                      </span>
+                    )}
+                    
+                    {record.correctionRequests?.find((cr: any) => cr.status === 'APPROVED' && cr.manager) && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-max">
+                        由 {record.correctionRequests.find((cr: any) => cr.status === 'APPROVED' && cr.manager).manager.name} 變更
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                   <button

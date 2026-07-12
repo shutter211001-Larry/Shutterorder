@@ -63,6 +63,13 @@ export const checkIn = async (req: Request, res: Response) => {
     }
   }
 
+  if (!finalLocationId && userId) {
+    const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (currentUser?.locationId) {
+      finalLocationId = currentUser.locationId;
+    }
+  }
+
   if (!userId || !finalLocationId) {
     return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
@@ -234,6 +241,11 @@ export const getRecords = async (req: Request, res: Response) => {
           email: true,
           location: { select: { name: true } }
         } 
+      },
+      correctionRequests: {
+        include: {
+          manager: { select: { name: true } }
+        }
       }
     },
     orderBy: { checkIn: 'desc' },
@@ -287,6 +299,9 @@ export const getPayroll = async (req: Request, res: Response) => {
         where: {
           checkIn: { gte: startDate, lte: endDate },
           isIgnored: false
+        },
+        include: {
+          anomalies: { where: { resolved: false } }
         }
       },
       shifts: {
@@ -296,6 +311,14 @@ export const getPayroll = async (req: Request, res: Response) => {
       }
     }
   });
+
+  // Validate anomalies before processing payroll
+  for (const user of users) {
+    const hasUnresolvedAnomalies = user.attendances.some(a => a.anomalies && a.anomalies.length > 0);
+    if (user.correctionRequests.length > 0 || hasUnresolvedAnomalies) {
+      return res.status(400).json({ success: false, error: '無法預覽薪資：尚有未處理的考勤異常或待審核的補登申請' });
+    }
+  }
 
   const payrollData = [];
 

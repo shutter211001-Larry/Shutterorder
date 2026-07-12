@@ -149,6 +149,9 @@ export async function generatePayslips(req: Request<{ id: string }>, res: Respon
         where: {
           checkIn: { gte: period.startDate, lte: period.endDate },
           isIgnored: false
+        },
+        include: {
+          anomalies: { where: { resolved: false } }
         }
       }
     }
@@ -156,7 +159,8 @@ export async function generatePayslips(req: Request<{ id: string }>, res: Respon
 
   // 1.5. Check for anomalies
   for (const user of users) {
-    if (user.correctionRequests.length > 0) {
+    const hasUnresolvedAnomalies = user.attendances.some(a => a.anomalies && a.anomalies.length > 0);
+    if (user.correctionRequests.length > 0 || hasUnresolvedAnomalies) {
       res.status(400).json({ success: false, error: '無法結算薪資：尚有未處理的考勤異常或待審核的補登申請' });
       return;
     }

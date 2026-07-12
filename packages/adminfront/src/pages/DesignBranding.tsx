@@ -62,7 +62,7 @@ export default function DesignBranding() {
     formData.append(type, file);
 
     try {
-      const res = await api.upload(`settings/${type}`, formData);
+      const res = await api.upload(`/settings/${type}`, formData);
       const data = res;
       if (data.success && data.data) {
         if (type === 'logo') setLogo(getFullUrl(data.data.logo));
