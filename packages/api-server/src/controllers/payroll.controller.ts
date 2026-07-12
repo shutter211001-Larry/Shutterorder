@@ -132,19 +132,45 @@ export async function generatePayslips(req: Request<{ id: string }>, res: Respon
   const users = await prisma.user.findMany({
     where: {
       locationId: period.locationId,
-      // Need to include terminated staff if their termination date was after the period start date, but for simplicity, let's fetch all who might have worked
     },
     include: {
       insuranceProfile: true,
       employmentRecord: true,
+      correctionRequests: {
+        where: {
+          status: 'PENDING',
+          OR: [
+            { attendance: { checkIn: { gte: period.startDate, lte: period.endDate } } },
+            { requestedCheckIn: { gte: period.startDate, lte: period.endDate } }
+          ]
+        }
+      },
       attendances: {
         where: {
-          checkIn: { gte: period.startDate },
-          // Using < (endDate + 1 day) might be safer, but let's stick to simple boundary for now
+          checkIn: { gte: period.startDate, lte: period.endDate }
         }
       }
     }
   });
+
+  // 1.5. Check for anomalies
+  for (const user of users) {
+    if (user.correctionRequests.length > 0) {
+      res.status(400).json({ success: false, error: '無法結算薪資：尚有未處理的考勤異常或待審核的補登申請' });
+      return;
+    }
+    for (const att of user.attendances) {
+      if (!att.checkOut) {
+        res.status(400).json({ success: false, error: '無法結算薪資：尚有未下班的考勤紀錄' });
+        return;
+      }
+      const hours = (att.checkOut.getTime() - att.checkIn.getTime()) / (1000 * 60 * 60);
+      if (hours > 16) {
+        res.status(400).json({ success: false, error: '無法結算薪資：尚有時數異常(超過16小時)的紀錄' });
+        return;
+      }
+    }
+  }
 
   // Filter users who actually have attendance records during this period OR a monthly salary
   const eligibleUsers = users.filter(u => 
@@ -168,12 +194,14 @@ export async function generatePayslips(req: Request<{ id: string }>, res: Respon
     const items: any[] = [];
 
     if (user.salaryType === 'HOURLY') {
-      const attendances = user.attendances.map(att => {
-        if (att.checkIn && att.checkOut) {
-          return { hours: (att.checkOut.getTime() - att.checkIn.getTime()) / (1000 * 60 * 60) };
-        }
-        return { hours: 0 };
-      });
+        const attendances = user.attendances.map(att => {
+          if (att.checkIn && att.checkOut) {
+            const hours = (att.checkOut.getTime() - att.checkIn.getTime()) / (1000 * 60 * 60);
+            if (hours > 16) return { hours: 0 }; // Exclude abnormal shifts
+            return { hours };
+          }
+          return { hours: 0 };
+        });
 
       const { basePay, overtimePay, totalPay } = calculateHourlyPayroll(attendances, user.hourlyWage);
       

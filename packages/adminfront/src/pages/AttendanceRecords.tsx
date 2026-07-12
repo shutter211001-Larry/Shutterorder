@@ -18,6 +18,67 @@ export default function AttendanceRecords() {
   const [isOutOfRange, setIsOutOfRange] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+  const [correctionForm, setCorrectionForm] = useState({
+    attendanceId: '',
+    targetUserId: '',
+    locationId: '',
+    requestedCheckIn: '',
+    requestedCheckOut: '',
+    reason: ''
+  });
+
+  const formatDatetimeLocal = (dateString?: string | Date | null) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
+  const openCorrectionForRecord = (record: any) => {
+    setCorrectionForm({
+      attendanceId: record.id,
+      targetUserId: record.userId,
+      locationId: record.locationId,
+      requestedCheckIn: formatDatetimeLocal(record.checkIn),
+      requestedCheckOut: formatDatetimeLocal(record.checkOut),
+      reason: t('attendanceCorrections.adminOverrideReason') || '管理員手動調整'
+    });
+    setShowCorrectionModal(true);
+  };
+
+  const submitCorrectionRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const checkInTime = correctionForm.requestedCheckIn ? new Date(correctionForm.requestedCheckIn).toISOString() : null;
+      const checkOutTime = correctionForm.requestedCheckOut ? new Date(correctionForm.requestedCheckOut).toISOString() : null;
+      
+      const payload = {
+        attendanceId: correctionForm.attendanceId,
+        targetUserId: correctionForm.targetUserId,
+        locationId: correctionForm.locationId,
+        requestedCheckIn: checkInTime,
+        requestedCheckOut: checkOutTime,
+        reason: correctionForm.reason
+      };
+
+      const res = await api.post('attendance/corrections', payload);
+      
+      if (res.success) {
+        toast.success(t('attendanceCorrections.success') || '修改成功');
+        setShowCorrectionModal(false);
+        fetchRecords();
+      } else {
+        toast.error(res.error || 'Failed');
+      }
+    } catch (err) {
+      toast.error(t('attendance.systemError') || 'Error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchLocations();
     fetchRecords();
@@ -133,6 +194,7 @@ export default function AttendanceRecords() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('attendanceRecords.clockInTime')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('attendanceRecords.clockOutTime')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('attendanceRecords.status')}</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -149,10 +211,10 @@ export default function AttendanceRecords() {
                   {record.location?.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {new Date(record.checkIn).toLocaleTimeString()}
+                  {new Date(record.checkIn).toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {record.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '-'}
+                  {record.checkOut ? new Date(record.checkOut).toLocaleString() : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   {!record.checkOut ? (
@@ -169,11 +231,19 @@ export default function AttendanceRecords() {
                     </span>
                   )}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button
+                    onClick={() => openCorrectionForRecord(record)}
+                    className="text-primary-600 hover:text-primary-900"
+                  >
+                    {t('common.edit') || '編輯'}
+                  </button>
+                </td>
               </tr>
             ))}
             {records.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                   {t('attendanceRecords.noMatchingRecordsFound')}
                 </td>
               </tr>
@@ -181,6 +251,70 @@ export default function AttendanceRecords() {
           </tbody>
         </table>
       </div>
+
+      {showCorrectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <h3 className="text-lg font-bold text-gray-900">{t('attendanceCorrections.title') || '考勤修改'}</h3>
+              <button onClick={() => setShowCorrectionModal(false)} className="text-gray-400 hover:text-gray-500">
+                &times;
+              </button>
+            </div>
+            
+            <form onSubmit={submitCorrectionRequest} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckIn') || '正確上班時間'}</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={correctionForm.requestedCheckIn}
+                    onChange={(e) => setCorrectionForm({...correctionForm, requestedCheckIn: e.target.value})}
+                    className="w-full rounded border-gray-300"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckOut') || '正確下班時間'}</label>
+                  <input
+                    type="datetime-local"
+                    value={correctionForm.requestedCheckOut}
+                    onChange={(e) => setCorrectionForm({...correctionForm, requestedCheckOut: e.target.value})}
+                    className="w-full rounded border-gray-300"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.reason') || '修改原因'}</label>
+                  <input
+                    type="text"
+                    required
+                    value={correctionForm.reason}
+                    onChange={(e) => setCorrectionForm({...correctionForm, reason: e.target.value})}
+                    className="w-full rounded border-gray-300"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCorrectionModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                >
+                  {t('attendanceCorrections.cancel') || '取消'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {t('attendanceCorrections.submit') || '儲存'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

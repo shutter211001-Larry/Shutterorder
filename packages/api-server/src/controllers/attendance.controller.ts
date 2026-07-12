@@ -96,20 +96,15 @@ export const checkIn = async (req: Request, res: Response) => {
     }
   }
 
-  const startOfDay = new Date();
-  startOfDay.setUTCHours(0, 0, 0, 0);
-
   const existing = await prisma.staffAttendance.findFirst({
     where: {
       userId,
-      locationId: finalLocationId,
-      checkIn: { gte: startOfDay },
       checkOut: null
     }
   });
 
   if (existing) {
-    return res.status(400).json({ success: false, error: 'Already checked in without checkout today' });
+    return res.status(400).json({ success: false, error: '您有一筆未下班的紀錄，請先打下班卡或申請補登' });
   }
 
   const record = await prisma.staffAttendance.create({
@@ -239,6 +234,15 @@ export const getPayroll = async (req: Request, res: Response) => {
     where,
     include: {
       location: true,
+      correctionRequests: {
+        where: {
+          status: 'PENDING',
+          OR: [
+            { attendance: { checkIn: { gte: startDate, lte: endDate } } },
+            { requestedCheckIn: { gte: startDate, lte: endDate } }
+          ]
+        }
+      },
       leaves: {
         where: {
           status: 'APPROVED',
@@ -248,8 +252,7 @@ export const getPayroll = async (req: Request, res: Response) => {
       },
       attendances: {
         where: {
-          checkIn: { gte: startDate, lte: endDate },
-          checkOut: { not: null }
+          checkIn: { gte: startDate, lte: endDate }
         }
       },
       shifts: {
@@ -263,6 +266,10 @@ export const getPayroll = async (req: Request, res: Response) => {
   const payrollData = [];
 
   for (const user of users) {
+    if (user.correctionRequests.length > 0) {
+      return res.status(400).json({ success: false, error: '無法結算薪資：尚有未處理的考勤異常或待審核的補登申請' });
+    }
+
     let totalHours = 0;
     let baseSalary = 0;
     let holidayOvertimePay = 0;
@@ -275,9 +282,16 @@ export const getPayroll = async (req: Request, res: Response) => {
     const hourlyRate = user.salaryType === 'HOURLY' ? user.hourlyWage : user.monthlyWage / 240;
 
     for (const record of user.attendances) {
-      if (!record.checkOut) continue;
+      if (!record.checkOut) {
+        return res.status(400).json({ success: false, error: '無法結算薪資：尚有未下班的考勤紀錄' });
+      }
       const durationMs = record.checkOut.getTime() - record.checkIn.getTime();
       const durationHours = durationMs / (1000 * 60 * 60);
+      
+      // Exclude abnormal checkouts (>16 hours) from payroll
+      if (durationHours > 16) {
+        return res.status(400).json({ success: false, error: '無法結算薪資：尚有時數異常(超過16小時)的紀錄' });
+      }
       
       const recordDate = new Date(record.checkIn);
       recordDate.setUTCHours(0, 0, 0, 0);
@@ -357,10 +371,15 @@ export const getPayroll = async (req: Request, res: Response) => {
 };
 
 export const createCorrectionRequest = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) return res.status(401).json({ success: false, error: 'Unauthorized' });
+  const currentUserId = req.user?.id;
+  const role = req.user?.role;
+  if (!currentUserId) return res.status(401).json({ success: false, error: 'Unauthorized' });
 
-  const { attendanceId, requestedCheckIn, requestedCheckOut, reason } = req.body;
+  const { attendanceId, requestedCheckIn, requestedCheckOut, reason, targetUserId, locationId } = req.body;
+
+  const isManager = role === 'SUPER_ADMIN' || role === 'MANAGER';
+  const targetId = isManager && targetUserId ? targetUserId : currentUserId;
+  const isAutoApprove = isManager && targetUserId;
 
   if (!reason) {
     return res.status(400).json({ success: false, error: 'Reason is required' });
@@ -369,15 +388,48 @@ export const createCorrectionRequest = async (req: Request, res: Response) => {
   try {
     const request = await prisma.attendanceCorrectionRequest.create({
       data: {
-        userId,
+        userId: targetId,
         attendanceId: attendanceId || null,
         requestedCheckIn: requestedCheckIn ? new Date(requestedCheckIn) : null,
         requestedCheckOut: requestedCheckOut ? new Date(requestedCheckOut) : null,
-        reason
+        reason,
+        status: isAutoApprove ? 'APPROVED' : 'PENDING',
+        managerId: isAutoApprove ? currentUserId : null
       }
     });
+
+    if (isAutoApprove) {
+      if (request.attendanceId) {
+        // Update existing attendance
+        const updateData: any = {};
+        if (request.requestedCheckIn) updateData.checkIn = request.requestedCheckIn;
+        if (request.requestedCheckOut) updateData.checkOut = request.requestedCheckOut;
+        
+        await prisma.staffAttendance.update({
+          where: { id: request.attendanceId },
+          data: updateData
+        });
+      } else {
+        // Create new attendance
+        if (!request.requestedCheckIn) {
+           return res.status(400).json({ success: false, error: 'Cannot create attendance without check-in time' });
+        }
+        await prisma.staffAttendance.create({
+          data: {
+            userId: request.userId,
+            locationId: locationId || 'unassigned-location',
+            checkIn: request.requestedCheckIn,
+            checkOut: request.requestedCheckOut,
+            device: 'Manual Admin Correction',
+            isOutOfRange: false
+          }
+        });
+      }
+    }
+
     res.status(201).json({ success: true, data: request });
   } catch (error) {
+    console.error('Error creating correction:', error);
     res.status(500).json({ success: false, error: 'Failed to create request' });
   }
 };

@@ -63,7 +63,9 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
     attendances.forEach((record) => {
       if (record.checkOut && record.user) {
         const hours = (record.checkOut.getTime() - record.checkIn.getTime()) / (1000 * 60 * 60);
-        hourlyPayroll += hours * (record.user.hourlyWage || 0);
+        if (hours <= 16) {
+          hourlyPayroll += hours * (record.user.hourlyWage || 0);
+        }
       }
     });
 

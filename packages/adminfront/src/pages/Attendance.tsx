@@ -296,7 +296,7 @@ export default function Attendance() {
     }
   };
 
-  const todayRecord = myRecords.find(r => !r.checkOut && new Date(r.checkIn).setHours(0,0,0,0) === new Date().setHours(0,0,0,0));
+  const activeRecord = myRecords.find(r => !r.checkOut);
 
   return (
     <div className="p-6">
@@ -312,7 +312,7 @@ export default function Attendance() {
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
               className="w-full rounded border-gray-300"
-              disabled={!!todayRecord}
+              disabled={!!activeRecord}
             >
               <option value="">{t('attendance.pleaseSelect')}</option>
               {locations.map(loc => (
@@ -327,12 +327,12 @@ export default function Attendance() {
             </p>
           </div>
 
-          {todayRecord ? (
+          {activeRecord ? (
             <div>
               <p className="text-green-600 font-bold mb-4">{t('attendance.alreadyClockedIn')}</p>
-              <p className="mb-4">{t('attendance.clockInTime')} {new Date(todayRecord.checkIn).toLocaleString()}</p>
+              <p className="mb-4">{t('attendance.clockInTime')} {new Date(activeRecord.checkIn).toLocaleString()}</p>
               <button
-                onClick={() => handleCheckOut(todayRecord.id)}
+                onClick={() => handleCheckOut(activeRecord.id)}
                 disabled={loading}
                 className="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 disabled:opacity-50"
               >
@@ -456,8 +456,8 @@ export default function Attendance() {
                 {myRecords.map(record => (
                   <tr key={record.id}>
                     <td className="px-4 py-2">{new Date(record.checkIn).toLocaleDateString()}</td>
-                    <td className="px-4 py-2">{new Date(record.checkIn).toLocaleTimeString()}</td>
-                    <td className="px-4 py-2">{record.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '-'}</td>
+                    <td className="px-4 py-2">{new Date(record.checkIn).toLocaleString()}</td>
+                    <td className="px-4 py-2">{record.checkOut ? new Date(record.checkOut).toLocaleString() : '-'}</td>
                     <td className="px-4 py-2">{record.location?.name}</td>
                     <td className="px-4 py-2">
                       {!record.checkOut ? (
