@@ -1,4 +1,4 @@
-﻿import { api } from '../lib/api';
+import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { getFullUrl } from '../utils/url.js';
@@ -42,7 +42,7 @@ export default function DesignBranding() {
     setError('');
     setSuccess('');
     try {
-      const data = await api.put<any>('/settings', {});
+      const data = await api.put<any>('/settings', { siteName, siteTitle, siteDescription });
       if (data.success) {
         setSuccess(t('designBranding.brandSettingsUpdated'));
         setTimeout(() => setSuccess(''), 3000);
@@ -61,7 +61,7 @@ export default function DesignBranding() {
     formData.append(type, file);
 
     try {
-      const data = await api.post<any>(`/settings/${type}`, {});
+      const data = await api.upload<any>(`/settings/${type}`, formData);
       if (data.success && data.data) {
         if (type === 'logo') setLogo(getFullUrl(data.data.logo));
         else setFavicon(getFullUrl(data.data.favicon));

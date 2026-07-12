@@ -53,7 +53,7 @@ export default function DesignLanding() {
       .then((res) => {
         if (res.data) {
           if (res.data.heroSection) setHero(res.data.heroSection);
-          if (res.data.featuresSection) setFeatures(res.data.featuresSection);
+          if (res.data.featuresSection && Array.isArray(res.data.featuresSection)) setFeatures(res.data.featuresSection);
           if (res.data.ctaSection) setCta(res.data.ctaSection);
           if (res.data.menuSection) setMenu(res.data.menuSection);
           if (res.data.orderStatusMessage) setOrderStatusMessage(res.data.orderStatusMessage);
