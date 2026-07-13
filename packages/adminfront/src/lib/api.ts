@@ -41,7 +41,15 @@ async function request<T = any>(path: string, options?: RequestInit): Promise<T>
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
-    throw new Error(data.error || data.message || `API request failed: [Status ${res.status}] ${text.substring(0, 100)}`);
+    
+    const errorMessage = data.error || data.message || `API request failed: [Status ${res.status}] ${text.substring(0, 100)}`;
+    
+    // Dispatch global error event for UI to catch (e.g. Toast notifications)
+    window.dispatchEvent(new CustomEvent('api-error', { 
+      detail: { message: errorMessage, status: res.status } 
+    }));
+    
+    throw new Error(errorMessage);
   }
   
   return data;
@@ -88,7 +96,15 @@ export const api = {
     const data = text ? JSON.parse(text) : {};
     
     if (!res.ok) {
-      throw new Error(data.error || data.message || 'Upload failed');
+      if (res.status === 401 && window.location.pathname !== '/login') {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+      const errorMessage = data.error || data.message || 'Upload failed';
+      window.dispatchEvent(new CustomEvent('api-error', { 
+        detail: { message: errorMessage, status: res.status } 
+      }));
+      throw new Error(errorMessage);
     }
     
     return data;

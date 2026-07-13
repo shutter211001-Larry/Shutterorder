@@ -436,26 +436,36 @@ export async function confirmLinePayPayment(req: Request, res: Response): Promis
     const result = await linePay.confirmPayment(transactionId, payload);
 
     if (result.returnCode === '0000') {
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { status: 'COMPLETED' },
+      const updatedOrder = await prisma.$transaction(async (tx) => {
+        const updateResult = await tx.order.updateMany({
+          where: { id: order.id, paymentStatus: { not: 'PAID' } },
+          data: { status: 'CONFIRMED', paymentStatus: 'PAID' },
+        });
+
+        if (updateResult.count === 0) {
+          return null; // Idempotency check: already processed
+        }
+
+        await tx.payment.updateMany({
+          where: { id: payment.id },
+          data: { status: 'COMPLETED' },
+        });
+
+        return tx.order.findUnique({ where: { id: order.id } });
       });
 
-      const updatedOrder = await prisma.order.update({
-        where: { id: order.id },
-        data: { status: 'CONFIRMED', paymentStatus: 'PAID' },
-      });
-
-      emitOrderStatusUpdate({
-        id: updatedOrder.id,
-        orderNumber: updatedOrder.orderNumber,
-        status: updatedOrder.status,
-        orderType: updatedOrder.orderType,
-        customerId: updatedOrder.customerId,
-        locationId: updatedOrder.locationId,
-        paymentStatus: updatedOrder.paymentStatus,
-        tenantId: updatedOrder.tenantId,
-      } as any);
+      if (updatedOrder) {
+        emitOrderStatusUpdate({
+          id: updatedOrder.id,
+          orderNumber: updatedOrder.orderNumber,
+          status: updatedOrder.status,
+          orderType: updatedOrder.orderType,
+          customerId: updatedOrder.customerId,
+          locationId: updatedOrder.locationId,
+          paymentStatus: updatedOrder.paymentStatus,
+          tenantId: (updatedOrder as any).tenantId,
+        } as any);
+      }
 
       res.json({ success: true, data: { status: 'COMPLETED' } });
     } else {

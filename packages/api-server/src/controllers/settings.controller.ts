@@ -10,9 +10,24 @@ import { uploadImage, parseS3Settings } from '../lib/s3.js';
 
 import { updateSettingsSchema } from '../schemas/settings.schema.js';
 
+// In-Memory Settings Cache to prevent DB spam
+const settingsCache = new Map<string, { data: any, timestamp: number }>();
+const CACHE_TTL_MS = 60 * 1000; // 1 minute TTL
+
+export function clearSettingsCache(tenantId?: string | null) {
+  const key = tenantId || 'default';
+  settingsCache.delete(key);
+}
+
 export async function getOrCreateSettings() {
   const store = (await import('../middleware/tenantStorage.js')).tenantStorage.getStore();
   const tenantId = store?.tenantId;
+  const cacheKey = tenantId || 'default';
+  
+  const cached = settingsCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
 
   if (!tenantId) {
     let settings = await (prisma as any).siteSettings.findUnique({ where: { id: 'default' } });
@@ -21,6 +36,7 @@ export async function getOrCreateSettings() {
         data: { id: 'default', tenantId: null }
       });
     }
+    settingsCache.set(cacheKey, { data: settings, timestamp: Date.now() });
     return settings;
   }
 
@@ -28,6 +44,8 @@ export async function getOrCreateSettings() {
   if (!settings) {
     settings = await prisma.siteSettings.create({ data: { id: require('crypto').randomUUID(), tenantId } });
   }
+  
+  settingsCache.set(cacheKey, { data: settings, timestamp: Date.now() });
   return settings;
 }
 
@@ -163,6 +181,7 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
           },
         },
       });
+      clearSettingsCache(existingSettings.tenantId);
 
       auditLog(req, { action: 'update', entity: 'SiteSettings', entityId: existingSettings.id, details: { locationId, fields: ['lineSettings'] } });
       res.json({ success: true, data: toPublicSettings(updatedSettings) });
@@ -195,6 +214,8 @@ export async function updateSettings(req: Request, res: Response): Promise<void>
     where: { id: existingSettings.id },
     data: translatedData,
   });
+  
+  clearSettingsCache(existingSettings.tenantId);
 
   auditLog(req, { action: 'update', entity: 'SiteSettings', entityId: existingSettings.id, details: { fields: Object.keys(parsed.data) } });
 
@@ -216,6 +237,7 @@ export async function uploadLogo(req: Request, res: Response): Promise<void> {
     where: { id: settings.id },
     data: { logo: logoPath },
   });
+  clearSettingsCache(settings.tenantId);
 
   res.json({ success: true, data: toPublicSettings(updatedSettings) });
 }

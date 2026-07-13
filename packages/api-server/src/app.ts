@@ -167,6 +167,7 @@ export async function createApp() {
       message: { success: false, error: 'Too many requests, please try again later.' },
     });
     app.use('/api/', limiter);
+    app.use('/shutter-erp/', limiter);
   }
 
   // Stripe webhook needs raw body — register before JSON parser

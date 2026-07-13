@@ -62,6 +62,8 @@ export async function getResolvedS3Settings(tenantId?: string | null): Promise<S
   return s3Settings;
 }
 
+import sharp from 'sharp';
+
 /**
  * Uploads a file buffer to S3 or falls back to local disk
  * @returns The final URL or path of the uploaded image
@@ -70,8 +72,15 @@ export async function uploadImage(
   file: Express.Multer.File,
   s3Settings: S3Settings | null
 ): Promise<string> {
-  const ext = path.extname(file.originalname).toLowerCase();
-  const filename = `${randomUUID()}${ext}`;
+  const filename = `${randomUUID()}.webp`;
+  
+  // Compress and convert to WebP
+  const optimizedBuffer = await sharp(file.buffer)
+    .resize({ width: 1200, withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
+  
+  const mimetype = 'image/webp';
 
   if (s3Settings) {
     try {
@@ -87,8 +96,8 @@ export async function uploadImage(
       const command = new PutObjectCommand({
         Bucket: s3Settings.bucket,
         Key: filename,
-        Body: file.buffer,
-        ContentType: file.mimetype,
+        Body: optimizedBuffer,
+        ContentType: mimetype,
       });
 
       await s3Client.send(command);
@@ -115,7 +124,7 @@ export async function uploadImage(
   }
 
   const filePath = path.join(uploadDir, filename);
-  await fs.writeFile(filePath, file.buffer);
+  await fs.writeFile(filePath, optimizedBuffer);
   
   return `/uploads/${filename}`;
 }

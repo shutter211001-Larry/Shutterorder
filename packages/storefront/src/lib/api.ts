@@ -37,11 +37,15 @@ async function request<T = any>(path: string, options?: RequestInit): Promise<T>
   const data = text ? JSON.parse(text) : {};
   
   if (!res.ok) {
-    if (res.status === 401) {
+    if (res.status === 401 && window.location.pathname !== '/login') {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
-    throw new Error(data.error || data.message || 'API request failed');
+    const errorMessage = data.error || data.message || `API request failed: [Status ${res.status}] ${text.substring(0, 100)}`;
+    window.dispatchEvent(new CustomEvent('api-error', { 
+      detail: { message: errorMessage, status: res.status } 
+    }));
+    throw new Error(errorMessage);
   }
   
   return data;
@@ -88,7 +92,15 @@ export const api = {
     const data = text ? JSON.parse(text) : {};
     
     if (!res.ok) {
-      throw new Error(data.error || data.message || 'Upload failed');
+      if (res.status === 401 && window.location.pathname !== '/login') {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+      const errorMessage = data.error || data.message || 'Upload failed';
+      window.dispatchEvent(new CustomEvent('api-error', { 
+        detail: { message: errorMessage, status: res.status } 
+      }));
+      throw new Error(errorMessage);
     }
     
     return data;
