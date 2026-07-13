@@ -2059,5 +2059,13 @@
   },
   "orderStatus": {
     "history": "狀態紀錄"
+  },
+  "requisition": {
+    "create": "新增叫貨單",
+    "expectedDate": "期望到貨日期 (選填)",
+    "items": "叫貨品項",
+    "addItem": "新增品項",
+    "selectIngredient": "選擇原物料",
+    "quantity": "數量"
   }
 }

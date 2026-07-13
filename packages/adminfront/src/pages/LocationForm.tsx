@@ -7,6 +7,7 @@ import { OpenLocationCode } from 'open-location-code';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { confirm } from "../lib/confirm";
+import LocationInventoryPanel from '../components/inventory/LocationInventoryPanel.js';
 
 interface OperatingHour {
   dayOfWeek: number;
@@ -920,18 +921,20 @@ export default function LocationForm() {
         )}
 
         {activeTab === 'inventory' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{t('locationForm.inventory') || '門市庫存'}</h3>
-                  <p className="text-sm text-gray-500">在此管理本門市的專屬庫存與安全水位。這與中央廚房的庫存是完全獨立的。</p>
+          <div className="animate-in fade-in duration-300">
+            {isEdit ? (
+              <LocationInventoryPanel locationId={id!} />
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
                 </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">請先建立門市</h3>
+                <p className="text-gray-500">必須先儲存門市基本資料後，才能開始管理專屬庫存與叫貨單。</p>
               </div>
-              <div className="text-center py-10 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-                <p className="text-sm text-gray-500">庫存管理模組建置中... (Inventory Module Coming Soon)</p>
-              </div>
-            </section>
+            )}
           </div>
         )}
 

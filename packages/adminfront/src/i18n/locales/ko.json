@@ -2059,5 +2059,13 @@
   },
   "orderStatus": {
     "history": "Status History"
+  },
+  "requisition": {
+    "create": "Create Requisition",
+    "expectedDate": "Expected Date (Optional)",
+    "items": "Requisition Items",
+    "addItem": "Add Item",
+    "selectIngredient": "Select Ingredient",
+    "quantity": "Quantity"
   }
 }

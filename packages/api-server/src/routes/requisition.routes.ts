@@ -5,6 +5,7 @@ import {
   createRequisition,
   receiveRequisition,
   getTenantIngredients,
+  updateBranchInventory,
 } from "../controllers/requisition.controller";
 import { authenticate } from "../middleware/auth.js";
 
@@ -14,6 +15,7 @@ router.use(authenticate as any);
 
 router.get("/ingredients", getTenantIngredients);
 router.get("/inventory", getBranchInventory);
+router.put("/inventory", updateBranchInventory);
 router.get("/", getBranchRequisitions);
 router.post("/", createRequisition);
 router.post("/:id/receive", receiveRequisition);

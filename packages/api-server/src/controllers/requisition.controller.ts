@@ -136,3 +136,48 @@ export const getTenantIngredients = async (req: any, res: any) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const updateBranchInventory = async (req: any, res: any) => {
+  try {
+    const tenantId = req.tenantId;
+    const { locationId, items } = req.body;
+
+    if (!locationId || !items || !Array.isArray(items)) {
+      return res.status(400).json({ error: "Missing locationId or items array" });
+    }
+
+    // Process all updates in a transaction
+    await prisma.$transaction(async (tx: any) => {
+      for (const item of items) {
+        const { ingredientId, currentStock, safetyStock } = item;
+        
+        if (!ingredientId) continue;
+
+        const updateData: any = {};
+        if (currentStock !== undefined) updateData.currentStock = Number(currentStock);
+        if (safetyStock !== undefined) updateData.safetyStock = Number(safetyStock);
+
+        await tx.locationInventory.upsert({
+          where: {
+            locationId_ingredientId: {
+              locationId,
+              ingredientId,
+            },
+          },
+          create: {
+            tenantId,
+            locationId,
+            ingredientId,
+            currentStock: currentStock !== undefined ? Number(currentStock) : 0,
+            safetyStock: safetyStock !== undefined ? Number(safetyStock) : 0,
+          },
+          update: updateData,
+        });
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
