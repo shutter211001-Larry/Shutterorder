@@ -101,10 +101,10 @@ describe('Auth Middleware - Unit Tests', () => {
   });
 
   describe('authenticate', () => {
-    it('returns 401 when no authorization header', () => {
+    it('returns 401 when no authorization header', async () => {
       const { req, res, next } = createMocks();
 
-      authenticate(req, res, next);
+      await authenticate(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -114,23 +114,23 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('returns 401 when authorization header does not start with Bearer', () => {
+    it('returns 401 when authorization header does not start with Bearer', async () => {
       const { req, res, next } = createMocks({
         headers: { authorization: 'Basic abc123' },
       });
 
-      authenticate(req, res, next);
+      await authenticate(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('returns 401 for invalid token', () => {
+    it('returns 401 for invalid token', async () => {
       const { req, res, next } = createMocks({
         headers: { authorization: 'Bearer invalid-token' },
       });
 
-      authenticate(req, res, next);
+      await authenticate(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -140,19 +140,20 @@ describe('Auth Middleware - Unit Tests', () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('sets req.user and calls next for valid token', () => {
+    it('sets req.user and calls next for valid token', async () => {
       const payload: JwtPayload = {
         id: 'user-1',
         email: 'test@test.com',
         type: 'staff',
         role: 'STAFF',
+        tenantId: null,
       };
       const token = generateToken(payload);
       const { req, res, next } = createMocks({
         headers: { authorization: `Bearer ${token}` },
       });
 
-      authenticate(req, res, next);
+      await authenticate(req, res, next);
 
       expect(req.user).toBeDefined();
       expect(req.user!.id).toBe('user-1');
@@ -248,50 +249,51 @@ describe('Auth Middleware - Unit Tests', () => {
   });
 
   describe('optionalAuth', () => {
-    it('calls next without setting user when no auth header', () => {
+    it('calls next without setting user when no auth header', async () => {
       const { req, res, next } = createMocks();
 
-      optionalAuth(req, res, next);
+      await optionalAuth(req, res, next);
 
       expect(req.user).toBeUndefined();
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    it('calls next without setting user when token is invalid', () => {
+    it('calls next without setting user when token is invalid', async () => {
       const { req, res, next } = createMocks({
         headers: { authorization: 'Bearer invalid-token' },
       });
 
-      optionalAuth(req, res, next);
+      await optionalAuth(req, res, next);
 
       expect(req.user).toBeUndefined();
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    it('sets user and calls next when token is valid', () => {
+    it('sets user and calls next when token is valid', async () => {
       const token = generateToken({
         id: 'user-1',
         email: 'test@test.com',
         type: 'staff',
         role: 'STAFF',
+        tenantId: null,
       });
       const { req, res, next } = createMocks({
         headers: { authorization: `Bearer ${token}` },
       });
 
-      optionalAuth(req, res, next);
+      await optionalAuth(req, res, next);
 
       expect(req.user).toBeDefined();
       expect(req.user!.id).toBe('user-1');
       expect(next).toHaveBeenCalledTimes(1);
     });
 
-    it('does not set user for non-Bearer auth schemes', () => {
+    it('does not set user for non-Bearer auth schemes', async () => {
       const { req, res, next } = createMocks({
         headers: { authorization: 'Basic abc123' },
       });
 
-      optionalAuth(req, res, next);
+      await optionalAuth(req, res, next);
 
       expect(req.user).toBeUndefined();
       expect(next).toHaveBeenCalledTimes(1);

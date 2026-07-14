@@ -122,9 +122,9 @@ describe('Discount Engine Logic', () => {
       expect(result.reason).toContain('本活動僅限特定管道');
     });
 
-    it('enforces requireCategoryIds condition', () => {
+    it('enforces applicableCategoryIds condition', () => {
       const campaign = createSampleCampaign({
-        conditions: JSON.stringify({ requireCategoryIds: ['cat-pizza'] })
+        conditions: JSON.stringify({ applicableCategoryIds: ['cat-pizza'] })
       });
       const cartItems = [
         { menuItemId: 'item-1', categoryId: 'cat-burger', price: 10, quantity: 2 }
@@ -135,7 +135,7 @@ describe('Discount Engine Logic', () => {
         cartItems
       );
       expect(result.isValid).toBe(false);
-      expect(result.reason).toContain('購物車內未包含指定分類商品');
+      expect(result.reason).toContain('購物車內沒有符合此優惠條件的指定商品');
     });
 
     it('enforces minItemCount total item count condition', () => {
@@ -151,7 +151,7 @@ describe('Discount Engine Logic', () => {
         cartItems
       );
       expect(result.isValid).toBe(false);
-      expect(result.reason).toContain('商品總數量需達到');
+      expect(result.reason).toContain('指定商品未達最低消費件數門檻 3 件');
     });
 
     it('enforces timeOfDay Happy Hour time limitation', () => {
@@ -181,7 +181,7 @@ describe('Discount Engine Logic', () => {
 
     it('enforces minCategoryItemCount category-specific quantity condition', () => {
       const campaign = createSampleCampaign({
-        conditions: JSON.stringify({ requireCategoryIds: ['cat-pizza'], minCategoryItemCount: 2 })
+        conditions: JSON.stringify({ applicableCategoryIds: ['cat-pizza'], minItemCount: 2 })
       });
 
       // Cart has 1 pizza (not enough)
@@ -195,7 +195,7 @@ describe('Discount Engine Logic', () => {
         cartItems1
       );
       expect(result1.isValid).toBe(false);
-      expect(result1.reason).toContain('指定分類商品總數量需達到');
+      expect(result1.reason).toContain('指定商品未達最低消費件數門檻 2 件');
 
       // Cart has 2 pizzas (enough)
       const cartItems2 = [
@@ -247,7 +247,7 @@ describe('Discount Engine Logic', () => {
       const bogoCampaign = createSampleCampaign({
         type: 'BOGO' as any,
         conditions: JSON.stringify({
-          buyQuantity: 1,
+          minItemCount: 2,
           getQuantity: 1,
           getDiscountType: 'PERCENTAGE',
           getDiscountValue: 50
@@ -277,7 +277,7 @@ describe('Discount Engine Logic', () => {
         type: 'BOGO' as any,
         conditions: JSON.stringify({
           applicableCategoryIds: ['target-cat'],
-          buyQuantity: 2,
+          minItemCount: 3,
           getQuantity: 1,
           getDiscountType: 'FREE'
         })
@@ -300,7 +300,7 @@ describe('Discount Engine Logic', () => {
       );
 
       expect(result.isValid).toBe(false);
-      expect(result.reason).toContain('未達活動門檻');
+      expect(result.reason).toContain('指定商品未達最低消費件數門檻 3 件');
     });
   });
 

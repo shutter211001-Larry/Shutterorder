@@ -44,9 +44,9 @@ export function calculateHourlyPayroll(
     }
   }
 
-  // 四捨五入至整數
-  const basePay = Math.round(totalBasePay);
-  const overtimePay = Math.round(totalOvertimePay);
+  // 四捨五入至整數 (處理浮點數精度問題)
+  const basePay = Math.round(totalBasePay + 1e-10);
+  const overtimePay = Math.round(totalOvertimePay + 1e-10);
 
   return {
     basePay,

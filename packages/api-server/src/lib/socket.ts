@@ -2,6 +2,7 @@ import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { prisma } from './db.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const expo = new Expo();
 
@@ -50,6 +51,21 @@ export function initSocket(httpServer: HttpServer): Server {
     transports: ['polling', 'websocket']
   });
 
+  io.use((socket, next) => {
+    try {
+      const token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace('Bearer ', '');
+      if (token) {
+        const decoded = verifyToken(token);
+        socket.data.user = decoded;
+        socket.data.tenantId = decoded.tenantId;
+      }
+      next();
+    } catch (err) {
+      console.warn('Socket token verification failed:', err);
+      next(); // Still allow connection (for public rooms like join:order), but socket.data will be empty
+    }
+  });
+
   io.on('connection', (socket: Socket) => {
     // Join order-specific room for customers tracking their order
     socket.on('join:order', (orderId: string) => {
@@ -62,35 +78,49 @@ export function initSocket(httpServer: HttpServer): Server {
 
     // Join kitchen room for staff viewing kitchen display
     socket.on('join:kitchen', (data?: { locationId?: string; tenantId?: string }) => {
+      const tenantId = data?.tenantId || socket.data.tenantId;
+      // Strict isolation: only allow joining if the socket has the matching tenantId
+      if (!socket.data.tenantId || socket.data.tenantId !== tenantId) {
+        return; // Reject unauthorized join
+      }
+
       if (data?.locationId) {
         socket.join(`kitchen:${data.locationId}`);
-      } else if (data?.tenantId) {
-        socket.join(`kitchen:tenant:${data.tenantId}`);
+      } else if (tenantId) {
+        socket.join(`kitchen:tenant:${tenantId}`);
       }
     });
 
     socket.on('leave:kitchen', (data?: { locationId?: string; tenantId?: string }) => {
+      const tenantId = data?.tenantId || socket.data.tenantId;
       if (data?.locationId) {
         socket.leave(`kitchen:${data.locationId}`);
-      } else if (data?.tenantId) {
-        socket.leave(`kitchen:tenant:${data.tenantId}`);
+      } else if (tenantId) {
+        socket.leave(`kitchen:tenant:${tenantId}`);
       }
     });
 
     // Join chat room for admins
     socket.on('join:chat', (data?: { locationId?: string; tenantId?: string }) => {
+      const tenantId = data?.tenantId || socket.data.tenantId;
+      // Strict isolation
+      if (!socket.data.tenantId || socket.data.tenantId !== tenantId) {
+        return;
+      }
+
       if (data?.locationId && data.locationId !== 'global') {
         socket.join(`admin:chat:${data.locationId}`);
-      } else if (data?.tenantId) {
-        socket.join(`admin:chat:tenant:${data.tenantId}`);
+      } else if (tenantId) {
+        socket.join(`admin:chat:tenant:${tenantId}`);
       }
     });
 
     socket.on('leave:chat', (data?: { locationId?: string; tenantId?: string }) => {
+      const tenantId = data?.tenantId || socket.data.tenantId;
       if (data?.locationId && data.locationId !== 'global') {
         socket.leave(`admin:chat:${data.locationId}`);
-      } else if (data?.tenantId) {
-        socket.leave(`admin:chat:tenant:${data.tenantId}`);
+      } else if (tenantId) {
+        socket.leave(`admin:chat:tenant:${tenantId}`);
       }
     });
 

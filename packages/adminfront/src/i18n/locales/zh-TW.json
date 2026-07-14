@@ -70,7 +70,8 @@
       "delete": "刪除員工",
       "deleting": "刪除中...",
       "sendInvite": "發送邀請",
-      "sending": "發送中..."
+      "sending": "發送中...",
+      "saveSuccess": "Save Success"
     },
     "dangerZone": "危險區域",
     "deleteWarning": "刪除員工後將無法復原。請確定您要執行此操作。",
@@ -109,7 +110,12 @@
     "refresh": "重新整理",
     "guest": "顧客",
     "noResults": "沒有找到結果",
-    "none": "無"
+    "none": "無",
+    "saving": "Saving",
+    "approve": "Approve",
+    "reject": "Reject",
+    "confirm": "Confirm",
+    "export": "Export"
   },
   "dashboard": {
     "title": "控制面板",
@@ -163,7 +169,8 @@
     "backToOrders": "返回訂單列表",
     "items": "訂單品項",
     "free": "免費",
-    "orderDetail": "訂單詳情"
+    "orderDetail": "訂單詳情",
+    "deliveryAddress": "Delivery Address"
   },
   "kitchen": {
     "title": "廚房看板",
@@ -1351,7 +1358,10 @@
     "manualTax": "手動稅額",
     "estimatedWaitTime": "Estimated Wait Time",
     "minutes": "mins",
-    "expectedReadyTime": "Expected Ready"
+    "expectedReadyTime": "Expected Ready",
+    "uncategorized": "Uncategorized",
+    "tax": "Tax",
+    "discount": "Discount"
   },
   "orderDetail": {
     "fulfillOrder": "填寫出貨資訊",
@@ -1460,7 +1470,8 @@
     "pageSuffix": "頁",
     "nextPage": "下一頁",
     "typeFrozenDelivery": "冷凍宅配 (Frozen)",
-    "frozenDelivery": "冷凍宅配"
+    "frozenDelivery": "冷凍宅配",
+    "exportOrders": "Export Orders"
   },
   "promotionsHub": {
     "couponsAndEvents": "🏷️ 優惠券與活動 (Coupons)",
@@ -1820,7 +1831,9 @@
     "boardLeadTimeDescription": "設定預約訂單在取餐前多久會自動出現在看板的狀態欄位（待處理/製作中）中。",
     "boardLeadTimeExample": "例如：設定 60 分鐘，則 12:00 取餐的訂單會在 11:00 出現在看板上。",
     "saving": "儲存中...",
-    "saveAllChanges": "儲存所有變更"
+    "saveAllChanges": "儲存所有變更",
+    "enableCapacityLimit": "Enable Capacity Limit",
+    "enableCapacityLimitDesc": "Enable Capacity Limit Desc"
   },
   "settingsPayments": {
     "paymentSettingsUpdated": "支付設定已更新",
@@ -1921,7 +1934,8 @@
       "basic": "基本資料",
       "employment": "到職資訊",
       "insurance": "勞健保資訊"
-    }
+    },
+    "availableDays": "Available Days"
   },
   "staffList": {
     "loading": "載入中",
@@ -2058,7 +2072,8 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)",
-    "adminOverrideReason": "管理員手動調整"
+    "adminOverrideReason": "管理員手動調整",
+    "reasonRequired": "Reason Required"
   },
   "days": {
     "sunday": "星期日 (Sun)",

@@ -54,6 +54,11 @@ export async function getOrCreateSettings() {
 
   let settings = await prisma.siteSettings.findFirst();
   if (!settings) {
+    // Prevent 500 Foreign Key Error if tenantId does not exist
+    const tenantExists = await (prisma as any).tenant.findUnique({ where: { id: tenantId } });
+    if (!tenantExists) {
+      throw new Error(`Tenant not found: ${tenantId}`);
+    }
     settings = await prisma.siteSettings.create({ data: { id: require('crypto').randomUUID(), tenantId } });
   }
   

@@ -70,7 +70,8 @@
       "delete": "スタッフを削除",
       "deleting": "削除中...",
       "sendInvite": "招待を送信",
-      "sending": "送信中..."
+      "sending": "送信中...",
+      "saveSuccess": "Save Success"
     },
     "dangerZone": "危険ゾーン",
     "deleteWarning": "スタッフを削除すると元に戻せません。この操作を実行してもよろしいですか？",
@@ -109,7 +110,12 @@
     "refresh": "更新",
     "guest": "Guest",
     "noResults": "結果が見つかりません",
-    "none": "なし"
+    "none": "なし",
+    "saving": "Saving",
+    "approve": "Approve",
+    "reject": "Reject",
+    "confirm": "Confirm",
+    "export": "Export"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -163,7 +169,8 @@
     "backToOrders": "注文リストに戻る",
     "items": "注文品目",
     "free": "無料",
-    "orderDetail": "注文詳細"
+    "orderDetail": "注文詳細",
+    "deliveryAddress": "Delivery Address"
   },
   "kitchen": {
     "title": "キッチンボード",
@@ -1351,7 +1358,10 @@
     "manualTax": "Manual Tax",
     "estimatedWaitTime": "Estimated Wait Time",
     "minutes": "mins",
-    "expectedReadyTime": "Expected Ready"
+    "expectedReadyTime": "Expected Ready",
+    "uncategorized": "Uncategorized",
+    "tax": "Tax",
+    "discount": "Discount"
   },
   "orderDetail": {
     "fulfillOrder": "発送情報を入力",
@@ -1460,7 +1470,8 @@
     "pageSuffix": "頁",
     "nextPage": "下一頁",
     "typeFrozenDelivery": "冷凍便",
-    "frozenDelivery": "冷凍便"
+    "frozenDelivery": "冷凍便",
+    "exportOrders": "Export Orders"
   },
   "promotionsHub": {
     "couponsAndEvents": "🏷️ 優惠券與活動 (Coupons)",
@@ -1820,7 +1831,9 @@
     "boardLeadTimeDescription": "設定預約訂單在取餐前多久會自動出現在看板的狀態欄位（待處理/製作中）中。",
     "boardLeadTimeExample": "例如：設定 60 分鐘，則 12:00 取餐的訂單會在 11:00 出現在看板上。",
     "saving": "儲存中...",
-    "saveAllChanges": "儲存所有變更"
+    "saveAllChanges": "儲存所有變更",
+    "enableCapacityLimit": "Enable Capacity Limit",
+    "enableCapacityLimitDesc": "Enable Capacity Limit Desc"
   },
   "settingsPayments": {
     "paymentSettingsUpdated": "支付設定已更新",
@@ -1921,7 +1934,8 @@
       "basic": "Basic Info",
       "employment": "Employment Info",
       "insurance": "Insurance Info"
-    }
+    },
+    "availableDays": "Available Days"
   },
   "staffList": {
     "loading": "載入中",
@@ -2058,7 +2072,8 @@
     "manager": "審核主管",
     "date": "日期",
     "createNew": "新增全新補打卡紀錄 (無原始紀錄時使用)",
-    "adminOverrideReason": "Admin manual override"
+    "adminOverrideReason": "Admin manual override",
+    "reasonRequired": "Reason Required"
   },
   "days": {
     "sunday": "星期日 (Sun)",

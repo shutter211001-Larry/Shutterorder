@@ -5,6 +5,7 @@ import { generateToken } from '../../middleware/auth.js';
 
 vi.mock('../../lib/db.js', () => {
   const mockPrisma = {
+    siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) } }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) },
     location: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
     order: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
     orderItem: { count: vi.fn() },
@@ -12,8 +13,8 @@ vi.mock('../../lib/db.js', () => {
     deliveryZone: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     table: { findMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     reservation: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    user: { findUnique: vi.fn() },
-    customer: { findUnique: vi.fn() },
+    user: { findFirst: vi.fn(), findUnique: vi.fn() },
+    customer: { findFirst: vi.fn(), findUnique: vi.fn() },
     category: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
   };
   return { default: mockPrisma, prisma: mockPrisma };
@@ -29,10 +30,10 @@ vi.mock('../../lib/stripe.js', () => ({
 import prisma from '../../lib/db.js';
 const mockedPrisma = vi.mocked(prisma);
 
-const app = createApp();
+const app = await createApp();
 
-const staffToken = generateToken({ id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
-const customerToken = generateToken({ id: 'cust-1', email: 'customer@test.com', type: 'customer' });
+const staffToken = generateToken({ tenantId: 'tenant-1', id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
+const customerToken = generateToken({ tenantId: 'tenant-1', id: 'cust-1', email: 'customer@test.com', type: 'customer' });
 
 const sampleLocation = { id: 'loc-1', name: 'Downtown Kitchen', isActive: true };
 const sampleReservation = {
@@ -44,7 +45,7 @@ const sampleReservation = {
   partySize: 4,
   status: 'PENDING',
   comment: null,
-  customer: { id: 'cust-1', name: 'John', email: 'john@test.com', phone: null },
+  customer: { findFirst: vi.fn(), id: 'cust-1', name: 'John', email: 'john@test.com', phone: null },
   location: { id: 'loc-1', name: 'Downtown Kitchen' },
   table: null,
 };

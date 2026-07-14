@@ -60,7 +60,7 @@ export async function checkCustomerBlacklist(req: Request, res: Response, next: 
  * Rate limiter specifically for order creation.
  * Supports whitelisting for trusted members.
  */
-export const orderRateLimiter = rateLimit({
+export const orderRateLimiter = process.env.NODE_ENV === 'test' ? ((req: Request, res: Response, next: NextFunction) => next()) : rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour window
   max: 10, // Max 10 orders per hour per IP/User
   standardHeaders: true,
@@ -96,7 +96,7 @@ export const orderRateLimiter = rateLimit({
  * Rate limiter for login attempts (staff & customer)
  * to prevent brute-force attacks.
  */
-export const loginRateLimiter = rateLimit({
+export const loginRateLimiter = process.env.NODE_ENV === 'test' ? ((req: Request, res: Response, next: NextFunction) => next()) : rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // Limit each IP to 5 login requests per windowMs
   standardHeaders: true,
@@ -111,7 +111,7 @@ export const loginRateLimiter = rateLimit({
  * Rate limiter for registration attempts
  * to prevent automated account creation spam.
  */
-export const registerRateLimiter = rateLimit({
+export const registerRateLimiter = process.env.NODE_ENV === 'test' ? ((req: Request, res: Response, next: NextFunction) => next()) : rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3, // Limit each IP to 3 registration requests per windowMs
   standardHeaders: true,

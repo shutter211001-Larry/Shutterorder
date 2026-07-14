@@ -5,6 +5,7 @@ import { generateToken } from '../../middleware/auth.js';
 
 vi.mock('../../lib/db.js', () => {
     const mockPrisma = {
+    siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) } }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) },
         location: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         order: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
         orderItem: { count: vi.fn() },
@@ -14,8 +15,8 @@ vi.mock('../../lib/db.js', () => {
         reservation: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         coupon: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         review: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn(), aggregate: vi.fn() },
-        user: { findUnique: vi.fn() },
-        customer: { findUnique: vi.fn() },
+        user: { findFirst: vi.fn(), findUnique: vi.fn() },
+        customer: { findFirst: vi.fn(), findUnique: vi.fn() },
         category: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         automationRule: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         mealtime: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
@@ -37,12 +38,12 @@ vi.mock('../../lib/translation-helper.js', () => ({
 import prisma from '../../lib/db.js';
 const mockedPrisma = vi.mocked(prisma) as any;
 
-const app = createApp();
+const app = await createApp();
 
-const adminToken = generateToken({ id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
-const managerToken = generateToken({ id: '2', email: 'manager@test.com', type: 'staff', role: 'MANAGER' });
-const staffToken = generateToken({ id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
-const customerToken = generateToken({ id: 'cust-1', email: 'customer@test.com', type: 'customer' });
+const adminToken = generateToken({ tenantId: 'tenant-1', id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
+const managerToken = generateToken({ tenantId: 'tenant-1', id: '2', email: 'manager@test.com', type: 'staff', role: 'MANAGER' });
+const staffToken = generateToken({ tenantId: 'tenant-1', id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
+const customerToken = generateToken({ tenantId: 'tenant-1', id: 'cust-1', email: 'customer@test.com', type: 'customer' });
 
 const sampleMealtime = {
     id: 'mt-1',

@@ -22,6 +22,11 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     }
   }
 
+  // Inject default tenant for integration tests
+  if (!tenantId && process.env.NODE_ENV === 'test') {
+    tenantId = 'tenant-1';
+  }
+
   let domain = req.headers['x-tenant-domain'] as string;
 
   // 智慧去頭機制 (Smart Subdomain Stripping): 

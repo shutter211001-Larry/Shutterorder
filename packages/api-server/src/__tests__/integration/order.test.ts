@@ -12,12 +12,12 @@ vi.mock('../../lib/db.js', () => {
     deliveryZone: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     table: { findMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     reservation: { count: vi.fn() },
-    user: { findUnique: vi.fn() },
-    customer: { findUnique: vi.fn(), update: vi.fn() },
+    user: { findFirst: vi.fn(), findUnique: vi.fn() },
+    customer: { findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
     loyaltyTransaction: { create: vi.fn() },
     automationRule: { findMany: vi.fn() },
     category: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
-    siteSettings: { findUnique: vi.fn() },
+    siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) },
     menuOptionValue: { findMany: vi.fn() },
     coupon: { findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
   };
@@ -35,11 +35,11 @@ vi.mock('../../middleware/security.js', () => ({
 import prisma from '../../lib/db.js';
 const mockedPrisma = vi.mocked(prisma) as any;
 
-const app = createApp();
+const app = await createApp();
 
-const adminToken = generateToken({ id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
-const staffToken = generateToken({ id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
-const customerToken = generateToken({ id: 'cust-1', email: 'customer@test.com', type: 'customer' });
+const adminToken = generateToken({ tenantId: 'tenant-1', id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
+const staffToken = generateToken({ tenantId: 'tenant-1', id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
+const customerToken = generateToken({ tenantId: 'tenant-1', id: 'cust-1', email: 'customer@test.com', type: 'customer' });
 
 const sampleLocation = { id: 'loc-1', name: 'Downtown Kitchen', isActive: true, isBusy: false, busyMessage: null, operatingHours: [], deliveryEnabled: true, pickupEnabled: true };
 const sampleMenuItem = {
@@ -111,7 +111,7 @@ describe('Order API - Integration Tests', () => {
     it('creates an order as authenticated customer', async () => {
       mockedPrisma.menuItem.findMany.mockResolvedValue([sampleMenuItem] as any);
       mockedPrisma.location.findFirst.mockResolvedValue(sampleLocation as any);
-      mockedPrisma.order.create.mockResolvedValue({ ...sampleOrder, customerId: 'cust-1', customer: { email: 'customer@test.com' } } as any);
+      mockedPrisma.order.create.mockResolvedValue({ ...sampleOrder, customerId: 'cust-1', customer: { findFirst: vi.fn(), email: 'customer@test.com' } } as any);
       mockedPrisma.customer.update.mockResolvedValue({ id: 'cust-1', loyaltyPoints: 14 } as any);
       mockedPrisma.loyaltyTransaction.create.mockResolvedValue({} as any);
       mockedPrisma.automationRule.findMany.mockResolvedValue([]);

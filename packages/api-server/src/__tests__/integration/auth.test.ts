@@ -7,21 +7,15 @@ import { generateToken } from '../../middleware/auth.js';
 // Mock the Prisma client
 vi.mock('../../lib/db.js', () => {
   const mockPrisma = {
-    user: {
-      findUnique: vi.fn(),
+    user: { findFirst: vi.fn(), findUnique: vi.fn(),
+      create: vi.fn(), },
+    customer: { findFirst: vi.fn(), findUnique: vi.fn(),
       create: vi.fn(),
-    },
-    customer: {
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
+      update: vi.fn(), },
     order: {
       updateMany: vi.fn(),
     },
-    siteSettings: {
-      findUnique: vi.fn(),
-    },
+    siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) },
     registrationBonusRecord: {
       findUnique: vi.fn(),
       create: vi.fn(),
@@ -37,7 +31,7 @@ vi.mock('../../lib/db.js', () => {
 // Import the mocked module
 import prisma from '../../lib/db.js';
 
-const app = createApp();
+const app = await createApp();
 
 const mockedPrisma = vi.mocked(prisma) as any;
 
@@ -170,7 +164,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns 403 with non-SUPER_ADMIN token', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: '1',
         email: 'staff@example.com',
         type: 'staff',
@@ -187,7 +181,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns 403 with customer token', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: '1',
         email: 'customer@example.com',
         type: 'customer',
@@ -202,7 +196,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns 409 when email already exists', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: '1',
         email: 'admin@example.com',
         type: 'staff',
@@ -233,7 +227,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns 201 with token for valid registration by SUPER_ADMIN', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: '1',
         email: 'admin@example.com',
         type: 'staff',
@@ -260,7 +254,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns 400 for invalid registration data', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: '1',
         email: 'admin@example.com',
         type: 'staff',
@@ -443,7 +437,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns staff info for staff token', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: 'user-1',
         email: 'staff@example.com',
         type: 'staff',
@@ -471,7 +465,7 @@ describe('Auth API - Integration Tests', () => {
     });
 
     it('returns customer info for customer token', async () => {
-      const token = generateToken({
+      const token = generateToken({ tenantId: 'tenant-1',
         id: 'cust-1',
         email: 'customer@example.com',
         type: 'customer',

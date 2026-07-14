@@ -20,12 +20,12 @@ vi.mock('../../lib/db.js', () => {
         reservation: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         coupon: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         review: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn(), aggregate: vi.fn() },
-        user: { findUnique: vi.fn(), update: vi.fn() },
-        customer: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
+        user: { findFirst: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+        customer: { findFirst: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
         category: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         automationRule: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
         mealtime: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-        siteSettings: { findUnique: vi.fn() },
+        siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) },
     };
     return { default: mockPrisma, prisma: mockPrisma };
 });
@@ -63,10 +63,10 @@ vi.mock('@line/bot-sdk', () => {
 import prisma from '../../lib/db.js';
 const mockedPrisma = vi.mocked(prisma) as any;
 
-const app = createApp();
+const app = await createApp();
 
-const adminToken = generateToken({ id: 'admin-1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
-const customerToken = generateToken({ id: 'cust-1', email: 'customer@test.com', type: 'customer' });
+const adminToken = generateToken({ tenantId: 'tenant-1', id: 'admin-1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
+const customerToken = generateToken({ tenantId: 'tenant-1', id: 'cust-1', email: 'customer@test.com', type: 'customer' });
 
 const sampleSiteSettings = {
   id: 'default',
@@ -134,7 +134,7 @@ describe('LINE API & Chatbot Webhook', () => {
     });
   });
 
-  describe('POST /api/line/webhook', () => {
+  describe('POST /api/line/webhook/tenant-1', () => {
     it('handles follow event with a welcome flex message card', async () => {
       const payload = {
         events: [
@@ -152,7 +152,7 @@ describe('LINE API & Chatbot Webhook', () => {
       };
 
       const res = await request(app)
-        .post('/api/line/webhook')
+        .post('/api/line/webhook/tenant-1')
         .send(payload);
 
       expect(res.status).toBe(200);
@@ -192,7 +192,7 @@ describe('LINE API & Chatbot Webhook', () => {
       };
 
       const res = await request(app)
-        .post('/api/line/webhook')
+        .post('/api/line/webhook/tenant-1')
         .send(payload);
 
       expect(res.status).toBe(200);
@@ -231,7 +231,7 @@ describe('LINE API & Chatbot Webhook', () => {
       };
 
       const res = await request(app)
-        .post('/api/line/webhook')
+        .post('/api/line/webhook/tenant-1')
         .send(payload);
 
       expect(res.status).toBe(200);
@@ -271,7 +271,7 @@ describe('LINE API & Chatbot Webhook', () => {
       };
 
       const res = await request(app)
-        .post('/api/line/webhook')
+        .post('/api/line/webhook/tenant-1')
         .send(payload);
 
       expect(res.status).toBe(200);
@@ -310,7 +310,7 @@ describe('LINE API & Chatbot Webhook', () => {
       };
 
       const res = await request(app)
-        .post('/api/line/webhook')
+        .post('/api/line/webhook/tenant-1')
         .send(payload);
 
       expect(res.status).toBe(200);

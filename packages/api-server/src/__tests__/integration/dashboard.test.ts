@@ -5,6 +5,7 @@ import { generateToken } from '../../middleware/auth.js';
 
 vi.mock('../../lib/db.js', () => {
   const mockPrisma = {
+    siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) } }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) },
     location: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
     order: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn(), aggregate: vi.fn() },
     orderItem: { count: vi.fn(), groupBy: vi.fn() },
@@ -14,8 +15,8 @@ vi.mock('../../lib/db.js', () => {
     reservation: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
     coupon: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
     review: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn(), aggregate: vi.fn() },
-    customer: { findUnique: vi.fn(), count: vi.fn() },
-    user: { findUnique: vi.fn() },
+    customer: { findFirst: vi.fn(), findUnique: vi.fn(), count: vi.fn() },
+    user: { findFirst: vi.fn(), findUnique: vi.fn() },
     category: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), count: vi.fn() },
     $queryRaw: vi.fn(),
   };
@@ -32,10 +33,10 @@ vi.mock('../../lib/stripe.js', () => ({
 import prisma from '../../lib/db.js';
 const mockedPrisma = vi.mocked(prisma) as any;
 
-const app = createApp();
+const app = await createApp();
 
-const staffToken = generateToken({ id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
-const customerToken = generateToken({ id: 'cust-1', email: 'customer@test.com', type: 'customer' });
+const staffToken = generateToken({ tenantId: 'tenant-1', id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
+const customerToken = generateToken({ tenantId: 'tenant-1', id: 'cust-1', email: 'customer@test.com', type: 'customer' });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -74,7 +75,7 @@ describe('Dashboard API', () => {
       mockedPrisma.reservation.count.mockResolvedValueOnce(3);
       mockedPrisma.review.count.mockResolvedValueOnce(7);
       mockedPrisma.order.findMany.mockResolvedValueOnce([
-        { id: 'o1', orderNumber: 'SH-001', status: 'PENDING', total: 29.99, orderType: 'DELIVERY', createdAt: new Date(), customer: { name: 'John' } },
+        { id: 'o1', orderNumber: 'SH-001', status: 'PENDING', total: 29.99, orderType: 'DELIVERY', createdAt: new Date(), customer: { findFirst: vi.fn(), name: 'John' } },
       ] as any);
       mockedPrisma.orderItem.groupBy.mockResolvedValueOnce([
         { menuItemId: 'item-1', name: 'Pizza', _sum: { quantity: 42 } },

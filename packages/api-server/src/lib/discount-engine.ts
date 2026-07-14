@@ -132,7 +132,10 @@ export function validateAndCalculateDiscount(
     eligibleItems = [...cartItems];
   }
 
-  const applicableSubtotal = eligibleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const applicableSubtotal = (rules.applicableCategoryIds?.length || rules.applicableMenuItemIds?.length)
+    ? eligibleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    : orderData.subtotal;
+  
   const applicableItemCount = eligibleItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // If there are restrictions but no matching items in cart

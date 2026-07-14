@@ -17,6 +17,9 @@ vi.mock('../../lib/db.js', () => {
     order: {
       count: vi.fn(),
     },
+    reservation: {
+      count: vi.fn(),
+    },
     deliveryZone: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
@@ -24,10 +27,9 @@ vi.mock('../../lib/db.js', () => {
       update: vi.fn(),
       delete: vi.fn(),
     },
-    user: { findUnique: vi.fn() },
-    customer: { findUnique: vi.fn() },
-    siteSettings: {
-      findUnique: vi.fn().mockResolvedValue({ id: 'default', orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }),
+    user: { findFirst: vi.fn(), findUnique: vi.fn() },
+    customer: { findFirst: vi.fn(), findUnique: vi.fn() },
+    siteSettings: { findUnique: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), findFirst: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }), create: vi.fn().mockResolvedValue({ id: 'default', generalSettings: { permissions: {} }, orderSettings: { preOpeningBuffer: 30, postClosingBuffer: 30, timeSlotInterval: 15 } }) } }),
     },
   };
   return { default: mockPrisma, prisma: mockPrisma };
@@ -36,12 +38,12 @@ vi.mock('../../lib/db.js', () => {
 import prisma from '../../lib/db.js';
 const mockedPrisma = vi.mocked(prisma) as any;
 
-const app = createApp();
+const app = await createApp();
 
-const adminToken = generateToken({ id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
-const managerToken = generateToken({ id: '2', email: 'mgr@test.com', type: 'staff', role: 'MANAGER' });
-const staffToken = generateToken({ id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
-const customerToken = generateToken({ id: '4', email: 'cust@test.com', type: 'customer' });
+const adminToken = generateToken({ tenantId: 'tenant-1', id: '1', email: 'admin@test.com', type: 'staff', role: 'SUPER_ADMIN' });
+const managerToken = generateToken({ tenantId: 'tenant-1', id: '2', email: 'mgr@test.com', type: 'staff', role: 'MANAGER' });
+const staffToken = generateToken({ tenantId: 'tenant-1', id: '3', email: 'staff@test.com', type: 'staff', role: 'STAFF' });
+const customerToken = generateToken({ tenantId: 'tenant-1', id: '4', email: 'cust@test.com', type: 'customer' });
 
 const sampleLocation = {
   id: 'loc-1',

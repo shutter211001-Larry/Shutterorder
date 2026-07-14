@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../../app.js';
 
-const app = createApp();
+const app = await createApp();
 
 describe('Health Check API', () => {
   it('GET /api/health returns 200 with status ok', async () => {
