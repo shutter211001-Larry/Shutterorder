@@ -364,6 +364,9 @@ model MenuItem {
   isRewardItem            Boolean                     @default(false)
   rewardPointsPrice       Int                         @default(0)
   prepTime                Float                       @default(0) // 新增：製作時間 (分鐘)
+  isRandomDispatch        Boolean                     @default(false)
+  randomDispatchPool      Json?
+  hasGachaAnimation       Boolean                     @default(true)
   allergens               MenuItemAllergen[]
   dietaryPreferences      MenuItemDietaryPreference[]
   mealtimes               MenuItemMealtime[]

@@ -68,6 +68,9 @@ const createMenuItemSchema = z.object({
   recipeName: z.string().nullable().optional(),
   cropData: z.any().optional(),
   prepTime: z.number().min(0).default(0).optional(),
+  isRandomDispatch: z.boolean().default(false).optional(),
+  randomDispatchPool: z.array(z.string()).optional(),
+  hasGachaAnimation: z.boolean().default(true).optional(),
 });
 
 const updateMenuItemSchema = createMenuItemSchema.partial().omit({ slug: true });

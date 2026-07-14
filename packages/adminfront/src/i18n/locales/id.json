@@ -1252,7 +1252,13 @@
     "saving": "儲存中...",
     "updateProductDetails": "更新產品資料",
     "createNewProduct": "建立新產品",
-    "prepTime": "Preparation Time (Mins)"
+    "prepTime": "Preparation Time (Mins)",
+    "isRandomDispatch": "設定為隨機出貨 (盲盒)",
+    "randomDispatchDesc": "結帳時自動從指定菜品池隨機抽選",
+    "randomDispatchPool": "關聯菜品池 (請選擇可能的獎項)",
+    "randomDispatchPoolRequired": "請至少選擇一項關聯菜品",
+    "hasGachaAnimation": "結帳後播放盲盒抽卡動畫",
+    "hasGachaAnimationDesc": "若開啟，結帳成功後會自動播放滑入與閃白的抽獎特效。"
   },
   "menuItemList": {
     "productManagement": "產品管理 (Menu Items)",

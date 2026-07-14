@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { useTheme } from '../context/ThemeContext.js';
 import { API_BASE, api } from '../lib/api';
 import { formatToFullDateTime } from '../utils/date.js';
+import { GachaAnimationOverlay, GachaResult } from '../components/GachaAnimationOverlay.js';
 
 interface OrderItem {
   id: string;
@@ -58,6 +59,23 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
   const [claimSuccess, setClaimSuccess] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [timeLeftStr, setTimeLeftStr] = useState('');
+  const [gachaResults, setGachaResults] = useState<GachaResult[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('pendingGachaResults');
+      if (stored) {
+        setGachaResults(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Failed to parse gacha results', e);
+    }
+  }, []);
+
+  const handleGachaComplete = () => {
+    setGachaResults([]);
+    sessionStorage.removeItem('pendingGachaResults');
+  };
 
   useEffect(() => {
     if (!order?.scheduledAt) return;
@@ -264,6 +282,13 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {gachaResults.length > 0 && (
+        <GachaAnimationOverlay 
+          results={gachaResults}
+          onComplete={handleGachaComplete}
+        />
+      )}
+      
       {/* Manual Claim Banner */}
       {user && !order.customerId && !claimSuccess && (
         <div className="mb-6 bg-primary-600 rounded-xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">

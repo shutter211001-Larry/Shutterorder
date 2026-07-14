@@ -470,6 +470,10 @@ export default function Checkout() {
         scheduledAt: data.data.scheduledAt || undefined,
       };
 
+      if (data.gachaResults && data.gachaResults.length > 0) {
+        sessionStorage.setItem('pendingGachaResults', JSON.stringify(data.gachaResults));
+      }
+
       if (paymentMethod === 'linepay') {
         const lineData = await api.post<any>('/payments/linepay/create', { orderId: data.data.id });
         if (lineData.success && lineData.data.paymentUrl) {

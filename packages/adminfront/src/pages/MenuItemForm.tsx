@@ -47,6 +47,9 @@ interface MenuItemData {
 
   cropData?: any;
   prepTime: number;
+  isRandomDispatch: boolean;
+  randomDispatchPool: string[];
+  hasGachaAnimation?: boolean;
 }
 
 interface CategoryOption {
@@ -117,6 +120,8 @@ export default function MenuItemForm() {
       isRewardItem: false,
       rewardPointsPrice: 0,
       prepTime: 0,
+      isRandomDispatch: false,
+      randomDispatchPool: [],
     };
     const LANGUAGES = [
       { code: 'zh-TW', label: t('menuItemForm.traditionalChinese') },
@@ -160,6 +165,7 @@ export default function MenuItemForm() {
   const [erpRecipes, setErpRecipes] = useState<ErpRecipe[]>([]);
   const [selectedErpRecipeId, setSelectedErpRecipeId] = useState<string>('');
   const [imageAspectRatio, setImageAspectRatio] = useState<string>('h-40');
+  const [allMenuItems, setAllMenuItems] = useState<{id: string, name: string}[]>([]);
 
   const imgClass = `${imageAspectRatio === 'h-40' ? 'h-40' : imageAspectRatio === 'aspect-auto' ? 'aspect-video' : imageAspectRatio} w-40 object-cover rounded-lg border border-gray-200`;
   const placeholderClass = `${imageAspectRatio === 'h-40' ? 'h-40' : imageAspectRatio === 'aspect-auto' ? 'aspect-video' : imageAspectRatio} w-40 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center p-2 text-center`;
@@ -197,6 +203,10 @@ export default function MenuItemForm() {
         }
       })
       .catch(() => {});
+
+    api.get<{ data: {id: string, name: string}[] }>('/menu/items?limit=1000')
+      .then(res => setAllMenuItems(res.data || []))
+      .catch(() => {});
   }, [isEdit]);
 
   useEffect(() => {
@@ -229,7 +239,8 @@ export default function MenuItemForm() {
           rewardPointsPrice: item.rewardPointsPrice || 0,
           prepTime: item.prepTime || 0,
           cropData: item.cropData || {},
-
+          isRandomDispatch: item.isRandomDispatch || false,
+          randomDispatchPool: item.randomDispatchPool || [],
         });
         if (item.image) setImageUrl(item.image);
         if (item.recipeId) {
@@ -1112,6 +1123,70 @@ export default function MenuItemForm() {
                       <span className="text-sm text-gray-700">{m.name} ({m.startTime} - {m.endTime})</span>
                     </label>
                   ))}
+                </div>
+              )}
+              
+              <label className="flex items-center gap-2 cursor-pointer bg-purple-50/50 p-2.5 rounded-lg border border-purple-100/50 w-full mt-2">
+                <input
+                  type="checkbox"
+                  checked={form.isRandomDispatch || false}
+                  onChange={(e) => {
+                    updateField('isRandomDispatch', e.target.checked);
+                    if (!e.target.checked) {
+                      updateField('randomDispatchPool', []);
+                    }
+                  }}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <div>
+                  <span className="text-sm font-bold text-purple-950">{t('menuItemForm.isRandomDispatch')}</span>
+                  <p className="text-[10px] text-purple-750 mt-0.5">{t('menuItemForm.randomDispatchDesc')}</p>
+                </div>
+              </label>
+              
+              {form.isRandomDispatch && (
+                <div className="w-full mt-2 p-4 border border-purple-200 rounded-lg bg-purple-50/30">
+                  <label className="block text-sm font-semibold text-purple-950 mb-2">
+                    {t('menuItemForm.randomDispatchPool')}
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 bg-white rounded border border-gray-200">
+                    {allMenuItems.filter(i => i.id !== id).map((mItem) => (
+                      <label key={mItem.id} className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-50 rounded">
+                        <input
+                          type="checkbox"
+                          checked={(form.randomDispatchPool || []).includes(mItem.id)}
+                          onChange={(e) => {
+                            const pool = form.randomDispatchPool || [];
+                            if (e.target.checked) {
+                              updateField('randomDispatchPool', [...pool, mItem.id]);
+                            } else {
+                              updateField('randomDispatchPool', pool.filter(pid => pid !== mItem.id));
+                            }
+                          }}
+                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="text-sm text-gray-700 truncate" title={mItem.name}>{mItem.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {(form.randomDispatchPool || []).length === 0 && (
+                    <p className="text-xs text-red-500 mt-2">{t('menuItemForm.randomDispatchPoolRequired')}</p>
+                  )}
+                  
+                  <div className="mt-4 pt-4 border-t border-purple-200 border-dashed">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.hasGachaAnimation ?? true}
+                        onChange={(e) => updateField('hasGachaAnimation', e.target.checked)}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                      <div>
+                        <span className="text-sm font-bold text-purple-900">{t('menuItemForm.hasGachaAnimation')}</span>
+                        <p className="text-xs text-purple-700">{t('menuItemForm.hasGachaAnimationDesc')}</p>
+                      </div>
+                    </label>
+                  </div>
                 </div>
               )}
             </div>

@@ -92,12 +92,55 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     return;
   }
 
+  const parsedData = parsed.data;
+  let items: (typeof parsedData.items[0] & { 
+    _parentRandomItemId?: string; 
+    _parentRandomItemName?: string; 
+    _parentRandomItemPrice?: number;
+    _parentHasGachaAnimation?: boolean;
+    _parentImage?: string | null;
+  })[] = parsedData.items;
   const { 
-    orderType, items, comment, scheduledAt, address, 
+    orderType, comment, scheduledAt, address, 
     guestName, guestEmail, guestPhone, loyaltyPointsRedeem,
     userLat, userLon, locationId, honeypot, couponCode, tableName, groupSessionId, frozenDeliveryMethod,
     manualDiscount, manualDeliveryFee, manualTax, trackingNumber, logisticsProvider, idempotencyKey
-  } = parsed.data;
+  } = parsedData;
+
+  // Pre-process items: if any item is a Random Dispatch (blind box), we resolve it immediately!
+  const initialMenuItemIds = [...new Set(items.map(i => i.menuItemId))];
+  const initialMenuItems = await prisma.menuItem.findMany({
+    where: { id: { in: initialMenuItemIds } },
+    select: { id: true, isRandomDispatch: true, randomDispatchPool: true, name: true, price: true, hasGachaAnimation: true, image: true }
+  });
+  const initialMenuMap = new Map(initialMenuItems.map(m => [m.id, m]));
+
+  const transformedItems = [];
+  for (const item of items) {
+    const parentMenuItem = initialMenuMap.get(item.menuItemId);
+    if (parentMenuItem?.isRandomDispatch && parentMenuItem.randomDispatchPool) {
+      const pool = parentMenuItem.randomDispatchPool as string[];
+      if (pool.length > 0) {
+        for (let q = 0; q < item.quantity; q++) {
+          const randomIndex = Math.floor(Math.random() * pool.length);
+          const selectedItemId = pool[randomIndex];
+          transformedItems.push({
+            ...item,
+            menuItemId: selectedItemId,
+            quantity: 1, // Split into quantity 1 for each roll
+            _parentRandomItemId: parentMenuItem.id, 
+            _parentRandomItemName: parentMenuItem.name,
+            _parentRandomItemPrice: parentMenuItem.price,
+            _parentHasGachaAnimation: parentMenuItem.hasGachaAnimation,
+            _parentImage: parentMenuItem.image,
+          });
+        }
+        continue;
+      }
+    }
+    transformedItems.push(item);
+  }
+  items = transformedItems;
 
   if (idempotencyKey) {
     const existingOrder = await prisma.order.findUnique({
@@ -463,10 +506,28 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   });
   const optionValueMap = new Map(dbOptionValues.map(v => [v.id, v]));
 
-
+  const gachaResultsMap = new Map<string, any>(); // group by parent
   const orderItemsData = items.map((item) => {
     const menuItem = menuItemMap.get(item.menuItemId)!;
-    let unitPrice = menuItem.price;
+    
+    // Gacha Results accumulation
+    if (item._parentRandomItemId && item._parentHasGachaAnimation) {
+      if (!gachaResultsMap.has(item._parentRandomItemId)) {
+        gachaResultsMap.set(item._parentRandomItemId, {
+          parentName: item._parentRandomItemName,
+          parentImage: item._parentImage,
+          drawnItems: []
+        });
+      }
+      gachaResultsMap.get(item._parentRandomItemId).drawnItems.push({
+        name: menuItem.name,
+        image: menuItem.image
+      });
+    }
+
+    // OVERRIDE: Use parent random box price if applicable
+    let unitPrice = item._parentRandomItemPrice !== undefined ? item._parentRandomItemPrice : menuItem.price;
+    const finalName = item._parentRandomItemName ? `${menuItem.name} (來自：${item._parentRandomItemName})` : menuItem.name;
 
     const optionsData = (item.options || []).map((opt) => {
       // SECURITY: Get actual price from DB, not from client request
@@ -492,7 +553,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
     return {
       menuItemId: item.menuItemId,
-      name: menuItem.name,
+      name: finalName,
       quantity: item.quantity,
       unitPrice: finalUnitPrice,
       subtotal: itemSubtotal,
@@ -803,7 +864,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   // Send notifications
   await NotificationService.notifyNewOrder(order, customerId, guestEmail);
 
-  res.status(201).json({ success: true, data: order });
+  res.status(201).json({ success: true, data: order, gachaResults: Array.from(gachaResultsMap.values()) });
   } catch (err: any) {
     console.error('Error creating order:', err);
     res.status(500).json({ 
