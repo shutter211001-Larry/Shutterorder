@@ -16,7 +16,8 @@
     "none": "None",
     "guest": "Guest",
     "confirmCancel": "Are you sure you want to cancel this order?",
-    "success": "Success"
+    "success": "Success",
+    "outOfStock": "Out Of Stock"
   },
   "nav": {
     "home": "Home",
@@ -94,7 +95,8 @@
     "googleRegister": "Sign up with Google",
     "lineSignIn": "Sign in with LINE",
     "lineRegister": "Sign up with LINE",
-    "socialRegister": "Or register with social account"
+    "socialRegister": "Or register with social account",
+    "passwordTooShort": "Password Too Short"
   },
   "account": {
     "title": "My Account",
@@ -334,7 +336,8 @@
     "ec797c": "例如：7-11 信義店 (店號: 123456)",
     "4dee28": "例如：中正路 100 號 3 樓",
     "a4b4fb": "宅配",
-    "380e90": "店到店"
+    "380e90": "店到店",
+    "loyaltyPointsAvailable": "Loyalty Points Available"
   },
   "orderConfirmation": {
     "title": "Order Placed!",
@@ -420,7 +423,10 @@
     "a4b4fb": "宅配",
     "26cad2": "物流追蹤",
     "eb6d92": "物流公司",
-    "d9748a": "託運單號"
+    "d9748a": "託運單號",
+    "trackingInfo": "Tracking Info",
+    "logisticsProvider": "Logistics Provider",
+    "trackingNumber": "Tracking Number"
   },
   "reservations": {
     "title": "Table Reservations",
@@ -618,5 +624,35 @@
     "fc8b19": "週六",
     "800dfd": "今天",
     "8bcbd7": "明天"
-  }
+  },
+  "-": "-",
+  "open-cookie-settings": "Open-cookie-settings",
+  "gacha": {
+    "opening": "Opening",
+    "congratulations": "Congratulations"
+  },
+  "table": "Table",
+  "meta": "Meta",
+  "link": "Link",
+  "api-error": "Api-error",
+  "error": "Error",
+  "provider": "Provider",
+  "socialId": "Social Id",
+  "verified": "Verified",
+  "token": "Token",
+  "redirect": "Redirect",
+  "en-CA": "En- C A",
+  "transactionId": "Transaction Id",
+  "orderId": "Order Id",
+  "groupSessionId": "Group Session Id",
+  "code": "Code",
+  "state": "State",
+  "category": "Category",
+  "page": "Page",
+  "search": "Search",
+  "location": "Location",
+  "categoryId": "Category Id",
+  "locationId": "Location Id",
+  "limit": "Limit",
+  "T": " T"
 }

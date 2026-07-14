@@ -70,7 +70,8 @@
       "delete": "スタッフを削除",
       "deleting": "削除中...",
       "sendInvite": "招待を送信",
-      "sending": "送信中..."
+      "sending": "送信中...",
+      "saveSuccess": "Save Success"
     },
     "dangerZone": "危険ゾーン",
     "deleteWarning": "スタッフを削除すると元に戻せません。この操作を実行してもよろしいですか？",
@@ -1917,7 +1918,8 @@
       "basic": "Basic Info",
       "employment": "Employment Info",
       "insurance": "Insurance Info"
-    }
+    },
+    "availableDays": "Available Days"
   },
   "staffList": {
     "loading": "載入中",
@@ -2434,5 +2436,9 @@
     "69b0f6": "已停用",
     "e0c1d2": "停權此租戶",
     "c8665c": "恢復啟用"
-  }
+  },
+  "canvas": "Canvas",
+  "2d": "2d",
+  "T": " T",
+  "token": "Token"
 }

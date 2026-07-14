@@ -1,4 +1,11 @@
 {
+  "0": "0",
+  "3": {
+    "2": "2"
+  },
+  "8": {
+    "4": "4"
+  },
   "erp_1": "보안 연결 중...",
   "erp_2": "알레르기 유발 물질 태그 로드 실패",
   "erp_3": "태그 생성 실패",
@@ -997,5 +1004,23 @@
     "1bd9e8": "請輸入測試信箱",
     "9079be": "測試信件寄出成功",
     "9aa7b7": "發送測試信失敗"
-  }
+  },
+  "kg": "Kg",
+  "L": " L",
+  "token": "Token",
+  "erp_invite_no_token": "Erp_invite_no_token",
+  "erp_invite_invalid": "Erp_invite_invalid",
+  "erp_passwords_mismatch": "Erp_passwords_mismatch",
+  "erp_login_title": "Erp_login_title",
+  "erp_invalid_invite": "Erp_invalid_invite",
+  "erp_accept_invite": "Erp_accept_invite",
+  "erp_invited_as": "Erp_invited_as",
+  "erp_confirm_password": "Erp_confirm_password",
+  "erp_complete_registration": "Erp_complete_registration",
+  "new": "New",
+  "error": "Error",
+  "success": "Success",
+  "T": " T",
+  "bottom": "Bottom",
+  "erp_invite_sent": "Erp_invite_sent"
 }

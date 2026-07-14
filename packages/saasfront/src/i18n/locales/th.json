@@ -70,7 +70,8 @@
       "delete": "Delete Staff",
       "deleting": "Deleting...",
       "sendInvite": "Send Invitation",
-      "sending": "Sending..."
+      "sending": "Sending...",
+      "saveSuccess": "Save Success"
     },
     "dangerZone": "Danger Zone",
     "deleteWarning": "Deleting staff cannot be undone. Please confirm you want to proceed.",
@@ -1917,7 +1918,8 @@
       "basic": "Basic Info",
       "employment": "Employment Info",
       "insurance": "Insurance Info"
-    }
+    },
+    "availableDays": "Available Days"
   },
   "staffList": {
     "loading": "載入中",
@@ -2434,5 +2436,9 @@
     "69b0f6": "已停用",
     "e0c1d2": "停權此租戶",
     "c8665c": "恢復啟用"
-  }
+  },
+  "canvas": "Canvas",
+  "2d": "2d",
+  "T": " T",
+  "token": "Token"
 }

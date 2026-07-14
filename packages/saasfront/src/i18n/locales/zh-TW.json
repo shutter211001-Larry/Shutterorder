@@ -70,7 +70,8 @@
       "delete": "刪除員工",
       "deleting": "刪除中...",
       "sendInvite": "發送邀請",
-      "sending": "發送中..."
+      "sending": "發送中...",
+      "saveSuccess": "Save Success"
     },
     "dangerZone": "危險區域",
     "deleteWarning": "刪除員工後將無法復原。請確定您要執行此操作。",
@@ -1917,7 +1918,8 @@
       "basic": "基本資料",
       "employment": "到職資訊",
       "insurance": "勞健保資訊"
-    }
+    },
+    "availableDays": "Available Days"
   },
   "staffList": {
     "loading": "載入中",
@@ -2434,5 +2436,9 @@
     "69b0f6": "已停用",
     "e0c1d2": "停權此租戶",
     "c8665c": "恢復啟用"
-  }
+  },
+  "canvas": "Canvas",
+  "2d": "2d",
+  "T": " T",
+  "token": "Token"
 }

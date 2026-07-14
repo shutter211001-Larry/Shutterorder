@@ -16,7 +16,8 @@
     "none": "ไม่มี",
     "guest": "ผู้เยี่ยมชม",
     "confirmCancel": "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อนี้?",
-    "success": "Success"
+    "success": "Success",
+    "outOfStock": "Out Of Stock"
   },
   "nav": {
     "home": "หน้าแรก",
@@ -94,7 +95,8 @@
     "googleRegister": "ลงทะเบียนด่วนด้วยบัญชี Google",
     "lineSignIn": "ลงชื่อเข้าใช้ด้วย LINE เพียงคลิกเดียว",
     "lineRegister": "ลงทะเบียนด่วนด้วยบัญชี LINE",
-    "socialRegister": "หรือลงทะเบียนด้วยบัญชีโซเชียล"
+    "socialRegister": "หรือลงทะเบียนด้วยบัญชีโซเชียล",
+    "passwordTooShort": "Password Too Short"
   },
   "account": {
     "title": "บัญชีของฉัน",
@@ -332,7 +334,8 @@
     "ec797c": "例如：7-11 信義店 (店號: 123456)",
     "4dee28": "例如：中正路 100 號 3 樓",
     "a4b4fb": "宅配",
-    "380e90": "店到店"
+    "380e90": "店到店",
+    "loyaltyPointsAvailable": "Loyalty Points Available"
   },
   "orderConfirmation": {
     "title": "สั่งอาหารสำเร็จ!",
@@ -418,7 +421,10 @@
     "a4b4fb": "宅配",
     "26cad2": "物流追蹤",
     "eb6d92": "物流公司",
-    "d9748a": "託運單號"
+    "d9748a": "託運單號",
+    "trackingInfo": "Tracking Info",
+    "logisticsProvider": "Logistics Provider",
+    "trackingNumber": "Tracking Number"
   },
   "reservations": {
     "title": "การจองโต๊ะ",
@@ -616,5 +622,35 @@
     "fc8b19": "週六",
     "800dfd": "今天",
     "8bcbd7": "明天"
-  }
+  },
+  "-": "-",
+  "open-cookie-settings": "Open-cookie-settings",
+  "gacha": {
+    "opening": "Opening",
+    "congratulations": "Congratulations"
+  },
+  "table": "Table",
+  "meta": "Meta",
+  "link": "Link",
+  "api-error": "Api-error",
+  "error": "Error",
+  "provider": "Provider",
+  "socialId": "Social Id",
+  "verified": "Verified",
+  "token": "Token",
+  "redirect": "Redirect",
+  "en-CA": "En- C A",
+  "transactionId": "Transaction Id",
+  "orderId": "Order Id",
+  "groupSessionId": "Group Session Id",
+  "code": "Code",
+  "state": "State",
+  "category": "Category",
+  "page": "Page",
+  "search": "Search",
+  "location": "Location",
+  "categoryId": "Category Id",
+  "locationId": "Location Id",
+  "limit": "Limit",
+  "T": " T"
 }

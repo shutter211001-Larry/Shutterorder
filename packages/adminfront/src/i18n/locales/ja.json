@@ -88,7 +88,8 @@
       "actions": "Actions"
     },
     "none": "なし",
-    "back": "← 戻る"
+    "back": "← 戻る",
+    "inviteDesc": "Invite Desc"
   },
   "common": {
     "adminPanel": "管理パネル",
@@ -949,7 +950,14 @@
     "acb17e": "4:3 (標準)",
     "070fc7": "16:9 (寬螢幕)",
     "c5c9a5": "自動 (原始比例)",
-    "6ee476": "此設定會套用於菜單的商品圖片顯示比例"
+    "6ee476": "此設定會套用於菜單的商品圖片顯示比例",
+    "imageAspectRatio": "Image Aspect Ratio",
+    "ratioFixedHeight": "Ratio Fixed Height",
+    "ratio11": "Ratio11",
+    "ratio43": "Ratio43",
+    "ratio169": "Ratio169",
+    "ratioAuto": "Ratio Auto",
+    "imageAspectRatioHint": "Image Aspect Ratio Hint"
   },
   "designTemplates": {
     "classic": "經典 (Classic)",
@@ -1358,7 +1366,8 @@
     "8774cc": "重新裁切",
     "7dad6c": "機率權重",
     "f72179": "顯示機率表",
-    "df27dd": "在菜單上顯示各獎品的獲取機率"
+    "df27dd": "在菜單上顯示各獎品的獲取機率",
+    "editCrop": "Edit Crop"
   },
   "menuItemList": {
     "productManagement": "產品管理 (Menu Items)",
@@ -2906,5 +2915,39 @@
   },
   "database": {
     "9a6767": "[RxDB] 初始化與雙向同步機制已掛載完成。"
-  }
+  },
+  "canvas": "Canvas",
+  "2d": "2d",
+  "T": " T",
+  "api-error": "Api-error",
+  "lastUpdatedAt": "Last Updated At",
+  "lastId": "Last Id",
+  "set_tenant_id": "Set_tenant_id",
+  "token": "Token",
+  "entity": "Entity",
+  "action": "Action",
+  "search": "Search",
+  "categoryId": "Category Id",
+  "isGuest": "Is Guest",
+  "redirect": "Redirect",
+  "thisMonth": "This Month",
+  "lastMonth": "Last Month",
+  "leaves": "Leaves",
+  "legal": "Legal",
+  "locationId": "Location Id",
+  "status": "Status",
+  "orderType": "Order Type",
+  "a": "A",
+  "zh-TW": "Zh- T W",
+  "date": "Date",
+  "isApproved": "Is Approved",
+  "confirmToken": "Confirm Token",
+  "km": "Km",
+  "mi": "Mi",
+  "-": "-",
+  "job-roles": "Job-roles",
+  "role": "Role",
+  "x-tenant-id": "X-tenant-id",
+  "x-tenant-domain": "X-tenant-domain",
+  "Authorization": " Authorization"
 }
