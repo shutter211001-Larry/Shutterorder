@@ -618,15 +618,25 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     if (item._parentRandomItemId && item._parentHasGachaAnimation) {
       if (!gachaResultsMap.has(item._parentRandomItemId)) {
         gachaResultsMap.set(item._parentRandomItemId, {
-          parentName: item._parentRandomItemName,
-          parentImage: item._parentImage,
-          drawnItems: []
+          parentItemId: item._parentRandomItemId,
+          parentItemName: item._parentRandomItemName,
+          image: item._parentImage,
+          hasGachaAnimation: true,
+          results: []
         });
       }
-      gachaResultsMap.get(item._parentRandomItemId).drawnItems.push({
-        name: menuItem.name,
-        image: menuItem.image
-      });
+      const parentEntry = gachaResultsMap.get(item._parentRandomItemId);
+      const existingChild = parentEntry.results.find((r: any) => r.childItemId === item.menuItemId);
+      if (existingChild) {
+        existingChild.quantity += item.quantity;
+      } else {
+        parentEntry.results.push({
+          childItemId: item.menuItemId,
+          childItemName: menuItem.name,
+          quantity: item.quantity,
+          image: menuItem.image
+        });
+      }
     }
 
     // OVERRIDE: Use parent random box price if applicable
