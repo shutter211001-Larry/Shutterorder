@@ -264,6 +264,36 @@ export const getTenantIntegrations = async (req: Request, res: Response) => {
       invoice = parseJson(locationOverride.invoiceSettings);
       order = parseJson(locationOverride.orderSettings);
       s3 = parseJson(locationOverride.s3Settings);
+
+      const location = await (prisma as any).location.findUnique({ where: { id: locationId } });
+      if (location?.integrationSettings) {
+        const ints = location.integrationSettings as any;
+        if (ints.linePayMode === 'CUSTOM') {
+          line.linePayChannelId = ints.linePayChannelId;
+          line.linePayChannelSecret = ints.linePayChannelSecret;
+        }
+        if (ints.socialMode === 'CUSTOM') {
+          line.lineLoginChannelId = ints.lineLoginChannelId;
+          line.lineLoginChannelSecret = ints.lineLoginChannelSecret;
+        }
+        if (ints.smtpMode === 'CUSTOM') {
+          mail.smtpHost = ints.smtpHost;
+          mail.smtpPort = ints.smtpPort;
+          mail.smtpUser = ints.smtpUser;
+          mail.smtpPass = ints.smtpPass;
+          mail.senderEmail = ints.smtpFrom;
+        }
+        if (ints.stripeMode === 'CUSTOM') {
+          payment.stripePublicKey = ints.stripePublishableKey;
+          payment.stripeSecretKey = ints.stripeSecretKey;
+        }
+        if (ints.s3Mode === 'CUSTOM') {
+          s3.endpoint = ints.s3Endpoint;
+          s3.bucket = ints.s3Bucket;
+          s3.accessKey = ints.s3AccessKeyId;
+          s3.secretKey = ints.s3SecretAccessKey;
+        }
+      }
     } else {
       const settings = await (prisma as any).siteSettings.findFirst({
         where: { tenantId: id }

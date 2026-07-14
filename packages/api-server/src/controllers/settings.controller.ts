@@ -1380,14 +1380,55 @@ export async function approvePendingIntegrations(req: Request, res: Response): P
     : settings.pendingIntegrations;
 
   if (pending.type === 'LOCATION') {
+    const advancedSettings = pending.payload.advancedSettings;
+    const locationId = pending.locationId;
+
     await prisma.siteSettings.update({
       where: { id: settings.id },
       data: {
-        advancedSettings: pending.payload.advancedSettings,
+        advancedSettings,
         pendingIntegrations: null as any,
         pendingIntegrationsToken: null
       }
     });
+
+    if (locationId && advancedSettings?.locationOverrides) {
+      const overrides = advancedSettings.locationOverrides[locationId] || {};
+      const line = overrides.lineSettings || {};
+      const mail = overrides.mailSettings || {};
+      const payment = overrides.paymentSettings || {};
+      const s3 = overrides.s3Settings || {};
+
+      const location = await prisma.location.findUnique({ where: { id: locationId } });
+      if (location) {
+        const existingInts = (location.integrationSettings as any) || {};
+        
+        // Only override if the new keys are actually provided (and not masked)
+        if (line.linePayChannelId) existingInts.linePayChannelId = line.linePayChannelId;
+        if (line.linePayChannelSecret && !line.linePayChannelSecret.includes('**')) existingInts.linePayChannelSecret = line.linePayChannelSecret;
+        if (line.lineLoginChannelId) existingInts.lineLoginChannelId = line.lineLoginChannelId;
+        if (line.lineLoginChannelSecret && !line.lineLoginChannelSecret.includes('**')) existingInts.lineLoginChannelSecret = line.lineLoginChannelSecret;
+        
+        if (mail.smtpHost) existingInts.smtpHost = mail.smtpHost;
+        if (mail.smtpPort) existingInts.smtpPort = mail.smtpPort;
+        if (mail.smtpUser) existingInts.smtpUser = mail.smtpUser;
+        if (mail.smtpPass && !mail.smtpPass.includes('**')) existingInts.smtpPass = mail.smtpPass;
+        if (mail.senderEmail) existingInts.smtpFrom = mail.senderEmail;
+
+        if (payment.stripePublicKey) existingInts.stripePublishableKey = payment.stripePublicKey;
+        if (payment.stripeSecretKey && !payment.stripeSecretKey.includes('**')) existingInts.stripeSecretKey = payment.stripeSecretKey;
+
+        if (s3.endpoint) existingInts.s3Endpoint = s3.endpoint;
+        if (s3.bucket) existingInts.s3Bucket = s3.bucket;
+        if (s3.accessKey) existingInts.s3AccessKeyId = s3.accessKey;
+        if (s3.secretKey && !s3.secretKey.includes('**')) existingInts.s3SecretAccessKey = s3.secretKey;
+
+        await prisma.location.update({
+          where: { id: locationId },
+          data: { integrationSettings: existingInts }
+        });
+      }
+    }
   } else if (pending.type === 'GLOBAL') {
     const payload = pending.payload || {};
     await prisma.siteSettings.update({
