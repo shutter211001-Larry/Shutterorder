@@ -5,8 +5,9 @@ import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 import { replicateRxCollection } from 'rxdb/plugins/replication';
 import { categorySchema, menuItemSchema, orderSchema } from './schema.js';
 import { api } from '../api.js';
-import { useTranslation } from "react-i18next";
+import i18n from '../../i18n/index.js';
 
+// 註冊常用擴充套件
 // 註冊常用擴充套件
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBQueryBuilderPlugin);
@@ -14,7 +15,6 @@ addRxPlugin(RxDBQueryBuilderPlugin);
 let dbPromise: any = null;
 
 const createDatabase = async () => {
-    const { t } = useTranslation();
   const db = await createRxDatabase({
     name: 'shutter_pos_localdb',
     storage: getRxStorageDexie(), // 底層使用 Dexie (IndexedDB)
@@ -89,14 +89,13 @@ const createDatabase = async () => {
   setupPull(db.menuItems, 'menuItems');
   setupPull(db.orders, 'orders');
 
-  console.log((t('database.9a6767') || '[RxDB] 初始化與雙向同步機制已掛載完成。'));
+  console.log((i18n.t('database.9a6767') || '[RxDB] 初始化與雙向同步機制已掛載完成。'));
   
   return db;
 };
 
 // Singleton 模式，確保整個 App 共用同一個 DB 實體
 export const getDatabase = () => {
-    const { t } = useTranslation();
   if (!dbPromise) {
     dbPromise = createDatabase();
   }
