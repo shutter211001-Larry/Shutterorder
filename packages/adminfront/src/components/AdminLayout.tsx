@@ -60,16 +60,16 @@ const navItems: NavItem[] = [
   { id: 'dashboard', path: '/', label: 'nav.dashboard', icon: <LayoutDashboard size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
   {
     id: 'store_management',
-    label: '店家管理',
+    label: 'adminLayout.f277f1',
     icon: <Store size={20} />,
     roles: ['SUPER_ADMIN', 'MANAGER'],
     children: [
-      { path: '/locations', label: '店家列表', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/locations', label: 'adminLayout.c35c40', roles: ['SUPER_ADMIN', 'MANAGER'] },
     ]
   },
   {
     id: 'operations',
-    label: '營運與財務',
+    label: 'adminLayout.0168dd',
     icon: <Wallet size={20} />,
     roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
     children: [
@@ -78,13 +78,13 @@ const navItems: NavItem[] = [
       { path: '/reservations', label: 'nav.reservations', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
       { path: '/finance', label: 'nav.finance', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
       { path: '/menu/stock', label: 'nav.stockOverview', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
-      { path: '/menu/requisitions', label: '門市叫貨單', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
+      { path: '/menu/requisitions', label: 'adminLayout.a55fa0', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
     ]
   },
 
   {
     id: 'crm',
-    label: '顧客關係',
+    label: 'adminLayout.d71865',
     icon: <Users size={20} />,
     roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
     children: [
@@ -95,24 +95,24 @@ const navItems: NavItem[] = [
   },
   {
     id: 'hr',
-    label: '人力資源',
+    label: 'adminLayout.ab8095',
     icon: <Briefcase size={20} />,
     roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
     children: [
       { path: '/staff', label: 'nav.staff', roles: ['SUPER_ADMIN'] },
       { path: '/attendance', label: 'nav.checkIn', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
       { path: '/attendance/leave', label: 'attendance.leaveTitle', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/attendance/approvals', label: '簽核中心', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/roster', label: '排班管理', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/payroll', label: '薪資結算', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/job-roles', label: '職位設定', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/attendance/approvals', label: 'adminLayout.66644a', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/attendance/roster', label: 'adminLayout.bb4285', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/attendance/payroll', label: 'adminLayout.66a770', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/attendance/job-roles', label: 'adminLayout.5806c0', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/attendance/records', label: 'nav.attendanceRecords', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/qr-generator', label: '產生 QR Code', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/attendance/qr-generator', label: 'adminLayout.d863f2', roles: ['SUPER_ADMIN', 'MANAGER'] },
     ]
   },
   {
     id: 'system',
-    label: '系統設定',
+    label: 'adminLayout.af21b0',
     icon: <Settings size={20} />,
     roles: ['SUPER_ADMIN'],
     children: [
@@ -264,7 +264,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
         aria-label="Main navigation"
       >
         <div className="px-6 py-4 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-primary-400">夏特點餐系統</h1>
+          <h1 className="text-xl font-bold text-primary-400">{t('adminLayout.18c4db') || (t('adminLayout.18c4db') || '夏特點餐系統')}</h1>
           <p className="text-xs text-gray-400 mt-1">{t('common.adminPanel')}</p>
         </div>
         <nav className="flex-1 py-4 overflow-y-auto select-none">
@@ -310,12 +310,11 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                               <div
                                 key={child.path}
                                 className="flex items-center pl-14 pr-6 py-2 text-sm text-gray-500 cursor-not-allowed group relative"
-                                title="此為加值服務，請聯繫 SaaS 總部開通"
+                                title={t('adminLayout.3d5035') || '此為加值服務，請聯繫 SaaS 總部開通'}
                               >
                                 {t(child.label) || child.label}
                                 <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-400 group-hover:text-amber-400 group-hover:border-amber-500/50 transition-colors">
-                                  🔒 升級解鎖
-                                </span>
+                                  {t('adminLayout.d6ec9f') || (t('adminLayout.d6ec9f') || '🔒 升級解鎖')}</span>
                               </div>
                             );
                           }
@@ -470,8 +469,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
         {isOffline && (
           <div className="bg-yellow-500 text-white px-4 py-2 text-sm font-bold flex items-center justify-center shadow-md z-40">
-            ⚠️ 網路連線異常，已啟用本地幽靈模式，可繼續點餐與打卡。連線恢復後將自動同步。
-          </div>
+            {t('adminLayout.3cf128') || (t('adminLayout.3cf128') || '⚠️ 網路連線異常，已啟用本地幽靈模式，可繼續點餐與打卡。連線恢復後將自動同步。')}</div>
         )}
 
         <main className="flex-1 p-6">{children}</main>

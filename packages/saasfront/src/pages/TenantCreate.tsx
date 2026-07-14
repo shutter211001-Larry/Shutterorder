@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { toast } from 'react-hot-toast';
 import { Building2, Save, ArrowLeft } from 'lucide-react';
+import { useTranslation } from "react-i18next";
 
 export default function TenantCreate() {
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,7 +24,7 @@ export default function TenantCreate() {
     e.preventDefault();
     
     if (!formData.name || !formData.slug || !formData.adminEmail || !formData.adminPassword) {
-      return toast.error('請填寫所有必填欄位');
+      return toast.error((t('tenantCreate.c2c124') || '請填寫所有必填欄位'));
     }
 
     const finalDomain = formData.customDomain.trim() 
@@ -42,10 +44,10 @@ export default function TenantCreate() {
     setLoading(true);
     try {
       await api.post('/platform-admin/tenants', payload);
-      toast.success('成功建立新品牌');
+      toast.success((t('tenantCreate.bd95cc') || '成功建立新品牌'));
       navigate('/tenants');
     } catch (error: any) {
-      toast.error(error.message || '建立品牌失敗');
+      toast.error(error.message || (t('tenantCreate.43cc5a') || '建立品牌失敗'));
     } finally {
       setLoading(false);
     }
@@ -61,20 +63,19 @@ export default function TenantCreate() {
           <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Building2 className="w-6 h-6 text-indigo-500" />
-            建立新品牌
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">為新品牌配置系統實例，並指派一位店長或管理員。</p>
+            {t('tenantCreate.40922a') || (t('tenantCreate.40922a') || '建立新品牌')}</h1>
+          <p className="text-gray-400 text-sm mt-1">{t('tenantCreate.e8e947') || (t('tenantCreate.e8e947') || '為新品牌配置系統實例，並指派一位店長或管理員。')}</p>
         </div>
       </div>
     </div>
 
     <form onSubmit={handleSubmit} className="bg-gray-900 rounded-2xl border border-gray-800 shadow-xl p-8 space-y-8">
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">品牌基本資料</h2>
+        <h2 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantCreate.2c83eb') || (t('tenantCreate.2c83eb') || '品牌基本資料')}</h2>
         
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">品牌名稱 <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.6cdba8') || (t('tenantCreate.6cdba8') || '品牌名稱')}<span className="text-red-500">*</span></label>
               <input
                 type="text"
                 required
@@ -85,7 +86,7 @@ export default function TenantCreate() {
               />
             </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">系統專屬代號 (Slug) <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.e3bee9') || (t('tenantCreate.e3bee9') || '系統專屬代號 (Slug)')}<span className="text-red-500">*</span></label>
             <div className="flex bg-gray-800 border border-gray-700 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
               <input
                 type="text"
@@ -93,7 +94,7 @@ export default function TenantCreate() {
                 value={formData.slug}
                 onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                 className="w-full bg-transparent text-white px-4 py-2.5 outline-none"
-                placeholder="例如: yummy-steak"
+                placeholder={t('tenantCreate.636c2a') || '例如: yummy-steak'}
               />
               <span className="flex items-center px-4 bg-gray-700/50 text-gray-400 text-sm border-l border-gray-700 whitespace-nowrap">
                 .shutterorder.pro
@@ -101,18 +102,18 @@ export default function TenantCreate() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">自訂獨立網域 (Custom Domain) <span className="text-gray-500 font-normal ml-1">選填</span></label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.a33f56') || (t('tenantCreate.a33f56') || '自訂獨立網域 (Custom Domain)')}<span className="text-gray-500 font-normal ml-1">{t('tenantCreate.dbeb69') || (t('tenantCreate.dbeb69') || '選填')}</span></label>
             <input
               type="text"
               value={formData.customDomain}
               onChange={e => setFormData({ ...formData, customDomain: e.target.value.toLowerCase() })}
               className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
-              placeholder="例如: yummysteak.com"
+              placeholder={t('tenantCreate.063285') || '例如: yummysteak.com'}
             />
-            <p className="text-xs text-gray-500 mt-2">若填寫此欄位，系統將優先使用此獨立網域 (後台為 admin.自訂網域)。若不填寫，將使用上方代號產生預設網址。</p>
+            <p className="text-xs text-gray-500 mt-2">{t('tenantCreate.b50d02') || (t('tenantCreate.b50d02') || '若填寫此欄位，系統將優先使用此獨立網域 (後台為 admin.自訂網域)。若不填寫，將使用上方代號產生預設網址。')}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">合約到期日 (Expiration Date) <span className="text-gray-500 font-normal ml-1">選填</span></label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.9ce3b1') || (t('tenantCreate.9ce3b1') || '合約到期日 (Expiration Date)')}<span className="text-gray-500 font-normal ml-1">{t('tenantCreate.dbeb69') || (t('tenantCreate.dbeb69') || '選填')}</span></label>
             <input
               type="date"
               value={formData.subscriptionEndsAt}
@@ -124,11 +125,11 @@ export default function TenantCreate() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">初始管理員帳號 (Super Admin)</h2>
+        <h2 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantCreate.5e994e') || (t('tenantCreate.5e994e') || '初始管理員帳號 (Super Admin)')}</h2>
         
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">管理員信箱 Email <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.aea1b7') || (t('tenantCreate.aea1b7') || '管理員信箱 Email')}<span className="text-red-500">*</span></label>
             <input
               type="email"
               required
@@ -139,24 +140,24 @@ export default function TenantCreate() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">管理員姓名</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.d2e21a') || (t('tenantCreate.d2e21a') || '管理員姓名')}</label>
             <input
               type="text"
               value={formData.adminName}
               onChange={e => setFormData({ ...formData, adminName: e.target.value })}
               className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              placeholder="王小明"
+              placeholder={t('tenantCreate.252654') || '王小明'}
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">臨時密碼 <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">{t('tenantCreate.541f41') || (t('tenantCreate.541f41') || '臨時密碼')}<span className="text-red-500">*</span></label>
             <input
               type="password"
               required
               value={formData.adminPassword}
               onChange={e => setFormData({ ...formData, adminPassword: e.target.value })}
               className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              placeholder="初次登入使用"
+              placeholder={t('tenantCreate.9be988') || '初次登入使用'}
             />
           </div>
         </div>
@@ -170,8 +171,7 @@ export default function TenantCreate() {
             checked={formData.sendWelcomeEmail}
             onChange={e => setFormData({ ...formData, sendWelcomeEmail: e.target.checked })}
           />
-          同時寄送歡迎信給客戶 (包含各系統網址與登入資訊)
-        </label>
+          {t('tenantCreate.8decaa') || (t('tenantCreate.8decaa') || '同時寄送歡迎信給客戶 (包含各系統網址與登入資訊)')}</label>
         
         <button
           type="submit"
@@ -179,8 +179,7 @@ export default function TenantCreate() {
           className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-medium transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2"
         >
           {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save className="w-5 h-5" />}
-          建立並開通品牌
-        </button>
+          {t('tenantCreate.5d3558') || (t('tenantCreate.5d3558') || '建立並開通品牌')}</button>
       </div>
     </form>
   </div>

@@ -58,22 +58,22 @@ export default function Leave() {
 
   const getLeaveTypeLabel = (type: string) => {
     switch (type) {
-      case 'PERSONAL': return t('attendance.leavePersonal') || '事假';
-      case 'SICK': return t('attendance.leaveSick') || '病假';
-      case 'ANNUAL': return t('attendance.leaveAnnual') || '特休';
-      default: return t('attendance.leaveOther') || '其他';
+      case 'PERSONAL': return t('attendance.leavePersonal') || (t('leave.f571dd') || '事假');
+      case 'SICK': return t('attendance.leaveSick') || (t('leave.26fa6c') || '病假');
+      case 'ANNUAL': return t('attendance.leaveAnnual') || (t('leave.331166') || '特休');
+      default: return t('attendance.leaveOther') || (t('leave.0d98c7') || '其他');
     }
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">{t('attendance.leaveTitle') || '請假申請'}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t('attendance.leaveTitle') || (t('leave.f7913f') || '請假申請')}</h2>
         <button
           onClick={() => setShowModal(true)}
           className="bg-primary-600 text-white px-4 py-2 rounded shadow hover:bg-primary-700"
         >
-          {t('attendance.requestLeave') || '新增請假單'}
+          {t('attendance.requestLeave') || (t('leave.e98323') || '新增請假單')}
         </button>
       </div>
 
@@ -82,11 +82,11 @@ export default function Leave() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveType') || '假別'}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveStartTime') || '開始時間'}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveEndTime') || '結束時間'}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveReason') || '原因'}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.status') || '狀態'}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveType') || (t('leave.f1f549') || '假別')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveStartTime') || (t('leave.4819a7') || '開始時間')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveEndTime') || (t('leave.8b295e') || '結束時間')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.leaveReason') || (t('leave.41dfb0') || '原因')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('attendance.status') || (t('leave.bd91f6') || '狀態')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-sm">
@@ -110,7 +110,7 @@ export default function Leave() {
               {myLeaves.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                    {t('attendance.noLeaveRecords') || '目前沒有請假紀錄'}
+                    {t('attendance.noLeaveRecords') || (t('leave.e8256f') || '目前沒有請假紀錄')}
                   </td>
                 </tr>
               )}
@@ -123,29 +123,29 @@ export default function Leave() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-bold">{t('attendance.requestLeave') || '新增請假單'}</h3>
+              <h3 className="text-lg font-bold">{t('attendance.requestLeave') || (t('leave.e98323') || '新增請假單')}</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-400">&times;</button>
             </div>
             
             <form onSubmit={submitLeave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveType') || '假別'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveType') || (t('leave.f1f549') || '假別')}</label>
                 <select
                   required
                   value={form.leaveType}
                   onChange={(e) => setForm({...form, leaveType: e.target.value})}
                   className="w-full rounded border-gray-300"
                 >
-                  <option value="PERSONAL">{t('attendance.leavePersonal') || '事假'}</option>
-                  <option value="SICK">{t('attendance.leaveSick') || '病假'}</option>
-                  <option value="ANNUAL">{t('attendance.leaveAnnual') || '特休'}</option>
-                  <option value="OTHER">{t('attendance.leaveOther') || '其他'}</option>
+                  <option value="PERSONAL">{t('attendance.leavePersonal') || (t('leave.f571dd') || '事假')}</option>
+                  <option value="SICK">{t('attendance.leaveSick') || (t('leave.26fa6c') || '病假')}</option>
+                  <option value="ANNUAL">{t('attendance.leaveAnnual') || (t('leave.331166') || '特休')}</option>
+                  <option value="OTHER">{t('attendance.leaveOther') || (t('leave.0d98c7') || '其他')}</option>
                 </select>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveStartTime') || '開始時間'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveStartTime') || (t('leave.4819a7') || '開始時間')}</label>
                   <input
                     type="datetime-local"
                     required
@@ -155,7 +155,7 @@ export default function Leave() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveEndTime') || '結束時間'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveEndTime') || (t('leave.8b295e') || '結束時間')}</label>
                   <input
                     type="datetime-local"
                     required
@@ -167,7 +167,7 @@ export default function Leave() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveReason') || '原因'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendance.leaveReason') || (t('leave.41dfb0') || '原因')}</label>
                 <textarea
                   required
                   rows={3}
@@ -183,14 +183,14 @@ export default function Leave() {
                   onClick={() => setShowModal(false)}
                   className="px-4 py-2 border rounded hover:bg-gray-50"
                 >
-                  {t('common.cancel') || '取消'}
+                  {t('common.cancel') || (t('leave.625fb2') || '取消')}
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
                   className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {t('common.submit') || '送出'}
+                  {t('common.submit') || (t('leave.6b6004') || '送出')}
                 </button>
               </div>
             </form>

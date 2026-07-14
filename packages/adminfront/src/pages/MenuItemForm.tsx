@@ -532,11 +532,11 @@ export default function MenuItemForm() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-yellow-800">
-                {t('menuItemForm.inheritedNoticeTitle') || '⚠️ 此為總部同步菜單'}
+                {t('menuItemForm.inheritedNoticeTitle') || (t('menuItemForm.0c2223') || '⚠️ 此為總部同步菜單')}
               </h3>
               <div className="mt-1 text-sm text-yellow-700">
                 <p>
-                  {t('menuItemForm.inheritedNotice') || '為維持品牌一致性，您僅能調整本分店的上下架狀態與庫存，其餘基本資訊由總部統一控管。'}
+                  {t('menuItemForm.inheritedNotice') || (t('menuItemForm.329e63') || '為維持品牌一致性，您僅能調整本分店的上下架狀態與庫存，其餘基本資訊由總部統一控管。')}
                 </p>
               </div>
             </div>
@@ -649,7 +649,7 @@ export default function MenuItemForm() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">製作時間 (分鐘)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('menuItemForm.2ec242') || (t('menuItemForm.2ec242') || '製作時間 (分鐘)')}</label>
               <input
                 type="number"
                 min="0"
@@ -874,7 +874,7 @@ export default function MenuItemForm() {
                       onClick={() => setCropSrc(imageUrl)}
                       disabled={uploading || isFollowedItem}
                       className="bg-primary-500 text-white rounded-full p-2 shadow-md hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center"
-                      title={t('menuItemForm.editCrop', '重新裁切')}
+                      title={t('menuItemForm.editCrop', (t('menuItemForm.8774cc') || '重新裁切'))}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -1237,7 +1237,7 @@ export default function MenuItemForm() {
                           </label>
                           {isChecked && (
                             <div className="flex items-center gap-1 ml-2 shrink-0">
-                              <span className="text-[10px] text-gray-500">{t('menuItemForm.weight') || '機率權重'}</span>
+                              <span className="text-[10px] text-gray-500">{t('menuItemForm.weight') || (t('menuItemForm.7dad6c') || '機率權重')}</span>
                               <input
                                 type="number"
                                 min="1"
@@ -1274,8 +1274,8 @@ export default function MenuItemForm() {
                         className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
                       />
                       <div>
-                        <span className="text-sm font-bold text-purple-900">{t('menuItemForm.showProbabilities') || '顯示機率表'}</span>
-                        <p className="text-xs text-purple-700">{t('menuItemForm.showProbabilitiesDesc') || '在菜單上顯示各獎品的獲取機率'}</p>
+                        <span className="text-sm font-bold text-purple-900">{t('menuItemForm.showProbabilities') || (t('menuItemForm.f72179') || '顯示機率表')}</span>
+                        <p className="text-xs text-purple-700">{t('menuItemForm.showProbabilitiesDesc') || (t('menuItemForm.df27dd') || '在菜單上顯示各獎品的獲取機率')}</p>
                       </div>
                     </label>
 

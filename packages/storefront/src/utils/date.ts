@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 /**
  * Utility for consistent date and time handling across Shutter storefront.
  * Aligns with Asia/Taipei timezone calculations.
@@ -5,6 +7,7 @@
 
 // Parse YYYY-MM-DD to a local Date object without timezone shifting
 export function parseLocalDate(dateStr: string): Date {
+    const { t } = useTranslation();
   if (dateStr.includes('T')) {
     return new Date(dateStr);
   }
@@ -14,6 +17,7 @@ export function parseLocalDate(dateStr: string): Date {
 
 // Format to standard local date (e.g., "6月2日 (週二)" or "Jun 2 (Tue)")
 export function formatToLocalDate(dateStr: string, locale: string = 'zh-TW'): string {
+    const { t } = useTranslation();
   if (!dateStr) return '';
   const date = parseLocalDate(dateStr);
   
@@ -21,7 +25,7 @@ export function formatToLocalDate(dateStr: string, locale: string = 'zh-TW'): st
   if (locale.startsWith('zh')) {
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    const weekdays = [(t('date.1171f5') || '週日'), (t('date.9a9640') || '週一'), (t('date.a89f2f') || '週二'), (t('date.a16fda') || '週三'), (t('date.e316f3') || '週四'), (t('date.c1e2b7') || '週五'), (t('date.fc8b19') || '週六')];
     const weekday = weekdays[date.getDay()];
     return `${month}月${day}日 (${weekday})`;
   }
@@ -36,6 +40,7 @@ export function formatToLocalDate(dateStr: string, locale: string = 'zh-TW'): st
 
 // Format to standard local time (e.g., "18:00")
 export function formatToLocalTime(dateStr: string, locale: string = 'zh-TW'): string {
+    const { t } = useTranslation();
   if (!dateStr) return '';
   const date = new Date(dateStr);
   
@@ -49,6 +54,7 @@ export function formatToLocalTime(dateStr: string, locale: string = 'zh-TW'): st
 
 // Format to full reservation datetime (e.g. "2026年6月3日 (週三) 18:00")
 export function formatToFullDateTime(dateStr: string, locale: string = 'zh-TW'): string {
+    const { t } = useTranslation();
   if (!dateStr) return '';
   const date = new Date(dateStr);
   
@@ -67,6 +73,7 @@ export function formatToFullDateTime(dateStr: string, locale: string = 'zh-TW'):
 
 // Get friendly label for date (e.g., "今天", "明天", or "")
 export function getDateFriendlyLabel(dateStr: string, locale: string = 'zh-TW'): string {
+    const { t } = useTranslation();
   if (!dateStr) return '';
   
   // Calculate today and tomorrow dates in Asia/Taipei timezone
@@ -78,10 +85,10 @@ export function getDateFriendlyLabel(dateStr: string, locale: string = 'zh-TW'):
   const target = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
   
   if (target === taiwanDateStr) {
-    return locale.startsWith('zh') ? '今天' : 'Today';
+    return locale.startsWith('zh') ? (t('date.800dfd') || '今天') : 'Today';
   }
   if (target === taiwanTomorrowStr) {
-    return locale.startsWith('zh') ? '明天' : 'Tomorrow';
+    return locale.startsWith('zh') ? (t('date.8bcbd7') || '明天') : 'Tomorrow';
   }
   return '';
 }

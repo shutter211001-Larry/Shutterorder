@@ -320,7 +320,19 @@
     "storeToStoreDetails": "[EN] 取件門市資訊 (Store Details)",
     "storeBranchPlaceholder": "[EN] 例如：7-11 信義店 (店號: 123456)",
     "estimatedWaitTime": "Estimated Wait Time",
-    "minutes": "minutes"
+    "minutes": "minutes",
+    "20cc8e": "預計最快取餐時間",
+    "ebb4a1": "約",
+    "ac055c": "分鐘",
+    "c3ae1f": "取件門市資訊",
+    "47e7b0": "冷凍宅配地址",
+    "c85047": "請選擇縣市",
+    "66c5de": "請選擇地區",
+    "3b72ed": "郵遞區號",
+    "ec797c": "例如：7-11 信義店 (店號: 123456)",
+    "4dee28": "例如：中正路 100 號 3 樓",
+    "a4b4fb": "宅配",
+    "380e90": "店到店"
   },
   "orderConfirmation": {
     "title": "Commande Passée !",
@@ -401,7 +413,12 @@
     "tax": "[EN] 稅金 (Tax)",
     "freeDelivery": "[EN] 免運費",
     "roundingAdjustment": "[EN] 結算調整 (Rounding)",
-    "history": "Status History"
+    "history": "Status History",
+    "380e90": "店到店",
+    "a4b4fb": "宅配",
+    "26cad2": "物流追蹤",
+    "eb6d92": "物流公司",
+    "d9748a": "託運單號"
   },
   "reservations": {
     "title": "Réservation de Table",
@@ -481,7 +498,9 @@
     "cashPayment": "[EN] 現金付款",
     "bonusRedemption": "[EN] 紅利兌換 (",
     "pointsSuffix": "[EN] 點)",
-    "probabilities": "Probabilities"
+    "probabilities": "Probabilities",
+    "eb3742": "機率表 (Probabilities)",
+    "824ea5": "庫存不足"
   },
   "authContext": {
     "serverConnectionFailed": "[EN] 伺服器連線失敗或正在維護中，請稍後再試。 (Server connection failed)",
@@ -556,5 +575,46 @@
     "booking": "[EN] 預約"
   },
   "We are currently closed for immediate orders. Please select a future pickup time.": "目前不在營業時間內，請選擇未來的取餐時間。",
-  "Scheduled time must be within business hours considering preparation buffers.": "所選時間不在營業時間內，請重新選擇。"
+  "Scheduled time must be within business hours considering preparation buffers.": "所選時間不在營業時間內，請重新選擇。",
+  "confirmGlobal": {
+    "0c06d4": "刪除",
+    "95ab59": "請確認",
+    "625fb2": "取消",
+    "30749e": "確認"
+  },
+  "gachaAnimationOverlay": {
+    "ca3b2e": "準備開箱...",
+    "adfd47": "恭喜抽中！"
+  },
+  "index": {
+    "46c499": "繁體中文",
+    "00110a": "日本語"
+  },
+  "globalLanding": {
+    "631238": "強大雲端 POS",
+    "8b2327": "聯絡我們",
+    "da4f9c": "SaaS 雲端餐飲管理平台",
+    "b76aef": "探索頂級",
+    "a121b3": "餐飲體驗與管理",
+    "0343a5": "歡迎來到 Shutter。如果您是消費者，請透過專屬餐廳網址進行點餐；",
+    "cb2ba7": "如果您是合作夥伴或餐廳老闆，請登入您的專屬管理後台。",
+    "5f8ad7": "餐廳管理員登入",
+    "42b53a": "聯絡業務團隊",
+    "aafff1": "專屬品牌官網",
+    "25525f": "為每間餐廳打造無縫的點餐與預訂體驗，輕鬆提升品牌形象。",
+    "bf542c": "整合內用、外帶與外送，並具備即時庫存與員工管理系統。",
+    "c1c4bd": "多門店與連鎖管理",
+    "d2e50d": "專為擴張設計，輕鬆同步多間分店的菜單與營收報表。"
+  },
+  "date": {
+    "1171f5": "週日",
+    "9a9640": "週一",
+    "a89f2f": "週二",
+    "a16fda": "週三",
+    "e316f3": "週四",
+    "c1e2b7": "週五",
+    "fc8b19": "週六",
+    "800dfd": "今天",
+    "8bcbd7": "明天"
+  }
 }

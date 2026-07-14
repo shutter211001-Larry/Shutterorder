@@ -1486,8 +1486,7 @@ export const Labels = () => {
           <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl font-bold text-xs shadow-sm">
             <input type="checkbox" id="imperial-size-toggle" checked={useImperialExactSize} onChange={(e) => setUseImperialExactSize(e.target.checked)} className="rounded border-amber-300 text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer" />
             <label htmlFor="imperial-size-toggle" className="cursor-pointer select-none">
-              繞過驅動縮放 (101.6mm)
-            </label>
+              {t('labels.57c7fb') || (t('labels.57c7fb') || '繞過驅動縮放 (101.6mm)')}</label>
           </div>
 
           <button onClick={() => window.print()} className="w-full md:w-auto px-6 py-2.5 bg-gray-900 text-white rounded-xl font-black text-xs shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">

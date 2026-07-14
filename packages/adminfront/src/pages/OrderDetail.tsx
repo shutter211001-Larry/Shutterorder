@@ -458,13 +458,13 @@ export default function OrderDetailPage() {
                     )}
                     {order.orderType === 'FROZEN_DELIVERY' && order.frozenDeliveryMethod && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                        {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? '店到店' : '宅配'}
+                        {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('orderDetail.380e90') || '店到店') : (t('orderDetail.a4b4fb') || '宅配')}
                       </span>
                     )}
                   </div>
                   {order.trackingNumber && (
                     <div className="text-sm mt-1">
-                      <span className="text-gray-500 mr-2">{order.logisticsProvider || '物流'}:</span>
+                      <span className="text-gray-500 mr-2">{order.logisticsProvider || (t('orderDetail.ccbb78') || '物流')}:</span>
                       <span className="font-semibold">{order.trackingNumber}</span>
                     </div>
                   )}
@@ -510,7 +510,7 @@ export default function OrderDetailPage() {
               {order.address && (order.orderType === 'DELIVERY' || order.orderType === 'FROZEN_DELIVERY') && (
                 <div>
                   <dt className="text-gray-500">
-                    {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? '取件門市' : (t('orders.deliveryAddress') || '送貨地址')}
+                    {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('orderDetail.2e01d6') || '取件門市') : (t('orders.deliveryAddress') || (t('orderDetail.a19171') || '送貨地址'))}
                   </dt>
                   <dd className="font-medium text-gray-900 mt-1">
                     {order.frozenDeliveryMethod === 'STORE_TO_STORE' ? (
@@ -544,10 +544,10 @@ export default function OrderDetailPage() {
       {showFulfillModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">{t('orderDetail.fulfillOrder') || '填寫出貨資訊'}</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{t('orderDetail.fulfillOrder') || (t('orderDetail.35e923') || '填寫出貨資訊')}</h2>
             <form onSubmit={submitFulfillment} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.logisticsProvider') || '物流公司 / 配送方式'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.logisticsProvider') || (t('orderDetail.83eed1') || '物流公司 / 配送方式')}</label>
                 {(logisticsSettings.enableTCat || logisticsSettings.enablePelican || logisticsSettings.enableECPay) ? (
                   <div className="space-y-2">
                     <select
@@ -555,15 +555,15 @@ export default function OrderDetailPage() {
                       onChange={(e) => setPresetProvider(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                     >
-                      <option value="custom">自訂 / 手動填寫</option>
-                      {logisticsSettings.enableTCat && <option value="黑貓宅急便">黑貓宅急便</option>}
-                      {logisticsSettings.enablePelican && <option value="台灣宅配通">台灣宅配通</option>}
-                      {logisticsSettings.enableECPay && <option value="綠界科技 ECPay">綠界科技 ECPay (店到店)</option>}
+                      <option value="custom">{t('orderDetail.092a9c') || (t('orderDetail.092a9c') || '自訂 / 手動填寫')}</option>
+                      {logisticsSettings.enableTCat && <option value={t('orderDetail.42633c') || '黑貓宅急便'}>{t('orderDetail.42633c') || (t('orderDetail.42633c') || '黑貓宅急便')}</option>}
+                      {logisticsSettings.enablePelican && <option value={t('orderDetail.0cf107') || '台灣宅配通'}>{t('orderDetail.0cf107') || (t('orderDetail.0cf107') || '台灣宅配通')}</option>}
+                      {logisticsSettings.enableECPay && <option value={t('orderDetail.065b5b') || '綠界科技 ECPay'}>{t('orderDetail.fc5ea0') || (t('orderDetail.fc5ea0') || '綠界科技 ECPay (店到店)')}</option>}
                     </select>
                     {presetProvider === 'custom' && (
                       <input
                         type="text"
-                        placeholder="請手動輸入物流公司名稱..."
+                        placeholder={t('orderDetail.e30bd6') || '請手動輸入物流公司名稱...'}
                         value={logisticsProvider}
                         onChange={(e) => setLogisticsProvider(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
@@ -573,7 +573,7 @@ export default function OrderDetailPage() {
                 ) : (
                   <input
                     type="text"
-                    placeholder="例如：黑貓、Lalamove、自送..."
+                    placeholder={t('orderDetail.70e6c5') || '例如：黑貓、Lalamove、自送...'}
                     value={logisticsProvider}
                     onChange={(e) => setLogisticsProvider(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
@@ -582,13 +582,13 @@ export default function OrderDetailPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.trackingNumber') || '託運單號'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderDetail.trackingNumber') || (t('orderDetail.d9748a') || '託運單號')}</label>
                 <input
                   type="text"
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                  placeholder="請輸入託運單號"
+                  placeholder={t('orderDetail.c3b732') || '請輸入託運單號'}
                   required
                 />
               </div>
@@ -606,7 +606,7 @@ export default function OrderDetailPage() {
                   disabled={updating || !trackingNumber}
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {updating ? t('common.saving') : (t('common.confirm') || '確認出貨')}
+                  {updating ? t('common.saving') : (t('common.confirm') || (t('orderDetail.9ce303') || '確認出貨'))}
                 </button>
               </div>
             </form>

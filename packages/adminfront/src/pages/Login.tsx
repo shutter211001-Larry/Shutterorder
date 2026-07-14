@@ -1,11 +1,13 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { api } from '../lib/api.js';
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onLogin: (token: string) => void;
 }
 
 export default function Login({ onLogin }: Props) {
+    const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -77,7 +79,7 @@ export default function Login({ onLogin }: Props) {
   async function handleForgotPassword(e: FormEvent) {
     e.preventDefault();
     if (!email) {
-      setError('請輸入 Email');
+      setError((t('login.faac0a') || '請輸入 Email'));
       return;
     }
     setError('');
@@ -86,7 +88,7 @@ export default function Login({ onLogin }: Props) {
 
     try {
       const res = await api.post('auth/staff/forgot-password', { email });
-      setMessage(res.message || '重置信已寄出');
+      setMessage(res.message || (t('login.c42977') || '重置信已寄出'));
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -99,8 +101,7 @@ export default function Login({ onLogin }: Props) {
       <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
         <div className="w-full max-w-sm bg-white rounded-xl shadow-lg p-8 space-y-5">
           <h2 className="text-xl font-semibold text-gray-900 text-center mb-6">
-            請選擇要進入的餐廳
-          </h2>
+            {t('login.0c4231') || (t('login.0c4231') || '請選擇要進入的餐廳')}</h2>
           
           {error && <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg">{error}</div>}
           
@@ -122,8 +123,7 @@ export default function Login({ onLogin }: Props) {
             onClick={() => setAvailableTenants([])}
             className="w-full text-center text-sm font-medium text-gray-500 hover:text-gray-700 mt-4 cursor-pointer"
           >
-            返回重新登入
-          </button>
+            {t('login.ade37a') || (t('login.ade37a') || '返回重新登入')}</button>
         </div>
       </div>
     );
@@ -133,13 +133,13 @@ export default function Login({ onLogin }: Props) {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-400">夏特點餐系統</h1>
+          <h1 className="text-3xl font-bold text-primary-400">{t('login.18c4db') || (t('login.18c4db') || '夏特點餐系統')}</h1>
           <p className="text-gray-400 mt-1 text-sm">Admin Panel</p>
         </div>
 
         <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-5">
           <h2 className="text-xl font-semibold text-gray-900 text-center">
-            {isForgotPassword ? '忘記密碼' : 'Sign In'}
+            {isForgotPassword ? (t('login.40c72e') || '忘記密碼') : 'Sign In'}
           </h2>
 
           {message && (
@@ -170,8 +170,7 @@ export default function Login({ onLogin }: Props) {
                   onClick={() => { setIsForgotPassword(true); setError(''); setMessage(''); }}
                   className="text-xs text-primary-600 hover:text-primary-700 font-medium cursor-pointer"
                 >
-                  忘記密碼？
-                </button>
+                  {t('login.8c4b14') || (t('login.8c4b14') || '忘記密碼？')}</button>
               </div>
               <input
                 type="password"
@@ -188,7 +187,7 @@ export default function Login({ onLogin }: Props) {
             disabled={loading}
             className="w-full bg-primary-600 text-white py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {loading ? (isForgotPassword ? '發送中...' : 'Signing in...') : (isForgotPassword ? '發送重置信' : 'Sign In')}
+            {loading ? (isForgotPassword ? (t('login.447ce3') || '發送中...') : 'Signing in...') : (isForgotPassword ? (t('login.05a64f') || '發送重置信') : 'Sign In')}
           </button>
 
           {isForgotPassword && (
@@ -197,8 +196,7 @@ export default function Login({ onLogin }: Props) {
               onClick={() => { setIsForgotPassword(false); setError(''); setMessage(''); }}
               className="w-full text-center text-sm font-medium text-gray-500 hover:text-gray-700 mt-4 cursor-pointer"
             >
-              返回登入
-            </button>
+              {t('login.1eee19') || (t('login.1eee19') || '返回登入')}</button>
           )}
 
           {!isForgotPassword && !hasSuperAdmin && import.meta.env.DEV && (
@@ -210,8 +208,7 @@ export default function Login({ onLogin }: Props) {
               }}
               className="w-full bg-gray-50 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200 flex items-center justify-center gap-2 mt-3 cursor-pointer"
             >
-              一鍵帶入預設管理員
-            </button>
+              {t('login.d0cd5e') || (t('login.d0cd5e') || '一鍵帶入預設管理員')}</button>
           )}
         </form>
       </div>

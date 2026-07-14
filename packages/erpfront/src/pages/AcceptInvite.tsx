@@ -25,7 +25,7 @@ export default function AcceptInvite() {
 
   useEffect(() => {
     if (!tokenParam) {
-      setTokenError(t("erp_invite_no_token", "未提供邀請令牌"));
+      setTokenError(t("erp_invite_no_token", (t('acceptInvite.f2ac1c') || '未提供邀請令牌')));
       setValidating(false);
       return;
     }
@@ -39,7 +39,7 @@ export default function AcceptInvite() {
       })
       .catch((err) => {
         setTokenError(
-          err?.response?.data?.error || t("erp_invite_invalid", "邀請已失效或錯誤")
+          err?.response?.data?.error || t("erp_invite_invalid", (t('acceptInvite.c61238') || '邀請已失效或錯誤'))
         );
       }).finally(() => setValidating(false));
   }, [tokenParam, t]);
@@ -49,7 +49,7 @@ export default function AcceptInvite() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError(t("erp_passwords_mismatch", "兩次輸入的密碼不一致"));
+      setError(t("erp_passwords_mismatch", (t('acceptInvite.0ff7d4') || '兩次輸入的密碼不一致')));
       return;
     }
 
@@ -94,7 +94,7 @@ export default function AcceptInvite() {
               <span className="text-2xl font-black text-red-600">!</span>
             </div>
             <h2 className="text-xl font-black text-gray-800 mb-2">
-              {t("erp_invalid_invite", "無效的邀請")}
+              {t("erp_invalid_invite", (t('acceptInvite.d1efae') || '無效的邀請'))}
             </h2>
             <p className="text-sm font-bold text-gray-500">{tokenError}</p>
           </div>
@@ -104,8 +104,8 @@ export default function AcceptInvite() {
   }
 
   const ROLE_LABELS: Record<string, string> = {
-    ADMIN: t("erp_831", "管理員 (Admin)"),
-    STAFF: t("erp_186", "員工 (Staff)"),
+    ADMIN: t("erp_831", (t('acceptInvite.90334e') || '管理員 (Admin)')),
+    STAFF: t("erp_186", (t('acceptInvite.67dcdc') || '員工 (Staff)')),
   };
 
   return (
@@ -120,7 +120,7 @@ export default function AcceptInvite() {
             {t("erp_login_title", "Shutter ERP")}
           </h1>
           <p className="text-sm font-bold tracking-widest text-primary uppercase">
-            {t("erp_accept_invite", "接受加入邀請")}
+            {t("erp_accept_invite", (t('acceptInvite.ebe02a') || '接受加入邀請'))}
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export default function AcceptInvite() {
         >
           <div className="text-center mb-6">
             <p className="text-sm font-bold text-gray-600">
-              {t("erp_invited_as", "您被邀請擔任")} <strong>{ROLE_LABELS[role] || role}</strong>
+              {t("erp_invited_as", (t('acceptInvite.837667') || '您被邀請擔任'))} <strong>{ROLE_LABELS[role] || role}</strong>
             </p>
             <p className="text-xs font-bold text-gray-400 mt-1">{email}</p>
           </div>
@@ -144,7 +144,7 @@ export default function AcceptInvite() {
 
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground pl-1">
-              {t("erp_836", "姓名")}
+              {t("erp_836", (t('acceptInvite.60d045') || '姓名'))}
             </label>
             <input
               type="text"
@@ -158,7 +158,7 @@ export default function AcceptInvite() {
 
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground pl-1">
-              {t("erp_850", "密碼")}
+              {t("erp_850", (t('acceptInvite.6662c8') || '密碼'))}
             </label>
             <input
               type="password"
@@ -172,7 +172,7 @@ export default function AcceptInvite() {
 
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground pl-1">
-              {t("erp_confirm_password", "確認密碼")}
+              {t("erp_confirm_password", (t('acceptInvite.c4072d') || '確認密碼'))}
             </label>
             <input
               type="password"
@@ -189,7 +189,7 @@ export default function AcceptInvite() {
             disabled={submitting}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-orange-500 text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed mt-4"
           >
-            {submitting ? t("erp_252", "處理中...") : t("erp_complete_registration", "完成註冊並登入")}
+            {submitting ? t("erp_252", (t('acceptInvite.ca0536') || '處理中...')) : t("erp_complete_registration", (t('acceptInvite.cf6b1c') || '完成註冊並登入'))}
           </button>
         </form>
       </div>

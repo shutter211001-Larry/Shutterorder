@@ -42,7 +42,7 @@ export default function AttendanceRecords() {
       locationId: record.locationId,
       requestedCheckIn: formatDatetimeLocal(record.checkIn),
       requestedCheckOut: formatDatetimeLocal(record.checkOut),
-      reason: t('attendanceCorrections.adminOverrideReason') || '管理員手動調整'
+      reason: t('attendanceCorrections.adminOverrideReason') || (t('attendanceRecords.a668fa') || '管理員手動調整')
     });
     setShowCorrectionModal(true);
   };
@@ -66,7 +66,7 @@ export default function AttendanceRecords() {
       const res = await api.post('attendance/corrections', payload);
       
       if (res.success) {
-        toast.success(t('attendanceCorrections.success') || '修改成功');
+        toast.success(t('attendanceCorrections.success') || (t('attendanceRecords.69be67') || '修改成功'));
         setShowCorrectionModal(false);
         fetchRecords();
       } else {
@@ -80,20 +80,20 @@ export default function AttendanceRecords() {
   };
 
   const toggleIgnore = async (id: string, currentIsIgnored: boolean) => {
-    if (!window.confirm(currentIsIgnored ? '確定要還原此紀錄嗎？' : '確定要排除此紀錄嗎？(排除後將不計入薪資與損益)')) {
+    if (!window.confirm(currentIsIgnored ? (t('attendanceRecords.b17b0e') || '確定要還原此紀錄嗎？') : (t('attendanceRecords.6b393a') || '確定要排除此紀錄嗎？(排除後將不計入薪資與損益)'))) {
       return;
     }
     setLoading(true);
     try {
       const res = await api.put(`attendance/records/${id}/ignore`, { isIgnored: !currentIsIgnored });
       if (res.success) {
-        toast.success(currentIsIgnored ? '紀錄已還原' : '紀錄已排除');
+        toast.success(currentIsIgnored ? (t('attendanceRecords.366d0b') || '紀錄已還原') : (t('attendanceRecords.e14a6f') || '紀錄已排除'));
         fetchRecords();
       } else {
         toast.error(res.error || 'Failed');
       }
     } catch (err) {
-      toast.error('系統錯誤');
+      toast.error((t('attendanceRecords.83d9c5') || '系統錯誤'));
     } finally {
       setLoading(false);
     }
@@ -240,11 +240,10 @@ export default function AttendanceRecords() {
                   <div className="flex flex-col gap-1">
                     {record.isIgnored ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 w-max">
-                        已排除
-                      </span>
+                        {t('attendanceRecords.ae2403') || (t('attendanceRecords.ae2403') || '已排除')}</span>
                     ) : !record.checkOut ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 w-max">
-                        {t('attendanceRecords.missingCheckout') || '未下班'}
+                        {t('attendanceRecords.missingCheckout') || (t('attendanceRecords.91185d') || '未下班')}
                       </span>
                     ) : record.isOutOfRange ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 w-max">
@@ -258,8 +257,7 @@ export default function AttendanceRecords() {
                     
                     {record.correctionRequests?.find((cr: any) => cr.status === 'APPROVED' && cr.manager) && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-max">
-                        由 {record.correctionRequests.find((cr: any) => cr.status === 'APPROVED' && cr.manager).manager.name} 變更
-                      </span>
+                        {t('attendanceRecords.4b075c') || (t('attendanceRecords.4b075c') || '由')}{record.correctionRequests.find((cr: any) => cr.status === 'APPROVED' && cr.manager).manager.name} {t('attendanceRecords.a5366c') || (t('attendanceRecords.a5366c') || '變更')}</span>
                     )}
                   </div>
                 </td>
@@ -268,14 +266,14 @@ export default function AttendanceRecords() {
                     onClick={() => toggleIgnore(record.id, !!record.isIgnored)}
                     className={`${record.isIgnored ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'}`}
                   >
-                    {record.isIgnored ? '還原' : '排除'}
+                    {record.isIgnored ? (t('attendanceRecords.6899eb') || '還原') : (t('attendanceRecords.93bdf5') || '排除')}
                   </button>
                   <button
                     onClick={() => openCorrectionForRecord(record)}
                     className="text-primary-600 hover:text-primary-900"
                     disabled={record.isIgnored}
                   >
-                    {t('common.edit') || '編輯'}
+                    {t('common.edit') || (t('attendanceRecords.aa3a61') || '編輯')}
                   </button>
                 </td>
               </tr>
@@ -295,7 +293,7 @@ export default function AttendanceRecords() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-              <h3 className="text-lg font-bold text-gray-900">{t('attendanceCorrections.title') || '考勤修改'}</h3>
+              <h3 className="text-lg font-bold text-gray-900">{t('attendanceCorrections.title') || (t('attendanceRecords.703d7f') || '考勤修改')}</h3>
               <button onClick={() => setShowCorrectionModal(false)} className="text-gray-400 hover:text-gray-500">
                 &times;
               </button>
@@ -304,7 +302,7 @@ export default function AttendanceRecords() {
             <form onSubmit={submitCorrectionRequest} className="p-6 space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckIn') || '正確上班時間'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckIn') || (t('attendanceRecords.c62e9e') || '正確上班時間')}</label>
                   <input
                     type="datetime-local"
                     required
@@ -314,7 +312,7 @@ export default function AttendanceRecords() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckOut') || '正確下班時間'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.requestedCheckOut') || (t('attendanceRecords.7eda16') || '正確下班時間')}</label>
                   <input
                     type="datetime-local"
                     value={correctionForm.requestedCheckOut}
@@ -323,7 +321,7 @@ export default function AttendanceRecords() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.reason') || '修改原因'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('attendanceCorrections.reason') || (t('attendanceRecords.6d8462') || '修改原因')}</label>
                   <input
                     type="text"
                     required
@@ -340,14 +338,14 @@ export default function AttendanceRecords() {
                   onClick={() => setShowCorrectionModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
                 >
-                  {t('attendanceCorrections.cancel') || '取消'}
+                  {t('attendanceCorrections.cancel') || (t('attendanceRecords.625fb2') || '取消')}
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
                   className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {t('attendanceCorrections.submit') || '儲存'}
+                  {t('attendanceCorrections.submit') || (t('attendanceRecords.e9dabe') || '儲存')}
                 </button>
               </div>
             </form>

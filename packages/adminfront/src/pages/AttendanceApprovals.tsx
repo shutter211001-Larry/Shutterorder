@@ -21,7 +21,7 @@ export default function AttendanceApprovals() {
             : 'text-gray-500 hover:text-gray-900'}
         `}
       >
-        {t('attendanceCorrections.title') || '補打卡審核'}
+        {t('attendanceCorrections.title') || (t('attendanceApprovals.7883a4') || '補打卡審核')}
       </button>
       <button
         onClick={() => setActiveTab('leaves')}
@@ -32,7 +32,7 @@ export default function AttendanceApprovals() {
             : 'text-gray-500 hover:text-gray-900'}
         `}
       >
-        {t('attendance.leaveApprovalTitle') || '請假審核'}
+        {t('attendance.leaveApprovalTitle') || (t('attendanceApprovals.044471') || '請假審核')}
       </button>
     </div>
   );
@@ -40,8 +40,8 @@ export default function AttendanceApprovals() {
   return (
     <div className="p-6">
       <PageHeader 
-        title="簽核中心" 
-        subtitle="集中管理所有員工的出勤異常與請假申請"
+        title={t('attendanceApprovals.66644a') || '簽核中心'} 
+        subtitle={t('attendanceApprovals.2ae424') || '集中管理所有員工的出勤異常與請假申請'}
         action={ActionTabs}
       />
 

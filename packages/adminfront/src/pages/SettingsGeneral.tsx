@@ -164,11 +164,10 @@ export default function SettingsGeneral() {
           <h2 className="text-lg font-semibold text-gray-900">{t('settingsGeneral.contactInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Custom Domain / 專屬網域</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.2b7279') || (t('settingsGeneral.2b7279') || 'Custom Domain / 專屬網域')}</label>
               <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" placeholder="e.g. www.my-restaurant.com" value={domain} onChange={(e) => setDomain(e.target.value)} />
               <p className="mt-1 text-xs text-gray-500">
-                設定您的專屬網域。留空則使用預設子網域。
-              </p>
+                {t('settingsGeneral.4ef7c8') || (t('settingsGeneral.4ef7c8') || '設定您的專屬網域。留空則使用預設子網域。')}</p>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsGeneral.contactEmail')}</label>

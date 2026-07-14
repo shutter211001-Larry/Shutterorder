@@ -3,12 +3,14 @@ import { api } from '../lib/api.js';
 import { toast } from 'react-hot-toast';
 import { Key, Save, Mail, CreditCard, MessageSquare, MapPin, Truck, FileText, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 export default function TenantIntegrations() {
+    const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const tenantName = (location.state as any)?.tenantName || '載入中...';
+  const tenantName = (location.state as any)?.tenantName || (t('tenantIntegrations.d39337') || '載入中...');
 
   const [activeTab, setActiveTab] = useState<'s3' | 'line' | 'google' | 'mail' | 'invoice' | 'payment' | 'logistics'>('line');
   const [loading, setLoading] = useState(true);
@@ -82,20 +84,20 @@ export default function TenantIntegrations() {
       setKeys(res.data);
       setOriginalKeys(res.data);
     } catch (error) {
-      toast.error('無法載入金鑰資料');
+      toast.error((t('tenantIntegrations.e1e827') || '無法載入金鑰資料'));
     } finally {
       setLoading(false);
     }
   };
 
   const allTabs = [
-    { id: 's3', name: 'S3 圖床 (Cloudflare)', icon: ImageIcon, isGlobal: true },
-    { id: 'line', name: 'LINE 整合設定', icon: MessageSquare, isGlobal: false },
-    { id: 'google', name: 'Google API 設定', icon: MapPin, isGlobal: true },
-    { id: 'mail', name: '電子郵件發送', icon: Mail, isGlobal: false },
-    { id: 'invoice', name: '電子發票介接', icon: FileText, isGlobal: false },
-    { id: 'payment', name: '第三方金流', icon: CreditCard, isGlobal: false },
-    { id: 'logistics', name: '物流與店到店', icon: Truck, isGlobal: true },
+    { id: 's3', name: (t('tenantIntegrations.7b792f') || 'S3 圖床 (Cloudflare)'), icon: ImageIcon, isGlobal: true },
+    { id: 'line', name: (t('tenantIntegrations.5b8a19') || 'LINE 整合設定'), icon: MessageSquare, isGlobal: false },
+    { id: 'google', name: (t('tenantIntegrations.510809') || 'Google API 設定'), icon: MapPin, isGlobal: true },
+    { id: 'mail', name: (t('tenantIntegrations.5c0074') || '電子郵件發送'), icon: Mail, isGlobal: false },
+    { id: 'invoice', name: (t('tenantIntegrations.497f98') || '電子發票介接'), icon: FileText, isGlobal: false },
+    { id: 'payment', name: (t('tenantIntegrations.14a16c') || '第三方金流'), icon: CreditCard, isGlobal: false },
+    { id: 'logistics', name: (t('tenantIntegrations.cd1201') || '物流與店到店'), icon: Truck, isGlobal: true },
   ] as const;
 
   const tabs = selectedLocationId 
@@ -119,7 +121,7 @@ export default function TenantIntegrations() {
     });
 
     if (changes.length === 0) {
-      toast.error('目前沒有任何欄位被修改', { icon: 'ℹ️', duration: 3000 });
+      toast.error((t('tenantIntegrations.abd392') || '目前沒有任何欄位被修改'), { icon: 'ℹ️', duration: 3000 });
       return;
     }
 
@@ -135,10 +137,10 @@ export default function TenantIntegrations() {
         ? `/platform-admin/tenants/${id}/integrations?locationId=${selectedLocationId}`
         : `/platform-admin/tenants/${id}/integrations`;
       await api.put(url, { ...keys, notifyEmail });
-      toast.success(notifyEmail ? '已發送確認信！' : '儲存成功！', { duration: 5000 });
+      toast.success(notifyEmail ? (t('tenantIntegrations.9abb93') || '已發送確認信！') : (t('tenantIntegrations.1e413d') || '儲存成功！'), { duration: 5000 });
       navigate('/tenants');
     } catch (error) {
-      toast.error('儲存失敗');
+      toast.error((t('tenantIntegrations.24510f') || '儲存失敗'));
     } finally {
       setSaving(false);
     }
@@ -157,7 +159,7 @@ export default function TenantIntegrations() {
 
 
   if (loading) {
-    return <div className="p-8 text-center text-gray-400 animate-pulse">載入金鑰資料中...</div>;
+    return <div className="p-8 text-center text-gray-400 animate-pulse">{t('tenantIntegrations.ae805a') || (t('tenantIntegrations.ae805a') || '載入金鑰資料中...')}</div>;
   }
 
   return (
@@ -166,25 +168,24 @@ export default function TenantIntegrations() {
         <div>
           <button onClick={() => navigate('/tenants')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" />
-            返回租戶列表
-          </button>
+            {t('tenantIntegrations.000ea3') || (t('tenantIntegrations.000ea3') || '返回租戶列表')}</button>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Key className="w-6 h-6 text-orange-500" />
-            設定整合金鑰：<span className="text-orange-400">{tenantName}</span>
+            {t('tenantIntegrations.28864a') || (t('tenantIntegrations.28864a') || '設定整合金鑰：')}<span className="text-orange-400">{tenantName}</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-1">您正在修改該店家的第三方服務金鑰。隱藏的金鑰會顯示為 ********，若不修改請保持原樣。</p>
+          <p className="text-gray-400 text-sm mt-1">{t('tenantIntegrations.d0319f') || (t('tenantIntegrations.d0319f') || '您正在修改該店家的第三方服務金鑰。隱藏的金鑰會顯示為 ********，若不修改請保持原樣。')}</p>
         </div>
         <div className="flex flex-col items-end gap-3">
           <div className="flex items-center gap-3 bg-gray-800 px-4 py-2 rounded-xl">
-            <span className="text-sm text-gray-400 font-medium whitespace-nowrap">分店切換</span>
+            <span className="text-sm text-gray-400 font-medium whitespace-nowrap">{t('tenantIntegrations.845a0e') || (t('tenantIntegrations.845a0e') || '分店切換')}</span>
             <select
               value={selectedLocationId}
               onChange={(e) => setSelectedLocationId(e.target.value)}
               className="bg-gray-900 border border-gray-700 text-sm text-white rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-orange-500/50"
             >
-              <option value="">全域系統預設設定</option>
+              <option value="">{t('tenantIntegrations.6b83ac') || (t('tenantIntegrations.6b83ac') || '全域系統預設設定')}</option>
               {locations.map(loc => (
-                <option key={loc.id} value={loc.id}>{loc.name} (分店獨立設定)</option>
+                <option key={loc.id} value={loc.id}>{loc.name} {t('tenantIntegrations.b5f415') || (t('tenantIntegrations.b5f415') || '(分店獨立設定)')}</option>
               ))}
             </select>
           </div>
@@ -203,19 +204,19 @@ export default function TenantIntegrations() {
                 }}
                 className="w-4 h-4 text-orange-500 rounded border-gray-600 focus:ring-orange-500 focus:ring-2 bg-gray-700" 
               />
-              <label htmlFor="notify" className="text-sm text-gray-300">儲存並發送確認信給</label>
+              <label htmlFor="notify" className="text-sm text-gray-300">{t('tenantIntegrations.1811dc') || (t('tenantIntegrations.1811dc') || '儲存並發送確認信給')}</label>
               <input 
                 type="email" 
                 value={notifyEmail}
                 onChange={e => setNotifyEmail(e.target.value)}
                 disabled={notifyEmail === '' && !(document.getElementById('notify') as HTMLInputElement)?.checked}
                 className="bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-xs text-white outline-none focus:border-orange-500 disabled:opacity-50 w-48"
-                placeholder="輸入 Email..."
+                placeholder={t('tenantIntegrations.39d20e') || '輸入 Email...'}
               />
             </div>
             <button onClick={handleSaveClick} disabled={saving} className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all shadow-lg shadow-orange-600/20 flex items-center gap-2">
               <Save className="w-4 h-4" />
-              {saving ? '處理中...' : '儲存變更'}
+              {saving ? (t('tenantIntegrations.ca0536') || '處理中...') : (t('tenantIntegrations.604efd') || '儲存變更')}
             </button>
           </div>
         </div>
@@ -248,15 +249,13 @@ export default function TenantIntegrations() {
               <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-5 mb-6">
                 <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
                   <ImageIcon className="w-5 h-5" />
-                  圖床與靜態資源設定
-                </h3>
+                  {t('tenantIntegrations.fab2f7') || (t('tenantIntegrations.fab2f7') || '圖床與靜態資源設定')}</h3>
                 <p className="text-gray-400 text-sm">
-                  支援相容 Amazon S3 API 的儲存服務（如 Cloudflare R2、AWS S3、MinIO 等），用來存放餐廳商標與菜單圖片。
-                </p>
+                  {t('tenantIntegrations.4cd987') || (t('tenantIntegrations.4cd987') || '支援相容 Amazon S3 API 的儲存服務（如 Cloudflare R2、AWS S3、MinIO 等），用來存放餐廳商標與菜單圖片。')}</p>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">S3 連線參數</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.a6cda8') || (t('tenantIntegrations.a6cda8') || 'S3 連線參數')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Endpoint URL</label>
@@ -275,7 +274,7 @@ export default function TenantIntegrations() {
                     <input type="password" value={keys.s3.secretKey} onChange={e => handleChange('s3', 'secretKey', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Public URL (公開存取網址)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.0b1819') || (t('tenantIntegrations.0b1819') || 'Public URL (公開存取網址)')}</label>
                     <input type="text" value={keys.s3.publicUrl} onChange={e => handleChange('s3', 'publicUrl', e.target.value)} placeholder="https://pub-xxxxxx.r2.dev" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                 </div>
@@ -289,11 +288,10 @@ export default function TenantIntegrations() {
               <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-5 mb-6">
                 <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
                   <MessageSquare className="w-5 h-5" />
-                  LINE Webhook URL (總部預設)
-                </h3>
+                  {t('tenantIntegrations.cd0903') || (t('tenantIntegrations.cd0903') || 'LINE Webhook URL (總部預設)')}</h3>
                 <p className="text-gray-400 text-sm mb-3">
-                  請將以下網址複製並貼上至 LINE Developer Console 的 Webhook URL 欄位。<br/>
-                  <span className="text-orange-300/80">⚠️ 注意：若您的品牌門市為「加盟店或各自擁有獨立官方帳號」，請勿使用此總部預設網址，請登入該品牌的「門市管理後台」取得各門市專屬的 Webhook。</span>
+                  {t('tenantIntegrations.dfc465') || (t('tenantIntegrations.dfc465') || '請將以下網址複製並貼上至 LINE Developer Console 的 Webhook URL 欄位。')}<br/>
+                  <span className="text-orange-300/80">{t('tenantIntegrations.e13362') || (t('tenantIntegrations.e13362') || '⚠️ 注意：若您的品牌門市為「加盟店或各自擁有獨立官方帳號」，請勿使用此總部預設網址，請登入該品牌的「門市管理後台」取得各門市專屬的 Webhook。')}</span>
                 </p>
                 <div className="flex items-center gap-3">
                   <input 
@@ -305,17 +303,16 @@ export default function TenantIntegrations() {
                   <button 
                     onClick={() => {
                       navigator.clipboard.writeText(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/line/webhook/${id}`);
-                      toast.success('已複製 Webhook 網址');
+                      toast.success((t('tenantIntegrations.e656e7') || '已複製 Webhook 網址'));
                     }}
                     className="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm font-medium transition-colors border border-gray-700 whitespace-nowrap"
                   >
-                    複製網址
-                  </button>
+                    {t('tenantIntegrations.04ff1a') || (t('tenantIntegrations.04ff1a') || '複製網址')}</button>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">LINE 官方帳號 (Messaging API)</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.8709ef') || (t('tenantIntegrations.8709ef') || 'LINE 官方帳號 (Messaging API)')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Channel Access Token</label>
@@ -329,10 +326,10 @@ export default function TenantIntegrations() {
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">LINE Login (登入與 LIFF)</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.09d83f') || (t('tenantIntegrations.09d83f') || 'LINE Login (登入與 LIFF)')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">LIFF ID (供前端跳轉使用)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.00425e') || (t('tenantIntegrations.00425e') || 'LIFF ID (供前端跳轉使用)')}</label>
                     <input type="text" value={keys.line.liffId} onChange={e => handleChange('line', 'liffId', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
@@ -347,7 +344,7 @@ export default function TenantIntegrations() {
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">LINE Pay (金流)</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.adcbbd') || (t('tenantIntegrations.adcbbd') || 'LINE Pay (金流)')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Pay Channel ID</label>
@@ -361,19 +358,19 @@ export default function TenantIntegrations() {
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">進階網址設定 (Advanced Routing)</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.152235') || (t('tenantIntegrations.152235') || '進階網址設定 (Advanced Routing)')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">LINE Pay API URL</label>
-                    <input type="text" value={keys.line.linePayApiUrl} onChange={e => handleChange('line', 'linePayApiUrl', e.target.value)} placeholder="預設: https://api-pay.line.me" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                    <input type="text" value={keys.line.linePayApiUrl} onChange={e => handleChange('line', 'linePayApiUrl', e.target.value)} placeholder={t('tenantIntegrations.dab914') || '預設: https://api-pay.line.me'} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Forward Proxy URL</label>
-                    <input type="text" value={keys.line.linePayProxyUrl} onChange={e => handleChange('line', 'linePayProxyUrl', e.target.value)} placeholder="例如: http://proxy-user:pass@proxy-host:port" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                    <input type="text" value={keys.line.linePayProxyUrl} onChange={e => handleChange('line', 'linePayProxyUrl', e.target.value)} placeholder={t('tenantIntegrations.87038d') || '例如: http://proxy-user:pass@proxy-host:port'} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Return URL (自訂跳轉網址)</label>
-                    <input type="text" value={keys.line.linePayReturnUrl} onChange={e => handleChange('line', 'linePayReturnUrl', e.target.value)} placeholder="請留白以使用系統動態產生的 Return URL" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.81a2ba') || (t('tenantIntegrations.81a2ba') || 'Return URL (自訂跳轉網址)')}</label>
+                    <input type="text" value={keys.line.linePayReturnUrl} onChange={e => handleChange('line', 'linePayReturnUrl', e.target.value)} placeholder={t('tenantIntegrations.52f006') || '請留白以使用系統動態產生的 Return URL'} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                 </div>
               </div>
@@ -383,7 +380,7 @@ export default function TenantIntegrations() {
           {activeTab === 'google' && (
             <div className="space-y-8 animate-fadeIn">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Google SSO 登入授權</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.d17754') || (t('tenantIntegrations.d17754') || 'Google SSO 登入授權')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Login Client ID</label>
@@ -396,7 +393,7 @@ export default function TenantIntegrations() {
                 </div>
               </div>
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Gmail API 授權 (OAuth2 寄信)</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.45173b') || (t('tenantIntegrations.45173b') || 'Gmail API 授權 (OAuth2 寄信)')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Gmail Client ID</label>
@@ -407,20 +404,20 @@ export default function TenantIntegrations() {
                     <input type="password" value={keys.google.gmailClientSecret} onChange={e => handleChange('google', 'gmailClientSecret', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Refresh Token (無限期存取授權)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.223742') || (t('tenantIntegrations.223742') || 'Refresh Token (無限期存取授權)')}</label>
                     <input type="password" value={keys.google.gmailRefreshToken} onChange={e => handleChange('google', 'gmailRefreshToken', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                 </div>
               </div>
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Google 地圖與 AI</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.908b36') || (t('tenantIntegrations.908b36') || 'Google 地圖與 AI')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Google Maps API Key (Places API)</label>
                     <input type="password" value={keys.google.googleMapsApiKey} onChange={e => handleChange('google', 'googleMapsApiKey', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Gemini API Key (AI 引擎)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.b2aa14') || (t('tenantIntegrations.b2aa14') || 'Gemini API Key (AI 引擎)')}</label>
                     <input type="password" value={keys.google.geminiApiKey} onChange={e => handleChange('google', 'geminiApiKey', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                 </div>
@@ -431,12 +428,12 @@ export default function TenantIntegrations() {
           {activeTab === 'mail' && (
             <div className="space-y-8 animate-fadeIn">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">自訂寄件設定 (SMTP / Mailgun)</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.639ff5') || (t('tenantIntegrations.639ff5') || '自訂寄件設定 (SMTP / Mailgun)')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">服務提供商</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.7b911d') || (t('tenantIntegrations.7b911d') || '服務提供商')}</label>
                     <select value={keys.mail.mailServiceType} onChange={e => handleChange('mail', 'mailServiceType', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all">
-                      <option value="SMTP">自訂 SMTP</option>
+                      <option value="SMTP">{t('tenantIntegrations.95916b') || (t('tenantIntegrations.95916b') || '自訂 SMTP')}</option>
                       <option value="MAILGUN">Mailgun API</option>
                       <option value="GMAIL_API">Gmail API</option>
                     </select>
@@ -444,15 +441,15 @@ export default function TenantIntegrations() {
                 </div>
                 <div className="grid grid-cols-2 gap-5 pt-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">寄件者名稱</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.dd5235') || (t('tenantIntegrations.dd5235') || '寄件者名稱')}</label>
                     <input type="text" value={keys.mail.senderName} onChange={e => handleChange('mail', 'senderName', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">寄件者信箱</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.7aa1f0') || (t('tenantIntegrations.7aa1f0') || '寄件者信箱')}</label>
                     <input type="text" value={keys.mail.senderEmail} onChange={e => handleChange('mail', 'senderEmail', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">SMTP Host (或 Mailgun Domain)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.dc316c') || (t('tenantIntegrations.dc316c') || 'SMTP Host (或 Mailgun Domain)')}</label>
                     <input type="text" value={keys.mail.smtpHost} onChange={e => handleChange('mail', 'smtpHost', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
@@ -460,11 +457,11 @@ export default function TenantIntegrations() {
                     <input type="text" value={keys.mail.smtpPort} onChange={e => handleChange('mail', 'smtpPort', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">帳號 (User)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.140318') || (t('tenantIntegrations.140318') || '帳號 (User)')}</label>
                     <input type="text" value={keys.mail.smtpUser} onChange={e => handleChange('mail', 'smtpUser', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">密碼 (或 Mailgun API Key)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.14d522') || (t('tenantIntegrations.14d522') || '密碼 (或 Mailgun API Key)')}</label>
                     <input type="password" value={keys.mail.smtpPass} onChange={e => handleChange('mail', 'smtpPass', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                 </div>
@@ -475,10 +472,10 @@ export default function TenantIntegrations() {
           {activeTab === 'invoice' && (
             <div className="space-y-8 animate-fadeIn">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">綠界 ECPay 電子發票 B2C 介接</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.4cc365') || (t('tenantIntegrations.4cc365') || '綠界 ECPay 電子發票 B2C 介接')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Merchant ID (特店編號)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.332ebc') || (t('tenantIntegrations.332ebc') || 'Merchant ID (特店編號)')}</label>
                     <input type="text" value={keys.invoice.merchantId} onChange={e => handleChange('invoice', 'merchantId', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
@@ -497,7 +494,7 @@ export default function TenantIntegrations() {
           {activeTab === 'payment' && (
             <div className="space-y-8 animate-fadeIn">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">Stripe 信用卡金流收款</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.9f556e') || (t('tenantIntegrations.9f556e') || 'Stripe 信用卡金流收款')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Public Key (Publishable Key)</label>
@@ -508,14 +505,14 @@ export default function TenantIntegrations() {
                     <input type="password" value={keys.payment.stripeSecretKey} onChange={e => handleChange('payment', 'stripeSecretKey', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Webhook 秘密金鑰 (Webhook Secret)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.065675') || (t('tenantIntegrations.065675') || 'Webhook 秘密金鑰 (Webhook Secret)')}</label>
                     <input type="password" value={keys.payment.stripeWebhookSecret} onChange={e => handleChange('payment', 'stripeWebhookSecret', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">PayPal 信用卡與錢包收款</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.4cf6da') || (t('tenantIntegrations.4cf6da') || 'PayPal 信用卡與錢包收款')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1.5">Client ID</label>
@@ -533,10 +530,10 @@ export default function TenantIntegrations() {
           {activeTab === 'logistics' && (
             <div className="space-y-8 animate-fadeIn">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">綠界科技 ECPay 店到店交貨便</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.f6ec0c') || (t('tenantIntegrations.f6ec0c') || '綠界科技 ECPay 店到店交貨便')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Merchant ID (特店編號)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.332ebc') || (t('tenantIntegrations.332ebc') || 'Merchant ID (特店編號)')}</label>
                     <input type="text" value={keys.logistics.ecpayMerchantId} onChange={e => handleChange('logistics', 'ecpayMerchantId', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
@@ -551,10 +548,10 @@ export default function TenantIntegrations() {
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">黑貓宅急便</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.42633c') || (t('tenantIntegrations.42633c') || '黑貓宅急便')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Customer ID (契約客戶代號)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.1544f3') || (t('tenantIntegrations.1544f3') || 'Customer ID (契約客戶代號)')}</label>
                     <input type="text" value={keys.logistics.tcatCustomerId} onChange={e => handleChange('logistics', 'tcatCustomerId', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
@@ -565,10 +562,10 @@ export default function TenantIntegrations() {
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">台灣宅配通</h3>
+                <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2">{t('tenantIntegrations.0cf107') || (t('tenantIntegrations.0cf107') || '台灣宅配通')}</h3>
                 <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1.5">Merchant ID (特約代號)</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-1.5">{t('tenantIntegrations.5ef9e6') || (t('tenantIntegrations.5ef9e6') || 'Merchant ID (特約代號)')}</label>
                     <input type="text" value={keys.logistics.pelicanMerchantId} onChange={e => handleChange('logistics', 'pelicanMerchantId', e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500/50 outline-none transition-all" />
                   </div>
                   <div>
@@ -584,10 +581,9 @@ export default function TenantIntegrations() {
       {isConfirmModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">確認發送更動</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{t('tenantIntegrations.658738') || (t('tenantIntegrations.658738') || '確認發送更動')}</h3>
             <p className="text-gray-400 text-sm mb-4">
-              以下模組的設定已被修改，送出後將會發送確認信給該品牌的超級管理員進行最終授權：
-            </p>
+              {t('tenantIntegrations.8e5481') || (t('tenantIntegrations.8e5481') || '以下模組的設定已被修改，送出後將會發送確認信給該品牌的超級管理員進行最終授權：')}</p>
             <ul className="space-y-2 mb-6">
               {changedCategories.map(cat => {
                 const Icon = cat.icon;
@@ -604,14 +600,12 @@ export default function TenantIntegrations() {
                 onClick={() => setIsConfirmModalOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
               >
-                取消
-              </button>
+                {t('tenantIntegrations.625fb2') || (t('tenantIntegrations.625fb2') || '取消')}</button>
               <button 
                 onClick={confirmSave}
                 className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-lg shadow-orange-600/20"
               >
-                確認並發送
-              </button>
+                {t('tenantIntegrations.257cb7') || (t('tenantIntegrations.257cb7') || '確認並發送')}</button>
             </div>
           </div>
         </div>

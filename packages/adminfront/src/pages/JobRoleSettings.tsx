@@ -58,7 +58,7 @@ export default function JobRoleSettings() {
   };
 
   const handleDeleteRole = async (id: string) => {
-    if (!await confirm('確定要刪除此職位嗎？')) return;
+    if (!await confirm((t('jobRoleSettings.e1c91f') || '確定要刪除此職位嗎？'))) return;
     try {
       await api.delete(`/job-roles/${id}`);
       fetchRoles();
@@ -109,7 +109,7 @@ export default function JobRoleSettings() {
       fetchRoles();
     } catch (err) {
       console.error('Failed to assign users', err);
-      toast.error('指派失敗，請稍後再試');
+      toast.error((t('jobRoleSettings.d68ebd') || '指派失敗，請稍後再試'));
     } finally {
       setSavingAssign(false);
     }
@@ -121,25 +121,23 @@ export default function JobRoleSettings() {
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
         <span className="text-3xl">🧑‍🍳</span>
-        職位與員工技能設定 (Job Roles)
-      </h1>
+        {t('jobRoleSettings.c61101') || (t('jobRoleSettings.c61101') || '職位與員工技能設定 (Job Roles)')}</h1>
       
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
-        <h2 className="text-lg font-medium mb-4">新增職位</h2>
+        <h2 className="text-lg font-medium mb-4">{t('jobRoleSettings.8426e3') || (t('jobRoleSettings.8426e3') || '新增職位')}</h2>
         <form onSubmit={handleCreateRole} className="flex gap-4">
           <input
             type="text"
             value={newRoleName}
             onChange={(e) => setNewRoleName(e.target.value)}
-            placeholder="例如: 櫃檯、廚房、外送員..."
+            placeholder={t('jobRoleSettings.f82f53') || '例如: 櫃檯、廚房、外送員...'}
             className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           />
           <button
             type="submit"
             className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
           >
-            新增
-          </button>
+            {t('jobRoleSettings.66ab5e') || (t('jobRoleSettings.66ab5e') || '新增')}</button>
         </form>
       </div>
 
@@ -148,14 +146,11 @@ export default function JobRoleSettings() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                職位名稱
-              </th>
+                {t('jobRoleSettings.24c1ce') || (t('jobRoleSettings.24c1ce') || '職位名稱')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                具備此技能的員工數
-              </th>
+                {t('jobRoleSettings.e92f3c') || (t('jobRoleSettings.e92f3c') || '具備此技能的員工數')}</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                操作
-              </th>
+                {t('jobRoleSettings.2b6bc0') || (t('jobRoleSettings.2b6bc0') || '操作')}</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -165,29 +160,25 @@ export default function JobRoleSettings() {
                   {role.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {role.users.length} 人
-                </td>
+                  {role.users.length} {t('jobRoleSettings.465afe') || (t('jobRoleSettings.465afe') || '人')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => openAssignModal(role)}
                     className="text-primary-600 hover:text-primary-900 mr-4 font-medium"
                   >
-                    指派員工
-                  </button>
+                    {t('jobRoleSettings.fb2278') || (t('jobRoleSettings.fb2278') || '指派員工')}</button>
                   <button
                     onClick={() => handleDeleteRole(role.id)}
                     className="text-red-600 hover:text-red-900 font-medium"
                   >
-                    刪除
-                  </button>
+                    {t('jobRoleSettings.0c06d4') || (t('jobRoleSettings.0c06d4') || '刪除')}</button>
                 </td>
               </tr>
             ))}
             {roles.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                  尚無職位設定，請在上方新增
-                </td>
+                  {t('jobRoleSettings.8f9a36') || (t('jobRoleSettings.8f9a36') || '尚無職位設定，請在上方新增')}</td>
               </tr>
             )}
           </tbody>
@@ -199,24 +190,24 @@ export default function JobRoleSettings() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md flex flex-col max-h-[90vh]">
             <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
               <h3 className="text-lg font-medium text-gray-900">
-                指派員工至「{currentRole.name}」
+                {t('jobRoleSettings.c9bfa0') || (t('jobRoleSettings.c9bfa0') || '指派員工至「')}{currentRole.name}」
               </h3>
               <button 
                 onClick={closeAssignModal} 
                 className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none select-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors"
-                title="關閉"
+                title={t('jobRoleSettings.b04c17') || '關閉'}
               >
                 &times;
               </button>
             </div>
             
             <div className="p-4 overflow-y-auto flex-1 bg-white">
-              <p className="text-sm text-gray-500 mb-4">請勾選具備此技能/職位的員工，這將影響智能排班時的指派。</p>
+              <p className="text-sm text-gray-500 mb-4">{t('jobRoleSettings.979db8') || (t('jobRoleSettings.979db8') || '請勾選具備此技能/職位的員工，這將影響智能排班時的指派。')}</p>
               
               {loadingStaff ? (
-                <div className="text-center py-8 text-gray-500">載入中...</div>
+                <div className="text-center py-8 text-gray-500">{t('jobRoleSettings.d39337') || (t('jobRoleSettings.d39337') || '載入中...')}</div>
               ) : allStaff.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">尚無員工資料</div>
+                <div className="text-center py-8 text-gray-500">{t('jobRoleSettings.52887e') || (t('jobRoleSettings.52887e') || '尚無員工資料')}</div>
               ) : (
                 <div className="space-y-2">
                   {allStaff.map(staff => (
@@ -243,14 +234,13 @@ export default function JobRoleSettings() {
                 disabled={savingAssign}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
               >
-                取消
-              </button>
+                {t('jobRoleSettings.625fb2') || (t('jobRoleSettings.625fb2') || '取消')}</button>
               <button
                 onClick={handleSaveAssignments}
                 disabled={savingAssign}
                 className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50"
               >
-                {savingAssign ? '儲存中...' : '儲存變更'}
+                {savingAssign ? (t('jobRoleSettings.4dafaa') || '儲存中...') : (t('jobRoleSettings.604efd') || '儲存變更')}
               </button>
             </div>
           </div>

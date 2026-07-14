@@ -77,9 +77,9 @@ export default function PayrollManagement() {
 
   const getStatusBadge = (status: string) => {
     switch(status) {
-      case 'DRAFT': return <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">草稿 (Draft)</span>;
-      case 'PUBLISHED': return <span className="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">已發布 (Published)</span>;
-      case 'PAID': return <span className="px-2.5 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">已發放 (Paid)</span>;
+      case 'DRAFT': return <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">{t('payrollManagement.867e36') || (t('payrollManagement.867e36') || '草稿 (Draft)')}</span>;
+      case 'PUBLISHED': return <span className="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">{t('payrollManagement.68029a') || (t('payrollManagement.68029a') || '已發布 (Published)')}</span>;
+      case 'PAID': return <span className="px-2.5 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">{t('payrollManagement.9a2f30') || (t('payrollManagement.9a2f30') || '已發放 (Paid)')}</span>;
       default: return <span className="px-2.5 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">{status}</span>;
     }
   };
@@ -87,15 +87,14 @@ export default function PayrollManagement() {
   return (
     <div className="max-w-6xl mx-auto pb-12">
       <PageHeader
-        title="薪資結算管理 (Payroll Management)"
+        title={t('payrollManagement.0cbe99') || '薪資結算管理 (Payroll Management)'}
         action={
           <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
           >
             <Plus size={16} />
-            建立結算週期 (New Period)
-          </button>
+            {t('payrollManagement.2410c7') || (t('payrollManagement.2410c7') || '建立結算週期 (New Period)')}</button>
         }
       />
 
@@ -116,18 +115,18 @@ export default function PayrollManagement() {
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="text-gray-400" size={24} />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">尚無結算週期</h3>
-              <p className="text-gray-500 mb-6">點擊右上方按鈕建立第一個薪資結算週期。</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">{t('payrollManagement.330b6a') || (t('payrollManagement.330b6a') || '尚無結算週期')}</h3>
+              <p className="text-gray-500 mb-6">{t('payrollManagement.a9d9e7') || (t('payrollManagement.a9d9e7') || '點擊右上方按鈕建立第一個薪資結算週期。')}</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">週期名稱 (Name)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">期間 (Period)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">狀態 (Status)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">已產生薪資單 (Payslips)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">操作 (Actions)</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('payrollManagement.97ec5f') || (t('payrollManagement.97ec5f') || '週期名稱 (Name)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('payrollManagement.89e205') || (t('payrollManagement.89e205') || '期間 (Period)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('payrollManagement.7ba35c') || (t('payrollManagement.7ba35c') || '狀態 (Status)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollManagement.3b83f5') || (t('payrollManagement.3b83f5') || '已產生薪資單 (Payslips)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollManagement.bafee9') || (t('payrollManagement.bafee9') || '操作 (Actions)')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -163,8 +162,7 @@ export default function PayrollManagement() {
                         onClick={() => navigate(`/payroll/${period.id}`)}
                         className="text-primary-600 hover:text-primary-800 text-sm font-medium"
                       >
-                        檢視與結算 (View)
-                      </button>
+                        {t('payrollManagement.42a8bd') || (t('payrollManagement.42a8bd') || '檢視與結算 (View)')}</button>
                     </td>
                   </tr>
                 ))}
@@ -178,16 +176,16 @@ export default function PayrollManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">建立薪資結算週期</h3>
+              <h3 className="text-lg font-bold text-gray-900">{t('payrollManagement.596460') || (t('payrollManagement.596460') || '建立薪資結算週期')}</h3>
               <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-gray-600">×</button>
             </div>
             <form onSubmit={handleCreatePeriod} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">週期名稱 (Name) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('payrollManagement.8ea8ee') || (t('payrollManagement.8ea8ee') || '週期名稱 (Name) *')}</label>
                 <input
                   type="text"
                   required
-                  placeholder="例: 2026年7月薪資"
+                  placeholder={t('payrollManagement.5acdf5') || '例: 2026年7月薪資'}
                   value={newPeriodName}
                   onChange={e => setNewPeriodName(e.target.value)}
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
@@ -195,7 +193,7 @@ export default function PayrollManagement() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">開始日期 (Start) *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('payrollManagement.91b019') || (t('payrollManagement.91b019') || '開始日期 (Start) *')}</label>
                   <input
                     type="date"
                     required
@@ -205,7 +203,7 @@ export default function PayrollManagement() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">結束日期 (End) *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('payrollManagement.e91e3f') || (t('payrollManagement.e91e3f') || '結束日期 (End) *')}</label>
                   <input
                     type="date"
                     required
@@ -221,14 +219,13 @@ export default function PayrollManagement() {
                   onClick={() => setShowCreateModal(false)}
                   className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50"
                 >
-                  取消 (Cancel)
-                </button>
+                  {t('payrollManagement.791e3b') || (t('payrollManagement.791e3b') || '取消 (Cancel)')}</button>
                 <button
                   type="submit"
                   disabled={creating}
                   className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {creating ? '建立中...' : '建立 (Create)'}
+                  {creating ? (t('payrollManagement.45228c') || '建立中...') : (t('payrollManagement.a53b5b') || '建立 (Create)')}
                 </button>
               </div>
             </form>

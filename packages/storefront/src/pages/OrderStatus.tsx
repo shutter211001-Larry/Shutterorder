@@ -40,6 +40,7 @@ interface OrderDetail {
 }
 
 function getStepIndex(steps: { key: string; label: string }[], status: string): number {
+    const { t } = useTranslation();
   return steps.findIndex((s) => s.key === status);
 }
 import { getTranslated } from '../utils/translation.js';
@@ -379,8 +380,8 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
                     : order.orderType === 'PICKUP' 
                       ? t('checkout.pickup')
                       : order.frozenDeliveryMethod === 'STORE_TO_STORE'
-                        ? t('checkout.storeToStore') || '店到店'
-                        : t('checkout.homeDelivery') || '宅配'}
+                        ? t('checkout.storeToStore') || (t('orderStatus.380e90') || '店到店')
+                        : t('checkout.homeDelivery') || (t('orderStatus.a4b4fb') || '宅配')}
                 </span>
               </div>
               
@@ -463,14 +464,14 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
       {/* Tracking Info for Frozen Delivery */}
       {order.orderType === 'FROZEN_DELIVERY' && order.trackingNumber && (
         <div className="surface-card rounded-xl shadow-sm border p-6 mb-6">
-          <h2 className="text-lg font-semibold text-main mb-4">{t('orderStatus.trackingInfo') || '物流追蹤'}</h2>
+          <h2 className="text-lg font-semibold text-main mb-4">{t('orderStatus.trackingInfo') || (t('orderStatus.26cad2') || '物流追蹤')}</h2>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
-              <span className="text-sub">{t('orderStatus.logisticsProvider') || '物流公司'}</span>
+              <span className="text-sub">{t('orderStatus.logisticsProvider') || (t('orderStatus.eb6d92') || '物流公司')}</span>
               <span className="font-medium text-main">{order.logisticsProvider || '-'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sub">{t('orderStatus.trackingNumber') || '託運單號'}</span>
+              <span className="text-sub">{t('orderStatus.trackingNumber') || (t('orderStatus.d9748a') || '託運單號')}</span>
               <span className="font-bold text-primary-600">{order.trackingNumber}</span>
             </div>
           </div>

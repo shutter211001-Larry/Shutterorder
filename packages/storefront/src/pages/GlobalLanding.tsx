@@ -1,8 +1,10 @@
 import { Mail, ArrowRight, Building2, Store, Laptop } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api.js';
+import { useTranslation } from "react-i18next";
 
 export default function GlobalLanding() {
+    const { t } = useTranslation();
   const [adminUrl, setAdminUrl] = useState(import.meta.env.VITE_ADMIN_URL || '/');
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function GlobalLanding() {
             className="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition-colors"
           >
             <Mail size={16} />
-            <span className="hidden sm:inline">聯絡我們</span>
+            <span className="hidden sm:inline">{t('globalLanding.8b2327') || (t('globalLanding.8b2327') || '聯絡我們')}</span>
           </a>
         </div>
       </nav>
@@ -48,54 +50,49 @@ export default function GlobalLanding() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
-          SaaS 雲端餐飲管理平台
-        </div>
+          {t('globalLanding.da4f9c') || (t('globalLanding.da4f9c') || 'SaaS 雲端餐飲管理平台')}</div>
 
         <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          探索頂級<br />
+          {t('globalLanding.b76aef') || (t('globalLanding.b76aef') || '探索頂級')}<br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-indigo-500">
-            餐飲體驗與管理
-          </span>
+            {t('globalLanding.a121b3') || (t('globalLanding.a121b3') || '餐飲體驗與管理')}</span>
         </h1>
         
         <p className="max-w-2xl text-lg text-gray-400 mb-12 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-          歡迎來到 Shutter。如果您是消費者，請透過專屬餐廳網址進行點餐；<br className="hidden md:block" />
-          如果您是合作夥伴或餐廳老闆，請登入您的專屬管理後台。
-        </p>
+          {t('globalLanding.0343a5') || (t('globalLanding.0343a5') || '歡迎來到 Shutter。如果您是消費者，請透過專屬餐廳網址進行點餐；')}<br className="hidden md:block" />
+          {t('globalLanding.cb2ba7') || (t('globalLanding.cb2ba7') || '如果您是合作夥伴或餐廳老闆，請登入您的專屬管理後台。')}</p>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
           <a
             href={adminUrl}
             className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-gray-100 hover:scale-105 transition-all duration-200"
           >
-            餐廳管理員登入
-            <ArrowRight size={18} />
+            {t('globalLanding.5f8ad7') || (t('globalLanding.5f8ad7') || '餐廳管理員登入')}<ArrowRight size={18} />
           </a>
           <a
             href="mailto:shutter211001@gmail.com"
             className="flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-full font-bold text-white hover:bg-white/10 transition-all duration-200"
           >
             <Mail size={18} />
-            聯絡業務團隊
-          </a>
+            {t('globalLanding.42b53a') || (t('globalLanding.42b53a') || '聯絡業務團隊')}</a>
         </div>
 
         {/* Feature Cards Showcase */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-32 w-full animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl text-left hover:bg-white/10 transition-colors">
             <Store className="w-8 h-8 text-orange-400 mb-4" />
-            <h3 className="text-lg font-bold mb-2">專屬品牌官網</h3>
-            <p className="text-sm text-gray-400">為每間餐廳打造無縫的點餐與預訂體驗，輕鬆提升品牌形象。</p>
+            <h3 className="text-lg font-bold mb-2">{t('globalLanding.aafff1') || (t('globalLanding.aafff1') || '專屬品牌官網')}</h3>
+            <p className="text-sm text-gray-400">{t('globalLanding.25525f') || (t('globalLanding.25525f') || '為每間餐廳打造無縫的點餐與預訂體驗，輕鬆提升品牌形象。')}</p>
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl text-left hover:bg-white/10 transition-colors">
             <Laptop className="w-8 h-8 text-indigo-400 mb-4" />
-            <h3 className="text-lg font-bold mb-2">強大雲端 POS</h3>
-            <p className="text-sm text-gray-400">整合內用、外帶與外送，並具備即時庫存與員工管理系統。</p>
+            <h3 className="text-lg font-bold mb-2">{t('globalLanding.631238') || (t('globalLanding.631238') || '強大雲端 POS')}</h3>
+            <p className="text-sm text-gray-400">{t('globalLanding.bf542c') || (t('globalLanding.bf542c') || '整合內用、外帶與外送，並具備即時庫存與員工管理系統。')}</p>
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl text-left hover:bg-white/10 transition-colors">
             <Building2 className="w-8 h-8 text-emerald-400 mb-4" />
-            <h3 className="text-lg font-bold mb-2">多門店與連鎖管理</h3>
-            <p className="text-sm text-gray-400">專為擴張設計，輕鬆同步多間分店的菜單與營收報表。</p>
+            <h3 className="text-lg font-bold mb-2">{t('globalLanding.c1c4bd') || (t('globalLanding.c1c4bd') || '多門店與連鎖管理')}</h3>
+            <p className="text-sm text-gray-400">{t('globalLanding.d2e50d') || (t('globalLanding.d2e50d') || '專為擴張設計，輕鬆同步多間分店的菜單與營收報表。')}</p>
           </div>
         </div>
       </main>

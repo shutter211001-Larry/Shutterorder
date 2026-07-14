@@ -315,14 +315,14 @@ export default function LocationForm() {
             {/* Tabs Layout */}
       <div className="flex overflow-x-auto border-b border-gray-200 mb-6 space-x-8">
         {[
-          { id: 'basic', label: t('locationForm.basicInformation') || '基本設定' },
-          { id: 'hours', label: t('locationForm.businessHoursSettings') || '營業時間' },
-          { id: 'hr', label: t('locationForm.humanResources') || '人力資源' },
-          { id: 'delivery', label: t('locationForm.deliveryArea') || '外送區域' },
-          { id: 'inventory', label: t('locationForm.inventory') || '門市庫存' },
+          { id: 'basic', label: t('locationForm.basicInformation') || (t('locationForm.6daa00') || '基本設定') },
+          { id: 'hours', label: t('locationForm.businessHoursSettings') || (t('locationForm.42ed45') || '營業時間') },
+          { id: 'hr', label: t('locationForm.humanResources') || (t('locationForm.ab8095') || '人力資源') },
+          { id: 'delivery', label: t('locationForm.deliveryArea') || (t('locationForm.d8252a') || '外送區域') },
+          { id: 'inventory', label: t('locationForm.inventory') || (t('locationForm.d99511') || '門市庫存') },
           ...(isEdit ? [
-            { id: 'menu', label: '店家菜單' },
-            { id: 'integrations', label: '整合設定' }
+            { id: 'menu', label: (t('locationForm.665829') || '店家菜單') },
+            { id: 'integrations', label: (t('locationForm.e28bd7') || '整合設定') }
           ] : [])
         ].map(tab => (
           <button
@@ -400,7 +400,7 @@ export default function LocationForm() {
 
         {/* Main Store Hierarchy */}
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">主副店架構設定</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('locationForm.3d349d') || (t('locationForm.3d349d') || '主副店架構設定')}</h3>
           <div className="space-y-4">
             <label className="flex items-center gap-3">
               <input
@@ -414,19 +414,19 @@ export default function LocationForm() {
                 }}
                 className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
               />
-              <span className="text-sm font-medium text-gray-700">設為「主店家」 (Main Store)</span>
+              <span className="text-sm font-medium text-gray-700">{t('locationForm.c6f1a6') || (t('locationForm.c6f1a6') || '設為「主店家」 (Main Store)')}</span>
             </label>
 
             {!form.isMainStore && (
               <div className="pl-8 space-y-4 border-l-2 border-gray-100 mt-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">選擇跟隨的主店家</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('locationForm.f4ab63') || (t('locationForm.f4ab63') || '選擇跟隨的主店家')}</label>
                   <select
                     value={form.parentLocationId || ''}
                     onChange={(e) => updateField('parentLocationId', e.target.value || null)}
                     className="w-full max-w-md px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   >
-                    <option value="">(不跟隨任何主店家，完全獨立)</option>
+                    <option value="">{t('locationForm.06504f') || (t('locationForm.06504f') || '(不跟隨任何主店家，完全獨立)')}</option>
                     {mainStores.map(store => (
                       <option key={store.id} value={store.id}>{store.name}</option>
                     ))}
@@ -443,8 +443,8 @@ export default function LocationForm() {
                         className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
                       />
                       <div>
-                        <span className="block text-sm font-medium text-gray-700">跟隨主店家設定 (菜單與串接)</span>
-                        <span className="block text-xs text-gray-500 mt-0.5">若打勾，此店家的前台將自動讀取主店的菜單與金流設定。</span>
+                        <span className="block text-sm font-medium text-gray-700">{t('locationForm.02b943') || (t('locationForm.02b943') || '跟隨主店家設定 (菜單與串接)')}</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">{t('locationForm.acb1d2') || (t('locationForm.acb1d2') || '若打勾，此店家的前台將自動讀取主店的菜單與金流設定。')}</span>
                       </div>
                     </label>
 
@@ -456,8 +456,8 @@ export default function LocationForm() {
                         className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
                       />
                       <div>
-                        <span className="block text-sm font-medium text-gray-700">訂單綑綁至主店家</span>
-                        <span className="block text-xs text-gray-500 mt-0.5">若打勾，此店家的訂單會一併出現在主店經理的訂單列表中。</span>
+                        <span className="block text-sm font-medium text-gray-700">{t('locationForm.d3b82f') || (t('locationForm.d3b82f') || '訂單綑綁至主店家')}</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">{t('locationForm.5414a2') || (t('locationForm.5414a2') || '若打勾，此店家的訂單會一併出現在主店經理的訂單列表中。')}</span>
                       </div>
                     </label>
                   </div>
@@ -741,11 +741,9 @@ export default function LocationForm() {
         <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
             <span className="text-xl">💰</span>
-            薪資與排班設定 (Payroll & Roster Settings)
-          </h3>
+            {t('locationForm.b86afd') || (t('locationForm.b86afd') || '薪資與排班設定 (Payroll & Roster Settings)')}</h3>
           <p className="text-sm text-gray-500 mb-6">
-            這些設定會影響系統自動計薪的結果。預設值為符合台灣勞基法的合法標準，您可以依據門市實際運作狀況進行調整。
-          </p>
+            {t('locationForm.e16312') || (t('locationForm.e16312') || '這些設定會影響系統自動計薪的結果。預設值為符合台灣勞基法的合法標準，您可以依據門市實際運作狀況進行調整。')}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center">
@@ -757,8 +755,7 @@ export default function LocationForm() {
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
               <label htmlFor="enableOvertimePay" className="ml-2 block text-sm text-gray-900">
-                啟用平日加班費 (超過8小時)
-              </label>
+                {t('locationForm.cc4010') || (t('locationForm.cc4010') || '啟用平日加班費 (超過8小時)')}</label>
             </div>
             
             <div className="flex items-center">
@@ -770,12 +767,11 @@ export default function LocationForm() {
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
               <label htmlFor="monthlyNationalHolidayOvertime" className="ml-2 block text-sm text-gray-900">
-                月薪人員國定假日出勤加給
-              </label>
+                {t('locationForm.b92285') || (t('locationForm.b92285') || '月薪人員國定假日出勤加給')}</label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">平日加班費倍率 (第9~10小時)</label>
+              <label className="block text-sm font-medium text-gray-700">{t('locationForm.0ee7b6') || (t('locationForm.0ee7b6') || '平日加班費倍率 (第9~10小時)')}</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   type="number"
@@ -785,14 +781,14 @@ export default function LocationForm() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">倍</span>
+                  <span className="text-gray-500 sm:text-sm">{t('locationForm.a9071b') || (t('locationForm.a9071b') || '倍')}</span>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">法定預設: 1.34倍</p>
+              <p className="mt-1 text-xs text-gray-500">{t('locationForm.e2ebb6') || (t('locationForm.e2ebb6') || '法定預設: 1.34倍')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">平日加班費倍率 (第11~12小時)</label>
+              <label className="block text-sm font-medium text-gray-700">{t('locationForm.66d4ec') || (t('locationForm.66d4ec') || '平日加班費倍率 (第11~12小時)')}</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   type="number"
@@ -802,14 +798,14 @@ export default function LocationForm() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">倍</span>
+                  <span className="text-gray-500 sm:text-sm">{t('locationForm.a9071b') || (t('locationForm.a9071b') || '倍')}</span>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">法定預設: 1.67倍</p>
+              <p className="mt-1 text-xs text-gray-500">{t('locationForm.a52b18') || (t('locationForm.a52b18') || '法定預設: 1.67倍')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">休息日出勤倍率</label>
+              <label className="block text-sm font-medium text-gray-700">{t('locationForm.f1216c') || (t('locationForm.f1216c') || '休息日出勤倍率')}</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   type="number"
@@ -819,14 +815,14 @@ export default function LocationForm() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">倍</span>
+                  <span className="text-gray-500 sm:text-sm">{t('locationForm.a9071b') || (t('locationForm.a9071b') || '倍')}</span>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">法定預設: 前2小時1.34，後6小時1.67 (此處簡化為統一倍率，建議填1.34)</p>
+              <p className="mt-1 text-xs text-gray-500">{t('locationForm.5dd2a2') || (t('locationForm.5dd2a2') || '法定預設: 前2小時1.34，後6小時1.67 (此處簡化為統一倍率，建議填1.34)')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">例假日出勤倍率</label>
+              <label className="block text-sm font-medium text-gray-700">{t('locationForm.41c884') || (t('locationForm.41c884') || '例假日出勤倍率')}</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   type="number"
@@ -836,14 +832,14 @@ export default function LocationForm() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">倍</span>
+                  <span className="text-gray-500 sm:text-sm">{t('locationForm.a9071b') || (t('locationForm.a9071b') || '倍')}</span>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">法定預設: 2.0倍 (雙倍薪資)</p>
+              <p className="mt-1 text-xs text-gray-500">{t('locationForm.0a6a26') || (t('locationForm.0a6a26') || '法定預設: 2.0倍 (雙倍薪資)')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('locationForm.hourlyHolidayMultiplier') || '時薪制國定假日薪資倍率'}</label>
+              <label className="block text-sm font-medium text-gray-700">{t('locationForm.hourlyHolidayMultiplier') || (t('locationForm.dc0456') || '時薪制國定假日薪資倍率')}</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   type="number"
@@ -853,10 +849,10 @@ export default function LocationForm() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">倍</span>
+                  <span className="text-gray-500 sm:text-sm">{t('locationForm.a9071b') || (t('locationForm.a9071b') || '倍')}</span>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">法定預設: 2.0倍 (雙倍薪資)</p>
+              <p className="mt-1 text-xs text-gray-500">{t('locationForm.0a6a26') || (t('locationForm.0a6a26') || '法定預設: 2.0倍 (雙倍薪資)')}</p>
             </div>
           </div>
         </section>
@@ -983,8 +979,8 @@ export default function LocationForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">請先建立門市</h3>
-                <p className="text-gray-500">必須先儲存門市基本資料後，才能開始管理專屬庫存與叫貨單。</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('locationForm.4c6197') || (t('locationForm.4c6197') || '請先建立門市')}</h3>
+                <p className="text-gray-500">{t('locationForm.dc199c') || (t('locationForm.dc199c') || '必須先儲存門市基本資料後，才能開始管理專屬庫存與叫貨單。')}</p>
               </div>
             )}
           </div>
@@ -1011,23 +1007,20 @@ export default function LocationForm() {
         {activeTab === 'menu' && isEdit && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">店家菜單管理</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{t('locationForm.b81019') || (t('locationForm.b81019') || '店家菜單管理')}</h3>
             <p className="text-gray-500 text-sm mb-6">
-              管理此店家的專屬菜單與分類。進入菜單管理後，系統會自動過濾並僅顯示此店家的菜品。若開啟跟隨主店家，您可以外加上架自己的專屬菜品。
-            </p>
+              {t('locationForm.3b34e5') || (t('locationForm.3b34e5') || '管理此店家的專屬菜單與分類。進入菜單管理後，系統會自動過濾並僅顯示此店家的菜品。若開啟跟隨主店家，您可以外加上架自己的專屬菜品。')}</p>
             <div className="flex gap-4">
               <button 
                 onClick={() => navigate(`/menu/categories?locationId=${id}`)}
                 className="btn-secondary"
               >
-                管理菜單分類
-              </button>
+                {t('locationForm.cb3fbd') || (t('locationForm.cb3fbd') || '管理菜單分類')}</button>
               <button 
                 onClick={() => navigate(`/menu/items?locationId=${id}`)}
                 className="btn-primary"
               >
-                管理菜單品項
-              </button>
+                {t('locationForm.808dcb') || (t('locationForm.808dcb') || '管理菜單品項')}</button>
             </div>
           </div>
         </div>
@@ -1036,7 +1029,7 @@ export default function LocationForm() {
       {activeTab === 'integrations' && isEdit && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">店家整合設定</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{t('locationForm.aeca94') || (t('locationForm.aeca94') || '店家整合設定')}</h3>
             {form.syncSettingsWithMain && form.parentLocationId ? (
               <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg text-center">
                 <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
@@ -1044,30 +1037,29 @@ export default function LocationForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h4 className="text-gray-900 font-medium">此分店目前跟隨主店家設定</h4>
-                <p className="text-gray-500 text-sm mt-1">如需自訂此分店專屬的整合金鑰與設定，請先在「基本設定」中取消「跟隨主店家設定」。</p>
+                <h4 className="text-gray-900 font-medium">{t('locationForm.b90896') || (t('locationForm.b90896') || '此分店目前跟隨主店家設定')}</h4>
+                <p className="text-gray-500 text-sm mt-1">{t('locationForm.10eadc') || (t('locationForm.10eadc') || '如需自訂此分店專屬的整合金鑰與設定，請先在「基本設定」中取消「跟隨主店家設定」。')}</p>
               </div>
             ) : (
               <>
                 <p className="text-gray-500 text-sm mb-6">
-                  設定此店家的專屬 LINE 官方帳號、支付串接、Google 登入與信件通知等獨立憑證。
-                </p>
+                  {t('locationForm.3fe459') || (t('locationForm.3fe459') || '設定此店家的專屬 LINE 官方帳號、支付串接、Google 登入與信件通知等獨立憑證。')}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <button onClick={() => navigate(`/settings/line?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
-                    <h4 className="font-medium text-gray-900">LINE 整合設定</h4>
-                    <p className="text-sm text-gray-500 mt-1">設定獨立的 LINE OA、LINE Login 與 LINE Pay。</p>
+                    <h4 className="font-medium text-gray-900">{t('locationForm.5b8a19') || (t('locationForm.5b8a19') || 'LINE 整合設定')}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{t('locationForm.fcbf1b') || (t('locationForm.fcbf1b') || '設定獨立的 LINE OA、LINE Login 與 LINE Pay。')}</p>
                   </button>
                   <button onClick={() => navigate(`/settings/payments?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
-                    <h4 className="font-medium text-gray-900">支付串接設定</h4>
-                    <p className="text-sm text-gray-500 mt-1">設定獨立的 Stripe 或綠界科技金鑰。</p>
+                    <h4 className="font-medium text-gray-900">{t('locationForm.ff081c') || (t('locationForm.ff081c') || '支付串接設定')}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{t('locationForm.938035') || (t('locationForm.938035') || '設定獨立的 Stripe 或綠界科技金鑰。')}</p>
                   </button>
                   <button onClick={() => navigate(`/settings/google?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
-                    <h4 className="font-medium text-gray-900">Google 整合設定</h4>
-                    <p className="text-sm text-gray-500 mt-1">設定獨立的 Google SSO 與 Google Maps API。</p>
+                    <h4 className="font-medium text-gray-900">{t('locationForm.2acbc6') || (t('locationForm.2acbc6') || 'Google 整合設定')}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{t('locationForm.474279') || (t('locationForm.474279') || '設定獨立的 Google SSO 與 Google Maps API。')}</p>
                   </button>
                   <button onClick={() => navigate(`/settings/mail?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
-                    <h4 className="font-medium text-gray-900">信件通知設定</h4>
-                    <p className="text-sm text-gray-500 mt-1">設定獨立的 SMTP 信件伺服器。</p>
+                    <h4 className="font-medium text-gray-900">{t('locationForm.244d85') || (t('locationForm.244d85') || '信件通知設定')}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{t('locationForm.375bfd') || (t('locationForm.375bfd') || '設定獨立的 SMTP 信件伺服器。')}</p>
                   </button>
                 </div>
               </>

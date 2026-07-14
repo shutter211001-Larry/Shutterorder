@@ -153,24 +153,24 @@ export default function Settings() {
     try {
       setLoading(true);
       await api.put("/settings/mail-branding", mailBranding);
-      toast.error(t("erp_785", "設定儲存成功"));
+      toast.error(t("erp_785", (t('settings.ea86a7') || '設定儲存成功')));
     } catch (e) {
       console.error("Failed to save mail branding:", e);
-      toast.error(t("erp_786", "儲存失敗，請重試"));
+      toast.error(t("erp_786", (t('settings.a74bf5') || '儲存失敗，請重試')));
     } finally {
       setLoading(false);
     }
   };
 
   const handleTestMailBranding = async () => {
-    if (!testEmail) return toast.error("請輸入測試信箱");
+    if (!testEmail) return toast.error((t('settings.1bd9e8') || '請輸入測試信箱'));
     try {
       setLoading(true);
       const res = await api.post("/settings/mail-branding/test", { to: testEmail });
-      toast.error(res.data.message || "測試信件寄出成功");
+      toast.error(res.data.message || (t('settings.9079be') || '測試信件寄出成功'));
     } catch (e: any) {
       console.error("Failed to send test email:", e);
-      toast.error(e.response?.data?.error || "發送測試信失敗");
+      toast.error(e.response?.data?.error || (t('settings.9aa7b7') || '發送測試信失敗'));
     } finally {
       setLoading(false);
     }
@@ -200,8 +200,7 @@ export default function Settings() {
             {t("erp_790")}
           </button>
           <button onClick={() => setActiveTab("mail-branding")} className={cn("flex-1 sm:flex-none px-4 sm:px-6 py-3 rounded-xl font-bold transition-all text-sm cursor-pointer text-center justify-center flex", activeTab === "mail-branding" ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:bg-white")}>
-            郵件外觀 (Mail Branding)
-          </button>
+            {t('settings.c53ad9') || (t('settings.c53ad9') || '郵件外觀 (Mail Branding)')}</button>
         </div>
 
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
@@ -274,35 +273,35 @@ export default function Settings() {
               </div>
             </div> : activeTab === "mail-branding" ? <div className="flex-1 p-8 overflow-y-auto space-y-8 bg-muted/5">
               <div>
-                <h3 className="text-2xl font-black text-gray-800 mb-2">郵件品牌設定 (Mail Branding)</h3>
-                <p className="text-sm text-muted-foreground">設定 ERP 專屬的郵件外觀與寄件者資訊</p>
+                <h3 className="text-2xl font-black text-gray-800 mb-2">{t('settings.81f05d') || (t('settings.81f05d') || '郵件品牌設定 (Mail Branding)')}</h3>
+                <p className="text-sm text-muted-foreground">{t('settings.cb5d64') || (t('settings.cb5d64') || '設定 ERP 專屬的郵件外觀與寄件者資訊')}</p>
               </div>
               <div className="max-w-2xl space-y-6">
                 <div className="bg-white p-6 rounded-2xl border border-border shadow-sm space-y-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-black text-gray-800">寄件者顯示名稱 (Sender Name)</label>
-                    <p className="text-xs text-muted-foreground">顯示在收件匣的發信人名稱，例如：夏特 ERP 系統</p>
+                    <label className="text-sm font-black text-gray-800">{t('settings.8d6394') || (t('settings.8d6394') || '寄件者顯示名稱 (Sender Name)')}</label>
+                    <p className="text-xs text-muted-foreground">{t('settings.92bb21') || (t('settings.92bb21') || '顯示在收件匣的發信人名稱，例如：夏特 ERP 系統')}</p>
                     <input type="text" className="w-full px-4 py-3 bg-muted/20 border border-border rounded-xl font-bold text-gray-800 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" value={mailBranding.senderName} onChange={e => setMailBranding({ ...mailBranding, senderName: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-black text-gray-800">寄件者信箱 (Sender Email)</label>
-                    <p className="text-xs text-muted-foreground">顯示在收件匣的發信信箱 (實際寄信能力需由底層 Server 決定)</p>
+                    <label className="text-sm font-black text-gray-800">{t('settings.87663c') || (t('settings.87663c') || '寄件者信箱 (Sender Email)')}</label>
+                    <p className="text-xs text-muted-foreground">{t('settings.396983') || (t('settings.396983') || '顯示在收件匣的發信信箱 (實際寄信能力需由底層 Server 決定)')}</p>
                     <input type="text" className="w-full px-4 py-3 bg-muted/20 border border-border rounded-xl font-bold text-gray-800 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" value={mailBranding.senderEmail} onChange={e => setMailBranding({ ...mailBranding, senderEmail: e.target.value })} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-black text-gray-800">信件內文品牌名稱 (Brand Name)</label>
+                    <label className="text-sm font-black text-gray-800">{t('settings.e1a899') || (t('settings.e1a899') || '信件內文品牌名稱 (Brand Name)')}</label>
                     <input type="text" className="w-full px-4 py-3 bg-muted/20 border border-border rounded-xl font-bold text-gray-800 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" value={mailBranding.emailBrandName} onChange={e => setMailBranding({ ...mailBranding, emailBrandName: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-black text-gray-800">信件標題顏色 (Header Color)</label>
+                      <label className="text-sm font-black text-gray-800">{t('settings.9d66b4') || (t('settings.9d66b4') || '信件標題顏色 (Header Color)')}</label>
                       <div className="flex gap-2">
                         <input type="color" className="w-12 h-12 rounded-lg border border-border cursor-pointer" value={mailBranding.emailHeaderColor} onChange={e => setMailBranding({ ...mailBranding, emailHeaderColor: e.target.value })} />
                         <input type="text" className="flex-1 px-4 py-3 bg-muted/20 border border-border rounded-xl font-bold text-gray-800 outline-none focus:border-primary" value={mailBranding.emailHeaderColor} onChange={e => setMailBranding({ ...mailBranding, emailHeaderColor: e.target.value })} />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-black text-gray-800">信件背景顏色 (Bg Color)</label>
+                      <label className="text-sm font-black text-gray-800">{t('settings.c8bd21') || (t('settings.c8bd21') || '信件背景顏色 (Bg Color)')}</label>
                       <div className="flex gap-2">
                         <input type="color" className="w-12 h-12 rounded-lg border border-border cursor-pointer" value={mailBranding.emailBgColor} onChange={e => setMailBranding({ ...mailBranding, emailBgColor: e.target.value })} />
                         <input type="text" className="flex-1 px-4 py-3 bg-muted/20 border border-border rounded-xl font-bold text-gray-800 outline-none focus:border-primary" value={mailBranding.emailBgColor} onChange={e => setMailBranding({ ...mailBranding, emailBgColor: e.target.value })} />
@@ -313,21 +312,19 @@ export default function Settings() {
                 
                 <div className="bg-white p-6 rounded-2xl border border-border shadow-sm space-y-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-black text-gray-800">寄發測試信件</label>
-                    <p className="text-xs text-muted-foreground">儲存設定後，您可以輸入信箱寄發測試信，預覽這些品牌顏色與名稱設定的實際呈現效果。</p>
+                    <label className="text-sm font-black text-gray-800">{t('settings.dd46c5') || (t('settings.dd46c5') || '寄發測試信件')}</label>
+                    <p className="text-xs text-muted-foreground">{t('settings.3881ad') || (t('settings.3881ad') || '儲存設定後，您可以輸入信箱寄發測試信，預覽這些品牌顏色與名稱設定的實際呈現效果。')}</p>
                     <div className="flex items-center gap-3">
                       <input type="email" placeholder="test@example.com" className="flex-1 px-4 py-3 bg-muted/20 border border-border rounded-xl font-bold text-gray-800 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" value={testEmail} onChange={e => setTestEmail(e.target.value)} />
                       <button onClick={handleTestMailBranding} disabled={loading} className="px-6 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 whitespace-nowrap">
-                        發送測試
-                      </button>
+                        {t('settings.3797a4') || (t('settings.3797a4') || '發送測試')}</button>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-end pt-4">
                   <button onClick={handleSaveMailBranding} disabled={loading} className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-50">
-                    儲存設定
-                  </button>
+                    {t('settings.8494e6') || (t('settings.8494e6') || '儲存設定')}</button>
                 </div>
               </div>
             </div> : <>

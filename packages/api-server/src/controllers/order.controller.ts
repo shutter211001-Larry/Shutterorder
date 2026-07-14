@@ -27,13 +27,16 @@ import { OrderService } from '../services/order.service.js';
 
 import { NotificationService, formatNotificationMessage } from '../services/notification.service.js';
 
-export function applyOverridesToMenuItems(items: any[]) {
+export function applyOverridesToMenuItems(items: any[], currentLocationId?: string) {
   items.forEach(item => {
     if (item.locationOverrides && item.locationOverrides.length > 0) {
       const override = item.locationOverrides[0];
       item.isActive = override.isActive;
       item.trackStock = override.trackStock;
       item.stockQty = override.stockQty;
+    } else if (currentLocationId && item.locationId && item.locationId !== currentLocationId) {
+      item.trackStock = false;
+      item.stockQty = 0;
     }
     delete item.locationOverrides;
 
@@ -46,6 +49,9 @@ export function applyOverridesToMenuItems(items: any[]) {
               val.isActive = vOverride.isActive;
               val.trackStock = vOverride.trackStock;
               val.stockQty = vOverride.stockQty;
+            } else if (currentLocationId && item.locationId && item.locationId !== currentLocationId) {
+              val.trackStock = false;
+              val.stockQty = 0;
             }
             delete val.locationOverrides;
           });
@@ -163,7 +169,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
         ...(locationId ? { locationOverrides: { where: { locationId } } } : {})
       }
     });
-    applyOverridesToMenuItems(pItems);
+    applyOverridesToMenuItems(pItems, locationId);
     poolItemsMap = new Map(pItems.map(p => [p.id, p]));
   }
 
@@ -513,7 +519,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       ...(locationId ? { locationOverrides: { where: { locationId } } } : {})
     },
   });
-  applyOverridesToMenuItems(menuItems);
+  applyOverridesToMenuItems(menuItems, locationId);
 
   const menuItemMap = new Map(menuItems.map((m) => [m.id, m]));
 

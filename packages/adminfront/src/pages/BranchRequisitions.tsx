@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { api } from "../lib/api";
 import { Truck, Plus, PackageCheck, Save, Trash, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export default function BranchRequisitions() {
+    const { t } = useTranslation();
   const [requisitions, setRequisitions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [inventory, setInventory] = useState<any[]>([]);
@@ -39,20 +41,20 @@ export default function BranchRequisitions() {
       setInventory(invRes);
     } catch (err) {
       console.error(err);
-      toast.error("載入失敗");
+      toast.error((t('branchRequisitions.0c830c') || '載入失敗'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleReceive = async (id: string) => {
-    if (!confirm("確定要收貨嗎？這將會更新門市庫存！")) return;
+    if (!confirm((t('branchRequisitions.0ffe86') || '確定要收貨嗎？這將會更新門市庫存！'))) return;
     try {
       await api.post(`/requisitions/${id}/receive`, {});
-      toast.success("收貨成功，庫存已更新");
+      toast.success((t('branchRequisitions.b2c2ff') || '收貨成功，庫存已更新'));
       fetchData();
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "收貨失敗");
+      toast.error(err.response?.data?.error || (t('branchRequisitions.80e820') || '收貨失敗'));
     }
   };
 
@@ -65,7 +67,7 @@ export default function BranchRequisitions() {
       setIsModalOpen(true);
     } catch (err) {
       console.error(err);
-      toast.error("無法載入食材清單");
+      toast.error((t('branchRequisitions.e4b30c') || '無法載入食材清單'));
     }
   };
 
@@ -90,7 +92,7 @@ export default function BranchRequisitions() {
 
       const validItems = formItems.filter(i => i.ingredientId && Number(i.quantity) > 0);
       if (validItems.length === 0) {
-        return toast.error("請至少新增一項有效品項");
+        return toast.error((t('branchRequisitions.669bd5') || '請至少新增一項有效品項'));
       }
 
       setSubmitting(true);
@@ -100,44 +102,43 @@ export default function BranchRequisitions() {
         items: validItems
       });
 
-      toast.success("叫貨單已送出");
+      toast.success((t('branchRequisitions.68b8a9') || '叫貨單已送出'));
       setIsModalOpen(false);
       fetchData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.error || "送出失敗");
+      toast.error(err.response?.data?.error || (t('branchRequisitions.c03e08') || '送出失敗'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <div>載入中...</div>;
+  if (loading) return <div>{t('branchRequisitions.d39337') || (t('branchRequisitions.d39337') || '載入中...')}</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-black text-gray-800">門市叫貨管理</h1>
-          <p className="text-gray-500 mt-2">向中央廚房發起叫貨單，並追蹤出貨進度</p>
+          <h1 className="text-3xl font-black text-gray-800">{t('branchRequisitions.2d0d24') || (t('branchRequisitions.2d0d24') || '門市叫貨管理')}</h1>
+          <p className="text-gray-500 mt-2">{t('branchRequisitions.842e43') || (t('branchRequisitions.842e43') || '向中央廚房發起叫貨單，並追蹤出貨進度')}</p>
         </div>
         <button
           onClick={openModal}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2"
         >
-          <Plus size={20} /> 新增叫貨單
-        </button>
+          <Plus size={20} /> {t('branchRequisitions.120f9d') || (t('branchRequisitions.120f9d') || '新增叫貨單')}</button>
       </div>
 
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-bold mb-4">歷史叫貨紀錄</h2>
+        <h2 className="text-xl font-bold mb-4">{t('branchRequisitions.505baa') || (t('branchRequisitions.505baa') || '歷史叫貨紀錄')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 text-gray-500 text-sm">
-                <th className="p-4 font-bold rounded-l-xl">單號</th>
-                <th className="p-4 font-bold">日期</th>
-                <th className="p-4 font-bold">狀態</th>
-                <th className="p-4 font-bold rounded-r-xl">操作</th>
+                <th className="p-4 font-bold rounded-l-xl">{t('branchRequisitions.961108') || (t('branchRequisitions.961108') || '單號')}</th>
+                <th className="p-4 font-bold">{t('branchRequisitions.4ff1e7') || (t('branchRequisitions.4ff1e7') || '日期')}</th>
+                <th className="p-4 font-bold">{t('branchRequisitions.bd91f6') || (t('branchRequisitions.bd91f6') || '狀態')}</th>
+                <th className="p-4 font-bold rounded-r-xl">{t('branchRequisitions.2b6bc0') || (t('branchRequisitions.2b6bc0') || '操作')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -146,9 +147,9 @@ export default function BranchRequisitions() {
                   <td className="p-4 font-mono text-sm">{req.id.slice(-8)}</td>
                   <td className="p-4">{new Date(req.createdAt).toLocaleDateString()}</td>
                   <td className="p-4">
-                    {req.status === "PENDING" && <span className="text-yellow-600 bg-yellow-50 px-2 py-1 rounded-md text-xs font-bold">待總部審核</span>}
-                    {req.status === "SHIPPED" && <span className="text-blue-600 bg-blue-50 px-2 py-1 rounded-md text-xs font-bold">總部已出貨</span>}
-                    {req.status === "RECEIVED" && <span className="text-green-600 bg-green-50 px-2 py-1 rounded-md text-xs font-bold">已收貨入庫</span>}
+                    {req.status === "PENDING" && <span className="text-yellow-600 bg-yellow-50 px-2 py-1 rounded-md text-xs font-bold">{t('branchRequisitions.b513af') || (t('branchRequisitions.b513af') || '待總部審核')}</span>}
+                    {req.status === "SHIPPED" && <span className="text-blue-600 bg-blue-50 px-2 py-1 rounded-md text-xs font-bold">{t('branchRequisitions.280508') || (t('branchRequisitions.280508') || '總部已出貨')}</span>}
+                    {req.status === "RECEIVED" && <span className="text-green-600 bg-green-50 px-2 py-1 rounded-md text-xs font-bold">{t('branchRequisitions.7621a4') || (t('branchRequisitions.7621a4') || '已收貨入庫')}</span>}
                   </td>
                   <td className="p-4">
                     {req.status === "SHIPPED" && (
@@ -156,8 +157,7 @@ export default function BranchRequisitions() {
                         onClick={() => handleReceive(req.id)}
                         className="text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm"
                       >
-                        確認收貨
-                      </button>
+                        {t('branchRequisitions.c58bc7') || (t('branchRequisitions.c58bc7') || '確認收貨')}</button>
                     )}
                   </td>
                 </tr>
@@ -166,8 +166,7 @@ export default function BranchRequisitions() {
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-gray-400">
                     <Truck size={48} className="mx-auto mb-4 opacity-20" />
-                    目前沒有叫貨紀錄
-                  </td>
+                    {t('branchRequisitions.f6d1e7') || (t('branchRequisitions.f6d1e7') || '目前沒有叫貨紀錄')}</td>
                 </tr>
               )}
             </tbody>
@@ -176,7 +175,7 @@ export default function BranchRequisitions() {
       </div>
 
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mt-6">
-        <h2 className="text-xl font-bold mb-4">門市現有庫存</h2>
+        <h2 className="text-xl font-bold mb-4">{t('branchRequisitions.294dc5') || (t('branchRequisitions.294dc5') || '門市現有庫存')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {inventory.map((inv) => (
             <div key={inv.id} className="p-4 border border-gray-100 rounded-2xl bg-gray-50 flex flex-col items-center text-center">
@@ -189,8 +188,7 @@ export default function BranchRequisitions() {
           ))}
           {inventory.length === 0 && (
             <div className="col-span-full p-8 text-center text-gray-400">
-              分店庫存目前為空，請發起叫貨以補足庫存。
-            </div>
+              {t('branchRequisitions.f5a336') || (t('branchRequisitions.f5a336') || '分店庫存目前為空，請發起叫貨以補足庫存。')}</div>
           )}
         </div>
       </div>
@@ -200,7 +198,7 @@ export default function BranchRequisitions() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-black text-gray-800">新增叫貨單</h2>
+              <h2 className="text-2xl font-black text-gray-800">{t('branchRequisitions.120f9d') || (t('branchRequisitions.120f9d') || '新增叫貨單')}</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <X size={24} />
               </button>
@@ -208,7 +206,7 @@ export default function BranchRequisitions() {
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">期望到貨日期</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">{t('branchRequisitions.b81cf3') || (t('branchRequisitions.b81cf3') || '期望到貨日期')}</label>
                 <input
                   type="date"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -218,7 +216,7 @@ export default function BranchRequisitions() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">叫貨品項</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">{t('branchRequisitions.d0ef99') || (t('branchRequisitions.d0ef99') || '叫貨品項')}</label>
                 <div className="space-y-3">
                   {formItems.map((item, index) => (
                     <div key={index} className="flex gap-3 items-center">
@@ -227,7 +225,7 @@ export default function BranchRequisitions() {
                         value={item.ingredientId}
                         onChange={(e) => handleItemChange(index, "ingredientId", e.target.value)}
                       >
-                        <option value="">選擇品項...</option>
+                        <option value="">{t('branchRequisitions.b648f2') || (t('branchRequisitions.b648f2') || '選擇品項...')}</option>
                         {availableIngredients.map((ing) => (
                           <option key={ing.id} value={ing.id}>
                             {ing.name} ({ing.unit})
@@ -237,7 +235,7 @@ export default function BranchRequisitions() {
                       <input
                         type="number"
                         min="1"
-                        placeholder="數量"
+                        placeholder={t('branchRequisitions.954bba') || '數量'}
                         className="w-24 border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                         value={item.quantity}
                         onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
@@ -257,8 +255,7 @@ export default function BranchRequisitions() {
                   onClick={handleAddItem}
                   className="mt-3 text-blue-600 font-bold text-sm flex items-center gap-1 hover:text-blue-700"
                 >
-                  <Plus size={16} /> 新增品項
-                </button>
+                  <Plus size={16} /> {t('branchRequisitions.d2afb0') || (t('branchRequisitions.d2afb0') || '新增品項')}</button>
               </div>
             </div>
 
@@ -267,15 +264,14 @@ export default function BranchRequisitions() {
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-gray-100"
               >
-                取消
-              </button>
+                {t('branchRequisitions.625fb2') || (t('branchRequisitions.625fb2') || '取消')}</button>
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50"
               >
                 <Save size={20} />
-                {submitting ? "送出中..." : "送出叫貨單"}
+                {submitting ? (t('branchRequisitions.ba34bf') || '送出中...') : (t('branchRequisitions.47b1c6') || '送出叫貨單')}
               </button>
             </div>
           </div>

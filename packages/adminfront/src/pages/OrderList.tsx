@@ -311,7 +311,7 @@ export default function OrderList() {
             onChange={(e) => { setLocationFilter(e.target.value); setPage(1); }}
             className="px-4 py-2.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none shadow-sm transition-all duration-200"
           >
-            <option value="">全部店家 (All Locations)</option>
+            <option value="">{t('orderList.a2dbad') || (t('orderList.a2dbad') || '全部店家 (All Locations)')}</option>
             {locations.map(loc => (
               <option key={loc.id} value={loc.id}>{loc.name}</option>
             ))}

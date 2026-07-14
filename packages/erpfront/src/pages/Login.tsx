@@ -37,7 +37,7 @@ const Login: React.FC = () => {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      setError('請輸入電子郵件');
+      setError((t('login.1b91c7') || '請輸入電子郵件'));
       return;
     }
     try {
@@ -45,9 +45,9 @@ const Login: React.FC = () => {
       setMessage(null);
       setLoading(true);
       const res = await api.post("/auth/forgot-password", { email });
-      setMessage(res.data.message || '重置信已寄出');
+      setMessage(res.data.message || (t('login.c42977') || '重置信已寄出'));
     } catch (err: any) {
-      setError(err.response?.data?.error || '發送失敗');
+      setError(err.response?.data?.error || (t('login.09f37c') || '發送失敗'));
     } finally {
       setLoading(false);
     }
@@ -106,8 +106,7 @@ const Login: React.FC = () => {
                   {t("erp_751")}
                 </label>
                 <button type="button" onClick={() => { setIsForgotPassword(true); setError(null); setMessage(null); }} className="text-[10px] font-bold text-primary hover:text-orange-400 transition-colors cursor-pointer">
-                  忘記密碼？
-                </button>
+                  {t('login.8c4b14') || (t('login.8c4b14') || '忘記密碼？')}</button>
               </div>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">
@@ -120,16 +119,15 @@ const Login: React.FC = () => {
 
           {/* Submit button */}
           <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-primary to-orange-500 text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 disabled:pointer-events-none mt-2 cursor-pointer">
-            {loading ? <span>{isForgotPassword ? '發送中...' : t("erp_753")}</span> : <>
-                <span>{isForgotPassword ? '發送重置信' : t("erp_754")}</span>
+            {loading ? <span>{isForgotPassword ? (t('login.447ce3') || '發送中...') : t("erp_753")}</span> : <>
+                <span>{isForgotPassword ? (t('login.05a64f') || '發送重置信') : t("erp_754")}</span>
                 <ArrowRight className="w-4 h-4" />
               </>}
           </button>
           
           {isForgotPassword && (
             <button type="button" onClick={() => { setIsForgotPassword(false); setError(null); setMessage(null); }} className="w-full text-center text-xs font-bold text-slate-400 hover:text-white transition-colors mt-4 cursor-pointer">
-              返回登入
-            </button>
+              {t('login.1eee19') || (t('login.1eee19') || '返回登入')}</button>
           )}
         </form>
 
@@ -157,8 +155,7 @@ const Login: React.FC = () => {
                   </span>
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5">
-                  自動帶入 SaaS 測試帳號 (test@test.com)
-                </div>
+                  {t('login.1dcc30') || (t('login.1dcc30') || '自動帶入 SaaS 測試帳號 (test@test.com)')}</div>
               </div>
             </button>
           </>

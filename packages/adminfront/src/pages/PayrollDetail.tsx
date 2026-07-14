@@ -66,7 +66,7 @@ export default function PayrollDetail() {
   }
 
   async function handleGenerate() {
-    if (!await confirm('確定要產生薪資單嗎？這將會覆蓋目前草稿狀態的薪資單。 (Are you sure? This will overwrite existing draft payslips for this period.)')) return;
+    if (!await confirm((t('payrollDetail.a72ebf') || '確定要產生薪資單嗎？這將會覆蓋目前草稿狀態的薪資單。 (Are you sure? This will overwrite existing draft payslips for this period.)'))) return;
     
     try {
       setGenerating(true);
@@ -102,7 +102,7 @@ export default function PayrollDetail() {
       <PageHeader
         title={period.name}
         backUrl="/payroll"
-        backText="返回列表 (Back to List)"
+        backText={t('payrollDetail.58f968') || '返回列表 (Back to List)'}
         action={
           period.status !== 'PAID' && (
             <button
@@ -111,7 +111,7 @@ export default function PayrollDetail() {
               className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
             >
               <Play size={16} />
-              {generating ? '結算中...' : '執行薪資結算 (Generate Payslips)'}
+              {generating ? (t('payrollDetail.25e1d0') || '結算中...') : (t('payrollDetail.9e41be') || '執行薪資結算 (Generate Payslips)')}
             </button>
           )
         }
@@ -127,13 +127,13 @@ export default function PayrollDetail() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 font-medium mb-1">期間 (Period)</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">{t('payrollDetail.89e205') || (t('payrollDetail.89e205') || '期間 (Period)')}</p>
             <p className="text-lg font-semibold text-gray-900">
               {new Date(period.startDate).toLocaleDateString()} - {new Date(period.endDate).toLocaleDateString()}
             </p>
           </div>
           <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 font-medium mb-1">狀態 (Status)</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">{t('payrollDetail.7ba35c') || (t('payrollDetail.7ba35c') || '狀態 (Status)')}</p>
             <div className="flex items-center gap-2">
               {period.status === 'DRAFT' && <Clock size={18} className="text-yellow-500" />}
               {period.status === 'PUBLISHED' && <CheckCircle size={18} className="text-blue-500" />}
@@ -142,11 +142,11 @@ export default function PayrollDetail() {
             </div>
           </div>
           <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 font-medium mb-1">員工數 (Employees)</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">{t('payrollDetail.016bff') || (t('payrollDetail.016bff') || '員工數 (Employees)')}</p>
             <p className="text-2xl font-bold text-gray-900">{payslips.length}</p>
           </div>
           <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 font-medium mb-1">總發放金額 (Total Net Pay)</p>
+            <p className="text-sm text-gray-500 font-medium mb-1">{t('payrollDetail.c02e3a') || (t('payrollDetail.c02e3a') || '總發放金額 (Total Net Pay)')}</p>
             <p className="text-2xl font-bold text-primary-600">
               {formatCurrency(payslips.reduce((acc, p) => acc + p.netPay, 0))}
             </p>
@@ -156,7 +156,7 @@ export default function PayrollDetail() {
         {/* Payslips Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">員工薪資明細 (Payslips)</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('payrollDetail.a5c434') || (t('payrollDetail.a5c434') || '員工薪資明細 (Payslips)')}</h3>
           </div>
           
           {payslips.length === 0 ? (
@@ -164,19 +164,19 @@ export default function PayrollDetail() {
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="text-gray-400" size={24} />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">尚未產生薪資單</h3>
-              <p className="text-gray-500 mb-6">點擊右上角的「執行薪資結算」來為員工計算薪資。</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">{t('payrollDetail.6cb7d9') || (t('payrollDetail.6cb7d9') || '尚未產生薪資單')}</h3>
+              <p className="text-gray-500 mb-6">{t('payrollDetail.f085f0') || (t('payrollDetail.f085f0') || '點擊右上角的「執行薪資結算」來為員工計算薪資。')}</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-200">
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">員工 (Employee)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">基本底薪 (Base Pay)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">加班費 (Overtime)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">扣除額 (Deductions)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">實發薪資 (Net Pay)</th>
-                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">操作 (Actions)</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('payrollDetail.78a0f3') || (t('payrollDetail.78a0f3') || '員工 (Employee)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollDetail.f80541') || (t('payrollDetail.f80541') || '基本底薪 (Base Pay)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollDetail.b76335') || (t('payrollDetail.b76335') || '加班費 (Overtime)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollDetail.e016e9') || (t('payrollDetail.e016e9') || '扣除額 (Deductions)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollDetail.ab80b3') || (t('payrollDetail.ab80b3') || '實發薪資 (Net Pay)')}</th>
+                  <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">{t('payrollDetail.bafee9') || (t('payrollDetail.bafee9') || '操作 (Actions)')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -204,8 +204,7 @@ export default function PayrollDetail() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button className="text-primary-600 hover:text-primary-800 text-sm font-medium">
-                        明細 (View)
-                      </button>
+                        {t('payrollDetail.5a1de1') || (t('payrollDetail.5a1de1') || '明細 (View)')}</button>
                     </td>
                   </tr>
                 ))}

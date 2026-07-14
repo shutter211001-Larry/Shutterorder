@@ -65,10 +65,10 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
         availabilities,
         timeOffs,
       });
-      toast.error(t('staff.actions.saveSuccess') || '儲存成功！');
+      toast.error(t('staff.actions.saveSuccess') || (t('staffRosterSettingsModal.1e413d') || '儲存成功！'));
     } catch (err) {
       console.error(err);
-      toast.error('儲存失敗');
+      toast.error((t('staffRosterSettingsModal.24510f') || '儲存失敗'));
     } finally {
       setSaving(false);
     }
@@ -81,8 +81,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
       <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            ⚙️ 員工排班限制設定
-          </h2>
+            {t('staffRosterSettingsModal.d3ec6d') || (t('staffRosterSettingsModal.d3ec6d') || '⚙️ 員工排班限制設定')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -92,13 +91,13 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
 
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">選擇員工 (Select Staff)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffRosterSettingsModal.1177cc') || (t('staffRosterSettingsModal.1177cc') || '選擇員工 (Select Staff)')}</label>
             <select
               value={selectedStaffId}
               onChange={(e) => setSelectedStaffId(e.target.value)}
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
             >
-              <option value="">-- 請選擇員工 --</option>
+              <option value="">{t('staffRosterSettingsModal.b0fb30') || (t('staffRosterSettingsModal.b0fb30') || '-- 請選擇員工 --')}</option>
               {staffList.map(s => (
                 <option key={s.id} value={s.id}>{s.name} ({s.role})</option>
               ))}
@@ -106,7 +105,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-gray-400">載入中...</div>
+            <div className="py-12 text-center text-gray-400">{t('staffRosterSettingsModal.d39337') || (t('staffRosterSettingsModal.d39337') || '載入中...')}</div>
           ) : selectedStaffId ? (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -137,7 +136,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.availableDays') || 'Available Days & Time Slots (排班可用時段)'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.availableDays') || (t('staffRosterSettingsModal.ee48f5') || 'Available Days & Time Slots (排班可用時段)')}</label>
                 <div className="space-y-3">
                   {[0, 1, 2, 3, 4, 5, 6].map(dayIndex => {
                     const dayNames = [
@@ -169,7 +168,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
                         {isAvailable ? (
                           <div className="flex items-center gap-3 flex-1">
                             <div className="flex flex-col w-full">
-                              <label className="text-[10px] text-gray-400 font-medium uppercase mb-1">開始時間</label>
+                              <label className="text-[10px] text-gray-400 font-medium uppercase mb-1">{t('staffRosterSettingsModal.4819a7') || (t('staffRosterSettingsModal.4819a7') || '開始時間')}</label>
                               <input
                                 type="time"
                                 value={avail.startTime}
@@ -181,9 +180,9 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
                                 className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm shadow-inner transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white"
                               />
                             </div>
-                            <span className="text-gray-400 text-sm mt-5">至</span>
+                            <span className="text-gray-400 text-sm mt-5">{t('staffRosterSettingsModal.981cbe') || (t('staffRosterSettingsModal.981cbe') || '至')}</span>
                             <div className="flex flex-col w-full">
-                              <label className="text-[10px] text-gray-400 font-medium uppercase mb-1">結束時間</label>
+                              <label className="text-[10px] text-gray-400 font-medium uppercase mb-1">{t('staffRosterSettingsModal.8b295e') || (t('staffRosterSettingsModal.8b295e') || '結束時間')}</label>
                               <input
                                 type="time"
                                 value={avail.endTime}
@@ -197,7 +196,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
                             </div>
                           </div>
                         ) : (
-                          <div className="flex-1 text-sm text-gray-400 font-medium italic">此日不排班 (Unavailable)</div>
+                          <div className="flex-1 text-sm text-gray-400 font-medium italic">{t('staffRosterSettingsModal.4e0833') || (t('staffRosterSettingsModal.4e0833') || '此日不排班 (Unavailable)')}</div>
                         )}
                       </div>
                     );
@@ -206,7 +205,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.timeOffTitle') || 'Specific Dates Off (指定休假/禁排日期)'}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.timeOffTitle') || (t('staffRosterSettingsModal.94eb96') || 'Specific Dates Off (指定休假/禁排日期)')}</label>
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <input
@@ -263,7 +262,7 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
               </div>
             </div>
           ) : (
-            <div className="py-12 text-center text-gray-400">請從上方選擇一位員工來進行設定</div>
+            <div className="py-12 text-center text-gray-400">{t('staffRosterSettingsModal.1cd2fa') || (t('staffRosterSettingsModal.1cd2fa') || '請從上方選擇一位員工來進行設定')}</div>
           )}
         </div>
 
@@ -272,14 +271,13 @@ export default function StaffRosterSettingsModal({ isOpen, onClose, locationId }
             onClick={onClose}
             className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
           >
-            取消
-          </button>
+            {t('staffRosterSettingsModal.625fb2') || (t('staffRosterSettingsModal.625fb2') || '取消')}</button>
           <button
             onClick={handleSave}
             disabled={saving || !selectedStaffId}
             className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50"
           >
-            {saving ? '儲存中...' : '儲存設定'}
+            {saving ? (t('staffRosterSettingsModal.4dafaa') || '儲存中...') : (t('staffRosterSettingsModal.8494e6') || '儲存設定')}
           </button>
         </div>
       </div>

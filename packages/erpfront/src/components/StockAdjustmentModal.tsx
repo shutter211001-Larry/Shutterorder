@@ -226,25 +226,23 @@ const StockAdjustmentModal: React.FC<Props> = ({
                     className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
                   />
                   <label htmlFor="createExpense" className="text-sm font-bold text-gray-700 cursor-pointer">
-                    自動建立應付帳款
-                  </label>
+                    {t('stockAdjustmentModal.7c1194') || (t('stockAdjustmentModal.7c1194') || '自動建立應付帳款')}</label>
                 </div>
                 
                 {createExpense && ingredient?.prices && ingredient.prices.length > 0 && (
                   <div className="space-y-4 pt-3 border-t border-border/50 animate-in fade-in slide-in-from-top-2 duration-300">
                     <div className="space-y-2">
                       <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground pl-1">
-                        選擇供應商報價
-                      </label>
+                        {t('stockAdjustmentModal.4d2ff7') || (t('stockAdjustmentModal.4d2ff7') || '選擇供應商報價')}</label>
                       <select 
                         value={supplierPriceId}
                         onChange={(e) => setSupplierPriceId(e.target.value)}
                         className="w-full bg-white border border-border focus:border-primary/50 text-gray-800 rounded-xl py-3 px-4 text-sm font-bold outline-none transition-all"
                       >
-                        <option value="" disabled>請選擇供應商</option>
+                        <option value="" disabled>{t('stockAdjustmentModal.ea50cf') || (t('stockAdjustmentModal.ea50cf') || '請選擇供應商')}</option>
                         {ingredient.prices.map((p: any) => (
                           <option key={p.id} value={p.id}>
-                            {p.supplier?.name || '未知供應商'} - ${p.price} / {p.packageSize}{p.packageUnit} (單價: ${Number(p.unitPrice).toFixed(2)}/{ingredient.unit})
+                            {p.supplier?.name || (t('stockAdjustmentModal.8535e7') || '未知供應商')} - ${p.price} / {p.packageSize}{p.packageUnit} {t('stockAdjustmentModal.c33b9d') || (t('stockAdjustmentModal.c33b9d') || '(單價: $')}{Number(p.unitPrice).toFixed(2)}/{ingredient.unit})
                           </option>
                         ))}
                       </select>
@@ -252,8 +250,7 @@ const StockAdjustmentModal: React.FC<Props> = ({
                     
                     <div className="space-y-2">
                       <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground pl-1">
-                        進貨總金額 (可手動修改)
-                      </label>
+                        {t('stockAdjustmentModal.248cb1') || (t('stockAdjustmentModal.248cb1') || '進貨總金額 (可手動修改)')}</label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-gray-400">$</span>
                         <input 
@@ -275,20 +272,17 @@ const StockAdjustmentModal: React.FC<Props> = ({
                         className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
                       />
                       <label htmlFor="updateQuote" className="text-sm font-bold text-gray-700 cursor-pointer">
-                        以新單價同步更新供應商報價
-                      </label>
+                        {t('stockAdjustmentModal.0c133b') || (t('stockAdjustmentModal.0c133b') || '以新單價同步更新供應商報價')}</label>
                     </div>
                   </div>
                 )}
                 {createExpense && (!ingredient?.prices || ingredient.prices.length === 0) && (
                    <div className="pt-2">
                      <p className="text-xs text-amber-600 font-bold bg-amber-50 p-3 rounded-xl border border-amber-100">
-                       此食材目前沒有綁定任何供應商報價，系統將建立金額為 $0 的帳款，您可以直接在下方手動輸入總額。
-                     </p>
+                       {t('stockAdjustmentModal.baaa40') || (t('stockAdjustmentModal.baaa40') || '此食材目前沒有綁定任何供應商報價，系統將建立金額為 $0 的帳款，您可以直接在下方手動輸入總額。')}</p>
                      <div className="space-y-2 mt-3">
                        <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground pl-1">
-                         進貨總金額 (手動輸入)
-                       </label>
+                         {t('stockAdjustmentModal.7c2312') || (t('stockAdjustmentModal.7c2312') || '進貨總金額 (手動輸入)')}</label>
                        <div className="relative">
                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-gray-400">$</span>
                          <input 

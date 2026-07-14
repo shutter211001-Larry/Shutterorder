@@ -54,24 +54,24 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'dashboard', path: '/', label: '平台總覽', icon: <LayoutDashboard size={20} />, roles: ['SUPER_ADMIN'] },
+  { id: 'dashboard', path: '/', label: 'adminLayout.0a1902', icon: <LayoutDashboard size={20} />, roles: ['SUPER_ADMIN'] },
   {
     id: 'tenants',
-    label: '租戶管理',
+    label: 'adminLayout.9a2134',
     icon: <Server size={20} />,
     roles: ['SUPER_ADMIN'],
     children: [
-      { path: '/tenants', label: '所有租戶', roles: ['SUPER_ADMIN'] },
-      { path: '/tenants/new', label: '建立新租戶', roles: ['SUPER_ADMIN'] },
+      { path: '/tenants', label: 'adminLayout.0e3db2', roles: ['SUPER_ADMIN'] },
+      { path: '/tenants/new', label: 'adminLayout.4279f5', roles: ['SUPER_ADMIN'] },
     ]
   },
   {
     id: 'settings',
-    label: '系統全域設定',
+    label: 'adminLayout.d328ad',
     icon: <Settings size={20} />,
     roles: ['SUPER_ADMIN'],
     children: [
-      { path: '/settings/mail', label: '郵件伺服器', roles: ['SUPER_ADMIN'] },
+      { path: '/settings/mail', label: 'adminLayout.ea3098', roles: ['SUPER_ADMIN'] },
     ]
   }
 ];
@@ -83,9 +83,9 @@ const ROLE_COLORS: Record<Role, string> = {
 };
 
 const ROLE_LABELS: Record<Role, string> = {
-  SUPER_ADMIN: 'SaaS 超級管理員',
-  MANAGER: '餐廳店長',
-  STAFF: '餐廳員工',
+  SUPER_ADMIN: 'adminLayout.e0642a',
+  MANAGER: 'adminLayout.dea995',
+  STAFF: 'adminLayout.b2a8dd',
 };
 
 export default function AdminLayout({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
@@ -165,8 +165,8 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
         aria-label="Main navigation"
       >
         <div className="px-6 py-4 border-b border-gray-700">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">夏特 SaaS 平台系統</h1>
-          <p className="text-xs text-indigo-300 mt-1 uppercase tracking-wider font-medium">超級管理中心</p>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{t('adminLayout.e793cc') || (t('adminLayout.e793cc') || '夏特 SaaS 平台系統')}</h1>
+          <p className="text-xs text-indigo-300 mt-1 uppercase tracking-wider font-medium">{t('adminLayout.53d003') || (t('adminLayout.53d003') || '超級管理中心')}</p>
         </div>
         <nav className="flex-1 py-4 overflow-y-auto select-none">
           {filteredNav.map(item => {
@@ -312,8 +312,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                         onClick={() => setDropdownOpen(false)}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        系統設定
-                      </Link>
+                        {t('adminLayout.af21b0') || (t('adminLayout.af21b0') || '系統設定')}</Link>
                     )}
                     {onLogout && (
                       <button
@@ -323,8 +322,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                         }}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50"
                       >
-                        登出系統
-                      </button>
+                        {t('adminLayout.23b0d1') || (t('adminLayout.23b0d1') || '登出系統')}</button>
                     )}
                   </div>
                 )}
@@ -335,8 +333,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
         {isOffline && (
           <div className="bg-yellow-500 text-white px-4 py-2 text-sm font-bold flex items-center justify-center shadow-md z-40">
-            ⚠️ 網路連線異常，已啟用本地幽靈模式，可繼續點餐與打卡。連線恢復後將自動同步。
-          </div>
+            {t('adminLayout.3cf128') || (t('adminLayout.3cf128') || '⚠️ 網路連線異常，已啟用本地幽靈模式，可繼續點餐與打卡。連線恢復後將自動同步。')}</div>
         )}
 
         <main className="flex-1 p-6">{children}</main>

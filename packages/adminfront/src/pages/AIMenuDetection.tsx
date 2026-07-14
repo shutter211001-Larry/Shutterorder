@@ -88,7 +88,7 @@ export default function AIMenuDetection() {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
       if (selectedFiles.length > 10) {
-        setError('單次上傳上限為 10 張');
+        setError((t('aIMenuDetection.d51608') || '單次上傳上限為 10 張'));
         return;
       }
       setError(null);
@@ -114,7 +114,7 @@ export default function AIMenuDetection() {
 
       setCategories(res.data.categories);
     } catch (err: any) {
-      setError(err.message || '辨識失敗');
+      setError(err.message || (t('aIMenuDetection.34f3dd') || '辨識失敗'));
     } finally {
       setLoading(false);
     }
@@ -129,7 +129,7 @@ export default function AIMenuDetection() {
       await api.post('/menu/ai-detect/import', { categories });
       navigate('/menu/items');
     } catch (err: any) {
-      setError(err.message || '匯入失敗');
+      setError(err.message || (t('aIMenuDetection.05e3e2') || '匯入失敗'));
       setImporting(false);
     }
   };
@@ -168,7 +168,7 @@ export default function AIMenuDetection() {
     const newCats = [...categories!];
     const item = newCats[cIndex].items[iIndex];
     if (!item.options) item.options = [];
-    item.options.push({ name: '新選項', isRequired: false, maxSelect: 1, values: [{ name: '選項值', priceModifier: 0 }] });
+    item.options.push({ name: (t('aIMenuDetection.35f7a2') || '新選項'), isRequired: false, maxSelect: 1, values: [{ name: (t('aIMenuDetection.695a95') || '選項值'), priceModifier: 0 }] });
     setCategories(newCats);
   };
 
@@ -183,7 +183,7 @@ export default function AIMenuDetection() {
     const newCats = [...categories!];
     const opts = newCats[cIndex].items[iIndex].options;
     if (opts && opts[oIndex]) {
-      opts[oIndex].values.push({ name: '選項值', priceModifier: 0 });
+      opts[oIndex].values.push({ name: (t('aIMenuDetection.695a95') || '選項值'), priceModifier: 0 });
     }
     setCategories(newCats);
   };
@@ -200,13 +200,12 @@ export default function AIMenuDetection() {
   return (
     <div className="max-w-5xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">AI 菜單偵測</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">{t('aIMenuDetection.72854d') || (t('aIMenuDetection.72854d') || 'AI 菜單偵測')}</h2>
         <button
           onClick={() => navigate('/menu/items')}
           className="text-gray-600 hover:text-gray-900"
         >
-          取消
-        </button>
+          {t('aIMenuDetection.625fb2') || (t('aIMenuDetection.625fb2') || '取消')}</button>
       </div>
 
       {error && (
@@ -231,14 +230,14 @@ export default function AIMenuDetection() {
             className="border-2 border-dashed border-gray-300 rounded-lg p-12 cursor-pointer hover:border-primary-500 transition-colors mb-6"
           >
             <div className="text-gray-500">
-              <p className="text-lg mb-2">點擊選擇菜單照片</p>
-              <p className="text-sm">支援 JPG, PNG (上限 10 張)</p>
+              <p className="text-lg mb-2">{t('aIMenuDetection.4fd6fd') || (t('aIMenuDetection.4fd6fd') || '點擊選擇菜單照片')}</p>
+              <p className="text-sm">{t('aIMenuDetection.ab74b6') || (t('aIMenuDetection.ab74b6') || '支援 JPG, PNG (上限 10 張)')}</p>
             </div>
           </div>
 
           {files.length > 0 && (
             <div className="mb-6 text-left bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">已選擇 {files.length} 張圖片:</h4>
+              <h4 className="font-medium mb-2">{t('aIMenuDetection.1d20db') || (t('aIMenuDetection.1d20db') || '已選擇')}{files.length} {t('aIMenuDetection.06770d') || (t('aIMenuDetection.06770d') || '張圖片:')}</h4>
               <ul className="text-sm text-gray-600 list-disc list-inside">
                 {files.map((f, i) => <li key={i}>{f.name}</li>)}
               </ul>
@@ -250,23 +249,22 @@ export default function AIMenuDetection() {
             disabled={files.length === 0 || loading}
             className="w-full sm:w-auto bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50"
           >
-            {loading ? 'AI 辨識中...' : '開始偵測'}
+            {loading ? (t('aIMenuDetection.a67444') || 'AI 辨識中...') : (t('aIMenuDetection.b36f9e') || '開始偵測')}
           </button>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="p-6 border-b flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-800">辨識結果預覽</h3>
+            <h3 className="text-lg font-medium text-gray-800">{t('aIMenuDetection.3d1b5b') || (t('aIMenuDetection.3d1b5b') || '辨識結果預覽')}</h3>
             <div className="text-sm text-gray-500">
-              請確認欄位並修改，完成後點擊匯入
-            </div>
+              {t('aIMenuDetection.a9eb76') || (t('aIMenuDetection.a9eb76') || '請確認欄位並修改，完成後點擊匯入')}</div>
           </div>
           
           <div className="p-6">
             {categories.map((cat, cIndex) => (
               <div key={cIndex} className="mb-8 last:mb-0">
                 <div className="flex items-center gap-4 mb-4 bg-gray-50 p-3 rounded-lg">
-                  <label className="font-medium text-gray-700 w-24">分類名稱</label>
+                  <label className="font-medium text-gray-700 w-24">{t('aIMenuDetection.78d534') || (t('aIMenuDetection.78d534') || '分類名稱')}</label>
                   <div className="flex-1 flex gap-2">
                     <input
                       type="text"
@@ -293,9 +291,9 @@ export default function AIMenuDetection() {
                       }}
                       className="w-1/2 border-gray-300 rounded px-3 py-1 bg-white"
                     >
-                      <option value="">✨ 建立為新類別</option>
+                      <option value="">{t('aIMenuDetection.490b5a') || (t('aIMenuDetection.490b5a') || '✨ 建立為新類別')}</option>
                       {existingCategories.map(ec => (
-                        <option key={ec.id} value={ec.id}>🔗 合併至現有：{ec.name}</option>
+                        <option key={ec.id} value={ec.id}>{t('aIMenuDetection.19e048') || (t('aIMenuDetection.19e048') || '🔗 合併至現有：')}{ec.name}</option>
                       ))}
                     </select>
                   </div>
@@ -304,9 +302,9 @@ export default function AIMenuDetection() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-100 text-gray-600 text-sm">
-                      <th className="p-3 font-medium">品項名稱</th>
-                      <th className="p-3 font-medium w-32">價格</th>
-                      <th className="p-3 font-medium">說明</th>
+                      <th className="p-3 font-medium">{t('aIMenuDetection.aa56a9') || (t('aIMenuDetection.aa56a9') || '品項名稱')}</th>
+                      <th className="p-3 font-medium w-32">{t('aIMenuDetection.57698e') || (t('aIMenuDetection.57698e') || '價格')}</th>
+                      <th className="p-3 font-medium">{t('aIMenuDetection.d244b7') || (t('aIMenuDetection.d244b7') || '說明')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -326,14 +324,14 @@ export default function AIMenuDetection() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                                 <div className="flex flex-wrap items-center gap-2 mb-2 pr-4">
-                                  <input type="text" value={opt.name} onChange={e => updateOption(cIndex, iIndex, oIdx, 'name', e.target.value)} className="w-24 text-xs border-gray-300 rounded px-1.5 py-1 font-medium text-indigo-600" placeholder="選項名稱" />
-                                  <label className="flex items-center text-[10px] text-gray-500 gap-1"><input type="checkbox" checked={opt.isRequired} onChange={e => updateOption(cIndex, iIndex, oIdx, 'isRequired', e.target.checked)} className="rounded text-indigo-600 w-3 h-3" />必選</label>
-                                  <label className="flex items-center text-[10px] text-gray-500 gap-1">至多選<input type="number" min={1} max={99} value={opt.maxSelect || 1} onChange={e => updateOption(cIndex, iIndex, oIdx, 'maxSelect', Number(e.target.value))} className="w-10 border-gray-300 rounded px-1 py-0.5 text-center" />項</label>
+                                  <input type="text" value={opt.name} onChange={e => updateOption(cIndex, iIndex, oIdx, 'name', e.target.value)} className="w-24 text-xs border-gray-300 rounded px-1.5 py-1 font-medium text-indigo-600" placeholder={t('aIMenuDetection.2cb7b9') || '選項名稱'} />
+                                  <label className="flex items-center text-[10px] text-gray-500 gap-1"><input type="checkbox" checked={opt.isRequired} onChange={e => updateOption(cIndex, iIndex, oIdx, 'isRequired', e.target.checked)} className="rounded text-indigo-600 w-3 h-3" />{t('aIMenuDetection.c74a66') || (t('aIMenuDetection.c74a66') || '必選')}</label>
+                                  <label className="flex items-center text-[10px] text-gray-500 gap-1">{t('aIMenuDetection.fd8498') || (t('aIMenuDetection.fd8498') || '至多選')}<input type="number" min={1} max={99} value={opt.maxSelect || 1} onChange={e => updateOption(cIndex, iIndex, oIdx, 'maxSelect', Number(e.target.value))} className="w-10 border-gray-300 rounded px-1 py-0.5 text-center" />{t('aIMenuDetection.14d414') || (t('aIMenuDetection.14d414') || '項')}</label>
                                 </div>
                                 <div className="space-y-1">
                                   {opt.values.map((v, vIdx) => (
                                     <div key={vIdx} className="flex items-center gap-1">
-                                      <input type="text" value={v.name} onChange={e => updateOptionValue(cIndex, iIndex, oIdx, vIdx, 'name', e.target.value)} className="flex-1 text-xs border-gray-300 rounded px-1.5 py-1" placeholder="選項值" />
+                                      <input type="text" value={v.name} onChange={e => updateOptionValue(cIndex, iIndex, oIdx, vIdx, 'name', e.target.value)} className="flex-1 text-xs border-gray-300 rounded px-1.5 py-1" placeholder={t('aIMenuDetection.695a95') || '選項值'} />
                                       <span className="text-[10px] text-gray-400">+$</span>
                                       <input type="number" value={v.priceModifier} onChange={e => updateOptionValue(cIndex, iIndex, oIdx, vIdx, 'priceModifier', Number(e.target.value))} className="w-14 text-xs border-gray-300 rounded px-1.5 py-1" placeholder="0" />
                                       <button onClick={() => removeOptionValue(cIndex, iIndex, oIdx, vIdx)} className="text-gray-400 hover:text-red-500 px-1 flex items-center justify-center"><X className="w-4 h-4" /></button>
@@ -341,13 +339,11 @@ export default function AIMenuDetection() {
                                   ))}
                                 </div>
                                 <button onClick={() => addOptionValue(cIndex, iIndex, oIdx)} className="text-[10px] text-indigo-600 hover:text-indigo-800 mt-2 flex items-center gap-0.5">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>新增選項值
-                                </button>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>{t('aIMenuDetection.8e6e61') || (t('aIMenuDetection.8e6e61') || '新增選項值')}</button>
                               </div>
                             ))}
                             <button onClick={() => addOption(cIndex, iIndex)} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1 py-1">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>新增選項
-                            </button>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>{t('aIMenuDetection.7d12b8') || (t('aIMenuDetection.7d12b8') || '新增選項')}</button>
                           </div>
                         </td>
                         <td className="p-3 align-top">
@@ -380,8 +376,7 @@ export default function AIMenuDetection() {
               className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50"
               disabled={importing}
             >
-              重新上傳
-            </button>
+              {t('aIMenuDetection.d725a5') || (t('aIMenuDetection.d725a5') || '重新上傳')}</button>
             <button
               onClick={handleImport}
               disabled={importing}
@@ -393,7 +388,7 @@ export default function AIMenuDetection() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               )}
-              {importing ? '正在匯入並產生多國語系...' : '確認匯入'}
+              {importing ? (t('aIMenuDetection.526742') || '正在匯入並產生多國語系...') : (t('aIMenuDetection.9804dd') || '確認匯入')}
             </button>
           </div>
         </div>

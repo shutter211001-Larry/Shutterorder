@@ -30,6 +30,7 @@ const SidebarItem = ({
   path: string;
   onClick?: () => void;
 }) => {
+    const { t } = useTranslation();
   const location = useLocation();
   const active = location.pathname === path;
   return (
@@ -152,13 +153,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           />
           <SidebarItem
             icon={Truck}
-            label="分店叫貨單"
+            label={t('layout.be6948') || '分店叫貨單'}
             path="/requisitions"
             onClick={closeMobileMenu}
           />
           <SidebarItem
             icon={DollarSign}
-            label="帳務管理"
+            label={t('layout.20841b') || '帳務管理'}
             path="/expenses"
             onClick={closeMobileMenu}
           />
@@ -252,8 +253,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             path="/ingredients"
           />
           <SidebarItem icon={Archive} label={t("erp_189")} path="/inventory" />
-          <SidebarItem icon={Truck} label="分店叫貨單" path="/requisitions" />
-          <SidebarItem icon={DollarSign} label="帳務管理" path="/expenses" />
+          <SidebarItem icon={Truck} label={t('layout.be6948') || '分店叫貨單'} path="/requisitions" />
+          <SidebarItem icon={DollarSign} label={t('layout.20841b') || '帳務管理'} path="/expenses" />
           <SidebarItem icon={Utensils} label={t("erp_190")} path="/recipes" />
           <SidebarItem
             icon={Briefcase}

@@ -64,7 +64,7 @@ export class OrderService {
               create: {
                 menuItemId: item.menuItemId,
                 locationId: orderData.locationId,
-                stockQty: -item.quantity,
+                stockQty: menuItem.stockQty - item.quantity,
                 trackStock: true,
                 isActive: true
               },

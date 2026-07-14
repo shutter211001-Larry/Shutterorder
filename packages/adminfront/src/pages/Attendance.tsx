@@ -461,7 +461,7 @@ export default function Attendance() {
                     <td className="px-4 py-2">{record.location?.name || record.user?.location?.name || '-'}</td>
                     <td className="px-4 py-2">
                       {!record.checkOut ? (
-                        <span className="text-yellow-600 font-medium">{t('attendanceRecords.missingCheckout') || '未下班'}</span>
+                        <span className="text-yellow-600 font-medium">{t('attendanceRecords.missingCheckout') || (t('attendance.91185d') || '未下班')}</span>
                       ) : record.isOutOfRange ? (
                         <span className="text-red-500 font-medium">{t('attendance.distanceAbnormal')}</span>
                       ) : (

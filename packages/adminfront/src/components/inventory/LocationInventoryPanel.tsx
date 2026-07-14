@@ -113,7 +113,7 @@ export default function LocationInventoryPanel({ locationId }: Props) {
   };
 
   const receiveRequisition = async (reqId: string) => {
-    if (!window.confirm('確認收貨？系統將會把已出貨的數量加入到門市庫存中。')) return;
+    if (!window.confirm((t('locationInventoryPanel.d45413') || '確認收貨？系統將會把已出貨的數量加入到門市庫存中。'))) return;
     
     try {
       await api.post(`/../shutter-erp/api/requisition/${reqId}/receive`, {});
@@ -136,11 +136,11 @@ export default function LocationInventoryPanel({ locationId }: Props) {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'PENDING': return '待審核 (Pending)';
-      case 'APPROVED': return '已核准 (Approved)';
-      case 'SHIPPED': return '已出貨 (Shipped)';
-      case 'RECEIVED': return '已收貨 (Received)';
-      case 'REJECTED': return '已拒絕 (Rejected)';
+      case 'PENDING': return (t('locationInventoryPanel.55352b') || '待審核 (Pending)');
+      case 'APPROVED': return (t('locationInventoryPanel.7348b2') || '已核准 (Approved)');
+      case 'SHIPPED': return (t('locationInventoryPanel.90d166') || '已出貨 (Shipped)');
+      case 'RECEIVED': return (t('locationInventoryPanel.467df5') || '已收貨 (Received)');
+      case 'REJECTED': return (t('locationInventoryPanel.f92d9e') || '已拒絕 (Rejected)');
       default: return status;
     }
   };
@@ -157,8 +157,7 @@ export default function LocationInventoryPanel({ locationId }: Props) {
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           }`}
         >
-          庫存與盤點 (Stock & Audit)
-        </button>
+          {t('locationInventoryPanel.e2d2bd') || (t('locationInventoryPanel.e2d2bd') || '庫存與盤點 (Stock & Audit)')}</button>
         <button
           onClick={() => setActiveTab('requisitions')}
           className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${
@@ -167,8 +166,7 @@ export default function LocationInventoryPanel({ locationId }: Props) {
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           }`}
         >
-          叫貨記錄 (Requisitions)
-        </button>
+          {t('locationInventoryPanel.7ee66b') || (t('locationInventoryPanel.7ee66b') || '叫貨記錄 (Requisitions)')}</button>
       </div>
 
       {loading ? (
@@ -182,8 +180,8 @@ export default function LocationInventoryPanel({ locationId }: Props) {
         <div className="space-y-4 animate-in fade-in duration-300">
           <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-100">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900">門市原物料庫存</h4>
-              <p className="text-xs text-gray-500 mt-0.5">如需進貨，請建立叫貨單向中央廚房申請。</p>
+              <h4 className="text-sm font-semibold text-gray-900">{t('locationInventoryPanel.864ef5') || (t('locationInventoryPanel.864ef5') || '門市原物料庫存')}</h4>
+              <p className="text-xs text-gray-500 mt-0.5">{t('locationInventoryPanel.06a2f0') || (t('locationInventoryPanel.06a2f0') || '如需進貨，請建立叫貨單向中央廚房申請。')}</p>
             </div>
             <div className="flex gap-2">
               {editingStock ? (
@@ -192,14 +190,13 @@ export default function LocationInventoryPanel({ locationId }: Props) {
                     onClick={() => setEditingStock(false)}
                     className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium bg-white hover:bg-gray-50"
                   >
-                    取消
-                  </button>
+                    {t('locationInventoryPanel.625fb2') || (t('locationInventoryPanel.625fb2') || '取消')}</button>
                   <button
                     onClick={saveStockUpdates}
                     disabled={savingStock}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
                   >
-                    {savingStock ? '儲存中...' : '儲存盤點結果'}
+                    {savingStock ? (t('locationInventoryPanel.4dafaa') || '儲存中...') : (t('locationInventoryPanel.31a645') || '儲存盤點結果')}
                   </button>
                 </>
               ) : (
@@ -208,14 +205,12 @@ export default function LocationInventoryPanel({ locationId }: Props) {
                     onClick={() => setEditingStock(true)}
                     className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium bg-white hover:bg-gray-50"
                   >
-                    手動盤點/修改安全水位
-                  </button>
+                    {t('locationInventoryPanel.948765') || (t('locationInventoryPanel.948765') || '手動盤點/修改安全水位')}</button>
                   <button
                     onClick={() => setShowModal(true)}
                     className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 shadow-sm"
                   >
-                    + 新增叫貨
-                  </button>
+                    {t('locationInventoryPanel.37ba6b') || (t('locationInventoryPanel.37ba6b') || '+ 新增叫貨')}</button>
                 </>
               )}
             </div>
@@ -226,25 +221,20 @@ export default function LocationInventoryPanel({ locationId }: Props) {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    品項 (Ingredient)
-                  </th>
+                    {t('locationInventoryPanel.8aeff9') || (t('locationInventoryPanel.8aeff9') || '品項 (Ingredient)')}</th>
                   <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    目前庫存 (Current)
-                  </th>
+                    {t('locationInventoryPanel.ba550d') || (t('locationInventoryPanel.ba550d') || '目前庫存 (Current)')}</th>
                   <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    安全水位 (Safety)
-                  </th>
+                    {t('locationInventoryPanel.5079eb') || (t('locationInventoryPanel.5079eb') || '安全水位 (Safety)')}</th>
                   <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    狀態
-                  </th>
+                    {t('locationInventoryPanel.bd91f6') || (t('locationInventoryPanel.bd91f6') || '狀態')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {inventory.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
-                      目前沒有任何庫存記錄。請建立叫貨單或手動進行盤點。
-                    </td>
+                      {t('locationInventoryPanel.516a16') || (t('locationInventoryPanel.516a16') || '目前沒有任何庫存記錄。請建立叫貨單或手動進行盤點。')}</td>
                   </tr>
                 ) : (
                   inventory.map((inv) => {
@@ -297,12 +287,10 @@ export default function LocationInventoryPanel({ locationId }: Props) {
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           {isLow ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              庫存不足
-                            </span>
+                              {t('locationInventoryPanel.824ea5') || (t('locationInventoryPanel.824ea5') || '庫存不足')}</span>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              庫存充足
-                            </span>
+                              {t('locationInventoryPanel.db22d9') || (t('locationInventoryPanel.db22d9') || '庫存充足')}</span>
                           )}
                         </td>
                       </tr>
@@ -317,21 +305,20 @@ export default function LocationInventoryPanel({ locationId }: Props) {
         <div className="space-y-4 animate-in fade-in duration-300">
           <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-100">
             <div>
-              <h4 className="text-sm font-semibold text-gray-900">叫貨記錄</h4>
-              <p className="text-xs text-gray-500 mt-0.5">查看向中央廚房發出的所有叫貨申請狀態。</p>
+              <h4 className="text-sm font-semibold text-gray-900">{t('locationInventoryPanel.67ef45') || (t('locationInventoryPanel.67ef45') || '叫貨記錄')}</h4>
+              <p className="text-xs text-gray-500 mt-0.5">{t('locationInventoryPanel.d96c3c') || (t('locationInventoryPanel.d96c3c') || '查看向中央廚房發出的所有叫貨申請狀態。')}</p>
             </div>
             <button
               onClick={() => setShowModal(true)}
               className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 shadow-sm"
             >
-              + 新增叫貨
-            </button>
+              {t('locationInventoryPanel.37ba6b') || (t('locationInventoryPanel.37ba6b') || '+ 新增叫貨')}</button>
           </div>
 
           <div className="space-y-4">
             {requisitions.length === 0 ? (
               <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
-                <p className="text-sm text-gray-500">目前沒有任何叫貨記錄。</p>
+                <p className="text-sm text-gray-500">{t('locationInventoryPanel.8216bd') || (t('locationInventoryPanel.8216bd') || '目前沒有任何叫貨記錄。')}</p>
               </div>
             ) : (
               requisitions.map((req) => (
@@ -339,13 +326,13 @@ export default function LocationInventoryPanel({ locationId }: Props) {
                   <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                     <div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900">單號: {req.id.slice(-8).toUpperCase()}</span>
+                        <span className="text-sm font-medium text-gray-900">{t('locationInventoryPanel.d50c40') || (t('locationInventoryPanel.d50c40') || '單號:')}{req.id.slice(-8).toUpperCase()}</span>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(req.status)}`}>
                           {getStatusLabel(req.status)}
                         </span>
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        建立時間: {new Date(req.createdAt).toLocaleString()}
+                        {t('locationInventoryPanel.a689b2') || (t('locationInventoryPanel.a689b2') || '建立時間:')}{new Date(req.createdAt).toLocaleString()}
                         {req.expectedDate && ` | 期望到貨: ${new Date(req.expectedDate).toLocaleDateString()}`}
                       </div>
                     </div>
@@ -355,13 +342,12 @@ export default function LocationInventoryPanel({ locationId }: Props) {
                           onClick={() => receiveRequisition(req.id)}
                           className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
                         >
-                          確認收貨 (將品項加入庫存)
-                        </button>
+                          {t('locationInventoryPanel.ceb569') || (t('locationInventoryPanel.ceb569') || '確認收貨 (將品項加入庫存)')}</button>
                       )}
                     </div>
                   </div>
                   <div className="px-6 py-4">
-                    <h5 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">叫貨明細</h5>
+                    <h5 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">{t('locationInventoryPanel.fb5518') || (t('locationInventoryPanel.fb5518') || '叫貨明細')}</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                       {req.items.map(item => (
                         <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
@@ -375,7 +361,7 @@ export default function LocationInventoryPanel({ locationId }: Props) {
                             </div>
                             {req.status === 'SHIPPED' || req.status === 'RECEIVED' ? (
                               <div className="text-xs text-indigo-600 font-medium mt-0.5">
-                                實際出貨: {item.fulfilledQty}
+                                {t('locationInventoryPanel.096ea7') || (t('locationInventoryPanel.096ea7') || '實際出貨:')}{item.fulfilledQty}
                               </div>
                             ) : null}
                           </div>

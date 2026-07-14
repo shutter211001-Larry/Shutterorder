@@ -404,12 +404,12 @@ export default function ImageCropperModal({ src, systemRatio, initialCropData, o
               {systemRatio && (
                 <div className="mt-2 inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-semibold border border-blue-100">
                   <span className="text-[10px]">📍</span> 
-                  目前系統使用比例: {
-                    systemRatio === 'aspect-square' ? '1:1 (正方形)' :
-                    systemRatio === 'aspect-[4/3]' ? '4:3 (標準)' :
-                    systemRatio === 'aspect-video' ? '16:9 (寬螢幕)' :
-                    systemRatio === 'aspect-auto' ? '自動 (原始比例)' :
-                    '固定高度 (4:3)'
+                  {t('imageCropperModal.3333f2') || (t('imageCropperModal.3333f2') || '目前系統使用比例:')}{
+                    systemRatio === 'aspect-square' ? (t('imageCropperModal.ff4ecf') || '1:1 (正方形)') :
+                    systemRatio === 'aspect-[4/3]' ? (t('imageCropperModal.acb17e') || '4:3 (標準)') :
+                    systemRatio === 'aspect-video' ? (t('imageCropperModal.070fc7') || '16:9 (寬螢幕)') :
+                    systemRatio === 'aspect-auto' ? (t('imageCropperModal.c5c9a5') || '自動 (原始比例)') :
+                    (t('imageCropperModal.a3586e') || '固定高度 (4:3)')
                   }
                 </div>
               )}

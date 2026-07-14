@@ -10,20 +10,25 @@ import {
 import { api } from "../lib/api";
 import { PageHeader } from "../components/layout/PageHeader";
 import { PageContent } from "../components/layout/PageContent";
+import { useTranslation } from "react-i18next";
 
 const formatDate = (date: Date) => {
+    const { t } = useTranslation();
   return date.toISOString().split('T')[0];
 };
 
 const getStartOfMonth = (date: Date) => {
+    const { t } = useTranslation();
   return new Date(date.getFullYear(), date.getMonth(), 1);
 };
 
 const getEndOfMonth = (date: Date) => {
+    const { t } = useTranslation();
   return new Date(date.getFullYear(), date.getMonth() + 1, 0);
 };
 
 const subDays = (date: Date, days: number) => {
+    const { t } = useTranslation();
   const result = new Date(date);
   result.setDate(result.getDate() - days);
   return result;
@@ -43,6 +48,7 @@ interface FinanceData {
 }
 
 export default function Finance() {
+    const { t } = useTranslation();
   const [data, setData] = useState<FinanceData | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -108,8 +114,8 @@ export default function Finance() {
         />
       </div>
       <div className="flex gap-1 border-l border-gray-300 pl-2">
-        <button onClick={() => handlePreset('thisMonth')} className="px-3 py-1.5 text-xs font-bold bg-white border border-gray-200 text-primary-600 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">本月</button>
-        <button onClick={() => handlePreset('lastMonth')} className="px-3 py-1.5 text-xs font-bold bg-white border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">上月</button>
+        <button onClick={() => handlePreset('thisMonth')} className="px-3 py-1.5 text-xs font-bold bg-white border border-gray-200 text-primary-600 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">{t('finance.0ec94a') || (t('finance.0ec94a') || '本月')}</button>
+        <button onClick={() => handlePreset('lastMonth')} className="px-3 py-1.5 text-xs font-bold bg-white border border-gray-200 text-gray-600 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">{t('finance.c5d358') || (t('finance.c5d358') || '上月')}</button>
       </div>
     </div>
   );
@@ -117,8 +123,8 @@ export default function Finance() {
   return (
     <div className="pb-12">
       <PageHeader 
-        title="損益表 (P&L)" 
-        subtitle="檢視營業收入、成本與淨利"
+        title={t('finance.e3c0ac') || '損益表 (P&L)'} 
+        subtitle={t('finance.deb6a5') || '檢視營業收入、成本與淨利'}
         action={ActionButtons}
       />
 
@@ -131,28 +137,28 @@ export default function Finance() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard 
-              title="總營收" 
+              title={t('finance.f21974') || '總營收'} 
               amount={data.revenue} 
               icon={TrendingUp} 
               color="text-emerald-600"
               bg="bg-emerald-100"
             />
             <StatCard 
-              title="進貨與雜支" 
+              title={t('finance.932b63') || '進貨與雜支'} 
               amount={data.expenses} 
               icon={ShoppingCart} 
               color="text-orange-600"
               bg="bg-orange-100"
             />
             <StatCard 
-              title="薪資費用" 
+              title={t('finance.2f760c') || '薪資費用'} 
               amount={data.payroll?.total || 0} 
               icon={Users} 
               color="text-blue-600"
               bg="bg-blue-100"
             />
             <StatCard 
-              title="淨利潤" 
+              title={t('finance.055e38') || '淨利潤'} 
               amount={data.netProfit} 
               icon={DollarSign} 
               color={data.netProfit >= 0 ? "text-primary-600" : "text-red-600"}
@@ -162,26 +168,26 @@ export default function Finance() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <PageContent>
-              <h3 className="text-lg font-bold mb-4">財務結構</h3>
+              <h3 className="text-lg font-bold mb-4">{t('finance.96dc7b') || (t('finance.96dc7b') || '財務結構')}</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">總營收</span>
+                  <span className="text-gray-600 font-medium">{t('finance.f21974') || (t('finance.f21974') || '總營收')}</span>
                   <span className="font-bold">${data.revenue.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100 text-orange-600">
-                  <span className="font-medium">- 進貨與其他支出</span>
+                  <span className="font-medium">{t('finance.35f456') || (t('finance.35f456') || '- 進貨與其他支出')}</span>
                   <span className="font-bold">-${data.expenses.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100 font-bold bg-gray-50 px-3 rounded-lg">
-                  <span>毛利 (Gross Profit)</span>
+                  <span>{t('finance.01e06f') || (t('finance.01e06f') || '毛利 (Gross Profit)')}</span>
                   <span>${data.grossProfit.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100 text-blue-600">
-                  <span className="font-medium">- 總薪資費用</span>
+                  <span className="font-medium">{t('finance.880c97') || (t('finance.880c97') || '- 總薪資費用')}</span>
                   <span className="font-bold">-${data.payroll.total.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-4 font-black text-lg bg-primary-50 px-3 rounded-lg">
-                  <span className={data.netProfit >= 0 ? "text-primary-600" : "text-red-600"}>淨利 (Net Profit)</span>
+                  <span className={data.netProfit >= 0 ? "text-primary-600" : "text-red-600"}>{t('finance.4ed547') || (t('finance.4ed547') || '淨利 (Net Profit)')}</span>
                   <span className={data.netProfit >= 0 ? "text-primary-600" : "text-red-600"}>
                     ${data.netProfit.toLocaleString()}
                   </span>
@@ -190,14 +196,14 @@ export default function Finance() {
             </PageContent>
 
             <PageContent>
-              <h3 className="text-lg font-bold mb-4">薪資費用明細</h3>
+              <h3 className="text-lg font-bold mb-4">{t('finance.6cbe31') || (t('finance.6cbe31') || '薪資費用明細')}</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
                       <Users className="w-4 h-4 text-blue-500" />
                     </div>
-                    <span className="text-gray-600 font-medium">月薪制員工</span>
+                    <span className="text-gray-600 font-medium">{t('finance.368662') || (t('finance.368662') || '月薪制員工')}</span>
                   </div>
                   <span className="font-bold">${data.payroll.monthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
@@ -206,7 +212,7 @@ export default function Finance() {
                     <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
                       <Users className="w-4 h-4 text-indigo-500" />
                     </div>
-                    <span className="text-gray-600 font-medium">時薪制員工</span>
+                    <span className="text-gray-600 font-medium">{t('finance.f803e6') || (t('finance.f803e6') || '時薪制員工')}</span>
                   </div>
                   <span className="font-bold">${data.payroll.hourly.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
@@ -221,6 +227,7 @@ export default function Finance() {
 }
 
 function StatCard({ title, amount, icon: Icon, color, bg }: { title: string, amount: number, icon: any, color: string, bg: string }) {
+    const { t } = useTranslation();
   return (
     <PageContent noPadding>
       <div className="p-5 flex items-center gap-4">

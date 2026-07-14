@@ -78,7 +78,7 @@ export function GachaAnimationOverlay({ results, onComplete }: Props) {
         {phase === 'intro' && (
           <div className="animate-pulse flex flex-col items-center space-y-6">
             <h2 className="text-3xl font-bold text-white mb-2 tracking-wide drop-shadow-lg">
-              {t('gacha.opening') || '準備開箱...'}
+              {t('gacha.opening') || (t('gachaAnimationOverlay.ca3b2e') || '準備開箱...')}
             </h2>
             <div className="relative w-48 h-48 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20 bg-white/10 backdrop-blur-sm">
               {currentResult.image ? (
@@ -100,7 +100,7 @@ export function GachaAnimationOverlay({ results, onComplete }: Props) {
         {phase === 'reveal' && (
           <div className="animate-bounce flex flex-col items-center space-y-6">
             <h2 className="text-4xl font-black text-white mb-2 tracking-wider drop-shadow-2xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-100 to-yellow-300">
-              {t('gacha.congratulations') || '恭喜抽中！'}
+              {t('gacha.congratulations') || (t('gachaAnimationOverlay.adfd47') || '恭喜抽中！')}
             </h2>
             
             <div className="flex flex-col gap-4 w-full">

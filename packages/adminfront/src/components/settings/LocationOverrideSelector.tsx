@@ -31,11 +31,9 @@ export function LocationOverrideSelector({ value, onChange }: LocationOverrideSe
       <div>
         <h3 className="text-blue-900 font-bold flex items-center gap-2">
           <MapPin className="w-5 h-5 text-blue-600" />
-          分店獨立設定覆寫 (Location Override)
-        </h3>
+          {t('locationOverrideSelector.13ea39') || (t('locationOverrideSelector.13ea39') || '分店獨立設定覆寫 (Location Override)')}</h3>
         <p className="text-sm text-blue-700 mt-1">
-          您可以選擇「全局預設」來套用至所有分店，或是選擇特定分店以覆寫預設值。
-        </p>
+          {t('locationOverrideSelector.81743d') || (t('locationOverrideSelector.81743d') || '您可以選擇「全局預設」來套用至所有分店，或是選擇特定分店以覆寫預設值。')}</p>
       </div>
 
       <div className="relative min-w-[200px]">
@@ -44,7 +42,7 @@ export function LocationOverrideSelector({ value, onChange }: LocationOverrideSe
           onChange={(e) => onChange(e.target.value)}
           className="w-full appearance-none bg-white border border-blue-200 text-blue-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-4 py-2.5 shadow-sm font-medium"
         >
-          <option value="">🌐 全局預設 (Global Default)</option>
+          <option value="">{t('locationOverrideSelector.3306fc') || (t('locationOverrideSelector.3306fc') || '🌐 全局預設 (Global Default)')}</option>
           {locations.map(loc => (
             <option key={loc.id} value={loc.id}>
               🏪 {loc.name}

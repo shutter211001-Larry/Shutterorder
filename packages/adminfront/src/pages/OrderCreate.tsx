@@ -285,7 +285,7 @@ export default function OrderCreate() {
 
   const groupedItems = menuItems.reduce((acc, item) => {
     const catId = item.category?.id || 'uncategorized';
-    const catName = item.category?.name || t('orderCreate.uncategorized') || '未分類';
+    const catName = item.category?.name || t('orderCreate.uncategorized') || (t('orderCreate.15bfc5') || '未分類');
     if (!acc[catId]) {
       acc[catId] = { name: catName, items: [] };
     }
@@ -406,7 +406,7 @@ export default function OrderCreate() {
                     frozenDeliveryMethod === 'HOME_DELIVERY' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  {t('orderCreate.homeDelivery') || '宅配'}
+                  {t('orderCreate.homeDelivery') || (t('orderCreate.a4b4fb') || '宅配')}
                 </button>
                 <button
                   type="button"
@@ -415,23 +415,23 @@ export default function OrderCreate() {
                     frozenDeliveryMethod === 'STORE_TO_STORE' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  {t('orderCreate.storeToStore') || '店到店'}
+                  {t('orderCreate.storeToStore') || (t('orderCreate.380e90') || '店到店')}
                 </button>
               </div>
             )}
 
             {orderType === 'FROZEN_DELIVERY' && frozenDeliveryMethod === 'STORE_TO_STORE' ? (
               <div className="mt-6 space-y-4 pt-6 border-t border-gray-100">
-                <h3 className="font-medium text-gray-900">{t('orderCreate.storeDetails') || '取件門市資訊'}</h3>
+                <h3 className="font-medium text-gray-900">{t('orderCreate.storeDetails') || (t('orderCreate.c3ae1f') || '取件門市資訊')}</h3>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.storeNameId') || '門市名稱或店號'} *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.storeNameId') || (t('orderCreate.0a6a1d') || '門市名稱或店號')} *</label>
                   <input
                     type="text"
                     required
                     value={address.line1}
                     onChange={e => setAddress({ ...address, line1: e.target.value })}
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
-                    placeholder="例如：7-11 信義店 (店號: 123456)"
+                    placeholder={t('orderCreate.ec797c') || '例如：7-11 信義店 (店號: 123456)'}
                   />
                 </div>
               </div>
@@ -475,26 +475,26 @@ export default function OrderCreate() {
 
             {orderType === 'FROZEN_DELIVERY' && (
               <div className="mt-6 space-y-4 pt-6 border-t border-gray-100">
-                <h3 className="font-medium text-gray-900">物流資訊</h3>
+                <h3 className="font-medium text-gray-900">{t('orderCreate.fa810e') || (t('orderCreate.fa810e') || '物流資訊')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.logisticsProvider') || '物流服務商'}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.logisticsProvider') || (t('orderCreate.419b66') || '物流服務商')}</label>
                     <input
                       type="text"
                       value={logisticsProvider}
                       onChange={e => setLogisticsProvider(e.target.value)}
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
-                      placeholder="例如：黑貓宅急便"
+                      placeholder={t('orderCreate.014638') || '例如：黑貓宅急便'}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.trackingNumber') || '物流單號'}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.trackingNumber') || (t('orderCreate.0f13e8') || '物流單號')}</label>
                     <input
                       type="text"
                       value={trackingNumber}
                       onChange={e => setTrackingNumber(e.target.value)}
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
-                      placeholder="輸入單號"
+                      placeholder={t('orderCreate.1bf20f') || '輸入單號'}
                     />
                   </div>
                 </div>
@@ -576,37 +576,37 @@ export default function OrderCreate() {
 
               <div className="border-t border-gray-100 pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">{t('orderCreate.subtotal') || '小計'}</span>
+                  <span className="text-gray-500">{t('orderCreate.subtotal') || (t('orderCreate.879915') || '小計')}</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 {tax > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">{t('orderCreate.tax') || '稅金'}</span>
+                    <span className="text-gray-500">{t('orderCreate.tax') || (t('orderCreate.f418d3') || '稅金')}</span>
                     <span>${tax.toFixed(2)}</span>
                   </div>
                 )}
                 {(orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">{t('orderCreate.deliveryFee') || '運費'}</span>
+                    <span className="text-gray-500">{t('orderCreate.deliveryFee') || (t('orderCreate.d6bea8') || '運費')}</span>
                     <span>${deliveryFee.toFixed(2)}</span>
                   </div>
                 )}
                 {autoCouponDiscount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
-                    <span>{t('orderCreate.discount') || '優惠折扣'} {summary?.appliedPromo?.name && `(${summary.appliedPromo.name})`}</span>
+                    <span>{t('orderCreate.discount') || (t('orderCreate.53db5d') || '優惠折扣')} {summary?.appliedPromo?.name && `(${summary.appliedPromo.name})`}</span>
                     <span>-${autoCouponDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 
                 <div className="space-y-3 pt-3 border-t border-gray-50">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.couponCode') || '優惠碼'}</label>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.couponCode') || (t('orderCreate.03a46b') || '優惠碼')}</label>
                     <input
                       type="text"
                       value={couponCode}
                       onChange={e => setCouponCode(e.target.value)}
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 outline-none shadow-sm transition-all duration-200"
-                      placeholder="輸入優惠碼"
+                      placeholder={t('orderCreate.bada06') || '輸入優惠碼'}
                     />
                     {summary?.manualCouponError && (
                       <p className="text-xs text-red-500 mt-1">{summary.manualCouponError}</p>
@@ -615,7 +615,7 @@ export default function OrderCreate() {
                   {canUseManualOverrides && (
                     <>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualDiscount') || '手動折扣金額'}</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualDiscount') || (t('orderCreate.7c88c4') || '手動折扣金額')}</label>
                         <div className="relative">
                           <span className="absolute left-2 top-1.5 text-gray-500 text-sm">$</span>
                           <input
@@ -630,7 +630,7 @@ export default function OrderCreate() {
                       </div>
                       {(orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') && (
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualDeliveryFee') || '手動設定運費 (留空套用系統運費)'}</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualDeliveryFee') || (t('orderCreate.4efe3b') || '手動設定運費 (留空套用系統運費)')}</label>
                           <div className="relative">
                             <span className="absolute left-2 top-1.5 text-gray-500 text-sm">$</span>
                             <input
@@ -639,13 +639,13 @@ export default function OrderCreate() {
                               value={manualDeliveryFee}
                               onChange={e => setManualDeliveryFee(e.target.value === '' ? '' : parseFloat(e.target.value))}
                               className="w-full pl-7 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 outline-none shadow-sm transition-all duration-200"
-                              placeholder="留空自動計算"
+                              placeholder={t('orderCreate.3cdca2') || '留空自動計算'}
                             />
                           </div>
                         </div>
                       )}
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualTax') || '手動設定稅金 (留空套用系統稅金)'}</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t('orderCreate.manualTax') || (t('orderCreate.44e160') || '手動設定稅金 (留空套用系統稅金)')}</label>
                         <div className="relative">
                           <span className="absolute left-2 top-1.5 text-gray-500 text-sm">$</span>
                           <input
@@ -654,7 +654,7 @@ export default function OrderCreate() {
                             value={manualTax}
                             onChange={e => setManualTax(e.target.value === '' ? '' : parseFloat(e.target.value))}
                             className="w-full pl-7 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 outline-none shadow-sm transition-all duration-200"
-                            placeholder="留空自動計算"
+                            placeholder={t('orderCreate.3cdca2') || '留空自動計算'}
                           />
                         </div>
                       </div>
@@ -666,13 +666,13 @@ export default function OrderCreate() {
                   <div className="flex justify-between items-center text-sm font-medium pt-3 mt-3 border-t border-gray-100">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-orange-500" />
-                      <span className="text-gray-700">{t('orderCreate.estimatedWaitTime') || '預估製作時間'}</span>
+                      <span className="text-gray-700">{t('orderCreate.estimatedWaitTime') || (t('orderCreate.38663c') || '預估製作時間')}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-orange-600 font-bold">{summary.estimatedWaitMins} {t('orderCreate.minutes') || '分鐘'}</span>
+                      <span className="text-orange-600 font-bold">{summary.estimatedWaitMins} {t('orderCreate.minutes') || (t('orderCreate.ac055c') || '分鐘')}</span>
                       {summary.earliestSlot && (
                         <div className="text-xs text-gray-500 font-normal mt-0.5">
-                          {t('orderCreate.expectedReadyTime') || '預計取餐'}: {new Date(summary.earliestSlot).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          {t('orderCreate.expectedReadyTime') || (t('orderCreate.1f0aa1') || '預計取餐')}: {new Date(summary.earliestSlot).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                         </div>
                       )}
                     </div>
@@ -687,9 +687,9 @@ export default function OrderCreate() {
 
               {summary?.estimatedWaitMins != null && summary.estimatedWaitMins > 0 && (
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-blue-800 text-sm flex items-center justify-between">
-                  <span className="font-medium">預計取餐/等候時間</span>
+                  <span className="font-medium">{t('orderCreate.89cffa') || (t('orderCreate.89cffa') || '預計取餐/等候時間')}</span>
                   <div className="text-right">
-                    <div className="font-bold">約 {summary.estimatedWaitMins} 分鐘</div>
+                    <div className="font-bold">{t('orderCreate.ebb4a1') || (t('orderCreate.ebb4a1') || '約')}{summary.estimatedWaitMins} {t('orderCreate.ac055c') || (t('orderCreate.ac055c') || '分鐘')}</div>
                     {summary.earliestSlot && (
                       <div className="text-xs opacity-75">
                         {new Date(summary.earliestSlot).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}
@@ -704,7 +704,7 @@ export default function OrderCreate() {
                 onClick={handleSubmit}
                 className="w-full mt-6 bg-primary-600 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors disabled:opacity-50 shadow-lg shadow-primary-200"
               >
-                {submitting || isCalculating ? (t('orderCreate.submitting') || '處理中...') : t('orderCreate.createOrder')}
+                {submitting || isCalculating ? (t('orderCreate.submitting') || (t('orderCreate.ca0536') || '處理中...')) : t('orderCreate.createOrder')}
               </button>
             </div>
           </div>
@@ -715,7 +715,7 @@ export default function OrderCreate() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-bold text-lg">{selectedItem.name} - {t('orderCreate.optionsTitle') || '餐點選項'}</h3>
+              <h3 className="font-bold text-lg">{selectedItem.name} - {t('orderCreate.optionsTitle') || (t('orderCreate.ae399d') || '餐點選項')}</h3>
               <button onClick={() => setSelectedItem(null)} className="text-gray-400 hover:text-gray-600">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -746,13 +746,13 @@ export default function OrderCreate() {
                 onClick={() => setSelectedItem(null)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                {t('orderCreate.cancel') || '取消'}
+                {t('orderCreate.cancel') || (t('orderCreate.625fb2') || '取消')}
               </button>
               <button
                 onClick={confirmAddToCart}
                 className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700"
               >
-                {t('orderCreate.addCart') || '加入購物車'}
+                {t('orderCreate.addCart') || (t('orderCreate.c81347') || '加入購物車')}
               </button>
             </div>
           </div>

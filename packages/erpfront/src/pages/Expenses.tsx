@@ -7,6 +7,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { confirm } from "../lib/confirm";
+import { useTranslation } from "react-i18next";
 
 interface Expense {
   id: string;
@@ -39,6 +40,7 @@ interface MetricsData {
 }
 
 export default function Expenses() {
+    const { t } = useTranslation();
   const [tab, setTab] = useState<'overview' | 'analytics'>('overview');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export default function Expenses() {
       const res = await api.get("/expenses");
       setExpenses(res.data);
     } catch (error) {
-      toast.error("無法載入帳務紀錄");
+      toast.error((t('expenses.639b80') || '無法載入帳務紀錄'));
     } finally {
       setLoading(false);
     }
@@ -87,23 +89,23 @@ export default function Expenses() {
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     try {
       await api.patch(`/expenses/${id}/status`, { status: newStatus });
-      toast.success(`狀態已更新為 ${newStatus === 'PAID' ? '已付款' : '未付款'}`);
+      toast.success(`狀態已更新為 ${newStatus === 'PAID' ? (t('expenses.22956d') || '已付款') : (t('expenses.8cbf8e') || '未付款')}`);
       fetchExpenses();
       fetchAnalytics();
     } catch (error) {
-      toast.error("更新失敗");
+      toast.error((t('expenses.34848e') || '更新失敗'));
     }
   };
 
   const handleDeleteExpense = async (id: string) => {
-    if (!await confirm("確定要刪除這筆帳款嗎？")) return;
+    if (!await confirm((t('expenses.5e0af5') || '確定要刪除這筆帳款嗎？'))) return;
     try {
       await api.delete(`/expenses/${id}`);
-      toast.success("已成功刪除帳款");
+      toast.success((t('expenses.57d765') || '已成功刪除帳款'));
       fetchExpenses();
       fetchAnalytics();
     } catch (error) {
-      toast.error("刪除失敗");
+      toast.error((t('expenses.333ca5') || '刪除失敗'));
     }
   };
 
@@ -128,9 +130,8 @@ export default function Expenses() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
             <DollarSign className="w-7 h-7 text-primary" />
-            帳務管理
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">追蹤庫存進貨應付帳款與支出</p>
+            {t('expenses.20841b') || (t('expenses.20841b') || '帳務管理')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('expenses.d0f983') || (t('expenses.d0f983') || '追蹤庫存進貨應付帳款與支出')}</p>
         </div>
         
         <div className="flex bg-gray-100 rounded-lg p-1 shrink-0" role="tablist">
@@ -141,8 +142,7 @@ export default function Expenses() {
             }`}
             role="tab"
           >
-            總覽
-          </button>
+            {t('expenses.dfe666') || (t('expenses.dfe666') || '總覽')}</button>
           <button
             onClick={() => setTab('analytics')}
             className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 ${
@@ -151,15 +151,14 @@ export default function Expenses() {
             role="tab"
           >
             <PieChartIcon className="w-4 h-4" />
-            統計分析
-          </button>
+            {t('expenses.49a5ed') || (t('expenses.49a5ed') || '統計分析')}</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">未付款 (應付帳款)</p>
+            <p className="text-sm font-medium text-gray-500 mb-1">{t('expenses.a706f8') || (t('expenses.a706f8') || '未付款 (應付帳款)')}</p>
             <h3 className="text-2xl font-bold text-red-600">${totalPending.toLocaleString()}</h3>
           </div>
           <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-500">
@@ -168,7 +167,7 @@ export default function Expenses() {
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">已付款總計</p>
+            <p className="text-sm font-medium text-gray-500 mb-1">{t('expenses.23cd06') || (t('expenses.23cd06') || '已付款總計')}</p>
             <h3 className="text-2xl font-bold text-green-600">${totalPaid.toLocaleString()}</h3>
           </div>
           <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500">
@@ -177,7 +176,7 @@ export default function Expenses() {
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">總支出</p>
+            <p className="text-sm font-medium text-gray-500 mb-1">{t('expenses.4330c0') || (t('expenses.4330c0') || '總支出')}</p>
             <h3 className="text-2xl font-bold text-gray-900">${totalExpenses.toLocaleString()}</h3>
           </div>
           <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-gray-500">
@@ -193,7 +192,7 @@ export default function Expenses() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="搜尋描述..."
+                placeholder={t('expenses.0979d0') || '搜尋描述...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all text-sm"
@@ -210,7 +209,7 @@ export default function Expenses() {
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  {f === 'ALL' ? '全部' : f === 'PENDING' ? '未付款' : '已付款'}
+                  {f === 'ALL' ? (t('expenses.a8b0c2') || '全部') : f === 'PENDING' ? (t('expenses.8cbf8e') || '未付款') : (t('expenses.22956d') || '已付款')}
                 </button>
               ))}
             </div>
@@ -220,11 +219,11 @@ export default function Expenses() {
             <table className="w-full text-left border-collapse text-sm">
               <thead>
                 <tr className="bg-gray-50/50">
-                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100">日期</th>
-                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100">描述</th>
-                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100 text-right">金額</th>
-                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100">狀態</th>
-                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100 text-right">操作</th>
+                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100">{t('expenses.4ff1e7') || (t('expenses.4ff1e7') || '日期')}</th>
+                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100">{t('expenses.3bdd08') || (t('expenses.3bdd08') || '描述')}</th>
+                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100 text-right">{t('expenses.635541') || (t('expenses.635541') || '金額')}</th>
+                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100">{t('expenses.bd91f6') || (t('expenses.bd91f6') || '狀態')}</th>
+                  <th className="py-4 px-6 font-semibold text-gray-600 border-b border-gray-100 text-right">{t('expenses.2b6bc0') || (t('expenses.2b6bc0') || '操作')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -239,8 +238,7 @@ export default function Expenses() {
                 ) : filteredExpenses.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-gray-400">
-                      沒有找到紀錄
-                    </td>
+                      {t('expenses.c883ca') || (t('expenses.c883ca') || '沒有找到紀錄')}</td>
                   </tr>
                 ) : (
                   filteredExpenses.map((expense) => (
@@ -260,7 +258,7 @@ export default function Expenses() {
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {expense.status === 'PAID' ? '已付款' : '未付款'}
+                          {expense.status === 'PAID' ? (t('expenses.22956d') || '已付款') : (t('expenses.8cbf8e') || '未付款')}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
@@ -270,20 +268,18 @@ export default function Expenses() {
                               onClick={() => handleUpdateStatus(expense.id, 'PAID')}
                               className="px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg text-xs font-bold transition-colors"
                             >
-                              核銷
-                            </button>
+                              {t('expenses.8bb174') || (t('expenses.8bb174') || '核銷')}</button>
                           ) : (
                             <button
                               onClick={() => handleUpdateStatus(expense.id, 'PENDING')}
                               className="px-3 py-1.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg text-xs font-bold transition-colors"
                             >
-                              撤銷
-                            </button>
+                              {t('expenses.12328c') || (t('expenses.12328c') || '撤銷')}</button>
                           )}
                           <button
                             onClick={() => handleDeleteExpense(expense.id)}
                             className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="刪除"
+                            title={t('expenses.0c06d4') || '刪除'}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -310,8 +306,7 @@ export default function Expenses() {
                     analyticsDays === d ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  {d}天
-                </button>
+                  {d}{t('expenses.249aba') || (t('expenses.249aba') || '天')}</button>
               ))}
             </div>
           </div>
@@ -322,13 +317,12 @@ export default function Expenses() {
             </div>
           ) : !analytics ? (
             <div className="bg-white p-8 rounded-2xl text-center text-gray-500 border border-gray-100 shadow-sm">
-              尚無統計資料
-            </div>
+              {t('expenses.230972') || (t('expenses.230972') || '尚無統計資料')}</div>
           ) : (
             <>
               {/* Daily Trend */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">每日支出趨勢</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('expenses.ac25f3') || (t('expenses.ac25f3') || '每日支出趨勢')}</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={analytics.dailyStats.map(d => ({ ...d, label: formatDate(d.date) }))}>
@@ -342,7 +336,7 @@ export default function Expenses() {
                       <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${v}`} />
                       <Tooltip 
-                        formatter={(value: number) => [`$${value.toLocaleString()}`, '支出']}
+                        formatter={(value: number) => [`$${value.toLocaleString()}`, (t('expenses.e67d00') || '支出')]}
                         contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }} 
                       />
                       <Area type="monotone" dataKey="amount" stroke="#ef4444" fill="url(#expenseGradient)" strokeWidth={2} />
@@ -354,13 +348,13 @@ export default function Expenses() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Status Distribution */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">款項狀態分佈</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('expenses.5f6eaf') || (t('expenses.5f6eaf') || '款項狀態分佈')}</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={analytics.statusDistribution.map(d => ({
-                            name: d.status === 'PAID' ? '已付款' : '未付款',
+                            name: d.status === 'PAID' ? (t('expenses.22956d') || '已付款') : (t('expenses.8cbf8e') || '未付款'),
                             value: d.total
                           }))}
                           cx="50%"
@@ -375,7 +369,7 @@ export default function Expenses() {
                           ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value: number) => [`$${value.toLocaleString()}`, '總額']}
+                          formatter={(value: number) => [`$${value.toLocaleString()}`, (t('expenses.d3ce1b') || '總額')]}
                           contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
                         />
                       </PieChart>
@@ -385,7 +379,7 @@ export default function Expenses() {
 
                 {/* Category Distribution */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">進貨分類支出</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('expenses.355a5b') || (t('expenses.355a5b') || '進貨分類支出')}</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={analytics.categoryDistribution} layout="vertical" margin={{ left: 20 }}>
@@ -395,7 +389,7 @@ export default function Expenses() {
                         <Tooltip
                           formatter={(value: number, name: string) => [
                             name === 'revenue' ? `$${value.toLocaleString()}` : value,
-                            name === 'revenue' ? '支出總額' : '進貨次數'
+                            name === 'revenue' ? (t('expenses.bcbd5c') || '支出總額') : (t('expenses.26d892') || '進貨次數')
                           ]}
                           contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
                         />

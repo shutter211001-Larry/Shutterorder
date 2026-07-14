@@ -203,7 +203,7 @@ export default function SettingsOrder() {
           
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={enableCapacityLimit} onChange={(e) => setEnableCapacityLimit(e.target.checked)} className="w-4 h-4 text-primary-600 rounded" />
-            <span className="text-sm font-medium text-gray-700">智慧產能排單 (Smart Capacity Scheduling)</span>
+            <span className="text-sm font-medium text-gray-700">{t('settingsOrder.f67185') || (t('settingsOrder.f67185') || '智慧產能排單 (Smart Capacity Scheduling)')}</span>
           </label>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-gray-50 rounded-lg">
@@ -255,15 +255,15 @@ export default function SettingsOrder() {
         {/* Logistics Channels */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
           <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">物流通道預留設定 (Logistics API Channels)</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('settingsOrder.881080') || (t('settingsOrder.881080') || '物流通道預留設定 (Logistics API Channels)')}</h2>
             <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded">Future API</span>
           </div>
-          <p className="text-sm text-gray-500 mb-6">這些開關將控制出貨選項。當您取得第三方物流 API 金鑰後，可以開啟對應通道，讓店員看見出貨選項。</p>
+          <p className="text-sm text-gray-500 mb-6">{t('settingsOrder.bc4363') || (t('settingsOrder.bc4363') || '這些開關將控制出貨選項。當您取得第三方物流 API 金鑰後，可以開啟對應通道，讓店員看見出貨選項。')}</p>
           <div className="space-y-4">
             <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
               <ToggleRow
-                title="統一速達 黑貓宅急便 (TCat)"
-                description="開啟此選項，出貨選單將顯示黑貓宅急便。"
+                title={t('settingsOrder.29cdfa') || '統一速達 黑貓宅急便 (TCat)'}
+                description={t('settingsOrder.61d613') || '開啟此選項，出貨選單將顯示黑貓宅急便。'}
                 checked={enableTCat}
                 onChange={setEnableTCat}
                 className="bg-transparent border-none p-0 mb-4"
@@ -271,11 +271,11 @@ export default function SettingsOrder() {
               {enableTCat && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Customer ID (客戶代號)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.9eaf2c') || (t('settingsOrder.9eaf2c') || 'Customer ID (客戶代號)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={tcatCustomerId} onChange={e => setTcatCustomerId(e.target.value)} placeholder="Enter Customer ID" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">API Key (客戶金鑰)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.586272') || (t('settingsOrder.586272') || 'API Key (客戶金鑰)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={tcatApiKey} onChange={e => setTcatApiKey(e.target.value)} placeholder="Enter API Key" />
                   </div>
                 </div>
@@ -284,8 +284,8 @@ export default function SettingsOrder() {
             
             <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
               <ToggleRow
-                title="台灣宅配通 (Pelican)"
-                description="開啟此選項，出貨選單將顯示台灣宅配通。"
+                title={t('settingsOrder.3d8689') || '台灣宅配通 (Pelican)'}
+                description={t('settingsOrder.948d16') || '開啟此選項，出貨選單將顯示台灣宅配通。'}
                 checked={enablePelican}
                 onChange={setEnablePelican}
                 className="bg-transparent border-none p-0 mb-4"
@@ -293,11 +293,11 @@ export default function SettingsOrder() {
               {enablePelican && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Merchant ID (特約商代號)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.1f7407') || (t('settingsOrder.1f7407') || 'Merchant ID (特約商代號)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={pelicanMerchantId} onChange={e => setPelicanMerchantId(e.target.value)} placeholder="Enter Merchant ID" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">API Key (介接金鑰)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.bac000') || (t('settingsOrder.bac000') || 'API Key (介接金鑰)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={pelicanApiKey} onChange={e => setPelicanApiKey(e.target.value)} placeholder="Enter API Key" />
                   </div>
                 </div>
@@ -306,8 +306,8 @@ export default function SettingsOrder() {
             
             <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
               <ToggleRow
-                title="綠界科技 ECPay 店到店"
-                description="開啟此選項，出貨選單將顯示綠界店到店交貨便。"
+                title={t('settingsOrder.db7bef') || '綠界科技 ECPay 店到店'}
+                description={t('settingsOrder.53c95c') || '開啟此選項，出貨選單將顯示綠界店到店交貨便。'}
                 checked={enableECPay}
                 onChange={setEnableECPay}
                 className="bg-transparent border-none p-0 mb-4"
@@ -315,15 +315,15 @@ export default function SettingsOrder() {
               {enableECPay && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Merchant ID (特店編號)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.332ebc') || (t('settingsOrder.332ebc') || 'Merchant ID (特店編號)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="text" value={ecpayMerchantId} onChange={e => setEcpayMerchantId(e.target.value)} placeholder="Enter Merchant ID" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Hash Key (介接 HashKey)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.d8b804') || (t('settingsOrder.d8b804') || 'Hash Key (介接 HashKey)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={ecpayHashKey} onChange={e => setEcpayHashKey(e.target.value)} placeholder="Enter Hash Key" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Hash IV (介接 HashIV)</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('settingsOrder.ea7016') || (t('settingsOrder.ea7016') || 'Hash IV (介接 HashIV)')}</label>
                     <input className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none placeholder:text-gray-400 shadow-sm" type="password" value={ecpayHashIv} onChange={e => setEcpayHashIv(e.target.value)} placeholder="Enter Hash IV" />
                   </div>
                 </div>
@@ -357,8 +357,8 @@ export default function SettingsOrder() {
           />
 
           <ToggleRow
-            title={t('settingsOrder.enableCapacityLimit') || '啟用智能產能控制 (防爆單)'}
-            description={t('settingsOrder.enableCapacityLimitDesc') || '根據餐點的製作時間與設定的取餐間隔，自動控管並關閉超出產能的時段。同時預測現場等候時間。'}
+            title={t('settingsOrder.enableCapacityLimit') || (t('settingsOrder.2d661a') || '啟用智能產能控制 (防爆單)')}
+            description={t('settingsOrder.enableCapacityLimitDesc') || (t('settingsOrder.706d4e') || '根據餐點的製作時間與設定的取餐間隔，自動控管並關閉超出產能的時段。同時預測現場等候時間。')}
             checked={enableCapacityLimit}
             onChange={setEnableCapacityLimit}
             className="bg-transparent border-none p-2"

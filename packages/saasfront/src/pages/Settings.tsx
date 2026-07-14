@@ -35,8 +35,8 @@ export default function Settings() {
             ),
           },
           {
-            title: '郵件與 Gmail API 設定',
-            description: '配置系統全域發信功能與 Gmail OAuth2 憑證',
+            title: (t('settings.54bdd9') || '郵件與 Gmail API 設定'),
+            description: (t('settings.141cd0') || '配置系統全域發信功能與 Gmail OAuth2 憑證'),
             link: '/settings/mail',
             roles: ['SUPER_ADMIN'],
             icon: (

@@ -123,8 +123,8 @@ export default function RosterManagement() {
             startTime: req.startTime,
             endTime: req.endTime,
             dayType: 'WORKDAY',
-            user: { name: '⚠️ 缺額 (Shortage)' },
-            jobRole: { name: req.jobRole?.name || '無指定' },
+            user: { name: (t('rosterManagement.5f1aff') || '⚠️ 缺額 (Shortage)') },
+            jobRole: { name: req.jobRole?.name || (t('rosterManagement.ced46b') || '無指定') },
             isShortage: true
           });
         }
@@ -144,7 +144,7 @@ export default function RosterManagement() {
 
   const handleAutoSchedule = async (mode: 'COST_OPTIMIZED' | 'FAIR') => {
     if (!selectedLocation || !startDate || !endDate) return;
-    if (!await confirm(`確定要執行 ${mode === 'COST_OPTIMIZED' ? '支出優化' : '公平分配'} 自動排班嗎？這將覆蓋現有班表！`)) return;
+    if (!await confirm(`確定要執行 ${mode === 'COST_OPTIMIZED' ? (t('rosterManagement.f06daf') || '支出優化') : (t('rosterManagement.5fe8f5') || '公平分配')} 自動排班嗎？這將覆蓋現有班表！`)) return;
     
     setGenerating(true);
     try {
@@ -154,11 +154,11 @@ export default function RosterManagement() {
         endDate,
         mode
       });
-      toast.error('排班指令已發送！如有人力不足的缺額將會標示於班表中。');
+      toast.error((t('rosterManagement.dc51a3') || '排班指令已發送！如有人力不足的缺額將會標示於班表中。'));
       fetchRosterData();
     } catch (err) {
       console.error(err);
-      toast.error('自動排班失敗，請確認是否已設定門市需求與員工可用時段。');
+      toast.error((t('rosterManagement.f97568') || '自動排班失敗，請確認是否已設定門市需求與員工可用時段。'));
     } finally {
       setGenerating(false);
     }
@@ -183,7 +183,7 @@ export default function RosterManagement() {
       <div id="printable-roster" className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:border-none print:shadow-none mb-6">
         <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center print:bg-white print:border-b-2 print:border-gray-900 hidden print:flex">
           <h2 className="text-xl font-bold text-gray-900">
-            門市排班表 ({new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()})
+            {t('rosterManagement.344379') || (t('rosterManagement.344379') || '門市排班表 (')}{new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()})
           </h2>
         </div>
         <div 
@@ -224,7 +224,7 @@ export default function RosterManagement() {
                   </div>
                 ))}
                 {day.shifts.length === 0 && (
-                  <div className="text-gray-300 text-center py-6 text-xs font-medium">無班次</div>
+                  <div className="text-gray-300 text-center py-6 text-xs font-medium">{t('rosterManagement.475659') || (t('rosterManagement.475659') || '無班次')}</div>
                 )}
               </div>
             </div>
@@ -240,8 +240,7 @@ export default function RosterManagement() {
         title={
           <div className="flex items-center gap-2">
             <span className="text-3xl">📅</span>
-            排班管理與自動排班 (Roster Management)
-          </div>
+            {t('rosterManagement.effa2a') || (t('rosterManagement.effa2a') || '排班管理與自動排班 (Roster Management)')}</div>
         }
         action={
           <div className="flex gap-2">
@@ -249,15 +248,13 @@ export default function RosterManagement() {
               to={`/attendance/requirements?locationId=${selectedLocation}`}
               className={`flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium shadow-sm transition-all active:scale-95 ${!selectedLocation ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
             >
-              📊 門市人力需求設定
-            </Link>
+              {t('rosterManagement.e345c2') || (t('rosterManagement.e345c2') || '📊 門市人力需求設定')}</Link>
             <button
               onClick={() => setIsSettingsModalOpen(true)}
               disabled={!selectedLocation}
               className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-all active:scale-95"
             >
-              ⚙️ 員工排班限制設定
-            </button>
+              {t('rosterManagement.d3ec6d') || (t('rosterManagement.d3ec6d') || '⚙️ 員工排班限制設定')}</button>
             <button
               onClick={() => handleAutoSchedule('COST_OPTIMIZED')}
               disabled={generating || !selectedLocation}
@@ -266,8 +263,7 @@ export default function RosterManagement() {
               {generating ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : '💰'}
-              支出優化排班
-            </button>
+              {t('rosterManagement.cec9a5') || (t('rosterManagement.cec9a5') || '支出優化排班')}</button>
             
             <button
               onClick={() => handleAutoSchedule('FAIR')}
@@ -277,8 +273,7 @@ export default function RosterManagement() {
               {generating ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : '⚖️'}
-              公平時數排班
-            </button>
+              {t('rosterManagement.f230ab') || (t('rosterManagement.f230ab') || '公平時數排班')}</button>
           </div>
         }
       />
@@ -290,13 +285,13 @@ export default function RosterManagement() {
       <div className="bg-white rounded-lg shadow-sm p-6 flex flex-wrap gap-4 items-end border border-gray-200">
         {user?.role === 'SUPER_ADMIN' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">門市 (Location)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('rosterManagement.36cde8') || (t('rosterManagement.36cde8') || '門市 (Location)')}</label>
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
               className="rounded-lg border-gray-300 text-sm focus:ring-primary-500 focus:border-primary-500"
             >
-              <option value="">選擇門市...</option>
+              <option value="">{t('rosterManagement.c42b04') || (t('rosterManagement.c42b04') || '選擇門市...')}</option>
               {locations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name}</option>
               ))}
@@ -305,7 +300,7 @@ export default function RosterManagement() {
         )}
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">開始日期 (Start Date)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('rosterManagement.9d9694') || (t('rosterManagement.9d9694') || '開始日期 (Start Date)')}</label>
           <input
             type="date"
             value={startDate}
@@ -315,7 +310,7 @@ export default function RosterManagement() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">結束日期 (End Date)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('rosterManagement.acd41b') || (t('rosterManagement.acd41b') || '結束日期 (End Date)')}</label>
           <input
             type="date"
             value={endDate}
@@ -328,8 +323,7 @@ export default function RosterManagement() {
           onClick={fetchRosterData}
           className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
         >
-          重新整理
-        </button>
+          {t('rosterManagement.68ca89') || (t('rosterManagement.68ca89') || '重新整理')}</button>
 
         <div className="flex-1"></div>
         
@@ -339,15 +333,13 @@ export default function RosterManagement() {
             className={`px-3 py-1.5 flex items-center gap-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
             <List className="w-4 h-4" />
-            列表視圖
-          </button>
+            {t('rosterManagement.9b524b') || (t('rosterManagement.9b524b') || '列表視圖')}</button>
           <button
             onClick={() => setViewMode('calendar')}
             className={`px-3 py-1.5 flex items-center gap-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
             <CalendarIcon className="w-4 h-4" />
-            月曆視圖
-          </button>
+            {t('rosterManagement.afed1b') || (t('rosterManagement.afed1b') || '月曆視圖')}</button>
         </div>
 
         <button
@@ -355,8 +347,7 @@ export default function RosterManagement() {
           className="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
         >
           <Printer className="w-4 h-4" />
-          列印班表
-        </button>
+          {t('rosterManagement.39c7e7') || (t('rosterManagement.39c7e7') || '列印班表')}</button>
       </div>
 
       {viewMode === 'list' ? (
@@ -365,25 +356,25 @@ export default function RosterManagement() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                <h2 className="font-semibold text-gray-800">人力需求配置</h2>
-                <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">{requirements.length} 筆</span>
+                <h2 className="font-semibold text-gray-800">{t('rosterManagement.3ef075') || (t('rosterManagement.3ef075') || '人力需求配置')}</h2>
+                <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">{requirements.length} {t('rosterManagement.a4b797') || (t('rosterManagement.a4b797') || '筆')}</span>
               </div>
               <div className="p-4 max-h-[600px] overflow-y-auto">
                 {loading ? (
-                  <div className="text-center py-8 text-gray-400">載入中...</div>
+                  <div className="text-center py-8 text-gray-400">{t('rosterManagement.d39337') || (t('rosterManagement.d39337') || '載入中...')}</div>
                 ) : requirements.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">無人力需求設定</div>
+                  <div className="text-center py-8 text-gray-400">{t('rosterManagement.0b396e') || (t('rosterManagement.0b396e') || '無人力需求設定')}</div>
                 ) : (
                   <div className="space-y-3">
                     {requirements.map((req) => (
                       <div key={req.id} className="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center hover:border-primary-200 transition-colors">
                         <div>
                           <div className="text-sm font-bold text-gray-900">{new Date(req.date).toLocaleDateString()}</div>
-                          <div className="text-xs text-gray-500 mt-1">{req.jobRole?.name || '無指定'}</div>
+                          <div className="text-xs text-gray-500 mt-1">{req.jobRole?.name || (t('rosterManagement.ced46b') || '無指定')}</div>
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-mono text-primary-700">{req.startTime} - {req.endTime}</div>
-                          <div className="text-xs font-semibold text-gray-600 mt-1">需 {req.count} 人</div>
+                          <div className="text-xs font-semibold text-gray-600 mt-1">{t('rosterManagement.f5e154') || (t('rosterManagement.f5e154') || '需')}{req.count} {t('rosterManagement.465afe') || (t('rosterManagement.465afe') || '人')}</div>
                         </div>
                       </div>
                     ))}
@@ -397,30 +388,29 @@ export default function RosterManagement() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-              <h2 className="font-semibold text-gray-800">已排定班表</h2>
-              <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-medium">{shifts.length} 個班次</span>
+              <h2 className="font-semibold text-gray-800">{t('rosterManagement.e4e281') || (t('rosterManagement.e4e281') || '已排定班表')}</h2>
+              <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-medium">{shifts.length} {t('rosterManagement.339c1b') || (t('rosterManagement.339c1b') || '個班次')}</span>
             </div>
             
             <div className="p-0 max-h-[600px] overflow-y-auto">
               {loading ? (
-                <div className="text-center py-12 text-gray-400">載入中...</div>
+                <div className="text-center py-12 text-gray-400">{t('rosterManagement.d39337') || (t('rosterManagement.d39337') || '載入中...')}</div>
               ) : combinedShifts.combined.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 px-4">
                   <div className="text-5xl mb-4">📭</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">目前沒有排班資料</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">{t('rosterManagement.0b292a') || (t('rosterManagement.0b292a') || '目前沒有排班資料')}</h3>
                   <p className="text-sm text-gray-500 text-center max-w-sm">
-                    點擊上方的「自動排班」按鈕，系統將會根據人力需求與員工可用時段自動為您排定班表。
-                  </p>
+                    {t('rosterManagement.ce38c2') || (t('rosterManagement.ce38c2') || '點擊上方的「自動排班」按鈕，系統將會根據人力需求與員工可用時段自動為您排定班表。')}</p>
                 </div>
               ) : (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">員工</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">職位</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時段</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日別</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rosterManagement.4ff1e7') || (t('rosterManagement.4ff1e7') || '日期')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rosterManagement.036de0') || (t('rosterManagement.036de0') || '員工')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rosterManagement.c2b1a1') || (t('rosterManagement.c2b1a1') || '職位')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rosterManagement.2cfccb') || (t('rosterManagement.2cfccb') || '時段')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('rosterManagement.d99ca5') || (t('rosterManagement.d99ca5') || '日別')}</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
@@ -450,9 +440,9 @@ export default function RosterManagement() {
                             shift.dayType === 'NATIONAL_HOLIDAY' ? 'bg-red-100 text-red-800' :
                             'bg-gray-100 text-gray-800'
                           }`}>
-                            {shift.dayType === 'WORKDAY' ? '工作日' : 
-                             shift.dayType === 'REST_DAY' ? '休息日' : 
-                             shift.dayType === 'NATIONAL_HOLIDAY' ? '國定假日' : '例假日'}
+                            {shift.dayType === 'WORKDAY' ? (t('rosterManagement.c7ea06') || '工作日') : 
+                             shift.dayType === 'REST_DAY' ? (t('rosterManagement.1c08ee') || '休息日') : 
+                             shift.dayType === 'NATIONAL_HOLIDAY' ? (t('rosterManagement.48641b') || '國定假日') : (t('rosterManagement.91daff') || '例假日')}
                           </span>
                         </td>
                       </tr>

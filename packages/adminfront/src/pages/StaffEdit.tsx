@@ -243,21 +243,21 @@ export default function StaffEdit() {
               onClick={() => setActiveTab('basic')}
               className={`py-2.5 px-6 border-b-2 font-medium text-sm transition-colors rounded-t-lg ${activeTab === 'basic' ? 'border-primary-500 text-primary-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
             >
-              {t('staffEdit.tabs.basic') || '基本資料'}
+              {t('staffEdit.tabs.basic') || (t('staffEdit.63f2f2') || '基本資料')}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('employment')}
               className={`py-2.5 px-6 border-b-2 font-medium text-sm transition-colors rounded-t-lg ${activeTab === 'employment' ? 'border-primary-500 text-primary-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
             >
-              {t('staffEdit.tabs.employment') || '人事資料'}
+              {t('staffEdit.tabs.employment') || (t('staffEdit.392921') || '人事資料')}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('insurance')}
               className={`py-2.5 px-6 border-b-2 font-medium text-sm transition-colors rounded-t-lg ${activeTab === 'insurance' ? 'border-primary-500 text-primary-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
             >
-              {t('staffEdit.tabs.insurance') || '勞健保設定'}
+              {t('staffEdit.tabs.insurance') || (t('staffEdit.6c0b45') || '勞健保設定')}
             </button>
           </div>
 
@@ -330,8 +330,8 @@ export default function StaffEdit() {
                       onChange={(e) => setSalaryType(e.target.value as 'HOURLY' | 'MONTHLY')}
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                     >
-                      <option value="HOURLY">{t('staffEdit.hourly') || 'Hourly (時薪)'}</option>
-                      <option value="MONTHLY">{t('staffEdit.monthly') || 'Monthly (月薪)'}</option>
+                      <option value="HOURLY">{t('staffEdit.hourly') || (t('staffEdit.c97d43') || 'Hourly (時薪)')}</option>
+                      <option value="MONTHLY">{t('staffEdit.monthly') || (t('staffEdit.ae4c24') || 'Monthly (月薪)')}</option>
                     </select>
                   </div>
                   {salaryType === 'HOURLY' ? (
@@ -362,7 +362,7 @@ export default function StaffEdit() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.jobRoles') || '職位與技能 (Job Roles)'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('staffEdit.jobRoles') || (t('staffEdit.dd1b03') || '職位與技能 (Job Roles)')}</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-3 bg-gray-50 border border-gray-200 rounded-xl">
                     {availableJobRoles
                       .filter(r => !r.locationId || r.locationId === locationId)
@@ -383,8 +383,7 @@ export default function StaffEdit() {
                       ))}
                     {availableJobRoles.filter(r => !r.locationId || r.locationId === locationId).length === 0 && (
                       <div className="text-sm text-gray-500 col-span-full py-2">
-                        無可用職位，請先至「職位設定」新增
-                      </div>
+                        {t('staffEdit.fc7304') || (t('staffEdit.fc7304') || '無可用職位，請先至「職位設定」新增')}</div>
                     )}
                   </div>
                 </div>
@@ -407,13 +406,13 @@ export default function StaffEdit() {
             {activeTab === 'employment' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl mb-4">
-                  <h4 className="text-sm font-semibold text-blue-900 mb-1">到職與特休計算</h4>
-                  <p className="text-xs text-blue-700">設定員工的到職日，系統將依此自動計算每年的特休假額度與年資。</p>
+                  <h4 className="text-sm font-semibold text-blue-900 mb-1">{t('staffEdit.749941') || (t('staffEdit.749941') || '到職與特休計算')}</h4>
+                  <p className="text-xs text-blue-700">{t('staffEdit.82c453') || (t('staffEdit.82c453') || '設定員工的到職日，系統將依此自動計算每年的特休假額度與年資。')}</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">到職日 (Hire Date) <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.e7f3af') || (t('staffEdit.e7f3af') || '到職日 (Hire Date)')}<span className="text-red-500">*</span></label>
                     <input
                       type="date"
                       value={hireDate}
@@ -423,20 +422,20 @@ export default function StaffEdit() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">在職狀態 (Status)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.4993ce') || (t('staffEdit.4993ce') || '在職狀態 (Status)')}</label>
                     <select
                       value={employmentStatus}
                       onChange={(e) => setEmploymentStatus(e.target.value as 'ACTIVE' | 'SUSPENDED' | 'TERMINATED')}
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                     >
-                      <option value="ACTIVE">在職 (Active)</option>
-                      <option value="SUSPENDED">留職停薪 (Suspended)</option>
-                      <option value="TERMINATED">離職 (Terminated)</option>
+                      <option value="ACTIVE">{t('staffEdit.d9f889') || (t('staffEdit.d9f889') || '在職 (Active)')}</option>
+                      <option value="SUSPENDED">{t('staffEdit.dca160') || (t('staffEdit.dca160') || '留職停薪 (Suspended)')}</option>
+                      <option value="TERMINATED">{t('staffEdit.83061c') || (t('staffEdit.83061c') || '離職 (Terminated)')}</option>
                     </select>
                   </div>
                   {employmentStatus === 'TERMINATED' && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">離職日 (Termination Date)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.5df1ff') || (t('staffEdit.5df1ff') || '離職日 (Termination Date)')}</label>
                       <input
                         type="date"
                         value={terminationDate}
@@ -448,33 +447,33 @@ export default function StaffEdit() {
                 </div>
 
                 <div className="pt-6 border-t border-gray-200">
-                  <h4 className="text-md font-semibold text-gray-800 mb-4">薪資轉帳帳戶 (Bank Details)</h4>
+                  <h4 className="text-md font-semibold text-gray-800 mb-4">{t('staffEdit.0bf565') || (t('staffEdit.0bf565') || '薪資轉帳帳戶 (Bank Details)')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">銀行代碼/名稱</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.a217b6') || (t('staffEdit.a217b6') || '銀行代碼/名稱')}</label>
                       <input
                         type="text"
-                        placeholder="例: 808 玉山銀行"
+                        placeholder={t('staffEdit.d89936') || '例: 808 玉山銀行'}
                         value={bankName}
                         onChange={(e) => setBankName(e.target.value)}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">分行名稱</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.25eb5b') || (t('staffEdit.25eb5b') || '分行名稱')}</label>
                       <input
                         type="text"
-                        placeholder="例: 中山分行"
+                        placeholder={t('staffEdit.e9e57d') || '例: 中山分行'}
                         value={bankBranch}
                         onChange={(e) => setBankBranch(e.target.value)}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">匯款帳號</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.bd342e') || (t('staffEdit.bd342e') || '匯款帳號')}</label>
                       <input
                         type="text"
-                        placeholder="請輸入完整帳號"
+                        placeholder={t('staffEdit.0e3296') || '請輸入完整帳號'}
                         value={bankAccountNumber}
                         onChange={(e) => setBankAccountNumber(e.target.value)}
                         className="w-full md:w-1/2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
@@ -488,13 +487,13 @@ export default function StaffEdit() {
             {activeTab === 'insurance' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl mb-4">
-                  <h4 className="text-sm font-semibold text-blue-900 mb-1">勞健保級距與扣款</h4>
-                  <p className="text-xs text-blue-700">設定投保級距後，系統在每月結算薪資時將自動計算並扣除員工自付額。</p>
+                  <h4 className="text-sm font-semibold text-blue-900 mb-1">{t('staffEdit.ae590b') || (t('staffEdit.ae590b') || '勞健保級距與扣款')}</h4>
+                  <p className="text-xs text-blue-700">{t('staffEdit.9b8dbd') || (t('staffEdit.9b8dbd') || '設定投保級距後，系統在每月結算薪資時將自動計算並扣除員工自付額。')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">勞保投保薪資級距 (Labor Insurance)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.b36b1f') || (t('staffEdit.b36b1f') || '勞保投保薪資級距 (Labor Insurance)')}</label>
                     <div className="relative">
                       <span className="absolute left-4 top-2.5 text-gray-400">NT$</span>
                       <input
@@ -508,7 +507,7 @@ export default function StaffEdit() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">健保投保薪資級距 (Health Insurance)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.aa4506') || (t('staffEdit.aa4506') || '健保投保薪資級距 (Health Insurance)')}</label>
                     <div className="relative">
                       <span className="absolute left-4 top-2.5 text-gray-400">NT$</span>
                       <input
@@ -522,7 +521,7 @@ export default function StaffEdit() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">依附眷屬人數 (Dependents)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.33369a') || (t('staffEdit.33369a') || '依附眷屬人數 (Dependents)')}</label>
                     <input
                       type="number"
                       min="0"
@@ -531,15 +530,15 @@ export default function StaffEdit() {
                       onChange={(e) => setDependents(Number(e.target.value))}
                       className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                     />
-                    <p className="text-xs text-gray-500 mt-1">影響健保費員工自付額計算 (上限 3 人)</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('staffEdit.2ff197') || (t('staffEdit.2ff197') || '影響健保費員工自付額計算 (上限 3 人)')}</p>
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-gray-200">
-                  <h4 className="text-md font-semibold text-gray-800 mb-4">勞工退休金 (Pension)</h4>
+                  <h4 className="text-md font-semibold text-gray-800 mb-4">{t('staffEdit.98b7a1') || (t('staffEdit.98b7a1') || '勞工退休金 (Pension)')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">雇主提撥比例 (%)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.a49a82') || (t('staffEdit.a49a82') || '雇主提撥比例 (%)')}</label>
                       <input
                         type="number"
                         min="6"
@@ -549,10 +548,10 @@ export default function StaffEdit() {
                         onChange={(e) => setPensionEmployer(Number(e.target.value))}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                       />
-                      <p className="text-xs text-gray-500 mt-1">法定最低 6%</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('staffEdit.c9cb69') || (t('staffEdit.c9cb69') || '法定最低 6%')}</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">員工自提比例 (%)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('staffEdit.fc199a') || (t('staffEdit.fc199a') || '員工自提比例 (%)')}</label>
                       <input
                         type="number"
                         min="0"
@@ -562,7 +561,7 @@ export default function StaffEdit() {
                         onChange={(e) => setPensionEmployee(Number(e.target.value))}
                         className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
                       />
-                      <p className="text-xs text-gray-500 mt-1">最高 6%</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('staffEdit.1d50bd') || (t('staffEdit.1d50bd') || '最高 6%')}</p>
                     </div>
                   </div>
                 </div>

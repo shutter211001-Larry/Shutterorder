@@ -693,9 +693,9 @@ export default function Checkout() {
               {/* ASAP Wait Time Hint */}
               {!scheduledAt && summary?.estimatedWaitMins != null && summary.estimatedWaitMins > 0 && !isClosedNow && (
                 <div className="mt-4 text-sm text-blue-700 bg-blue-50/80 p-2.5 rounded-lg flex items-center justify-between">
-                  <span>預計最快取餐時間</span>
+                  <span>{t('checkout.20cc8e') || (t('checkout.20cc8e') || '預計最快取餐時間')}</span>
                   <div className="text-right">
-                    <span className="font-bold">約 {summary.estimatedWaitMins} 分鐘</span>
+                    <span className="font-bold">{t('checkout.ebb4a1') || (t('checkout.ebb4a1') || '約')}{summary.estimatedWaitMins} {t('checkout.ac055c') || (t('checkout.ac055c') || '分鐘')}</span>
                     {summary.earliestSlot && (
                       <span className="ml-2 text-xs opacity-80">
                         ({new Date(summary.earliestSlot).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })})
@@ -712,7 +712,7 @@ export default function Checkout() {
             <div className="surface-card rounded-xl shadow-sm border p-6">
               <h2 className="text-lg font-semibold text-main mb-4">
                 {orderType === 'frozen_delivery' 
-                  ? (frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('checkout.storeToStoreDetails') || '取件門市資訊') : (t('checkout.frozenDeliveryAddress') || '冷凍宅配地址'))
+                  ? (frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('checkout.storeToStoreDetails') || (t('checkout.c3ae1f') || '取件門市資訊')) : (t('checkout.frozenDeliveryAddress') || (t('checkout.47e7b0') || '冷凍宅配地址')))
                   : t('checkout.deliveryAddress')}
               </h2>
               {zoneError && orderType === 'delivery' && (
@@ -730,7 +730,7 @@ export default function Checkout() {
                       }}
                       className="px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main"
                     >
-                      <option value="" disabled>{t('checkout.cityCounty') || '請選擇縣市'}</option>
+                      <option value="" disabled>{t('checkout.cityCounty') || (t('checkout.c85047') || '請選擇縣市')}</option>
                       {taiwanDistricts.map(city => (
                         <option key={city.name} value={city.name}>{city.name}</option>
                       ))}
@@ -748,7 +748,7 @@ export default function Checkout() {
                       disabled={!address.state}
                       className="px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main disabled:opacity-50"
                     >
-                      <option value="" disabled>{t('checkout.district') || '請選擇地區'}</option>
+                      <option value="" disabled>{t('checkout.district') || (t('checkout.66c5de') || '請選擇地區')}</option>
                       {taiwanDistricts.find(c => c.name === address.state)?.districts.map(d => (
                         <option key={d.name} value={d.name}>{d.name}</option>
                       ))}
@@ -758,7 +758,7 @@ export default function Checkout() {
                       type="text"
                       required
                       readOnly
-                      placeholder={t('checkout.zipCode') || '郵遞區號'}
+                      placeholder={t('checkout.zipCode') || (t('checkout.3b72ed') || '郵遞區號')}
                       value={address.zip}
                       className="px-3 py-2 bg-surface border border-input rounded-lg outline-none text-sm text-main bg-black/5 cursor-not-allowed col-span-2 sm:col-span-1"
                     />
@@ -768,7 +768,7 @@ export default function Checkout() {
                 <input
                   type="text"
                   required
-                  placeholder={frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('checkout.storeBranchPlaceholder') || '例如：7-11 信義店 (店號: 123456)') : (t('checkout.streetAddressPlaceholder') || '例如：中正路 100 號 3 樓')}
+                  placeholder={frozenDeliveryMethod === 'STORE_TO_STORE' ? (t('checkout.storeBranchPlaceholder') || (t('checkout.ec797c') || '例如：7-11 信義店 (店號: 123456)')) : (t('checkout.streetAddressPlaceholder') || (t('checkout.4dee28') || '例如：中正路 100 號 3 樓'))}
                   value={address.line1}
                   onChange={(e) => setAddress({ ...address, line1: e.target.value })}
                   className="w-full px-3 py-2 bg-surface border border-input rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-main"
@@ -872,7 +872,7 @@ export default function Checkout() {
                           : 'text-sub hover:bg-gray-100'
                       }`}
                     >
-                      {t('checkout.homeDelivery') || '宅配'}
+                      {t('checkout.homeDelivery') || (t('checkout.a4b4fb') || '宅配')}
                     </button>
                     <button
                       type="button"
@@ -883,7 +883,7 @@ export default function Checkout() {
                           : 'text-sub hover:bg-gray-100'
                       }`}
                     >
-                      {t('checkout.storeToStore') || '店到店'}
+                      {t('checkout.storeToStore') || (t('checkout.380e90') || '店到店')}
                     </button>
                   </div>
                 )}
@@ -1502,8 +1502,8 @@ export default function Checkout() {
               })()}
               {estimatedWaitMins != null && estimatedWaitMins > 0 && !scheduledAt && orderType !== 'frozen_delivery' && (
                 <div className="flex justify-between text-primary-600 font-medium bg-primary-50 p-2 rounded-lg mt-2 mb-2">
-                  <span>{t('checkout.estimatedWaitTime') || '預計最快取餐時間'}</span>
-                  <span>{estimatedWaitMins} {t('checkout.minutes') || '分鐘'}</span>
+                  <span>{t('checkout.estimatedWaitTime') || (t('checkout.20cc8e') || '預計最快取餐時間')}</span>
+                  <span>{estimatedWaitMins} {t('checkout.minutes') || (t('checkout.ac055c') || '分鐘')}</span>
                 </div>
               )}
               <div className={`flex justify-between border-t border-input pt-2 font-bold text-lg transition-opacity ${isCalculating ? 'opacity-50' : 'opacity-100'}`}>
@@ -1551,6 +1551,7 @@ export default function Checkout() {
 }
 
 function getDefaultScheduleTime(): string {
+    const { t } = useTranslation();
   const d = new Date();
   d.setHours(d.getHours() + 1, 0, 0, 0);
   return d.toISOString().slice(0, 16);

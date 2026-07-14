@@ -89,7 +89,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">
-            {t('requisition.create') || '新增叫貨單'}
+            {t('requisition.create') || (t('requisitionFormModal.120f9d') || '新增叫貨單')}
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,7 +117,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
           <form id="requisition-form" onSubmit={handleSubmit} className="space-y-6">
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('requisition.expectedDate') || '期望到貨日期 (選填)'}
+                {t('requisition.expectedDate') || (t('requisitionFormModal.d53f3e') || '期望到貨日期 (選填)')}
               </label>
               <input
                 type="date"
@@ -125,12 +125,12 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
                 onChange={(e) => setExpectedDate(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
               />
-              <p className="mt-1 text-xs text-gray-500">中央廚房會參考此日期安排出貨</p>
+              <p className="mt-1 text-xs text-gray-500">{t('requisitionFormModal.06d8b9') || (t('requisitionFormModal.06d8b9') || '中央廚房會參考此日期安排出貨')}</p>
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h4 className="text-sm font-semibold text-gray-900">{t('requisition.items') || '叫貨品項清單'}</h4>
+                <h4 className="text-sm font-semibold text-gray-900">{t('requisition.items') || (t('requisitionFormModal.f87294') || '叫貨品項清單')}</h4>
                 <button
                   type="button"
                   onClick={addItem}
@@ -139,7 +139,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  {t('requisition.addItem') || '新增品項'}
+                  {t('requisition.addItem') || (t('requisitionFormModal.d2afb0') || '新增品項')}
                 </button>
               </div>
 
@@ -153,7 +153,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
                         className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm bg-white"
                         required
                       >
-                        <option value="">{t('requisition.selectIngredient') || '選擇原物料...'}</option>
+                        <option value="">{t('requisition.selectIngredient') || (t('requisitionFormModal.94a4e9') || '選擇原物料...')}</option>
                         {ingredients.map(ing => (
                           <option key={ing.id} value={ing.id}>
                             {ing.name} ({ing.unit})
@@ -168,7 +168,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
                         step="0.1"
                         value={item.quantity}
                         onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                        placeholder={t('requisition.quantity') || '數量'}
+                        placeholder={t('requisition.quantity') || (t('requisitionFormModal.954bba') || '數量')}
                         className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
                         required
                       />
@@ -178,7 +178,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
                         type="button"
                         onClick={() => removeItem(index)}
                         className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                        title="移除品項"
+                        title={t('requisitionFormModal.e23410') || '移除品項'}
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -199,7 +199,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
             className="px-5 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm"
             disabled={loading}
           >
-            {t('common.cancel') || '取消'}
+            {t('common.cancel') || (t('requisitionFormModal.625fb2') || '取消')}
           </button>
           <button
             type="submit"
@@ -213,7 +213,7 @@ export default function RequisitionFormModal({ locationId, onClose, onSuccess }:
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             )}
-            {loading ? t('common.saving') || '送出中...' : t('common.submit') || '送出叫貨單'}
+            {loading ? t('common.saving') || (t('requisitionFormModal.ba34bf') || '送出中...') : t('common.submit') || (t('requisitionFormModal.47b1c6') || '送出叫貨單')}
           </button>
         </div>
       </div>

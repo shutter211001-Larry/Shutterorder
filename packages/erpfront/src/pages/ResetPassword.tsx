@@ -20,7 +20,7 @@ export default function ResetPassword() {
 
   useEffect(() => {
     if (!tokenParam) {
-      setError("無效的重置連結，請重新申請");
+      setError((t('resetPassword.b2b77f') || '無效的重置連結，請重新申請'));
     }
   }, [tokenParam]);
 
@@ -29,12 +29,12 @@ export default function ResetPassword() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("兩次輸入的密碼不一致");
+      setError((t('resetPassword.0ff7d4') || '兩次輸入的密碼不一致'));
       return;
     }
     
     if (password.length < 6) {
-      setError("密碼長度至少需要 6 個字元");
+      setError((t('resetPassword.396165') || '密碼長度至少需要 6 個字元'));
       return;
     }
 
@@ -64,8 +64,8 @@ export default function ResetPassword() {
           <div className="w-16 h-16 bg-emerald-500/10 rounded-2.5xl flex items-center justify-center mx-auto mb-6">
             <ShieldCheck className="w-8 h-8 text-emerald-400" />
           </div>
-          <h2 className="text-xl font-black text-white mb-2">密碼重置成功</h2>
-          <p className="text-sm font-bold text-slate-400">系統即將跳轉至登入頁面...</p>
+          <h2 className="text-xl font-black text-white mb-2">{t('resetPassword.be1a52') || (t('resetPassword.be1a52') || '密碼重置成功')}</h2>
+          <p className="text-sm font-bold text-slate-400">{t('resetPassword.0c3ae1') || (t('resetPassword.0c3ae1') || '系統即將跳轉至登入頁面...')}</p>
         </div>
       </div>
     );
@@ -83,11 +83,9 @@ export default function ResetPassword() {
         </div>
 
         <h2 className="text-3xl font-black text-white tracking-tight mb-2">
-          設定新密碼
-        </h2>
+          {t('resetPassword.8deb75') || (t('resetPassword.8deb75') || '設定新密碼')}</h2>
         <p className="text-xs text-slate-400 font-medium mb-8 text-center">
-          請為您的帳號設定一組新的密碼
-        </p>
+          {t('resetPassword.20726f') || (t('resetPassword.20726f') || '請為您的帳號設定一組新的密碼')}</p>
 
         {error && (
           <div className="w-full bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl flex items-start gap-3 mb-6 animate-in slide-in-from-top-2 duration-300">
@@ -99,15 +97,14 @@ export default function ResetPassword() {
         <form onSubmit={handleSubmit} className="w-full space-y-5">
           <div className="space-y-1.5 relative group">
             <label className="text-[10px] uppercase font-black tracking-wider text-slate-400 pl-1 group-focus-within:text-primary transition-colors">
-              新密碼
-            </label>
+              {t('resetPassword.17ce77') || (t('resetPassword.17ce77') || '新密碼')}</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">
                 <Lock className="w-5 h-5" />
               </span>
               <input
                 type="password"
-                placeholder="輸入新密碼"
+                placeholder={t('resetPassword.84edbc') || '輸入新密碼'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary/50 text-white rounded-2xl py-3.5 pl-12 pr-4 text-sm font-semibold placeholder:text-slate-600 outline-none transition-all focus:ring-4 focus:ring-primary/10"
@@ -119,15 +116,14 @@ export default function ResetPassword() {
 
           <div className="space-y-1.5 relative group">
             <label className="text-[10px] uppercase font-black tracking-wider text-slate-400 pl-1 group-focus-within:text-primary transition-colors">
-              確認新密碼
-            </label>
+              {t('resetPassword.a4460c') || (t('resetPassword.a4460c') || '確認新密碼')}</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">
                 <Lock className="w-5 h-5" />
               </span>
               <input
                 type="password"
-                placeholder="再次輸入新密碼"
+                placeholder={t('resetPassword.21e4bb') || '再次輸入新密碼'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-primary/50 text-white rounded-2xl py-3.5 pl-12 pr-4 text-sm font-semibold placeholder:text-slate-600 outline-none transition-all focus:ring-4 focus:ring-primary/10"
@@ -142,15 +138,14 @@ export default function ResetPassword() {
             disabled={submitting || !tokenParam}
             className="w-full bg-gradient-to-r from-primary to-orange-500 text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 disabled:pointer-events-none mt-2 cursor-pointer"
           >
-            {submitting ? <span>儲存中...</span> : <>
-              <span>重置密碼</span>
+            {submitting ? <span>{t('resetPassword.4dafaa') || (t('resetPassword.4dafaa') || '儲存中...')}</span> : <>
+              <span>{t('resetPassword.70a3df') || (t('resetPassword.70a3df') || '重置密碼')}</span>
               <ArrowRight className="w-4 h-4" />
             </>}
           </button>
           
           <button type="button" onClick={() => navigate("/")} className="w-full text-center text-xs font-bold text-slate-400 hover:text-white transition-colors mt-4 cursor-pointer">
-            返回登入
-          </button>
+            {t('resetPassword.1eee19') || (t('resetPassword.1eee19') || '返回登入')}</button>
         </form>
       </div>
     </div>
