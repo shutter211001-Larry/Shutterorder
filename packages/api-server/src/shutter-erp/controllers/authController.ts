@@ -35,7 +35,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Check ERP Add-on Permission
-    if (user.role !== 'SUPER_ADMIN' && (!user.tenant || !user.tenant.hasErpAccess)) {
+    if (process.env.SINGLE_TENANT_MODE !== 'true' && user.role !== 'SUPER_ADMIN' && (!user.tenant || !user.tenant.hasErpAccess)) {
       return res.status(403).json({ error: 'SaaS 總部尚未為您開通 ERP 模組權限，請先聯絡總部升級解鎖。' });
     }
 

@@ -120,7 +120,7 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
           lineDisplayName: user.lineDisplayName,
           hasPassword: !!user.password,
           tenantId: user.tenantId,
-          hasErpAccess: user.tenant?.hasErpAccess,
+          hasErpAccess: process.env.SINGLE_TENANT_MODE === 'true' ? true : user.tenant?.hasErpAccess,
         },
       },
     });
@@ -213,7 +213,7 @@ export async function staffSelectTenant(req: Request, res: Response): Promise<vo
           lineDisplayName: user.lineDisplayName,
           hasPassword: !!user.password,
           tenantId: user.tenantId,
-          hasErpAccess: user.tenant?.hasErpAccess,
+          hasErpAccess: process.env.SINGLE_TENANT_MODE === 'true' ? true : user.tenant?.hasErpAccess,
         },
       },
     });
@@ -510,7 +510,7 @@ export async function getMe(req: Request, res: Response): Promise<void> {
       }
     }
     
-    res.json({ success: true, data: { type: 'staff', user: { ...user, hasErpAccess: user.tenant?.hasErpAccess } } });
+    res.json({ success: true, data: { type: 'staff', user: { ...user, hasErpAccess: process.env.SINGLE_TENANT_MODE === 'true' ? true : user.tenant?.hasErpAccess } } });
   } else {
     const customer = await prisma.customer.findUnique({
       where: { id: req.user.id },
