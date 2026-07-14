@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { LocationOverrideSelector } from '../components/settings/LocationOverrideSelector';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { api } from '../lib/api.js';
@@ -14,6 +15,7 @@ export default function SettingsInvoice() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [locationId, setLocationId] = useState('');
 
   const [enabled, setEnabled] = useState(false);
   const [merchantId, setMerchantId] = useState('');
@@ -21,8 +23,8 @@ export default function SettingsInvoice() {
   const [hashIv, setHashIv] = useState('');
 
   useEffect(() => {
-    api.get('settings/invoice')
-      
+    setLoading(true);
+    api.get(locationId ? `settings/invoice?locationId=${locationId}` : 'settings/invoice')
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -34,14 +36,15 @@ export default function SettingsInvoice() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, locationId]);
 
   async function handleSave() {
     setSaving(true);
     setError('');
     setSuccess('');
     try {
-      const res = await api.put('settings/invoice', JSON.stringify({
+      const endpoint = locationId ? `settings/invoice?locationId=${locationId}` : 'settings/invoice';
+      const res = await api.put(endpoint, JSON.stringify({
           enabled,
           merchantId,
           hashKey,
@@ -83,6 +86,8 @@ export default function SettingsInvoice() {
       <PageContent>
         {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
         {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
+
+        <LocationOverrideSelector value={locationId} onChange={setLocationId} />
 
         <div className="space-y-6">
           <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4 relative overflow-hidden">

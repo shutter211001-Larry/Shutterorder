@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { ToggleRow } from '../components/ui/ToggleRow';
+import { LocationOverrideSelector } from '../components/settings/LocationOverrideSelector';
 import { api } from '../lib/api.js';
 
 export default function SettingsPayments() {
@@ -14,6 +15,8 @@ export default function SettingsPayments() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [searchParams] = useSearchParams();
+  const [locationId, setLocationId] = useState(searchParams.get('locationId') || '');
 
   // Stripe
   const [stripeEnabled, setStripeEnabled] = useState(false);
@@ -31,8 +34,8 @@ export default function SettingsPayments() {
   const [cashEnabled, setCashEnabled] = useState(true);
 
   useEffect(() => {
-    api.get('settings/payment')
-      
+    setLoading(true);
+    api.get(locationId ? `settings/payment?locationId=${locationId}` : 'settings/payment')
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
@@ -49,14 +52,15 @@ export default function SettingsPayments() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, locationId]);
 
   async function handleSave() {
     setSaving(true);
     setError('');
     setSuccess('');
     try {
-      const res = await api.put('settings/payment', JSON.stringify({
+      const endpoint = locationId ? `settings/payment?locationId=${locationId}` : 'settings/payment';
+      const res = await api.put(endpoint, JSON.stringify({
           stripeEnabled, stripePublishableKey, stripeSecretKey, stripeWebhookSecret,
           paypalEnabled, paypalClientId, paypalClientSecret, paypalSandbox,
           cashEnabled
@@ -99,6 +103,8 @@ export default function SettingsPayments() {
       <PageContent>
         {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
         {success && <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{success}</div>}
+
+        <LocationOverrideSelector value={locationId} onChange={setLocationId} />
 
         {/* Stripe */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">

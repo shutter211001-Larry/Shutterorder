@@ -41,11 +41,15 @@ export default function MenuItemList() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const locationId = searchParams.get('locationId');
+
   const fetchItems = (page = 1) => {
   setLoading(true);
     const params = new URLSearchParams({ page: String(page), limit: '20' });
     if (search) params.set('search', search);
     if (categoryFilter) params.set('categoryId', categoryFilter);
+    if (locationId) params.set('locationId', locationId);
 
     api.get<MenuItemResponse>(`/menu/items?${params}`)
       .then((res) => {
@@ -69,7 +73,8 @@ export default function MenuItemList() {
   const handleDelete = async (id: string, name: string) => {
     if (!await confirm(`確定要刪除產品 "${name}" 嗎？`)) return;
     try {
-      await api.delete(`/menu/items/${id}`);
+      const deleteUrl = locationId ? `/menu/items/${id}?locationId=${locationId}` : `/menu/items/${id}`;
+      await api.delete(deleteUrl);
       fetchItems(pagination.page);
     } catch (err: any) {
       toast.error(err.message);
@@ -89,7 +94,7 @@ export default function MenuItemList() {
             AI 菜單偵測
           </Link>
           <Link
-            to="/menu/items/new"
+            to={`/menu/items/new${locationId ? `?locationId=${locationId}` : ''}`}
             className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
           >
             {t('menuItemList.addProduct')}
@@ -191,7 +196,7 @@ export default function MenuItemList() {
                       {item._count.options} {t('menuItemList.options')} {item._count.allergens} {t('menuItemList.allergens')} {item._count.dietaryPreferences} {t('menuItemList.dietaryRestrictions')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-3">
-                      <Link to={`/menu/items/${item.id}`} className="text-primary-600 hover:text-primary-900 font-medium" aria-label={`編輯 ${item.name}`}>
+                      <Link to={`/menu/items/${item.id}${locationId ? `?locationId=${locationId}` : ''}`} className="text-primary-600 hover:text-primary-900 font-medium" aria-label={`編輯 ${item.name}`}>
                         {t('menuItemList.edit')}
                       </Link>
                       <button onClick={() => handleDelete(item.id, item.name)} className="text-red-600 hover:text-red-900 font-medium" aria-label={`刪除 ${item.name}`}>

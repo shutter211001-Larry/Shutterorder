@@ -352,7 +352,7 @@ async function handleEvent(client: Client, event: WebhookEvent, locationId?: str
 
     if (text === '查詢' || text === '訂單' || text === 'order') {
       try {
-        const customer = await prisma.customer.findUnique({
+        const customer = await prisma.customer.findFirst({
           where: { lineUserId: userId }
         });
 
@@ -637,10 +637,11 @@ export async function bindLine(req: Request, res: Response) {
   }
 
   try {
-    // 1. Check if this LINE ID is already used by someone else
+    // 1. Check if this LINE ID is already used by someone else within this tenant
+    const requestTenantId = tenantStorage.getStore()?.tenantId || null;
     const existing = await (req.user.type === 'customer' 
-      ? prisma.customer.findUnique({ where: { lineUserId } })
-      : prisma.user.findUnique({ where: { lineUserId } }));
+      ? prisma.customer.findFirst({ where: { lineUserId, tenantId: requestTenantId } })
+      : prisma.user.findFirst({ where: { lineUserId, tenantId: requestTenantId } }));
 
     if (existing && existing.id !== req.user.id) {
       return res.status(400).json({ success: false, error: '此 LINE 帳號已被其他會員連結，請先解除該帳號的連結。' });

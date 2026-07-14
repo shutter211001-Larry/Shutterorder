@@ -60,6 +60,8 @@ export default function OrderList() {
   const [exportEndDate, setExportEndDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [locations, setLocations] = useState<Array<{id: string, name: string}>>([]);
   const { user } = useAuth();
   const canManage = user?.role === 'SUPER_ADMIN' || user?.role === 'MANAGER';
   const token = localStorage.getItem('token') || '';
@@ -81,6 +83,7 @@ export default function OrderList() {
     const params = new URLSearchParams({ page: String(page), limit: '20' });
     if (statusFilter) params.set('status', statusFilter);
     if (typeFilter) params.set('orderType', typeFilter);
+    if (locationFilter) params.set('locationId', locationFilter);
 
     api.get(`orders?${params}`)
       
@@ -99,6 +102,12 @@ export default function OrderList() {
       if (deleteTimeoutId) window.clearTimeout(deleteTimeoutId);
     };
   }, [deleteTimeoutId]);
+
+  useEffect(() => {
+    if (user?.role === 'SUPER_ADMIN') {
+      api.get<{data: any[]}>('/locations').then(res => setLocations(res.data)).catch(console.error);
+    }
+  }, [user?.role]);
 
   async function handleDeleteClick(id: string) {
     if (deleteConfirmId === id) {
@@ -295,6 +304,19 @@ export default function OrderList() {
           <option value="PICKUP">{t('orderList.typePickup')}</option>
           <option value="FROZEN_DELIVERY">{t('orderList.typeFrozenDelivery')}</option>
         </select>
+        
+        {user?.role === 'SUPER_ADMIN' && (
+          <select
+            value={locationFilter}
+            onChange={(e) => { setLocationFilter(e.target.value); setPage(1); }}
+            className="px-4 py-2.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none shadow-sm transition-all duration-200"
+          >
+            <option value="">全部店家 (All Locations)</option>
+            {locations.map(loc => (
+              <option key={loc.id} value={loc.id}>{loc.name}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {loading && (

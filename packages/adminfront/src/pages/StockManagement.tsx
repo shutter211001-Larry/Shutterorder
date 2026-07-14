@@ -129,10 +129,13 @@ export default function StockManagement() {
       const currentItem = items.find(i => i.id === itemId);
       if (!currentItem) return;
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const contextLocationId = searchParams.get('locationId');
+
       const payload = {
         ...updates,
-        // Ensure values are numbers
         stockQty: updates.stockQty !== undefined ? Number(updates.stockQty) : currentItem.stockQty,
+        contextLocationId: contextLocationId
       };
 
       const res = await api.patch<{ data: MenuItem }>(`/menu/items/${itemId}`, payload);
@@ -167,8 +170,10 @@ export default function StockManagement() {
         )
       }));
 
-      // We only send the options array to patch
-      const payload = { options: updatedOptions };
+      const searchParams = new URLSearchParams(window.location.search);
+      const contextLocationId = searchParams.get('locationId');
+
+      const payload = { options: updatedOptions, contextLocationId: contextLocationId };
       const res = await api.patch<{ data: MenuItem }>(`/menu/items/${itemId}`, payload);
       
       setItems(prev => prev.map(i => i.id === itemId ? { ...i, ...res.data } : i));

@@ -43,12 +43,38 @@ export class OrderService {
         const menuItem = menuItemMap.get(item.menuItemId)!;
         
         if (menuItem.trackStock) {
-          const result = await tx.menuItem.updateMany({
-            where: { id: item.menuItemId, stockQty: { gte: item.quantity } },
-            data: { stockQty: { decrement: item.quantity } },
-          });
-          if (result.count === 0) {
-            throw new Error(`Insufficient stock for item: ${menuItem.name}`);
+          // If the item natively belongs to this location (no Follow+Plugin), or if we are using overrides,
+          // we should always deduct from the LocationOverride to keep it separated.
+          // Or, to be safe and simple, we check if it's a native item that doesn't use overrides.
+          if (menuItem.locationId === orderData.locationId) {
+            // Native item, deduct directly
+            const result = await tx.menuItem.updateMany({
+              where: { id: item.menuItemId, stockQty: { gte: item.quantity } },
+              data: { stockQty: { decrement: item.quantity } },
+            });
+            if (result.count === 0) {
+              throw new Error(`Insufficient stock for item: ${menuItem.name}`);
+            }
+          } else {
+            // Follow + Plugin item, deduct from override
+            const override = await (tx as any).menuItemLocationOverride.upsert({
+              where: {
+                menuItemId_locationId: { menuItemId: item.menuItemId, locationId: orderData.locationId }
+              },
+              create: {
+                menuItemId: item.menuItemId,
+                locationId: orderData.locationId,
+                stockQty: -item.quantity,
+                trackStock: true,
+                isActive: true
+              },
+              update: {
+                stockQty: { decrement: item.quantity }
+              }
+            });
+            if (override.stockQty < 0) {
+              throw new Error(`Insufficient stock for item: ${menuItem.name}`);
+            }
           }
         }
 

@@ -25,13 +25,25 @@ const createCategorySchema = z.object({
 const updateCategorySchema = createCategorySchema.partial().omit({ slug: true });
 
 export async function listCategories(req: Request, res: Response): Promise<void> {
-  const locationId = req.query.locationId as string | undefined;
+  let locationId = req.query.locationId as string | undefined;
+
+  let queryLocationIds: string[] = [];
+  if (locationId) {
+    queryLocationIds.push(locationId);
+    const loc = await prisma.location.findUnique({
+      where: { id: locationId },
+      select: { syncSettingsWithMain: true, parentLocationId: true }
+    });
+    if (loc?.syncSettingsWithMain && loc.parentLocationId) {
+      queryLocationIds.push(loc.parentLocationId);
+    }
+  }
 
   const where: Record<string, unknown> = {};
-  if (locationId) {
+  if (queryLocationIds.length > 0) {
     where.OR = [
       { locationId: null },
-      { locationId: locationId }
+      { locationId: { in: queryLocationIds } }
     ];
   }
 

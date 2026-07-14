@@ -6,12 +6,6 @@ export async function issueOrderInvoice(req: Request, res: Response): Promise<vo
   const orderId = req.params.orderId as string;
 
   try {
-    const provider = await getInvoiceProvider();
-    if (!provider) {
-      res.status(400).json({ success: false, error: 'Invoice provider is not configured or not enabled' });
-      return;
-    }
-
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -22,6 +16,12 @@ export async function issueOrderInvoice(req: Request, res: Response): Promise<vo
 
     if (!order) {
       res.status(404).json({ success: false, error: 'Order not found' });
+      return;
+    }
+
+    const provider = await getInvoiceProvider(order.locationId || undefined);
+    if (!provider) {
+      res.status(400).json({ success: false, error: 'Invoice provider is not configured or not enabled' });
       return;
     }
 

@@ -480,7 +480,8 @@
     "redemptionMethod": "[EN] 兌換方式：",
     "cashPayment": "[EN] 現金付款",
     "bonusRedemption": "[EN] 紅利兌換 (",
-    "pointsSuffix": "[EN] 點)"
+    "pointsSuffix": "[EN] 點)",
+    "probabilities": "Probabilities"
   },
   "authContext": {
     "serverConnectionFailed": "[EN] 伺服器連線失敗或正在維護中，請稍後再試。 (Server connection failed)",

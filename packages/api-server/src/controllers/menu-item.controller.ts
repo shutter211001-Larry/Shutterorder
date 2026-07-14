@@ -69,11 +69,59 @@ const createMenuItemSchema = z.object({
   cropData: z.any().optional(),
   prepTime: z.number().min(0).default(0).optional(),
   isRandomDispatch: z.boolean().default(false).optional(),
-  randomDispatchPool: z.array(z.string()).optional(),
+  randomDispatchPool: z.array(z.object({
+    id: z.string(),
+    weight: z.number().min(1).default(1)
+  })).optional(),
   hasGachaAnimation: z.boolean().default(true).optional(),
+  showProbabilities: z.boolean().default(false).optional(),
 });
 
-const updateMenuItemSchema = createMenuItemSchema.partial().omit({ slug: true });
+const updateMenuItemSchema = createMenuItemSchema.partial().extend({
+  contextLocationId: z.string().nullable().optional()
+}).omit({ slug: true });
+
+async function enrichRandomDispatchPools(items: any[]) {
+  const poolItemIds = new Set<string>();
+  items.forEach(item => {
+    if (item.isRandomDispatch && Array.isArray(item.randomDispatchPool)) {
+      item.randomDispatchPool.forEach((p: any) => {
+        if (typeof p === 'string') poolItemIds.add(p);
+        else if (p && typeof p.id === 'string') poolItemIds.add(p.id);
+      });
+    }
+  });
+
+  if (poolItemIds.size === 0) return;
+
+  const poolItems = await prisma.menuItem.findMany({
+    where: { id: { in: Array.from(poolItemIds) } },
+    select: { id: true, name: true, nameTranslations: true, image: true, price: true, trackStock: true, stockQty: true, isActive: true }
+  });
+  const poolItemMap = new Map(poolItems.map(p => [p.id, p]));
+
+  items.forEach(item => {
+    if (item.isRandomDispatch && Array.isArray(item.randomDispatchPool)) {
+      item.randomDispatchPool = item.randomDispatchPool.map((p: any) => {
+        const id = typeof p === 'string' ? p : p.id;
+        const weight = typeof p === 'string' ? 1 : (p.weight || 1);
+        const childItem = poolItemMap.get(id);
+        if (!childItem) return null;
+        return {
+          id,
+          weight,
+          name: childItem.name,
+          nameTranslations: childItem.nameTranslations,
+          image: childItem.image,
+          price: childItem.price,
+          trackStock: childItem.trackStock,
+          stockQty: childItem.stockQty,
+          isActive: childItem.isActive
+        };
+      }).filter(Boolean);
+    }
+  });
+}
 
 export async function listMenuItems(req: Request, res: Response): Promise<void> {
   const page = Math.max(1, parseInt(req.query.page as string) || 1);
@@ -81,16 +129,30 @@ export async function listMenuItems(req: Request, res: Response): Promise<void> 
   const skip = (page - 1) * limit;
   const categoryId = req.query.categoryId as string | undefined;
   const search = req.query.search as string | undefined;
-  const locationId = req.query.locationId as string | undefined;
+  let locationId = req.query.locationId as string | undefined;
+
+  let queryLocationIds: string[] = [];
+  let originalLocationId = locationId;
+
+  if (locationId) {
+    queryLocationIds.push(locationId);
+    const loc = await prisma.location.findUnique({
+      where: { id: locationId },
+      select: { syncSettingsWithMain: true, parentLocationId: true }
+    });
+    if (loc?.syncSettingsWithMain && loc.parentLocationId) {
+      queryLocationIds.push(loc.parentLocationId);
+    }
+  }
 
   const where: Record<string, unknown> = {};
   if (categoryId) where.categoryId = categoryId;
   if (search) where.name = { contains: search, mode: 'insensitive' };
 
-  if (locationId) {
+  if (queryLocationIds.length > 0) {
     where.OR = [
       { locationId: null },
-      { locationId: locationId }
+      { locationId: { in: queryLocationIds } }
     ];
   }
 
@@ -108,13 +170,53 @@ export async function listMenuItems(req: Request, res: Response): Promise<void> 
         options: {
           orderBy: { sortOrder: 'asc' },
           include: {
-            values: { orderBy: { sortOrder: 'asc' } },
+            values: { 
+              orderBy: { sortOrder: 'asc' },
+              ...(originalLocationId ? {
+                include: {
+                  locationOverrides: { where: { locationId: originalLocationId } }
+                }
+              } : {})
+            },
           },
         },
+        ...(originalLocationId ? {
+          locationOverrides: { where: { locationId: originalLocationId } }
+        } : {})
       },
     }),
     prisma.menuItem.count({ where }),
   ]);
+
+  // Apply Overrides
+  if (originalLocationId) {
+    items.forEach((item: any) => {
+      if (item.locationOverrides && item.locationOverrides.length > 0) {
+        const override = item.locationOverrides[0];
+        item.isActive = override.isActive;
+        item.trackStock = override.trackStock;
+        item.stockQty = override.stockQty;
+      }
+      delete item.locationOverrides;
+
+      if (item.options) {
+        item.options.forEach((opt: any) => {
+          if (opt.values) {
+            opt.values.forEach((val: any) => {
+              if (val.locationOverrides && val.locationOverrides.length > 0) {
+                const vOverride = val.locationOverrides[0];
+                val.trackStock = vOverride.trackStock;
+                val.stockQty = vOverride.stockQty;
+              }
+              delete val.locationOverrides;
+            });
+          }
+        });
+      }
+    });
+  }
+
+  await enrichRandomDispatchPools(items);
 
   res.json({
     success: true,
@@ -126,19 +228,31 @@ export async function listMenuItems(req: Request, res: Response): Promise<void> 
 export async function getMenuItem(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;
 
-  const item = await prisma.menuItem.findUnique({
+  let locationId = req.query.locationId as string | undefined;
+
+  const item: any = await prisma.menuItem.findUnique({
     where: { id },
     include: {
       category: { select: { id: true, name: true, nameTranslations: true, isFrozenDelivery: true } },
       options: {
         orderBy: { sortOrder: 'asc' },
         include: {
-          values: { orderBy: { sortOrder: 'asc' } },
+          values: { 
+            orderBy: { sortOrder: 'asc' },
+            ...(locationId ? {
+              include: {
+                locationOverrides: { where: { locationId } }
+              }
+            } : {})
+          },
         },
       },
       allergens: { include: { allergen: true } },
       mealtimes: { include: { mealtime: true } },
       dietaryPreferences: { include: { dietaryPreference: true } },
+      ...(locationId ? {
+        locationOverrides: { where: { locationId } }
+      } : {})
     },
   });
 
@@ -146,6 +260,34 @@ export async function getMenuItem(req: Request<{ id: string }>, res: Response): 
     res.status(404).json({ success: false, error: 'Menu item not found' });
     return;
   }
+
+  // Apply Overrides
+  if (locationId) {
+    if (item.locationOverrides && item.locationOverrides.length > 0) {
+      const override = item.locationOverrides[0];
+      item.isActive = override.isActive;
+      item.trackStock = override.trackStock;
+      item.stockQty = override.stockQty;
+    }
+    delete item.locationOverrides;
+
+    if (item.options) {
+      item.options.forEach((opt: any) => {
+        if (opt.values) {
+          opt.values.forEach((val: any) => {
+            if (val.locationOverrides && val.locationOverrides.length > 0) {
+              const vOverride = val.locationOverrides[0];
+              val.trackStock = vOverride.trackStock;
+              val.stockQty = vOverride.stockQty;
+            }
+            delete val.locationOverrides;
+          });
+        }
+      });
+    }
+  }
+
+  await enrichRandomDispatchPools([item]);
 
   // Fetch recipe mapping from ERP if available
   let recipeId = null;
@@ -295,7 +437,60 @@ export async function updateMenuItem(req: Request<{ id: string }>, res: Response
     return;
   }
 
-  const { options, allergenIds, mealtimeIds, dietaryPreferenceIds, recipeId, recipeName, ...data } = parsed.data;
+  const { options, allergenIds, mealtimeIds, dietaryPreferenceIds, recipeId, recipeName, contextLocationId, ...data } = parsed.data;
+
+  const isFollowedItem = contextLocationId && existing.locationId !== contextLocationId;
+
+  if (isFollowedItem) {
+    if (data.isActive !== undefined || data.trackStock !== undefined || data.stockQty !== undefined) {
+      await prisma.menuItemLocationOverride.upsert({
+        where: { menuItemId_locationId: { menuItemId: id, locationId: contextLocationId } },
+        create: {
+          menuItemId: id,
+          locationId: contextLocationId,
+          isActive: data.isActive ?? existing.isActive,
+          trackStock: data.trackStock ?? existing.trackStock,
+          stockQty: data.stockQty ?? existing.stockQty
+        },
+        update: {
+          ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
+          ...(data.trackStock !== undefined ? { trackStock: data.trackStock } : {}),
+          ...(data.stockQty !== undefined ? { stockQty: data.stockQty } : {}),
+        }
+      });
+    }
+
+    if (options) {
+      for (const opt of options) {
+        if (opt.values) {
+          for (const val of opt.values) {
+            // Option values overrides are mapped by value ID. Since frontend options list includes IDs, we can update.
+            // Wait, the frontend might not send ID if it's a new option, but for follow items, they shouldn't create new options anyway.
+            if ((val as any).id) {
+              await prisma.menuOptionValueLocationOverride.upsert({
+                where: { menuOptionValueId_locationId: { menuOptionValueId: (val as any).id, locationId: contextLocationId } },
+                create: {
+                  menuOptionValueId: (val as any).id,
+                  locationId: contextLocationId,
+                  isActive: (val as any).isActive !== undefined ? (val as any).isActive : true,
+                  trackStock: val.trackStock !== undefined ? val.trackStock : false,
+                  stockQty: val.stockQty !== undefined ? val.stockQty : 0
+                },
+                update: {
+                  ...((val as any).isActive !== undefined ? { isActive: (val as any).isActive } : {}),
+                  ...(val.trackStock !== undefined ? { trackStock: val.trackStock } : {}),
+                  ...(val.stockQty !== undefined ? { stockQty: val.stockQty } : {}),
+                }
+              });
+            }
+          }
+        }
+      }
+    }
+
+    res.json({ success: true, data: existing });
+    return;
+  }
 
   // Auto-translate fields before update
   const translatedData = await autoTranslateMenuItem(data, existing);
@@ -400,10 +595,19 @@ export async function updateMenuItem(req: Request<{ id: string }>, res: Response
 
 export async function deleteMenuItem(req: Request<{ id: string }>, res: Response): Promise<void> {
   const { id } = req.params;
+  const locationId = req.query.locationId as string | undefined;
 
   const existing = await prisma.menuItem.findUnique({ where: { id } });
   if (!existing) {
     res.status(404).json({ success: false, error: 'Menu item not found' });
+    return;
+  }
+
+  if (locationId && existing.locationId !== locationId) {
+    res.status(403).json({
+      success: false,
+      error: 'Cannot delete a followed menu item from a child location.',
+    });
     return;
   }
 

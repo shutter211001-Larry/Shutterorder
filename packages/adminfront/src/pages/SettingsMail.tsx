@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { api } from '../lib/api.js';
+import { LocationOverrideSelector } from '../components/settings/LocationOverrideSelector';
 
 export default function SettingsMail() {
   const token = localStorage.getItem('token') || '';
@@ -21,27 +22,13 @@ export default function SettingsMail() {
   const [emailHeaderColor, setEmailHeaderColor] = useState('#f97316');
   const [emailBgColor, setEmailBgColor] = useState('#f3f4f6');
   const [mailServiceType, setMailServiceType] = useState<'SMTP' | 'GMAIL_API'>('SMTP');
-
   const [testEmail, setTestEmail] = useState('');
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState('');
-
-  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState('');
-
-  useEffect(() => {
-    api.get('locations')
-      
-      .then((res) => {
-        if (res.success && Array.isArray(res.data)) {
-          setLocations(res.data);
-        }
-      })
-      .catch(() => {});
-  }, [token]);
+  const [searchParams] = useSearchParams();
+  const [selectedLocationId, setSelectedLocationId] = useState(searchParams.get('locationId') || '');
 
   useEffect(() => {
-    setLoading(true);
     const url = selectedLocationId ? `/settings/mail?locationId=${selectedLocationId}` : '/settings/mail';
     api.get<any>(url)
       .then((res) => {
@@ -144,23 +131,7 @@ export default function SettingsMail() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🏬</span>
-          <div>
-            <h3 className="text-sm font-bold text-gray-900">分店獨立郵件設定 (Branch Mail Settings)</h3>
-            <p className="text-xs text-gray-500">切換分店以進行專屬的 SMTP 參數覆寫，未設定之欄位將繼承系統預設 SMTP 寄件設定。</p>
-          </div>
-        </div>
-        <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={selectedLocationId} onChange={(e) => setSelectedLocationId(e.target.value)}>
-          <option value="">🌐 全域系統預設設定 (System Default)</option>
-          {locations.map((loc) => (
-            <option key={loc.id} value={loc.id}>
-              📍 {loc.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <LocationOverrideSelector value={selectedLocationId} onChange={setSelectedLocationId} />
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg text-sm shadow-sm flex items-center gap-2">

@@ -43,6 +43,8 @@ interface CartContextType {
   subtotal: number;
   tableName: string | null;
   setTableName: (name: string | null) => void;
+  locationId: string | null;
+  setLocationId: (id: string | null) => void;
   
   // Group Ordering
   clientId: string;
@@ -79,6 +81,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [tableName, setTableName] = useState<string | null>(() => {
     try { return sessionStorage.getItem('shutter-table-name'); } catch { return null; }
   });
+  const [locationId, setLocationId] = useState<string | null>(() => {
+    try { return localStorage.getItem('shutter-cart-location'); } catch { return null; }
+  });
   
   const [groupSessionId, setGroupSessionId] = useState<string | null>(() => {
     try { return sessionStorage.getItem('shutter-group-session'); } catch { return null; }
@@ -93,6 +98,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try { localStorage.setItem('shutter-cart', JSON.stringify(items)); } catch {}
   }, [items]);
+
+  useEffect(() => {
+    try {
+      if (locationId) localStorage.setItem('shutter-cart-location', locationId);
+      else localStorage.removeItem('shutter-cart-location');
+    } catch {}
+  }, [locationId]);
 
   useEffect(() => {
     try {
@@ -207,9 +219,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider value={{ 
-      items, isOpen, setIsOpen, addItem, updateQuantity, removeItem, clear, 
-      itemCount, subtotal, tableName, setTableName, 
-      clientId, groupSessionId, groupPin, setGroupSession 
+      items, isOpen, setIsOpen, addItem, updateQuantity, removeItem,        clear,
+        itemCount,
+        subtotal,
+        tableName,
+        setTableName,
+        locationId,
+        setLocationId,
+        clientId,
+        groupSessionId, groupPin, setGroupSession 
     }}>
       {children}
     </CartContext.Provider>

@@ -285,6 +285,46 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
                 </div>
               )}
 
+              {/* Random Dispatch Probabilities */}
+              {(item as any).isRandomDispatch && (item as any).showProbabilities && Array.isArray((item as any).randomDispatchPool) && (
+                <div className="mt-6 bg-purple-50/50 border border-purple-100 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    {t('menuItemModal.probabilities') || '機率表 (Probabilities)'}
+                  </h3>
+                  <div className="space-y-2">
+                    {(() => {
+                      const pool = (item as any).randomDispatchPool;
+                      const effectivePool = pool.map((p: any) => {
+                        const isOutOfStock = !p.isActive || (p.trackStock && p.stockQty < 1);
+                        return {
+                          ...p,
+                          effectiveWeight: isOutOfStock ? 0 : (p.weight || 1),
+                          isOutOfStock
+                        };
+                      });
+                      const totalWeight = effectivePool.reduce((sum: number, p: any) => sum + p.effectiveWeight, 0);
+                      
+                      return effectivePool.map((p: any) => {
+                        const prob = totalWeight > 0 ? (p.effectiveWeight / totalWeight * 100).toFixed(1) : '0.0';
+                        return (
+                          <div key={p.id} className={`flex items-center justify-between text-sm ${p.isOutOfStock ? 'opacity-50' : ''}`}>
+                            <span className="text-gray-700 flex items-center gap-2 font-medium">
+                              {p.image && <img src={p.image} className="w-6 h-6 rounded object-cover shadow-sm" />}
+                              {getTranslated(p.name || 'Unknown', p.nameTranslations || {}, i18n.language)}
+                              {p.isOutOfStock && <span className="ml-1 text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold tracking-tight">{t('common.outOfStock') || '庫存不足'}</span>}
+                            </span>
+                            <span className="font-mono text-purple-600 font-bold bg-white px-2 py-0.5 rounded shadow-sm border border-purple-100">{prob}%</span>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              )}
+
               {/* Options */}
               {item.options.length > 0 && (
                 <div className="mt-6 space-y-5">

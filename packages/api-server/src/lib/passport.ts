@@ -38,7 +38,7 @@ export const initPassport = async () => {
             if (loggedInUser && loggedInUser.type === 'customer' && isLinking) {
               // LINKING: User is already logged in and explicitly wants to link
               // 1. Check if this Google account is already linked to ANOTHER customer
-              const existingLink = await prisma.customer.findUnique({
+              const existingLink = await prisma.customer.findFirst({
                 where: { googleId: profile.id }
               });
 

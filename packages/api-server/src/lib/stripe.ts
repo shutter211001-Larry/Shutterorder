@@ -4,7 +4,7 @@ import { tenantStorage } from '../middleware/tenantStorage.js';
 
 const stripeCache = new Map<string, Stripe>();
 
-export async function getStripe(): Promise<Stripe> {
+export async function getStripe(locationId?: string): Promise<Stripe> {
   const store = tenantStorage.getStore();
   const tenantId = store?.tenantId || 'default';
 
@@ -12,7 +12,15 @@ export async function getStripe(): Promise<Stripe> {
 
   try {
     const settings = await prisma.siteSettings.findFirst();
-    const payment = (settings?.paymentSettings as Record<string, any>) || {};
+    let payment = (settings?.paymentSettings as Record<string, any>) || {};
+    
+    if (locationId && settings?.advancedSettings) {
+      const advanced = settings.advancedSettings as any;
+      if (advanced.locationOverrides && advanced.locationOverrides[locationId]?.paymentSettings) {
+        payment = { ...payment, ...advanced.locationOverrides[locationId].paymentSettings };
+      }
+    }
+
     if (payment.stripeSecretKey) {
       secretKey = payment.stripeSecretKey;
     }

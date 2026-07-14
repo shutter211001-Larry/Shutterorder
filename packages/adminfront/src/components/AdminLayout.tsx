@@ -59,6 +59,15 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'dashboard', path: '/', label: 'nav.dashboard', icon: <LayoutDashboard size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
   {
+    id: 'store_management',
+    label: '店家管理',
+    icon: <Store size={20} />,
+    roles: ['SUPER_ADMIN', 'MANAGER'],
+    children: [
+      { path: '/locations', label: '店家列表', roles: ['SUPER_ADMIN', 'MANAGER'] },
+    ]
+  },
+  {
     id: 'operations',
     label: '營運與財務',
     icon: <Wallet size={20} />,
@@ -68,23 +77,11 @@ const navItems: NavItem[] = [
       { path: '/orders', label: 'nav.orders', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
       { path: '/reservations', label: 'nav.reservations', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
       { path: '/finance', label: 'nav.finance', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
-    ]
-  },
-  {
-    id: 'menu',
-    label: 'nav.menu',
-    icon: <MenuSquare size={20} />,
-    roles: ['SUPER_ADMIN', 'MANAGER'],
-    children: [
-      { path: '/menu/items', label: 'nav.menuItems', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/menu/categories', label: 'nav.categories', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/menu/stock', label: 'nav.stockOverview', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
       { path: '/menu/requisitions', label: '門市叫貨單', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
-      { path: '/menu/allergens', label: 'nav.allergens', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/menu/dietary', label: 'nav.dietary', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/menu/mealtimes', label: 'nav.mealtimes', roles: ['SUPER_ADMIN', 'MANAGER'] },
     ]
   },
+
   {
     id: 'crm',
     label: '顧客關係',
@@ -119,8 +116,10 @@ const navItems: NavItem[] = [
     icon: <Settings size={20} />,
     roles: ['SUPER_ADMIN'],
     children: [
-      { path: '/locations', label: 'nav.locations', roles: ['SUPER_ADMIN'] },
       { path: '/settings', label: 'nav.settings', roles: ['SUPER_ADMIN'] },
+      { path: '/menu/allergens', label: 'nav.allergens', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/menu/dietary', label: 'nav.dietary', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/menu/mealtimes', label: 'nav.mealtimes', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/design/landing', label: 'nav.landingPage', roles: ['SUPER_ADMIN'] },
       { path: '/design/branding', label: 'nav.branding', roles: ['SUPER_ADMIN'] },
       { path: '/design/theme', label: 'nav.theme', roles: ['SUPER_ADMIN'] },

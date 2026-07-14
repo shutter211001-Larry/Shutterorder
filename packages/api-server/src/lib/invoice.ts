@@ -140,9 +140,16 @@ export class ECPayInvoiceProvider {
   }
 }
 
-export async function getInvoiceProvider() {
+export async function getInvoiceProvider(locationId?: string) {
   const settingsDoc = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
-  const invoiceSettings = settingsDoc?.invoiceSettings as any;
+  let invoiceSettings = settingsDoc?.invoiceSettings as any;
+
+  if (locationId && settingsDoc?.advancedSettings) {
+    const advanced = settingsDoc.advancedSettings as any;
+    if (advanced.locationOverrides && advanced.locationOverrides[locationId]?.invoiceSettings) {
+      invoiceSettings = { ...(invoiceSettings || {}), ...advanced.locationOverrides[locationId].invoiceSettings };
+    }
+  }
 
   if (!invoiceSettings || !invoiceSettings.enabled) {
     return null;

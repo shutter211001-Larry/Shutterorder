@@ -54,6 +54,10 @@ interface LocationData {
   overtimeMultiplier2: number;
   restDayMultiplier: number;
   regularDayMultiplier: number;
+  isMainStore: boolean;
+  parentLocationId?: string | null;
+  syncSettingsWithMain: boolean;
+  syncOrdersWithMain: boolean;
 }
 
 const defaultHours: OperatingHour[] = Array.from({ length: 7 }).map((_, i: number) => ({
@@ -93,6 +97,10 @@ const emptyLocation: LocationData = {
   overtimeMultiplier2: 1.67,
   restDayMultiplier: 1.34,
   regularDayMultiplier: 2.0,
+  isMainStore: false,
+  parentLocationId: null,
+  syncSettingsWithMain: true,
+  syncOrdersWithMain: false,
 };
 
 export default function LocationForm() {
@@ -112,7 +120,14 @@ export default function LocationForm() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'basic' | 'hours' | 'hr' | 'delivery' | 'inventory'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'hours' | 'hr' | 'delivery' | 'inventory' | 'menu' | 'integrations'>('basic');
+  const [mainStores, setMainStores] = useState<Array<{id: string, name: string}>>([]);
+
+  useEffect(() => {
+    api.get<{data: any[]}>('/locations').then(res => {
+      setMainStores(res.data.filter(l => l.isMainStore && l.id !== id));
+    }).catch(console.error);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!await confirm(t('locationForm.confirmDeleteStore'))) {
@@ -161,6 +176,10 @@ export default function LocationForm() {
           overtimeMultiplier2: loc.overtimeMultiplier2 ?? 1.67,
           restDayMultiplier: loc.restDayMultiplier ?? 1.34,
           regularDayMultiplier: loc.regularDayMultiplier ?? 2.0,
+          isMainStore: loc.isMainStore ?? false,
+          parentLocationId: loc.parentLocationId ?? null,
+          syncSettingsWithMain: loc.syncSettingsWithMain ?? true,
+          syncOrdersWithMain: loc.syncOrdersWithMain ?? false,
         });
         if (loc.operatingHours?.length) {
           setHours(loc.operatingHours.map((h: any) => ({
@@ -300,7 +319,11 @@ export default function LocationForm() {
           { id: 'hours', label: t('locationForm.businessHoursSettings') || '營業時間' },
           { id: 'hr', label: t('locationForm.humanResources') || '人力資源' },
           { id: 'delivery', label: t('locationForm.deliveryArea') || '外送區域' },
-          { id: 'inventory', label: t('locationForm.inventory') || '門市庫存' }
+          { id: 'inventory', label: t('locationForm.inventory') || '門市庫存' },
+          ...(isEdit ? [
+            { id: 'menu', label: '店家菜單' },
+            { id: 'integrations', label: '整合設定' }
+          ] : [])
         ].map(tab => (
           <button
             type="button"
@@ -372,6 +395,75 @@ export default function LocationForm() {
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
+          </div>
+        </section>
+
+        {/* Main Store Hierarchy */}
+        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">主副店架構設定</h3>
+          <div className="space-y-4">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={form.isMainStore}
+                onChange={(e) => {
+                  updateField('isMainStore', e.target.checked);
+                  if (e.target.checked) {
+                    updateField('parentLocationId', null);
+                  }
+                }}
+                className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
+              />
+              <span className="text-sm font-medium text-gray-700">設為「主店家」 (Main Store)</span>
+            </label>
+
+            {!form.isMainStore && (
+              <div className="pl-8 space-y-4 border-l-2 border-gray-100 mt-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">選擇跟隨的主店家</label>
+                  <select
+                    value={form.parentLocationId || ''}
+                    onChange={(e) => updateField('parentLocationId', e.target.value || null)}
+                    className="w-full max-w-md px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    <option value="">(不跟隨任何主店家，完全獨立)</option>
+                    {mainStores.map(store => (
+                      <option key={store.id} value={store.id}>{store.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {form.parentLocationId && (
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg max-w-md border border-gray-100">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.syncSettingsWithMain}
+                        onChange={(e) => updateField('syncSettingsWithMain', e.target.checked)}
+                        className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
+                      />
+                      <div>
+                        <span className="block text-sm font-medium text-gray-700">跟隨主店家設定 (菜單與串接)</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">若打勾，此店家的前台將自動讀取主店的菜單與金流設定。</span>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.syncOrdersWithMain}
+                        onChange={(e) => updateField('syncOrdersWithMain', e.target.checked)}
+                        className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 border-gray-300"
+                      />
+                      <div>
+                        <span className="block text-sm font-medium text-gray-700">訂單綑綁至主店家</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">若打勾，此店家的訂單會一併出現在主店經理的訂單列表中。</span>
+                      </div>
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
@@ -509,48 +601,8 @@ export default function LocationForm() {
           </div>
         </section>
 
-        {/* Franchise Settings */}
-        <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('locationForm.isFranchise') || '加盟設定'}</h3>
-          <label className="flex items-center gap-2 mb-4">
-            <input
-              type="checkbox"
-              checked={form.isFranchise}
-              onChange={(e) => updateField('isFranchise', e.target.checked)}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-            />
-            <span className="text-sm font-medium text-gray-700">{t('locationForm.isFranchise') || '這是一間加盟門市'}</span>
-          </label>
-          
-          {form.isFranchise && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('locationForm.franchiseeName') || '加盟主姓名'}</label>
-                <input
-                  type="text"
-                  value={form.franchiseeName || ''}
-                  onChange={(e) => updateField('franchiseeName', e.target.value)}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('locationForm.royaltyRate') || '抽成比例 (%)'}</label>
-                <input
-                  type="number"
-                  value={form.royaltyRate ?? 5.0}
-                  onChange={(e) => updateField('royaltyRate', parseFloat(e.target.value))}
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-            </div>
-          )}
-        </section>
-
-                  </div>
-        )}
+        </div>
+      )}
 
         {activeTab === 'hours' && (
           <div className="space-y-8 animate-in fade-in duration-300">
@@ -956,7 +1008,74 @@ export default function LocationForm() {
           </button>
         </div>
       </form>
-      </PageContent>
+        {activeTab === 'menu' && isEdit && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">店家菜單管理</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              管理此店家的專屬菜單與分類。進入菜單管理後，系統會自動過濾並僅顯示此店家的菜品。若開啟跟隨主店家，您可以外加上架自己的專屬菜品。
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => navigate(`/menu/categories?locationId=${id}`)}
+                className="btn-secondary"
+              >
+                管理菜單分類
+              </button>
+              <button 
+                onClick={() => navigate(`/menu/items?locationId=${id}`)}
+                className="btn-primary"
+              >
+                管理菜單品項
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'integrations' && isEdit && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">店家整合設定</h3>
+            {form.syncSettingsWithMain && form.parentLocationId ? (
+              <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg text-center">
+                <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h4 className="text-gray-900 font-medium">此分店目前跟隨主店家設定</h4>
+                <p className="text-gray-500 text-sm mt-1">如需自訂此分店專屬的整合金鑰與設定，請先在「基本設定」中取消「跟隨主店家設定」。</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-gray-500 text-sm mb-6">
+                  設定此店家的專屬 LINE 官方帳號、支付串接、Google 登入與信件通知等獨立憑證。
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <button onClick={() => navigate(`/settings/line?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
+                    <h4 className="font-medium text-gray-900">LINE 整合設定</h4>
+                    <p className="text-sm text-gray-500 mt-1">設定獨立的 LINE OA、LINE Login 與 LINE Pay。</p>
+                  </button>
+                  <button onClick={() => navigate(`/settings/payments?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
+                    <h4 className="font-medium text-gray-900">支付串接設定</h4>
+                    <p className="text-sm text-gray-500 mt-1">設定獨立的 Stripe 或綠界科技金鑰。</p>
+                  </button>
+                  <button onClick={() => navigate(`/settings/google?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
+                    <h4 className="font-medium text-gray-900">Google 整合設定</h4>
+                    <p className="text-sm text-gray-500 mt-1">設定獨立的 Google SSO 與 Google Maps API。</p>
+                  </button>
+                  <button onClick={() => navigate(`/settings/mail?locationId=${id}`)} className="p-4 border border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-colors text-left">
+                    <h4 className="font-medium text-gray-900">信件通知設定</h4>
+                    <p className="text-sm text-gray-500 mt-1">設定獨立的 SMTP 信件伺服器。</p>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </PageContent>
     </div>
   );
 }

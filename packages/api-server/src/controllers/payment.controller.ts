@@ -31,7 +31,7 @@ export async function createPaymentIntent(req: Request, res: Response): Promise<
   }
 
   try {
-    const stripe = await getStripe();
+    const stripe = await getStripe(order.locationId || undefined);
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(order.total * 100), // cents
       currency: 'usd',
@@ -62,7 +62,8 @@ export async function createPaymentIntent(req: Request, res: Response): Promise<
 }
 
 export async function handleWebhook(req: Request, res: Response): Promise<void> {
-  const { tenantId } = req.params;
+  const tenantId = req.params.tenantId as string;
+  const locationId = req.params.locationId as string | undefined;
   
   if (!tenantId) {
     res.status(400).json({ success: false, error: 'tenantId URL parameter is required for webhooks' });
@@ -75,17 +76,25 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
     
     // We fetch settings within the tenant context to get the tenant-specific webhook secret
     const settings = await prisma.siteSettings.findFirst();
-    const payment = (settings?.paymentSettings as Record<string, any>) || {};
+    let payment = (settings?.paymentSettings as Record<string, any>) || {};
+    
+    if (locationId && settings?.advancedSettings) {
+      const advanced = settings.advancedSettings as any;
+      if (advanced.locationOverrides && advanced.locationOverrides[locationId]?.paymentSettings) {
+        payment = { ...payment, ...advanced.locationOverrides[locationId].paymentSettings };
+      }
+    }
+
     const webhookSecret = payment.stripeWebhookSecret || process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      res.status(500).json({ success: false, error: 'Webhook secret not configured for this tenant' });
+      res.status(500).json({ success: false, error: 'Webhook secret not configured for this tenant/location' });
       return;
     }
 
     let event;
     try {
-      const stripe = await getStripe();
+      const stripe = await getStripe(locationId);
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } catch (err: any) {
       res.status(400).json({ success: false, error: `Webhook error: ${err.message}` });
@@ -198,7 +207,7 @@ export async function createPayPalPayment(req: Request, res: Response): Promise<
   }
 
   try {
-    const paypalOrder = await createPayPalOrder(order.total, order.orderNumber);
+    const paypalOrder = await createPayPalOrder(order.total, order.orderNumber, order.locationId || undefined);
 
     await prisma.payment.create({
       data: {
@@ -228,7 +237,9 @@ export async function capturePayPalPayment(req: Request, res: Response): Promise
   }
 
   try {
-    const result = await capturePayPalOrder(paypalOrderId);
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    const locationId = order?.locationId || undefined;
+    const result = await capturePayPalOrder(paypalOrderId, locationId);
 
     if (result.status === 'COMPLETED') {
       await prisma.payment.updateMany({
@@ -289,7 +300,7 @@ export async function createLinePayPayment(req: Request, res: Response): Promise
   }
 
   try {
-    const lineSettings = await getSettingsGroup('lineSettings');
+    const lineSettings = await getSettingsGroup('lineSettings', order.locationId || undefined);
     
     const linePay = new LinePayClient({
       channelId: lineSettings.linePayChannelId || process.env.LINE_PAY_CHANNEL_ID || '',
@@ -420,7 +431,7 @@ export async function confirmLinePayPayment(req: Request, res: Response): Promis
        return;
     }
 
-    const lineSettings = await getSettingsGroup('lineSettings');
+    const lineSettings = await getSettingsGroup('lineSettings', order.locationId || undefined);
 
     const linePay = new LinePayClient({
       channelId: lineSettings.linePayChannelId || process.env.LINE_PAY_CHANNEL_ID || '',

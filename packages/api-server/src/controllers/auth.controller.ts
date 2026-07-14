@@ -385,7 +385,8 @@ export async function customerRegister(req: Request, res: Response): Promise<voi
 
   const { email, password, name, phone, address } = parsed.data;
 
-  const existing = await prisma.customer.findUnique({ where: { email } });
+  const requestTenantId = tenantStorage.getStore()?.tenantId || null;
+  const existing = await prisma.customer.findFirst({ where: { email, tenantId: requestTenantId } });
   if (existing) {
     res.status(409).json({ success: false, error: 'Email already registered' });
     return;
@@ -431,7 +432,9 @@ export async function customerLogin(req: Request, res: Response): Promise<void> 
 
   const { email, password } = parsed.data;
 
-  const customer = await prisma.customer.findUnique({ where: { email } });
+  const requestTenantId = tenantStorage.getStore()?.tenantId || null;
+  const customer = await prisma.customer.findFirst({ where: { email, tenantId: requestTenantId } });
+
   if (!customer || !customer.password) {
     res.status(401).json({ success: false, error: 'Invalid credentials' });
     return;
@@ -691,8 +694,9 @@ export async function mergeSocialAccount(req: Request, res: Response): Promise<v
     }
 
     // 2. FIND SOURCE ACCOUNT: The one that currently holds the social link
-    const sourceUser = await prisma.customer.findUnique({
-      where: provider === 'google' ? { googleId: socialId } : { lineUserId: socialId },
+    const requestTenantId = tenantStorage.getStore()?.tenantId || null;
+    const sourceUser = await prisma.customer.findFirst({
+      where: provider === 'google' ? { googleId: socialId, tenantId: requestTenantId } : { lineUserId: socialId, tenantId: requestTenantId },
     });
 
     if (!sourceUser) {

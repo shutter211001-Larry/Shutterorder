@@ -48,8 +48,9 @@ interface MenuItemData {
   cropData?: any;
   prepTime: number;
   isRandomDispatch: boolean;
-  randomDispatchPool: string[];
+  randomDispatchPool: Array<{ id: string; weight: number } | string>;
   hasGachaAnimation?: boolean;
+  showProbabilities?: boolean;
 }
 
 interface CategoryOption {
@@ -486,7 +487,9 @@ export default function MenuItemForm() {
 
       if (isEdit) {
         const { slug: _, ...updateBody } = body;
-        await api.patch(`/menu/items/${id}`, updateBody);
+        const searchParams = new URLSearchParams(window.location.search);
+        const contextLocationId = searchParams.get('locationId');
+        await api.patch(`/menu/items/${id}`, { ...updateBody, contextLocationId });
       } else {
         await api.post('/menu/items', body);
       }
@@ -1149,31 +1152,74 @@ export default function MenuItemForm() {
                   <label className="block text-sm font-semibold text-purple-950 mb-2">
                     {t('menuItemForm.randomDispatchPool')}
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 bg-white rounded border border-gray-200">
-                    {allMenuItems.filter(i => i.id !== id).map((mItem) => (
-                      <label key={mItem.id} className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-50 rounded">
-                        <input
-                          type="checkbox"
-                          checked={(form.randomDispatchPool || []).includes(mItem.id)}
-                          onChange={(e) => {
-                            const pool = form.randomDispatchPool || [];
-                            if (e.target.checked) {
-                              updateField('randomDispatchPool', [...pool, mItem.id]);
-                            } else {
-                              updateField('randomDispatchPool', pool.filter(pid => pid !== mItem.id));
-                            }
-                          }}
-                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                        />
-                        <span className="text-sm text-gray-700 truncate" title={mItem.name}>{mItem.name}</span>
-                      </label>
-                    ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 bg-white rounded border border-gray-200">
+                    {allMenuItems.filter(i => i.id !== id).map((mItem) => {
+                      const pool = Array.isArray(form.randomDispatchPool) ? form.randomDispatchPool : [];
+                      const poolItem = pool.find((p: any) => (typeof p === 'string' ? p : p.id) === mItem.id);
+                      const isChecked = !!poolItem;
+                      const weight = poolItem ? (typeof poolItem === 'string' ? 1 : (poolItem.weight || 1)) : 1;
+
+                      return (
+                        <div key={mItem.id} className={`flex items-center justify-between p-2 rounded border ${isChecked ? 'border-purple-300 bg-purple-50' : 'border-gray-100 hover:bg-gray-50'}`}>
+                          <label className="flex items-center gap-2 cursor-pointer w-full overflow-hidden">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                let newPool = [...pool];
+                                if (e.target.checked) {
+                                  newPool.push({ id: mItem.id, weight: 1 });
+                                } else {
+                                  newPool = newPool.filter((p: any) => (typeof p === 'string' ? p : p.id) !== mItem.id);
+                                }
+                                updateField('randomDispatchPool', newPool);
+                              }}
+                              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0"
+                            />
+                            <span className="text-sm text-gray-700 truncate" title={mItem.name}>{mItem.name}</span>
+                          </label>
+                          {isChecked && (
+                            <div className="flex items-center gap-1 ml-2 shrink-0">
+                              <span className="text-[10px] text-gray-500">{t('menuItemForm.weight') || '機率權重'}</span>
+                              <input
+                                type="number"
+                                min="1"
+                                value={weight}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value) || 1;
+                                  const newPool = pool.map((p: any) => {
+                                    const pid = typeof p === 'string' ? p : p.id;
+                                    if (pid === mItem.id) return { id: pid, weight: val };
+                                    return p;
+                                  });
+                                  updateField('randomDispatchPool', newPool);
+                                }}
+                                className="w-16 p-1 text-xs rounded border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   {(form.randomDispatchPool || []).length === 0 && (
                     <p className="text-xs text-red-500 mt-2">{t('menuItemForm.randomDispatchPoolRequired')}</p>
                   )}
                   
-                  <div className="mt-4 pt-4 border-t border-purple-200 border-dashed">
+                  <div className="mt-4 pt-4 border-t border-purple-200 border-dashed grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.showProbabilities || false}
+                        onChange={(e) => updateField('showProbabilities', e.target.checked)}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                      <div>
+                        <span className="text-sm font-bold text-purple-900">{t('menuItemForm.showProbabilities') || '顯示機率表'}</span>
+                        <p className="text-xs text-purple-700">{t('menuItemForm.showProbabilitiesDesc') || '在菜單上顯示各獎品的獲取機率'}</p>
+                      </div>
+                    </label>
+
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"

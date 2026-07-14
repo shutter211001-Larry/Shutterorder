@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { PageHeader } from '../components/layout/PageHeader';
 import { PageContent } from '../components/layout/PageContent';
 import { api } from '../lib/api.js';
+import { LocationOverrideSelector } from '../components/settings/LocationOverrideSelector';
 
 export default function SettingsGoogle() {
   const { t } = useTranslation();
@@ -27,29 +29,35 @@ export default function SettingsGoogle() {
   // Google Maps
   const [googleMapsApiKey, setGoogleMapsApiKey] = useState('');
 
+  const [searchParams] = useSearchParams();
+  const [selectedLocationId, setSelectedLocationId] = useState(searchParams.get('locationId') || '');
+
   useEffect(() => {
-    api.get('settings/google')
+    setLoading(true);
+    const url = selectedLocationId ? `settings/google?locationId=${selectedLocationId}` : 'settings/google';
+    api.get(url)
       
       .then((res) => {
         if (res.success && res.data) {
           const d = res.data;
-          if (d.geminiApiKey) setGeminiApiKey(d.geminiApiKey);
-          if (d.googleLoginClientId) setGoogleLoginClientId(d.googleLoginClientId);
-          if (d.googleLoginClientSecret) setGoogleLoginClientSecret(d.googleLoginClientSecret);
-          if (d.gmailClientId) setGmailClientId(d.gmailClientId);
-          if (d.gmailClientSecret) setGmailClientSecret(d.gmailClientSecret);
-          if (d.gmailRefreshToken) setGmailRefreshToken(d.gmailRefreshToken);
-          if (d.googleMapsApiKey) setGoogleMapsApiKey(d.googleMapsApiKey);
+          setGeminiApiKey(d.geminiApiKey || '');
+          setGoogleLoginClientId(d.googleLoginClientId || '');
+          setGoogleLoginClientSecret(d.googleLoginClientSecret || '');
+          setGmailClientId(d.gmailClientId || '');
+          setGmailClientSecret(d.gmailClientSecret || '');
+          setGmailRefreshToken(d.gmailRefreshToken || '');
+          setGoogleMapsApiKey(d.googleMapsApiKey || '');
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, selectedLocationId]);
 
   async function handleSave() {
     setSaving(true);
     try {
-      const res = await api.put('settings/google', JSON.stringify({
+      const url = selectedLocationId ? `settings/google?locationId=${selectedLocationId}` : 'settings/google';
+      const res = await api.put(url, JSON.stringify({
           geminiApiKey,
           googleLoginClientId,
           googleLoginClientSecret,
@@ -100,6 +108,11 @@ export default function SettingsGoogle() {
       />
 
       <PageContent>
+        <LocationOverrideSelector
+          value={selectedLocationId}
+          onChange={setSelectedLocationId}
+        />
+
         <p className="text-sm text-gray-500 mb-6">
           {t('settingsGoogle.googleServicesDescription')}
         </p>

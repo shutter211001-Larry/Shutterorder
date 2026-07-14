@@ -582,6 +582,13 @@ export default function OrderStatus() {const { t, i18n } = useTranslation();
           </Link>
         )}
       </div>
+
+      {gachaResults.length > 0 && (
+        <GachaAnimationOverlay 
+          results={gachaResults} 
+          onComplete={handleGachaComplete} 
+        />
+      )}
     </div>
   );
 }

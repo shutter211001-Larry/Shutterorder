@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../lib/api.js';
+import { LocationOverrideSelector } from '../components/settings/LocationOverrideSelector';
 import { toast } from "react-hot-toast";
 
 export default function SettingsLine() {
@@ -38,21 +40,8 @@ export default function SettingsLine() {
   const [linePayProxyUrl, setLinePayProxyUrl] = useState('');
   const [linePayReturnUrl, setLinePayReturnUrl] = useState('');
 
-  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState('');
-
-  useEffect(() => {
-    fetchLocations();
-  }, [token]);
-
-  async function fetchLocations() {
-    try {
-      const res = await api.get<{ success: boolean; data: any }>('/locations');
-      if (res.success && Array.isArray(res.data)) {
-        setLocations(res.data);
-      }
-    } catch {}
-  }
+  const [searchParams] = useSearchParams();
+  const [selectedLocationId, setSelectedLocationId] = useState(searchParams.get('locationId') || '');
 
   useEffect(() => {
     fetchStatus();
@@ -138,23 +127,7 @@ export default function SettingsLine() {
       </div>
 
       {/* Branch Override Selector */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🏬</span>
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 font-sans">{t('settingsLine.branchLineSettings')}</h3>
-            <p className="text-xs text-gray-500 font-sans">{t('settingsLine.branchLineOverrideDescription')}</p>
-          </div>
-        </div>
-        <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 outline-none shadow-sm cursor-pointer" value={selectedLocationId} onChange={(e) => setSelectedLocationId(e.target.value)}>
-          <option value="">{t('settingsLine.globalSystemDefaultSettings')}</option>
-          {locations.map((loc) => (
-            <option key={loc.id} value={loc.id}>
-              📍 {loc.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <LocationOverrideSelector value={selectedLocationId} onChange={setSelectedLocationId} />
 
       {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6">{error}</div>}
       {success && <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-6">{success}</div>}

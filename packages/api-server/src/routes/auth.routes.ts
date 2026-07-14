@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import * as authController from '../controllers/auth.controller.js';
 import { authenticate, generateToken, requireRole } from '../middleware/auth.js';
 import { loginRateLimiter, registerRateLimiter } from '../middleware/security.js';
+import { tenantStorage } from '../middleware/tenantStorage.js';
 const router = Router();
 const STOREFRONT_URL = process.env.STORE_URL_PUBLIC || 'http://localhost:5174';
 
@@ -101,7 +102,13 @@ router.get('/google', (req: Request, res: Response, next: NextFunction) => {
       stateObj.origin = url.origin;
     }
     
-    // Always store state as a JSON string to preserve the origin
+    // Inject tenantId if available
+    const tenantId = (req as any).tenantId || req.query.tenantId || req.headers['x-tenant-id'];
+    if (tenantId) {
+      stateObj.tenantId = tenantId;
+    }
+    
+    // Always store state as a JSON string to preserve the origin and tenantId
     stateStr = JSON.stringify(stateObj);
   } catch (e) {
     // If parsing fails, we fall back to the original string
@@ -129,41 +136,46 @@ router.get('/google/callback', (req: Request, res: Response, next: NextFunction)
           const payload = jwt.verify(stateObj.token, process.env.JWT_SECRET || 'fallback_secret');
           req.user = payload as Express.User;
         }
+        if (stateObj.tenantId) {
+          (req as any).tenantId = stateObj.tenantId;
+        }
       }
     } catch (e) {
       console.error('Failed to parse state token:', e);
     }
   }
 
-  passport.authenticate('google', { session: false }, (err: any, user: any, info: any) => {
-    if (err) {
-      console.error('Google Auth Error:', err);
-      return res.redirect(`${process.env.STORE_URL_PUBLIC || 'http://localhost:5174'}/auth/callback?error=server_error`);
-    }
-    
-    let baseUrl = process.env.STORE_URL_PUBLIC || 'http://localhost:5174';
-    const stateStr = req.query.state as string;
-    if (stateStr) {
-      try {
-        const decodedStr = decodeURIComponent(stateStr);
-        if (decodedStr.startsWith('{')) {
-          const stateObj = JSON.parse(decodedStr);
-          if (stateObj.origin) baseUrl = stateObj.origin;
-        }
-      } catch (e) {}
-    }
-
-    if (!user) {
-      if (info && info.message && info.message.includes('已被其他會員連結')) {
-        const socialId = info.message.split('|')[1] || '';
-        return res.redirect(`${baseUrl}/account?error=conflict&provider=google&socialId=${socialId}&verified=true`);
+  tenantStorage.run({ tenantId: (req as any).tenantId || null }, () => {
+    passport.authenticate('google', { session: false }, (err: any, user: any, info: any) => {
+      let baseUrl = process.env.STORE_URL_PUBLIC || 'http://localhost:5174';
+      const stateStr = req.query.state as string;
+      if (stateStr) {
+        try {
+          const decodedStr = decodeURIComponent(stateStr);
+          if (decodedStr.startsWith('{')) {
+            const stateObj = JSON.parse(decodedStr);
+            if (stateObj.origin) baseUrl = stateObj.origin;
+          }
+        } catch (e) {}
       }
-      return res.redirect(`${baseUrl}/auth/callback?error=auth_failed`);
-    }
-    req.user = user;
-    next();
-  })(req, res, next);
-}, handleSocialCallback);
+      
+      if (err) {
+        console.error('Google Auth Error:', err);
+        return res.redirect(`${baseUrl}/auth/callback?error=server_error`);
+      }
+      
+      if (!user) {
+        if (info && info.message && info.message.includes('已被其他會員連結')) {
+          const socialId = info.message.split('|')[1] || '';
+          return res.redirect(`${baseUrl}/account?error=conflict&provider=google&socialId=${socialId}&verified=true`);
+        }
+        return res.redirect(`${baseUrl}/auth/callback?error=auth_failed`);
+      }
+      req.user = user;
+      handleSocialCallback(req, res);
+    })(req, res, next);
+  });
+});
 
 // SHARED
 router.get('/me', authenticate, authController.getMe);

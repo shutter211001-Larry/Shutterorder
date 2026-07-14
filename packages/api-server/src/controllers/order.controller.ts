@@ -27,6 +27,34 @@ import { OrderService } from '../services/order.service.js';
 
 import { NotificationService, formatNotificationMessage } from '../services/notification.service.js';
 
+export function applyOverridesToMenuItems(items: any[]) {
+  items.forEach(item => {
+    if (item.locationOverrides && item.locationOverrides.length > 0) {
+      const override = item.locationOverrides[0];
+      item.isActive = override.isActive;
+      item.trackStock = override.trackStock;
+      item.stockQty = override.stockQty;
+    }
+    delete item.locationOverrides;
+
+    if (item.options) {
+      item.options.forEach((opt: any) => {
+        if (opt.values) {
+          opt.values.forEach((val: any) => {
+            if (val.locationOverrides && val.locationOverrides.length > 0) {
+              const vOverride = val.locationOverrides[0];
+              val.isActive = vOverride.isActive;
+              val.trackStock = vOverride.trackStock;
+              val.stockQty = vOverride.stockQty;
+            }
+            delete val.locationOverrides;
+          });
+        }
+      });
+    }
+  });
+}
+
 const orderItemOptionSchema = z.object({
   menuOptionValueId: z.string().min(1),
   name: z.string().min(1),
@@ -115,28 +143,92 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   });
   const initialMenuMap = new Map(initialMenuItems.map(m => [m.id, m]));
 
+  // Extract all pool item IDs to fetch their stock status
+  const poolItemIds = new Set<string>();
+  for (const parent of initialMenuItems) {
+    if (parent.isRandomDispatch && Array.isArray(parent.randomDispatchPool)) {
+      parent.randomDispatchPool.forEach((p: any) => {
+        if (typeof p === 'string') poolItemIds.add(p);
+        else if (p && typeof p.id === 'string') poolItemIds.add(p.id);
+      });
+    }
+  }
+
+  let poolItemsMap = new Map<string, any>();
+  if (poolItemIds.size > 0) {
+    const pItems = await prisma.menuItem.findMany({
+      where: { id: { in: Array.from(poolItemIds) } },
+      select: { 
+        id: true, trackStock: true, stockQty: true, isActive: true,
+        ...(locationId ? { locationOverrides: { where: { locationId } } } : {})
+      }
+    });
+    applyOverridesToMenuItems(pItems);
+    poolItemsMap = new Map(pItems.map(p => [p.id, p]));
+  }
+
   const transformedItems = [];
   for (const item of items) {
     const parentMenuItem = initialMenuMap.get(item.menuItemId);
-    if (parentMenuItem?.isRandomDispatch && parentMenuItem.randomDispatchPool) {
-      const pool = parentMenuItem.randomDispatchPool as string[];
-      if (pool.length > 0) {
-        for (let q = 0; q < item.quantity; q++) {
-          const randomIndex = Math.floor(Math.random() * pool.length);
-          const selectedItemId = pool[randomIndex];
-          transformedItems.push({
-            ...item,
-            menuItemId: selectedItemId,
-            quantity: 1, // Split into quantity 1 for each roll
-            _parentRandomItemId: parentMenuItem.id, 
-            _parentRandomItemName: parentMenuItem.name,
-            _parentRandomItemPrice: parentMenuItem.price,
-            _parentHasGachaAnimation: parentMenuItem.hasGachaAnimation,
-            _parentImage: parentMenuItem.image,
-          });
-        }
-        continue;
+    if (parentMenuItem?.isRandomDispatch && Array.isArray(parentMenuItem.randomDispatchPool)) {
+      let pool = parentMenuItem.randomDispatchPool.map((p: any) => {
+        return {
+          id: typeof p === 'string' ? p : p.id,
+          weight: typeof p === 'string' ? 1 : (p.weight || 1)
+        };
+      });
+
+      // Filter out items that are inactive or out of stock
+      pool = pool.filter(p => {
+        const cItem = poolItemsMap.get(p.id);
+        if (!cItem || !cItem.isActive) return false;
+        if (cItem.trackStock && cItem.stockQty < 1) return false;
+        return true;
+      });
+
+      if (pool.length === 0) {
+        res.status(400).json({ success: false, error: `盲盒「${parentMenuItem.name}」內的所有獎品皆已售完或下架。` });
+        return;
       }
+
+      for (let q = 0; q < item.quantity; q++) {
+        // Weighted random selection
+        const totalWeight = pool.reduce((sum, p) => sum + p.weight, 0);
+        let randomVal = Math.random() * totalWeight;
+        let selectedItemId = pool[0].id;
+        for (const p of pool) {
+          randomVal -= p.weight;
+          if (randomVal <= 0) {
+            selectedItemId = p.id;
+            break;
+          }
+        }
+        
+        // Deduct local stockQty so multiple quantity in same order works properly
+        const cItem = poolItemsMap.get(selectedItemId);
+        if (cItem && cItem.trackStock) {
+           cItem.stockQty -= 1;
+           if (cItem.stockQty < 1) {
+             pool = pool.filter(x => x.id !== selectedItemId);
+             if (pool.length === 0 && q + 1 < item.quantity) {
+                res.status(400).json({ success: false, error: `盲盒「${parentMenuItem.name}」的剩餘庫存不足以滿足訂購數量。` });
+                return;
+             }
+           }
+        }
+
+        transformedItems.push({
+          ...item,
+          menuItemId: selectedItemId,
+          quantity: 1, // Split into quantity 1 for each roll
+          _parentRandomItemId: parentMenuItem.id, 
+          _parentRandomItemName: parentMenuItem.name,
+          _parentRandomItemPrice: parentMenuItem.price,
+          _parentHasGachaAnimation: parentMenuItem.hasGachaAnimation,
+          _parentImage: parentMenuItem.image,
+        });
+      }
+      continue;
     }
     transformedItems.push(item);
   }
@@ -410,10 +502,18 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   const menuItems = await prisma.menuItem.findMany({
     where: { id: { in: menuItemIds } },
     include: {
-      options: { include: { values: true } },
+      options: { 
+        include: { 
+          values: {
+            ...(locationId ? { include: { locationOverrides: { where: { locationId } } } } : {})
+          }
+        } 
+      },
       category: true,
+      ...(locationId ? { locationOverrides: { where: { locationId } } } : {})
     },
   });
+  applyOverridesToMenuItems(menuItems);
 
   const menuItemMap = new Map(menuItems.map((m) => [m.id, m]));
 
@@ -527,7 +627,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
     // OVERRIDE: Use parent random box price if applicable
     let unitPrice = item._parentRandomItemPrice !== undefined ? item._parentRandomItemPrice : menuItem.price;
-    const finalName = item._parentRandomItemName ? `${menuItem.name} (來自：${item._parentRandomItemName})` : menuItem.name;
+    const finalName = item._parentRandomItemName ? `${item._parentRandomItemName} > ${menuItem.name}` : menuItem.name;
 
     const optionsData = (item.options || []).map((opt) => {
       // SECURITY: Get actual price from DB, not from client request
@@ -891,7 +991,49 @@ export async function listOrders(req: Request, res: Response): Promise<void> {
     where.status = statuses.length === 1 ? statuses[0] : { in: statuses };
   }
   if (orderType) where.orderType = orderType;
-  if (locationId) where.locationId = locationId;
+
+  // RBAC: enforce location visibility
+  if (req.user?.role === 'MANAGER' || req.user?.role === 'STAFF') {
+    const userDb = await prisma.user.findUnique({ where: { id: req.user.id }, select: { locationId: true } });
+    const userLocationId = userDb?.locationId;
+
+    if (userLocationId) {
+      const location = await prisma.location.findUnique({
+        where: { id: userLocationId },
+        select: { isMainStore: true }
+      });
+
+      if (location?.isMainStore) {
+        const children = await prisma.location.findMany({
+          where: { parentLocationId: userLocationId, syncOrdersWithMain: true },
+          select: { id: true }
+        });
+        const allowedLocationIds = [userLocationId, ...children.map(c => c.id)];
+
+        if (locationId) {
+          if (!allowedLocationIds.includes(locationId)) {
+            res.status(403).json({ success: false, error: 'Forbidden location access' });
+            return;
+          }
+          where.locationId = locationId;
+        } else {
+          where.locationId = { in: allowedLocationIds };
+        }
+      } else {
+        if (locationId && locationId !== userLocationId) {
+          res.status(403).json({ success: false, error: 'Forbidden location access' });
+          return;
+        }
+        where.locationId = userLocationId;
+      }
+    } else {
+      res.status(403).json({ success: false, error: 'User is not assigned to any location' });
+      return;
+    }
+  } else {
+    // Super admin can filter freely
+    if (locationId) where.locationId = locationId;
+  }
 
   const [orders, total] = await Promise.all([
     prisma.order.findMany({

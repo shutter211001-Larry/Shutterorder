@@ -19,6 +19,18 @@ export function clearSettingsCache(tenantId?: string | null) {
   settingsCache.delete(key);
 }
 
+async function resolveLocationId(locationId?: string): Promise<string | undefined> {
+  if (!locationId) return undefined;
+  const loc = await prisma.location.findUnique({
+    where: { id: locationId },
+    select: { syncSettingsWithMain: true, parentLocationId: true }
+  });
+  if (loc?.syncSettingsWithMain && loc.parentLocationId) {
+    return loc.parentLocationId;
+  }
+  return locationId;
+}
+
 export async function getOrCreateSettings() {
   const store = (await import('../middleware/tenantStorage.js')).tenantStorage.getStore();
   const tenantId = store?.tenantId;
@@ -321,9 +333,18 @@ type SettingsField =
   | 'lineSettings'
   | 'googleSettings';
 
-export async function getSettingsGroup(field: SettingsField): Promise<Record<string, any>> {
+export async function getSettingsGroup(field: SettingsField, locationId?: string): Promise<Record<string, any>> {
   const settings = await getOrCreateSettings();
-  return (settings[field] as Record<string, any>) || {};
+  let data = (settings[field] as Record<string, any>) || {};
+
+  if (locationId && settings.advancedSettings) {
+    const advanced = settings.advancedSettings as any;
+    if (advanced.locationOverrides && advanced.locationOverrides[locationId] && advanced.locationOverrides[locationId][field]) {
+      data = { ...data, ...advanced.locationOverrides[locationId][field] };
+    }
+  }
+
+  return data;
 }
 
 export async function updateSettingsGroup(field: SettingsField, data: Record<string, any>): Promise<Record<string, any>> {
@@ -614,7 +635,7 @@ export async function updateReservationSettings(req: Request, res: Response): Pr
 // ============================================================
 
 export async function getMailSettings(req: Request, res: Response): Promise<void> {
-  const locationId = req.query.locationId as string | undefined;
+  const locationId = await resolveLocationId(req.query.locationId as string | undefined);
   if (locationId) {
     const advanced = await getSettingsGroup('advancedSettings');
     const overrides = advanced.locationOverrides || {};
@@ -850,7 +871,24 @@ export async function sendTestEmail(req: Request, res: Response): Promise<void> 
 // PAYMENT SETTINGS
 // ============================================================
 
-export async function getPaymentSettings(_req: Request, res: Response): Promise<void> {
+export async function getPaymentSettings(req: Request, res: Response): Promise<void> {
+  const locationId = await resolveLocationId(req.query.locationId as string | undefined);
+  if (locationId) {
+    const advanced = await getSettingsGroup('advancedSettings');
+    const overrides = advanced.locationOverrides || {};
+    const locationData = overrides[locationId]?.paymentSettings || {};
+    res.json({
+      success: true,
+      data: {
+        ...locationData,
+        stripeSecretKey: maskSecret(locationData.stripeSecretKey),
+        stripeWebhookSecret: maskSecret(locationData.stripeWebhookSecret),
+        paypalClientSecret: maskSecret(locationData.paypalClientSecret),
+      },
+    });
+    return;
+  }
+
   const data = await getSettingsGroup('paymentSettings');
   res.json({
     success: true,
@@ -867,6 +905,43 @@ export async function updatePaymentSettings(req: Request, res: Response): Promis
   const parsed = paymentSettingsSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ success: false, error: parsed.error.errors });
+    return;
+  }
+
+  const locationId = req.query.locationId as string | undefined;
+
+  if (locationId) {
+    const advanced = await getSettingsGroup('advancedSettings');
+    const overrides = advanced.locationOverrides || {};
+    const existing = overrides[locationId]?.paymentSettings || {};
+
+    const mergedData = {
+      ...existing,
+      ...parsed.data,
+      stripeSecretKey: preserveIfMasked(parsed.data.stripeSecretKey, existing.stripeSecretKey),
+      stripeWebhookSecret: preserveIfMasked(parsed.data.stripeWebhookSecret, existing.stripeWebhookSecret),
+      paypalClientSecret: preserveIfMasked(parsed.data.paypalClientSecret, existing.paypalClientSecret),
+    };
+
+    overrides[locationId] = {
+      ...overrides[locationId],
+      paymentSettings: mergedData,
+    };
+
+    await updateSettingsGroup('advancedSettings', {
+      ...advanced,
+      locationOverrides: overrides,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        ...mergedData,
+        stripeSecretKey: maskSecret(mergedData.stripeSecretKey),
+        stripeWebhookSecret: maskSecret(mergedData.stripeWebhookSecret),
+        paypalClientSecret: maskSecret(mergedData.paypalClientSecret),
+      },
+    });
     return;
   }
 
@@ -956,7 +1031,7 @@ export async function updateAdvancedSettings(req: Request, res: Response): Promi
 // ============================================================
 
 export async function getLineSettings(req: Request, res: Response): Promise<void> {
-  const locationId = req.query.locationId as string | undefined;
+  const locationId = await resolveLocationId(req.query.locationId as string | undefined);
   let data = await getSettingsGroup('lineSettings');
   
   if (locationId) {
@@ -1048,7 +1123,23 @@ export async function updateLineSettings(req: Request, res: Response): Promise<v
 // INVOICE SETTINGS
 // ============================================================
 
-export async function getInvoiceSettings(_req: Request, res: Response): Promise<void> {
+export async function getInvoiceSettings(req: Request, res: Response): Promise<void> {
+  const locationId = await resolveLocationId(req.query.locationId as string | undefined);
+  if (locationId) {
+    const advanced = await getSettingsGroup('advancedSettings');
+    const overrides = advanced.locationOverrides || {};
+    const locationData = overrides[locationId]?.invoiceSettings || {};
+    res.json({
+      success: true,
+      data: {
+        ...locationData,
+        hashKey: maskSecret(locationData.hashKey),
+        hashIv: maskSecret(locationData.hashIv),
+      },
+    });
+    return;
+  }
+
   const data = await getSettingsGroup('invoiceSettings');
   res.json({
     success: true,
@@ -1064,6 +1155,41 @@ export async function updateInvoiceSettings(req: Request, res: Response): Promis
   const parsed = invoiceSettingsSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ success: false, error: parsed.error.errors });
+    return;
+  }
+
+  const locationId = req.query.locationId as string | undefined;
+
+  if (locationId) {
+    const advanced = await getSettingsGroup('advancedSettings');
+    const overrides = advanced.locationOverrides || {};
+    const existing = overrides[locationId]?.invoiceSettings || {};
+
+    const mergedData = {
+      ...existing,
+      ...parsed.data,
+      hashKey: preserveIfMasked(parsed.data.hashKey, existing.hashKey),
+      hashIv: preserveIfMasked(parsed.data.hashIv, existing.hashIv),
+    };
+
+    overrides[locationId] = {
+      ...overrides[locationId],
+      invoiceSettings: mergedData,
+    };
+
+    await updateSettingsGroup('advancedSettings', {
+      ...advanced,
+      locationOverrides: overrides,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        ...mergedData,
+        hashKey: maskSecret(mergedData.hashKey),
+        hashIv: maskSecret(mergedData.hashIv),
+      },
+    });
     return;
   }
 
@@ -1089,8 +1215,18 @@ export async function updateInvoiceSettings(req: Request, res: Response): Promis
 // GOOGLE SETTINGS
 // ============================================================
 
-export async function getGoogleSettings(_req: Request, res: Response): Promise<void> {
-  const data = await getSettingsGroup('googleSettings');
+export async function getGoogleSettings(req: Request, res: Response): Promise<void> {
+  let data = await getSettingsGroup('googleSettings');
+  const locationId = req.query.locationId as string;
+  const advanced = await getSettingsGroup('advancedSettings');
+  const overrides = advanced.locationOverrides || {};
+
+  if (locationId) {
+    if (overrides[locationId]?.googleSettings) {
+      data = { ...data, ...overrides[locationId].googleSettings };
+    }
+  }
+
   res.json({
     success: true,
     data: {
@@ -1108,6 +1244,49 @@ export async function updateGoogleSettings(req: Request, res: Response): Promise
   const parsed = googleSettingsSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ success: false, error: parsed.error.errors });
+    return;
+  }
+
+  const locationId = req.query.locationId as string;
+
+  if (locationId) {
+    const existingAdvanced = await getSettingsGroup('advancedSettings');
+    const overrides = existingAdvanced.locationOverrides || {};
+    const existingGoogle = overrides[locationId]?.googleSettings || {};
+
+    const mergedData = {
+      ...parsed.data,
+      geminiApiKey: preserveIfMasked(parsed.data.geminiApiKey, existingGoogle.geminiApiKey),
+      googleLoginClientSecret: preserveIfMasked(parsed.data.googleLoginClientSecret, existingGoogle.googleLoginClientSecret),
+      gmailClientSecret: preserveIfMasked(parsed.data.gmailClientSecret, existingGoogle.gmailClientSecret),
+      gmailRefreshToken: preserveIfMasked(parsed.data.gmailRefreshToken, existingGoogle.gmailRefreshToken),
+      googleMapsApiKey: preserveIfMasked(parsed.data.googleMapsApiKey, existingGoogle.googleMapsApiKey),
+    };
+
+    const newOverrides = {
+      ...overrides,
+      [locationId]: {
+        ...(overrides[locationId] || {}),
+        googleSettings: mergedData,
+      },
+    };
+
+    await updateSettingsGroup('advancedSettings', {
+      ...existingAdvanced,
+      locationOverrides: newOverrides,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        ...mergedData,
+        geminiApiKey: maskSecret(mergedData.geminiApiKey),
+        googleLoginClientSecret: maskSecret(mergedData.googleLoginClientSecret),
+        gmailClientSecret: maskSecret(mergedData.gmailClientSecret),
+        gmailRefreshToken: maskSecret(mergedData.gmailRefreshToken),
+        googleMapsApiKey: maskSecret(mergedData.googleMapsApiKey),
+      },
+    });
     return;
   }
 

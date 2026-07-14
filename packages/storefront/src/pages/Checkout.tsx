@@ -20,7 +20,7 @@ const DEFAULT_TAX_RATE = 0;
 
 export default function Checkout() {
   const { t, i18n } = useTranslation();
-  const { items, clear, tableName, setTableName, groupSessionId, groupPin, clientId, setGroupSession } = useCart();
+  const { items, clear, tableName, setTableName, groupSessionId, groupPin, clientId, setGroupSession, locationId: cartLocationId } = useCart();
   const { user, token } = useAuth();
   const { settings, refreshSettings } = useTheme();
   const { addOrder } = useRecentOrders();
@@ -62,7 +62,7 @@ export default function Checkout() {
   // Busy mode
   const [isBusy, setIsBusy] = useState(false);
   const [busyMessage, setBusyMessage] = useState('');
-  const [locationId, setLocationId] = useState<string>('');
+  const [locationId, setLocationId] = useState<string>(cartLocationId || '');
   const [slotsByDay, setSlotsByDay] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -232,9 +232,16 @@ export default function Checkout() {
 
   // Check busy mode on mount
   useEffect(() => {
+    // Determine the target location ID (cart location, or fallback to first available)
+    const targetLocationId = cartLocationId || locationId;
+    
     api.get<any>('/locations')
       .then((data) => {
-        const loc = data.data?.[0];
+        let loc = data.data?.find((l: any) => l.id === targetLocationId);
+        if (!loc && data.data?.[0]) {
+          loc = data.data[0];
+        }
+        
         if (loc) {
           setLocationId(loc.id);
           // Allow employees to bypass the busy state
@@ -248,7 +255,7 @@ export default function Checkout() {
         }
       })
       .catch(() => {});
-  }, [user?.isEmployee, t]);
+  }, [cartLocationId, user?.isEmployee, t]);
 
   // Fetch available slots when location or order type changes
   useEffect(() => {

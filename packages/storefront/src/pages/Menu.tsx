@@ -2,6 +2,7 @@ import { api } from '../lib/api';
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useCart } from '../context/CartContext.js';
 import { useApi } from '../hooks/useApi.js';
 import { useTheme } from '../context/ThemeContext.js';
 import MenuItemModal from '../components/MenuItemModal.js';
@@ -67,7 +68,15 @@ export default function Menu() {const { t, i18n } = useTranslation();
     || settings.menuSection?.description 
     || t('home.heroDescription', { storeName: settings?.siteName || 'Our Store' }).split('.')[0] + '.';
 
+  const { setLocationId } = useCart();
   const selectedLocation = searchParams.get('location');
+  
+  useEffect(() => {
+    if (selectedLocation) {
+      setLocationId(selectedLocation);
+    }
+  }, [selectedLocation, setLocationId]);
+
   const categoriesUrl = selectedLocation
     ? `${API_BASE}/menu/categories?locationId=${selectedLocation}`
     : `${API_BASE}/menu/categories`;
