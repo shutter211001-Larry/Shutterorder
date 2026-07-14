@@ -5,7 +5,12 @@ import { grantRegistrationBonus } from './registrationBonus.js';
 
 export const initPassport = async () => {
   // Fetch settings from DB
-  const siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+  let siteSettings = null;
+  try {
+    siteSettings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+  } catch (err) {
+    console.warn('[Passport] Could not fetch site settings from DB (database might be offline). Using env defaults.');
+  }
   const googleSettings = siteSettings?.googleSettings ? (typeof siteSettings.googleSettings === 'string' ? JSON.parse(siteSettings.googleSettings) : siteSettings.googleSettings) : {};
 
   const googleClientId = googleSettings.googleLoginClientId || process.env.GOOGLE_LOGIN_CLIENT_ID;

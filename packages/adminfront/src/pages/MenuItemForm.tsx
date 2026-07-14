@@ -168,6 +168,9 @@ export default function MenuItemForm() {
   const [imageAspectRatio, setImageAspectRatio] = useState<string>('h-40');
   const [allMenuItems, setAllMenuItems] = useState<{id: string, name: string}[]>([]);
 
+  const locationIdParam = new URLSearchParams(window.location.search).get('locationId');
+  const isFollowedItem = isEdit && !!locationIdParam && !!form.locationId && form.locationId !== locationIdParam;
+
   const imgClass = `${imageAspectRatio === 'h-40' ? 'h-40' : imageAspectRatio === 'aspect-auto' ? 'aspect-video' : imageAspectRatio} w-40 object-cover rounded-lg border border-gray-200`;
   const placeholderClass = `${imageAspectRatio === 'h-40' ? 'h-40' : imageAspectRatio === 'aspect-auto' ? 'aspect-video' : imageAspectRatio} w-40 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center p-2 text-center`;
 
@@ -519,6 +522,28 @@ export default function MenuItemForm() {
         </div>
       )}
 
+      {isFollowedItem && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-sm">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-yellow-800">
+                {t('menuItemForm.inheritedNoticeTitle') || '⚠️ 此為總部同步菜單'}
+              </h3>
+              <div className="mt-1 text-sm text-yellow-700">
+                <p>
+                  {t('menuItemForm.inheritedNotice') || '為維持品牌一致性，您僅能調整本分店的上下架狀態與庫存，其餘基本資訊由總部統一控管。'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* 基本資訊 */}
         <section className="bg-white rounded-lg shadow p-6">
@@ -583,7 +608,8 @@ export default function MenuItemForm() {
                 value={form.name}
                 onChange={(e) => { updateField('name', e.target.value); autoSlug(e.target.value); }}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
             </div>
             <div>
@@ -603,7 +629,8 @@ export default function MenuItemForm() {
                 value={form.description}
                 onChange={(e) => updateField('description', e.target.value)}
                 rows={2}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
             </div>
             <div>
@@ -612,7 +639,8 @@ export default function MenuItemForm() {
                 value={form.categoryId}
                 onChange={(e) => updateField('categoryId', e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               >
                 <option value="">{t('menuItemForm.pleaseSelectCategory')}</option>
                 {categories.map((c) => (
@@ -627,7 +655,8 @@ export default function MenuItemForm() {
                 min="0"
                 value={form.prepTime}
                 onChange={(e) => updateField('prepTime', parseInt(e.target.value) || 0)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
             </div>
             <div>
@@ -636,7 +665,8 @@ export default function MenuItemForm() {
                 <select
                   value={form.locationId}
                   onChange={(e) => updateField('locationId', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-medium"
+                  disabled={isFollowedItem}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-medium disabled:bg-gray-100 disabled:text-gray-500"
                 >
                   <option value="">{t('menuItemForm.centralHeadquartersAllBranches')}</option>
                   {locations.map((loc) => (
@@ -658,7 +688,8 @@ export default function MenuItemForm() {
                 required
                 min={0}
                 step={0.01}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
             </div>
             <div>
@@ -678,7 +709,8 @@ export default function MenuItemForm() {
                 value={form.unit}
                 onChange={(e) => updateField('unit', e.target.value)}
                 placeholder={t('menuItemForm.defaultUnit')}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
             </div>
             <div>
@@ -688,7 +720,8 @@ export default function MenuItemForm() {
                 value={form.sortOrder}
                 onChange={(e) => updateField('sortOrder', e.target.value)}
                 min={0}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                disabled={isFollowedItem}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
             </div>
             <div className="flex items-center gap-6 mt-4 flex-wrap">
@@ -733,7 +766,8 @@ export default function MenuItemForm() {
                       updateField('rewardPointsPrice', 0);
                     }
                   }}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  disabled={isFollowedItem}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
                 />
                 <div>
                   <span className="text-sm font-bold text-orange-950">{t('menuItemForm.setAsRewardItem')}</span>
@@ -750,7 +784,8 @@ export default function MenuItemForm() {
                     onChange={(e) => updateField('rewardPointsPrice', parseInt(e.target.value) || 0)}
                     min={0}
                     required
-                    className="w-24 border border-orange-300 rounded-lg px-2.5 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                    disabled={isFollowedItem}
+                    className="w-24 border border-orange-300 rounded-lg px-2.5 py-1 text-sm focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
               )}
@@ -771,7 +806,8 @@ export default function MenuItemForm() {
                         updateField('unitTranslations', newTrans);
                       }}
                       placeholder={lang.label}
-                      className="w-full text-[10px] border border-gray-200 rounded px-1.5 py-1 focus:border-primary-300 outline-none"
+                      disabled={isFollowedItem}
+                      className="w-full text-[10px] border border-gray-200 rounded px-1.5 py-1 focus:border-primary-300 outline-none disabled:bg-gray-100 disabled:text-gray-500"
                     />
                   </div>
                 ))}
@@ -798,7 +834,8 @@ export default function MenuItemForm() {
                       const newTrans = { ...form.nameTranslations, [lang.code]: e.target.value };
                       updateField('nameTranslations', newTrans);
                     }}
-                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary-500 outline-none"
+                    disabled={isFollowedItem}
+                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary-500 outline-none disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
                 <div>
@@ -810,7 +847,8 @@ export default function MenuItemForm() {
                       updateField('descriptionTranslations', newTrans);
                     }}
                     rows={1}
-                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary-500 outline-none"
+                    disabled={isFollowedItem}
+                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-primary-500 outline-none disabled:bg-gray-100 disabled:text-gray-500"
                   />
                 </div>
               </div>
@@ -834,7 +872,7 @@ export default function MenuItemForm() {
                     <button
                       type="button"
                       onClick={() => setCropSrc(imageUrl)}
-                      disabled={uploading}
+                      disabled={uploading || isFollowedItem}
                       className="bg-primary-500 text-white rounded-full p-2 shadow-md hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center"
                       title={t('menuItemForm.editCrop', '重新裁切')}
                     >
@@ -846,7 +884,7 @@ export default function MenuItemForm() {
                     <button
                       type="button"
                       onClick={handleImageRemove}
-                      disabled={uploading}
+                      disabled={uploading || isFollowedItem}
                       className="bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 disabled:opacity-50 flex items-center justify-center"
                       title={t('menuItemForm.removeImage')}
                     >
@@ -862,13 +900,13 @@ export default function MenuItemForm() {
                 </div>
               )}
               <div>
-                <label className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 cursor-pointer disabled:opacity-50 transition-colors">
+                <label className={`inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 cursor-pointer disabled:opacity-50 transition-colors ${isFollowedItem ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}>
                   {uploading ? t('menuItemForm.uploading') : t('menuItemForm.uploadImage')}
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageUpload}
-                    disabled={uploading}
+                    disabled={uploading || isFollowedItem}
                     className="hidden"
                   />
                 </label>
@@ -882,9 +920,11 @@ export default function MenuItemForm() {
         <section className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-gray-900">{t('menuItemForm.productMenuOptions')}</h3>
-            <button type="button" onClick={addOption} className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-              {t('menuItemForm.addOptionGroup')}
-            </button>
+            {!isFollowedItem && (
+              <button type="button" onClick={addOption} className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                {t('menuItemForm.addOptionGroup')}
+              </button>
+            )}
           </div>
           {options.length === 0 && (
             <p className="text-sm text-gray-400">{t('menuItemForm.noOptionsConfiguredHint')}</p>
@@ -894,9 +934,11 @@ export default function MenuItemForm() {
               <div key={optIdx} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-gray-700">{t('menuItemForm.optionGroupNumber')}{optIdx + 1}</span>
-                  <button type="button" onClick={() => removeOption(optIdx)} className="text-red-500 hover:text-red-700 text-sm">
-                    {t('menuItemForm.deleteThisGroup')}
-                  </button>
+                  {!isFollowedItem && (
+                    <button type="button" onClick={() => removeOption(optIdx)} className="text-red-500 hover:text-red-700 text-sm">
+                      {t('menuItemForm.deleteThisGroup')}
+                    </button>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                   <div>
@@ -906,7 +948,8 @@ export default function MenuItemForm() {
                       value={opt.name}
                       onChange={(e) => updateOption(optIdx, 'name', e.target.value)}
                       placeholder={t('menuItemForm.exampleSizeSweetness')}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      disabled={isFollowedItem}
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm disabled:bg-gray-100 disabled:text-gray-500"
                     />
                   </div>
                   <div>
@@ -914,7 +957,8 @@ export default function MenuItemForm() {
                     <select
                       value={opt.displayType}
                       onChange={(e) => updateOption(optIdx, 'displayType', e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      disabled={isFollowedItem}
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm disabled:bg-gray-100 disabled:text-gray-500"
                     >
                       <option value="SELECT">{t('menuItemForm.selectDropdown')}</option>
                       <option value="RADIO">{t('menuItemForm.radioButton')}</option>
@@ -928,7 +972,8 @@ export default function MenuItemForm() {
                         type="checkbox"
                         checked={opt.isRequired}
                         onChange={(e) => updateOption(optIdx, 'isRequired', e.target.checked)}
-                        className="rounded border-gray-300 text-primary-600"
+                        disabled={isFollowedItem}
+                        className="rounded border-gray-300 text-primary-600 disabled:opacity-50"
                       />
                       <span className="text-xs text-gray-700">{t('menuItemForm.isRequired')}</span>
                     </label>
@@ -948,7 +993,8 @@ export default function MenuItemForm() {
                           updateOption(optIdx, 'nameTranslations', newTrans);
                         }}
                         placeholder={lang.label}
-                        className="w-full text-[10px] border border-gray-200 rounded px-1.5 py-0.5 focus:border-primary-300 outline-none"
+                        disabled={isFollowedItem}
+                        className="w-full text-[10px] border border-gray-200 rounded px-1.5 py-0.5 focus:border-primary-300 outline-none disabled:bg-gray-100 disabled:text-gray-500"
                       />
                     </div>
                   ))}
@@ -958,9 +1004,11 @@ export default function MenuItemForm() {
                 <div className="ml-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-gray-500">{t('menuItemForm.optionValues')}</span>
-                    <button type="button" onClick={() => addOptionValue(optIdx)} className="text-primary-600 text-xs font-medium">
-                      {t('menuItemForm.addOptionValue')}
-                    </button>
+                    {!isFollowedItem && (
+                      <button type="button" onClick={() => addOptionValue(optIdx)} className="text-primary-600 text-xs font-medium">
+                        {t('menuItemForm.addOptionValue')}
+                      </button>
+                    )}
                   </div>
                   {opt.values.map((val, valIdx) => (
                     <React.Fragment key={valIdx}>
@@ -970,7 +1018,8 @@ export default function MenuItemForm() {
                         value={val.name}
                         onChange={(e) => updateOptionValue(optIdx, valIdx, 'name', e.target.value)}
                         placeholder={t('menuItemForm.optionNamePlaceholder')}
-                        className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                        disabled={isFollowedItem}
+                        className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm disabled:bg-gray-100 disabled:text-gray-500"
                       />
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-gray-400">+$</span>
@@ -979,7 +1028,8 @@ export default function MenuItemForm() {
                           value={val.priceModifier}
                           onChange={(e) => updateOptionValue(optIdx, valIdx, 'priceModifier', parseFloat(e.target.value) || 0)}
                           step={0.01}
-                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                          disabled={isFollowedItem}
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm disabled:bg-gray-100 disabled:text-gray-500"
                         />
                       </div>
                       <label className="flex items-center gap-1">
@@ -987,7 +1037,8 @@ export default function MenuItemForm() {
                           type="checkbox"
                           checked={val.isDefault}
                           onChange={(e) => updateOptionValue(optIdx, valIdx, 'isDefault', e.target.checked)}
-                          className="rounded border-gray-300 text-primary-600"
+                          disabled={isFollowedItem}
+                          className="rounded border-gray-300 text-primary-600 disabled:opacity-50"
                         />
                         <span className="text-xs text-gray-500">{t('menuItemForm.defaultValue')}</span>
                       </label>
@@ -1012,7 +1063,7 @@ export default function MenuItemForm() {
                           />
                         </div>
                       )}
-                      {opt.values.length > 1 && (
+                      {opt.values.length > 1 && !isFollowedItem && (
                         <button type="button" onClick={() => removeOptionValue(optIdx, valIdx)} className="text-red-400 hover:text-red-600 text-xs" aria-label={`Remove value ${val.name || valIdx + 1}`}>
                           X
                         </button>
@@ -1030,7 +1081,8 @@ export default function MenuItemForm() {
                               const newTrans = { ...(val.nameTranslations || {}), [lang.code]: e.target.value };
                               updateOptionValue(optIdx, valIdx, 'nameTranslations', newTrans);
                             }}
-                            className="text-[9px] w-20 border border-gray-100 rounded px-1 py-0.5 focus:border-primary-200 outline-none"
+                            disabled={isFollowedItem}
+                            className="text-[9px] w-20 border border-gray-100 rounded px-1 py-0.5 focus:border-primary-200 outline-none disabled:bg-gray-100 disabled:text-gray-500"
                           />
                         </div>
                       ))}
@@ -1065,7 +1117,8 @@ export default function MenuItemForm() {
                             setSelectedAllergens((prev) => prev.filter((id) => id !== a.id));
                           }
                         }}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        disabled={isFollowedItem}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
                       />
                       <span className="text-sm text-gray-700">{a.name}</span>
                     </label>
@@ -1093,7 +1146,8 @@ export default function MenuItemForm() {
                             setSelectedDietary((prev) => prev.filter((id) => id !== d.id));
                           }
                         }}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        disabled={isFollowedItem}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
                       />
                       <span className="text-sm text-gray-700">{d.name}</span>
                     </label>
@@ -1121,7 +1175,8 @@ export default function MenuItemForm() {
                             setSelectedMealtimes((prev) => prev.filter((id) => id !== m.id));
                           }
                         }}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        disabled={isFollowedItem}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 disabled:opacity-50"
                       />
                       <span className="text-sm text-gray-700">{m.name} ({m.startTime} - {m.endTime})</span>
                     </label>
@@ -1139,7 +1194,8 @@ export default function MenuItemForm() {
                       updateField('randomDispatchPool', []);
                     }
                   }}
-                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  disabled={isFollowedItem}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
                 />
                 <div>
                   <span className="text-sm font-bold text-purple-950">{t('menuItemForm.isRandomDispatch')}</span>
@@ -1174,7 +1230,8 @@ export default function MenuItemForm() {
                                 }
                                 updateField('randomDispatchPool', newPool);
                               }}
-                              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0"
+                              disabled={isFollowedItem}
+                              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0 disabled:opacity-50"
                             />
                             <span className="text-sm text-gray-700 truncate" title={mItem.name}>{mItem.name}</span>
                           </label>
@@ -1194,7 +1251,8 @@ export default function MenuItemForm() {
                                   });
                                   updateField('randomDispatchPool', newPool);
                                 }}
-                                className="w-16 p-1 text-xs rounded border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                                disabled={isFollowedItem}
+                                className="w-16 p-1 text-xs rounded border-gray-300 focus:border-purple-500 focus:ring-purple-500 disabled:bg-gray-100 disabled:text-gray-500"
                               />
                             </div>
                           )}
@@ -1212,7 +1270,8 @@ export default function MenuItemForm() {
                         type="checkbox"
                         checked={form.showProbabilities || false}
                         onChange={(e) => updateField('showProbabilities', e.target.checked)}
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        disabled={isFollowedItem}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
                       />
                       <div>
                         <span className="text-sm font-bold text-purple-900">{t('menuItemForm.showProbabilities') || '顯示機率表'}</span>
@@ -1225,7 +1284,8 @@ export default function MenuItemForm() {
                         type="checkbox"
                         checked={form.hasGachaAnimation ?? true}
                         onChange={(e) => updateField('hasGachaAnimation', e.target.checked)}
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        disabled={isFollowedItem}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
                       />
                       <div>
                         <span className="text-sm font-bold text-purple-900">{t('menuItemForm.hasGachaAnimation')}</span>

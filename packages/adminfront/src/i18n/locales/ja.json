@@ -1261,7 +1261,9 @@
     "hasGachaAnimationDesc": "若開啟，結帳成功後會自動播放滑入與閃白的抽獎特效。",
     "weight": "Weight",
     "showProbabilities": "Show Probabilities",
-    "showProbabilitiesDesc": "Show probabilities table on the menu card"
+    "showProbabilitiesDesc": "Show probabilities table on the menu card",
+    "inheritedNoticeTitle": "⚠️ 此為總部同步菜單",
+    "inheritedNotice": "為維持品牌一致性，您僅能調整本分店的上下架狀態與庫存，其餘基本資訊由總部統一控管。"
   },
   "menuItemList": {
     "productManagement": "產品管理 (Menu Items)",
@@ -1294,7 +1296,8 @@
     "pagePrefix": "第",
     "pageOf": "頁，共",
     "pageSuffix": "頁",
-    "nextPage": "下一頁"
+    "nextPage": "下一頁",
+    "inheritedFromMain": "總部同步"
   },
   "orderCreate": {
     "emptyCart": "購物車是空的",

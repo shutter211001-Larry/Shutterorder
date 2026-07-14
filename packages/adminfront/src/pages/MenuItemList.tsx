@@ -18,6 +18,7 @@ interface MenuItem {
   stockQty: number;
   category: { id: string; name: string };
   _count: { options: number; allergens: number; mealtimes: number; dietaryPreferences: number };
+  locationId: string | null;
 }
 
 interface Category {
@@ -167,7 +168,14 @@ export default function MenuItemList() {
                           </div>
                         )}
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                          <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                            {item.name}
+                            {locationId && item.locationId !== locationId && (
+                              <span className="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.5 rounded-sm tracking-widest font-bold whitespace-nowrap">
+                                {t('menuItemList.inheritedFromMain') || '總部同步'}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-gray-400">{item.slug}</div>
                         </div>
                       </div>
