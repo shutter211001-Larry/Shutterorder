@@ -1,9 +1,9 @@
 import { api } from '../lib/api';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext.js';
-import { useApi } from '../hooks/useApi.js';
+import { useApi, preloadApi } from '../hooks/useApi.js';
 import { useTheme } from '../context/ThemeContext.js';
 import MenuItemModal from '../components/MenuItemModal.js';
 import { getTranslated } from '../utils/translation.js';
@@ -93,10 +93,30 @@ export default function Menu() {
 
   // Build items URL with filters
   const itemsUrl = buildItemsUrl(selectedCategory, debouncedSearch, page, selectedLocation);
-  const [items, setItems] = useState<MenuItem[]>([]);
-  const [pagination, setPagination] = useState<MenuResponse['pagination'] | null>(null);
-  const [itemsLoading, setItemsLoading] = useState(true);
-  const [itemsError, setItemsError] = useState<string | null>(null);
+  
+  const { data: menuResponse, isLoading: itemsLoading, error: itemsError } = useApi<any>(
+    selectedCategory ? itemsUrl : null
+  );
+
+  const items = useMemo<MenuItem[]>(() => {
+    if (!menuResponse?.data) return [];
+    return menuResponse.data.map((item: MenuItem & { imageVariants?: any }) => {
+      let mappedVariants = item.imageVariants;
+      if (mappedVariants) {
+        mappedVariants = { ...mappedVariants };
+        for (const key in mappedVariants) {
+          mappedVariants[key] = getFullUrl(mappedVariants[key]) || mappedVariants[key];
+        }
+      }
+      return {
+        ...item,
+        image: getFullUrl(item.image),
+        imageVariants: mappedVariants,
+      };
+    });
+  }, [menuResponse]);
+
+  const pagination = menuResponse?.pagination || null;
 
   // Set default category if not specified in URL
   useEffect(() => {
@@ -132,44 +152,7 @@ export default function Menu() {
     return () => clearTimeout(timer);
   }, [search, searchParams, setSearchParams]);
 
-  // Fetch items
-  useEffect(() => {
-    // If we don't have a category selected yet, check if we need to wait for categories to load
-    // or if a default category redirect is about to happen.
-    if (!selectedCategory) {
-      if (categoriesLoading || !categories) {
-        return;
-      }
-      const hasActiveCategories = categories.some((c) => c.isActive && !c.parentId);
-      if (hasActiveCategories) {
-        return;
-      }
-    }
 
-    setItemsLoading(true);
-    setItemsError(null);
-    api.get<any>(itemsUrl)
-      .then((json) => {
-        const data = json.data.map((item: MenuItem & { imageVariants?: any }) => {
-          let mappedVariants = item.imageVariants;
-          if (mappedVariants) {
-            mappedVariants = { ...mappedVariants };
-            for (const key in mappedVariants) {
-              mappedVariants[key] = getFullUrl(mappedVariants[key]) || mappedVariants[key];
-            }
-          }
-          return {
-            ...item,
-            image: getFullUrl(item.image),
-            imageVariants: mappedVariants,
-          };
-        });
-        setItems(data);
-        setPagination(json.pagination);
-      })
-      .catch((err) => setItemsError(err.message))
-      .finally(() => setItemsLoading(false));
-  }, [itemsUrl, selectedCategory, categories, categoriesLoading]);
 
   const activeCategories = categories?.filter((c) => c.isActive && !c.parentId) || [];
   const activeItems = items.filter((i) => i.isActive && (!i.trackStock || i.stockQty > 0));
@@ -184,6 +167,11 @@ export default function Menu() {
     params.set('page', '1');
     setSearchParams(params, { replace: true });
     setMobileCategoriesOpen(false);
+  }
+
+  function handleCategoryHover(catId: string) {
+    const url = buildItemsUrl(catId, debouncedSearch, 1, selectedLocation);
+    preloadApi(url);
   }
 
   function handlePageChange(newPage: number) {
@@ -240,6 +228,7 @@ export default function Menu() {
           {!categoriesLoading && activeCategories.length > 0 && (
             <button
               onClick={() => handleCategoryClick('all')}
+              onMouseEnter={() => handleCategoryHover('all')}
               className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 snap-start shrink-0 ${
                 selectedCategory === 'all'
                   ? 'bg-primary-600 text-white shadow-sm'
@@ -254,6 +243,7 @@ export default function Menu() {
             <button
               key={cat.id}
               onClick={() => handleCategoryClick(cat.id)}
+              onMouseEnter={() => handleCategoryHover(cat.id)}
               className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 snap-start shrink-0 ${
                 selectedCategory === cat.id
                   ? 'bg-primary-600 text-white shadow-sm'

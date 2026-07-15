@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import useSWR, { preload } from 'swr';
 import { api } from '../lib/api';
 
 interface UseApiResult<T> {
@@ -8,26 +8,22 @@ interface UseApiResult<T> {
   refetch: () => void;
 }
 
+const fetcher = (url: string) => api.get<any>(url).then(res => res.data || res);
+
+export function preloadApi(url: string) {
+  preload(url, fetcher);
+}
+
 export function useApi<T>(url: string | null): UseApiResult<T> {
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(!!url);
-  const [counter, setCounter] = useState(0);
+  const { data, error, isLoading, mutate } = useSWR<T>(url, url ? fetcher : null, {
+    revalidateOnFocus: false, // Don't aggressively revalidate on tab focus to save bandwidth
+    keepPreviousData: true,   // Keep old data while fetching new to prevent UI flashing
+  });
 
-  useEffect(() => {
-    if (!url) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    api.get<T>(url)
-      .then((data: any) => setData(data.data || data))
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false));
-  }, [url, counter]);
-
-  return { data, error, isLoading, refetch: () => setCounter((c) => c + 1) };
+  return { 
+    data: data || null, 
+    error: error?.message || null, 
+    isLoading, 
+    refetch: () => mutate() 
+  };
 }
