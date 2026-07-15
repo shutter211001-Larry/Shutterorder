@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, TrendingUp, ShoppingBag, Target } from 'lucide-react';
+import { BarChart3, TrendingUp, ShoppingBag, Target, Link as LinkIcon, Copy, Check } from 'lucide-react';
 import { api } from '../../lib/api.js';
 
 interface UTMStats {
@@ -17,6 +17,22 @@ export default function MarketingDashboard() {
   const [summary, setSummary] = useState({ totalUTMOrders: 0, totalUTMRevenue: 0 });
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30d');
+
+  // UTM Generator State
+  const [utmSource, setUtmSource] = useState('facebook');
+  const [utmMedium, setUtmMedium] = useState('social');
+  const [utmCampaign, setUtmCampaign] = useState('summer_sale');
+  const [copied, setCopied] = useState(false);
+
+  // Store URL fallback logic
+  const storeUrl = import.meta.env.VITE_STORE_URL_PUBLIC || window.location.origin.replace('admin.', 'store.');
+  const generatedLink = `${storeUrl}?utm_source=${encodeURIComponent(utmSource)}&utm_medium=${encodeURIComponent(utmMedium)}&utm_campaign=${encodeURIComponent(utmCampaign)}`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     fetchStats();
@@ -90,6 +106,57 @@ export default function MarketingDashboard() {
               </h3>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <LinkIcon size={20} className="text-gray-400" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">產生行銷追蹤網址 (UTM Generator)</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">來源 (Source)</label>
+            <input 
+              type="text" 
+              value={utmSource}
+              onChange={(e) => setUtmSource(e.target.value)}
+              placeholder="e.g. facebook, google, ig"
+              className="w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">媒介 (Medium)</label>
+            <input 
+              type="text" 
+              value={utmMedium}
+              onChange={(e) => setUtmMedium(e.target.value)}
+              placeholder="e.g. social, cpc, email"
+              className="w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">活動 (Campaign)</label>
+            <input 
+              type="text" 
+              value={utmCampaign}
+              onChange={(e) => setUtmCampaign(e.target.value)}
+              placeholder="e.g. summer_sale, kol_promo"
+              className="w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 items-center bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <code className="flex-1 text-sm text-gray-800 dark:text-gray-200 break-all">
+            {generatedLink}
+          </code>
+          <button 
+            onClick={handleCopyLink}
+            className="flex items-center gap-2 whitespace-nowrap px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+          >
+            {copied ? <Check size={18} /> : <Copy size={18} />}
+            {copied ? '已複製！' : '複製網址'}
+          </button>
         </div>
       </div>
 
