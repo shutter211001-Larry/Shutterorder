@@ -11,6 +11,9 @@ import { PageContent } from '../../components/layout/PageContent.js';
 import { TableContainer, Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '../../components/ui/Table.js';
 import { Button } from '../../components/ui/Button.js';
 import { Badge } from '../../components/ui/Badge.js';
+import { SkeletonList } from '../../components/ui/Skeleton.js';
+import { EmptyState } from '../../components/ui/EmptyState.js';
+import { Tags } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -36,7 +39,12 @@ export default function CategoryList() {
   const topLevel = categories.filter((c: Category) => !c.parentId);
 
   const handleDelete = async (id: string, name: string) => {
-    if (!await confirm(`確定要刪除分類 "${name}" 嗎？`)) return;
+    if (!await confirm({ 
+      message: `確定要刪除分類 "${name}" 嗎？此操作將會移除所有與該分類相關的關聯。`,
+      isDanger: true,
+      expectedText: name,
+      confirmText: t('categoryList.delete') || '刪除'
+    })) return;
     try {
       await api.delete(`/menu/categories/${id}`);
       refetch();
@@ -58,16 +66,22 @@ export default function CategoryList() {
         }
       />
 
-      {loading && <p className="text-gray-500">{t('categoryList.loadingCategories')}</p>}
+      {loading && <div className="mt-6"><SkeletonList /></div>}
       {error && <p className="text-red-600">{t('categoryList.error')} {(error as any)?.message || JSON.stringify(error)}</p>}
 
       {!loading && !error && topLevel.length === 0 && (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">{t('categoryList.noCategories')}</p>
-          <Link to="/menu/categories/new" className="text-primary-600 hover:text-primary-700 font-medium">
-            {t('categoryList.createFirstCategory')}
-          </Link>
-        </div>
+        <EmptyState
+          icon={Tags}
+          title={t('categoryList.noCategories') || '目前沒有分類'}
+          description={t('categoryList.noCategoriesDescription') || '這裡看起來空空如也，點擊下方按鈕新增您的第一個菜單分類吧！'}
+          action={
+            <Link to="/menu/categories/new">
+              <Button icon={<Plus size={16} />}>
+                {t('categoryList.createFirstCategory') || '新增分類'}
+              </Button>
+            </Link>
+          }
+        />
       )}
 
       {!loading && topLevel.length > 0 && (

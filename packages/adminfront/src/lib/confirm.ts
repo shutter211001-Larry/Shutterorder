@@ -1,4 +1,4 @@
-type ConfirmOptions = { message: string; title?: string; confirmText?: string; cancelText?: string; isDanger?: boolean };
+type ConfirmOptions = { message: string; title?: string; confirmText?: string; cancelText?: string; isDanger?: boolean; expectedText?: string };
 let resolveFn: ((value: boolean) => void) | null = null;
 let listener: ((options: ConfirmOptions) => void) | null = null;
 

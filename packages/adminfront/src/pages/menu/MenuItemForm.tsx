@@ -5,6 +5,10 @@ import { api } from '../../lib/api.js';
 import { getFullUrl } from '../../utils/url.js';
 import { useAuth } from '../../context/AuthContext.js';
 import ImageCropperModal from '../../components/ImageCropperModal.js';
+import { PageHeader } from '../../components/layout/PageHeader.js';
+import { SkeletonForm } from '../../components/ui/Skeleton.js';
+import { Tooltip } from '../../components/ui/Tooltip.js';
+import { Info } from 'lucide-react';
 
 interface OptionValue {
   name: string;
@@ -503,18 +507,19 @@ export default function MenuItemForm() {
     }
   };
 
-  if (loading) return <p className="text-gray-500">{t('menuItemForm.loading')}</p>;
+  if (loading) return <div className="p-8"><SkeletonForm /></div>;
+
+  const breadcrumbs = [
+    { label: t('menuItemForm.productList') || '品項列表', path: '/menu/items' },
+    { label: isEdit ? t('menuItemForm.editProduct') : t('menuItemForm.addProduct') }
+  ];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          {isEdit ? t('menuItemForm.editProduct') : t('menuItemForm.addProduct')}
-        </h2>
-        <button onClick={() => navigate('/menu/items')} className="text-gray-500 hover:text-gray-700 text-sm">
-          {t('menuItemForm.backToProductList')}
-        </button>
-      </div>
+      <PageHeader 
+        title={isEdit ? t('menuItemForm.editProduct') : t('menuItemForm.addProduct')} 
+        breadcrumbs={breadcrumbs}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
@@ -551,9 +556,12 @@ export default function MenuItemForm() {
             <h3 className="text-lg font-medium text-gray-900">{t('menuItemForm.basicInformation')}</h3>
             {erpRecipes.length > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-primary-600 font-bold bg-primary-50 px-2 py-1 rounded">
-                  {isEdit ? t('menuItemForm.linkErpRecipe') : t('menuItemForm.importFromErpRecipe')}
-                </span>
+                <Tooltip content={t('menuItemForm.erpIntegrationInfo') || '選擇 ERP 庫存配方後，未來修改名稱、單位與製作時間等資料將會自動與總部同步。'} position="top">
+                  <span className="text-xs text-primary-600 font-bold bg-primary-50 px-2 py-1 rounded cursor-help flex items-center gap-1">
+                    {isEdit ? t('menuItemForm.linkErpRecipe') : t('menuItemForm.importFromErpRecipe')}
+                    <Info className="w-3 h-3" />
+                  </span>
+                </Tooltip>
                 <select
                   value={selectedErpRecipeId}
                   onChange={(e) => {

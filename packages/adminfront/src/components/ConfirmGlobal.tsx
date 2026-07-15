@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { registerConfirmListener, resolveConfirm } from '../lib/confirm';
 import { useTranslation } from "react-i18next";
+import { DeleteConfirmModal } from './ui/DeleteConfirmModal';
 
 export function ConfirmGlobal() {
     const { t } = useTranslation();
@@ -16,6 +17,21 @@ export function ConfirmGlobal() {
   }, []);
 
   if (!isOpen || !options) return null;
+
+  if (options.expectedText) {
+    return (
+      <DeleteConfirmModal
+        isOpen={isOpen}
+        onClose={() => { resolveConfirm(false); setIsOpen(false); }}
+        onConfirm={() => { resolveConfirm(true); setIsOpen(false); }}
+        title={options.title || (t('confirmGlobal.95ab59') || '請確認')}
+        message={options.message}
+        expectedText={options.expectedText}
+        confirmText={options.confirmText}
+        cancelText={options.cancelText}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">

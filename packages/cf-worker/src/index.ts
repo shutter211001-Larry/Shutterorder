@@ -1,10 +1,21 @@
 export interface Env {
   MENU_CACHE: KVNamespace;
+  ORIGIN_URL?: string;
 }
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    // 0. Determine target URL
+    const targetUrl = new URL(request.url);
+    if (env.ORIGIN_URL) {
+      const origin = new URL(env.ORIGIN_URL);
+      targetUrl.protocol = origin.protocol;
+      targetUrl.hostname = origin.hostname;
+      targetUrl.port = origin.port;
+    }
+    const targetRequest = new Request(targetUrl.toString(), request);
 
     // Only cache GET requests to public menu and category API endpoints
     if (request.method === 'GET' && (url.pathname.startsWith('/api/menu/items') || url.pathname.startsWith('/api/menu/categories'))) {
@@ -29,9 +40,8 @@ export default {
           });
         }
 
-        // 2. Cache MISS: Forward the request to the origin (our Node.js api-server)
-        // Since this worker sits in front of the origin, `fetch(request)` forwards it.
-        const response = await fetch(request);
+        // 2. Cache MISS: Forward the request to the origin
+        const response = await fetch(targetRequest);
         
         // Only cache successful 200 responses
         if (response.status === 200) {
@@ -54,11 +64,11 @@ export default {
 
       } catch (err) {
         // Fallback to origin if KV fails
-        return fetch(request);
+        return fetch(targetRequest);
       }
     }
 
     // For all other requests, just pass through
-    return fetch(request);
+    return fetch(targetRequest);
   }
 };

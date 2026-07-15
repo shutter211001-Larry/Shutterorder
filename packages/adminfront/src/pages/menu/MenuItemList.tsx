@@ -11,6 +11,9 @@ import { PageContent } from '../../components/layout/PageContent.js';
 import { TableContainer, Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '../../components/ui/Table.js';
 import { Button } from '../../components/ui/Button.js';
 import { Badge } from '../../components/ui/Badge.js';
+import { SkeletonList } from '../../components/ui/Skeleton.js';
+import { EmptyState } from '../../components/ui/EmptyState.js';
+import { PackageSearch } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -79,7 +82,12 @@ export default function MenuItemList() {
   }, [search, categoryFilter]);
 
   const handleDelete = async (id: string, name: string) => {
-    if (!await confirm(`確定要刪除產品 "${name}" 嗎？`)) return;
+    if (!await confirm({ 
+      message: `確定要刪除產品 "${name}" 嗎？此操作無法復原。`,
+      isDanger: true,
+      expectedText: name,
+      confirmText: t('menuItemList.delete') || '刪除'
+    })) return;
     try {
       const deleteUrl = locationId ? `/menu/items/${id}?locationId=${locationId}` : `/menu/items/${id}`;
       await api.delete(deleteUrl);
@@ -135,15 +143,21 @@ export default function MenuItemList() {
       {error && <p className="text-red-600 mb-4">{t('menuItemList.errorLabel')} {error}</p>}
 
       {!loading && items.length === 0 && (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">{t('menuItemList.noProductsFound')}</p>
-          <Link to="/menu/items/new" className="text-primary-600 hover:text-primary-700 font-medium">
-            {t('menuItemList.createFirstProduct')}
-          </Link>
-        </div>
+        <EmptyState
+          icon={PackageSearch}
+          title={t('menuItemList.noProductsFound') || '目前沒有品項'}
+          description={t('menuItemList.noProductsDescription') || '這裡看起來空空如也，點擊下方按鈕新增您的第一個菜單品項吧！'}
+          action={
+            <Link to="/menu/items/new">
+              <Button icon={<Plus size={16} />}>
+                {t('menuItemList.createFirstProduct') || '新增品項'}
+              </Button>
+            </Link>
+          }
+        />
       )}
 
-      {loading && <p className="text-gray-500">{t('menuItemList.loadingProducts')}</p>}
+      {loading && <div className="mt-6"><SkeletonList /></div>}
 
       {!loading && items.length > 0 && (
         <>

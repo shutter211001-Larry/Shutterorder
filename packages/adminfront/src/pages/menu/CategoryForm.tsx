@@ -5,6 +5,8 @@ import { api } from '../../lib/api.js';
 import { useAuth } from '../../context/AuthContext.js';
 import ImageCropperModal from '../../components/ImageCropperModal.js';
 import { getFullUrl } from '../../utils/url.js';
+import { PageHeader } from '../../components/layout/PageHeader.js';
+import { SkeletonForm } from '../../components/ui/Skeleton.js';
 
 interface CategoryData {
   name: string;
@@ -220,18 +222,19 @@ export default function CategoryForm() {
     }
   };
 
-  if (loading) return <p className="text-gray-500">Loading...</p>;
+  if (loading) return <div className="p-8"><SkeletonForm /></div>;
+
+  const breadcrumbs = [
+    { label: t('categoryForm.categoryList') || '分類列表', path: '/menu/categories' },
+    { label: isEdit ? t('categoryForm.editCategory') : t('categoryForm.addCategory') }
+  ];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          {isEdit ? t('categoryForm.editCategory') : t('categoryForm.addCategory')}
-        </h2>
-        <button onClick={() => navigate('/menu/categories')} className="text-gray-500 hover:text-gray-700 text-sm">
-          {t('categoryForm.backToCategoryList')}
-        </button>
-      </div>
+      <PageHeader 
+        title={isEdit ? t('categoryForm.editCategory') : t('categoryForm.addCategory')} 
+        breadcrumbs={breadcrumbs}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>
