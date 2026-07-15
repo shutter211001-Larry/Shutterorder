@@ -5,4 +5,4 @@ compatibility_date = "2024-03-20"
 # Bind your KV Namespace
 [[kv_namespaces]]
 binding = "MENU_CACHE"
-id = "82cc277f97f34770adee9f2b7d940bea"
+id = "f5c42787f08847dfa38dcecbe56dfb52"
