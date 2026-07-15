@@ -58,10 +58,12 @@ import i18nRoutes from './routes/i18n.routes.js';
 import invoiceRoutes from './routes/invoice.routes.js';
 import jobRoleRoutes from './routes/job-role.routes.js';
 import rosterRoutes from './routes/roster.routes.js';
-import marketingRoutes from './routes/marketing.routes.js';
-import analyticsRoutes from './routes/analytics.routes.js';
 import payrollRoutes from './routes/payroll.routes.js';
 import platformAdminRoutes from './routes/platform-admin.routes.js';
+
+import { TRACKING_ROUTES } from '@shutter/shared';
+import { recordEvent, getFunnelStats } from './controllers/analytics.controller.js';
+import { getMarketingStats } from './controllers/marketing.controller.js';
 import shutterErpRouter from './shutter-erp/index.js';
 import { openApiSpec } from './lib/openapi.js';
 import { initPassport } from './lib/passport.js';
@@ -238,8 +240,10 @@ export async function createApp() {
   app.use('/api/roster', rosterRoutes);
   app.use('/api/payroll', payrollRoutes);
   app.use('/api/platform-admin', platformAdminRoutes);
-  app.use('/api/campaigns', marketingRoutes);
-  app.use('/api/store-events', analyticsRoutes);
+  // --- Analytics & Marketing (使用亂碼防攔截) ---
+  app.post(`/api${TRACKING_ROUTES.EVENTS}`, recordEvent);
+  app.get(`/api${TRACKING_ROUTES.FUNNEL}`, getFunnelStats);
+  app.get(`/api${TRACKING_ROUTES.CAMPAIGN}`, getMarketingStats);
   app.use('/shutter-erp', shutterErpRouter);
 
   // 404 handler

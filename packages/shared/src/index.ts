@@ -55,4 +55,14 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     totalPages: number;
   };
 }
+
+export const TRACKING_ROUTES = {
+  /** 追蹤購物車、結帳等漏斗事件 (原 /analytics/events) */
+  EVENTS: '/x8f9d2',
+  /** 取得購物漏斗轉換報表 (原 /analytics/funnel) */
+  FUNNEL: '/b3k1s',
+  /** 取得行銷活動 UTM 成效報表 (原 /marketing/stats) */
+  CAMPAIGN: '/m9x4v'
+} as const;
+
 export * from './geo.js';

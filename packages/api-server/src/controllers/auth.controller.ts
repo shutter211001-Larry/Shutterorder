@@ -39,23 +39,51 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
   const { email, password } = parsed.data;
   console.log(`[AUTH DEBUG] Attempting login for email: "${email}"`);
 
-  // Auto-seed default administrator if no SUPER_ADMIN exists globally
-  const superAdminCount = await tenantStorage.run({ tenantId: null }, async () => {
-    return await prisma.user.count({ where: { role: 'SUPER_ADMIN' } });
-  });
+  const issueToken = (user: any) => {
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      type: 'staff',
+      role: user.role,
+      tenantId: user.tenantId,
+    });
   
-  if (superAdminCount === 0) {
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    
-    if (adminEmail && adminPassword) {
-      console.log(`Seeding default administrator ${adminEmail} ...`);
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          lineUserId: user.lineUserId,
+          lineDisplayName: user.lineDisplayName,
+          hasPassword: !!user.password,
+          tenantId: user.tenantId,
+          hasErpAccess: process.env.SINGLE_TENANT_MODE === 'true' ? true : user.tenant?.hasErpAccess,
+        },
+      },
+    });
+  };
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  // Environment variable override for Super Admin (prioritizes env over DB checks)
+  if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
+    console.log(`[AUTH DEBUG] Super admin env override triggered for: ${email}`);
+    let superAdmin = await tenantStorage.run({ tenantId: null }, async () => {
+      return await prisma.user.findFirst({
+        where: { email: adminEmail, role: 'SUPER_ADMIN' }
+      });
+    });
+
+    if (!superAdmin) {
+      console.log(`[AUTH DEBUG] Super admin not found in DB. Creating dynamically...`);
       const adminHash = await bcrypt.hash(adminPassword, 10);
-      
-      // We must explicitly bypass the tenant context so the Super Admin is created globally
-      // without triggering the 'users_tenantId_fkey' constraint violation.
-      await tenantStorage.run({ tenantId: null }, async () => {
-        await prisma.user.create({
+      superAdmin = await tenantStorage.run({ tenantId: null }, async () => {
+        return await prisma.user.create({
           data: {
             email: adminEmail,
             name: '系統管理員',
@@ -64,9 +92,9 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
           }
         });
       });
-    } else {
-      console.log('No ADMIN_EMAIL or ADMIN_PASSWORD provided in environment variables. Skipping default admin creation.');
     }
+
+    return issueToken(superAdmin);
   }
 
   const requestTenantId = tenantStorage.getStore()?.tenantId || null;
@@ -97,34 +125,6 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
     res.status(401).json({ success: false, error: 'Invalid credentials' });
     return;
   }
-
-  const issueToken = (user: any) => {
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      type: 'staff',
-      role: user.role,
-      tenantId: user.tenantId,
-    });
-  
-    res.json({
-      success: true,
-      data: {
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          lineUserId: user.lineUserId,
-          lineDisplayName: user.lineDisplayName,
-          hasPassword: !!user.password,
-          tenantId: user.tenantId,
-          hasErpAccess: process.env.SINGLE_TENANT_MODE === 'true' ? true : user.tenant?.hasErpAccess,
-        },
-      },
-    });
-  };
 
   // If specifically targeting a tenant via subdomain
   if (requestTenantId) {

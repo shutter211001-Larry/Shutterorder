@@ -1,5 +1,6 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { api } from '../lib/api.js';
+import { TRACKING_ROUTES } from '@shutter/shared';
 
 export function useAnalytics() {
   // Get or create session ID
@@ -15,7 +16,7 @@ export function useAnalytics() {
   const trackEvent = useCallback((eventType: 'VIEW_MENU' | 'ADD_TO_CART' | 'BEGIN_CHECKOUT', metadata?: any) => {
     const sessionId = getSessionId();
     // Fire and forget
-    api.post('/store-events/events', {
+    api.post(TRACKING_ROUTES.EVENTS, {
       sessionId,
       eventType,
       metadata
