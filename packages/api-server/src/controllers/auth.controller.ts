@@ -39,12 +39,12 @@ export async function staffLogin(req: Request, res: Response): Promise<void> {
   const { email, password } = parsed.data;
   console.log(`[AUTH DEBUG] Attempting login for email: "${email}"`);
 
-  // Auto-seed default administrator if the user table is empty globally
-  const globalUserCount = await tenantStorage.run({ tenantId: null }, async () => {
-    return await prisma.user.count();
+  // Auto-seed default administrator if no SUPER_ADMIN exists globally
+  const superAdminCount = await tenantStorage.run({ tenantId: null }, async () => {
+    return await prisma.user.count({ where: { role: 'SUPER_ADMIN' } });
   });
   
-  if (globalUserCount === 0) {
+  if (superAdminCount === 0) {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
     
