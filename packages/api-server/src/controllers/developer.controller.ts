@@ -447,3 +447,33 @@ export async function syncLocales(req: Request, res: Response): Promise<void> {
     res.status(500).json({ success: false, error: error.message });
   }
 }
+
+// ============================================================
+// GENERATE THUMBNAILS (BACKGROUND)
+// ============================================================
+
+export async function generateThumbnails(req: Request, res: Response) {
+  if (req.user?.role !== 'SUPER_ADMIN') {
+    return res.status(403).json({ success: false, error: 'Permission denied' });
+  }
+
+  try {
+    const scriptPath = path.resolve(process.cwd(), 'packages/api-server/src/scripts/generate-thumbnails.ts');
+    
+    // Spawn script in background to avoid request timeout
+    const child = require('child_process').spawn('npx', ['tsx', scriptPath], {
+      cwd: process.cwd(),
+      stdio: 'ignore', // run detached
+      detached: true
+    });
+    child.unref();
+
+    res.json({
+      success: true,
+      message: 'Thumbnail generation script started in the background on the server.',
+    });
+  } catch (error: any) {
+    console.error('[Developer] Start thumbnails script failed:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
