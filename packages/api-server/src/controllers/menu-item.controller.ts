@@ -5,6 +5,7 @@ import { z } from 'zod';
 import prisma from '../lib/db.js';
 import { auditLog } from '../lib/audit.js';
 import { autoTranslateMenuItem } from '../lib/translation-helper.js';
+import { invalidateKVCache } from '../lib/cloudflare.js';
 
 function getErpUrl(baseUrl: string): string {
   const trimmed = baseUrl.trim();
@@ -446,6 +447,9 @@ export async function createMenuItem(req: Request, res: Response): Promise<void>
     }
   }
 
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('menu_', item.locationId || undefined);
+
   res.status(201).json({ success: true, data: item });
 }
 
@@ -617,6 +621,9 @@ export async function updateMenuItem(req: Request<{ id: string }>, res: Response
     }
   }
 
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('menu_', item.locationId || undefined);
+
   res.json({ success: true, data: item });
 }
 
@@ -649,6 +656,10 @@ export async function deleteMenuItem(req: Request<{ id: string }>, res: Response
 
   await prisma.menuItem.delete({ where: { id } });
   auditLog(req, { action: 'delete', entity: 'MenuItem', entityId: id, details: { name: existing.name } });
+
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('menu_', existing.locationId || undefined);
+
   res.json({ success: true, message: 'Menu item deleted' });
 }
 

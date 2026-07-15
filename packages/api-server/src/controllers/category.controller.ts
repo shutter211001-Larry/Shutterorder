@@ -4,6 +4,7 @@ import { uploadImage, parseS3Settings } from '../lib/s3.js';
 import prisma from '../lib/db.js';
 import { auditLog } from '../lib/audit.js';
 import { autoTranslateCategory } from '../lib/translation-helper.js';
+import { invalidateKVCache } from '../lib/cloudflare.js';
 
 const createCategorySchema = z.object({
   name: z.string().min(1),
@@ -114,6 +115,9 @@ export async function createCategory(req: Request, res: Response): Promise<void>
 
   auditLog(req, { action: 'create', entity: 'Category', entityId: category.id, details: { name: category.name } });
 
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('categories_', category.locationId || undefined);
+
   res.status(201).json({ success: true, data: category });
 }
 
@@ -152,6 +156,8 @@ export async function updateCategory(req: Request<{ id: string }>, res: Response
   });
 
   auditLog(req, { action: 'update', entity: 'Category', entityId: id, details: parsed.data });
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('categories_', category.locationId || undefined);
 
   res.json({ success: true, data: category });
 }
@@ -185,6 +191,10 @@ export async function deleteCategory(req: Request<{ id: string }>, res: Response
 
   await prisma.category.delete({ where: { id } });
   auditLog(req, { action: 'delete', entity: 'Category', entityId: id, details: { name: existing.name } });
+
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('categories_', existing.locationId || undefined);
+
   res.json({ success: true, message: 'Category deleted' });
 }
 
@@ -212,6 +222,8 @@ export async function uploadCategoryImage(req: Request<{ id: string }>, res: Res
     data: { image: imagePath },
     include: { parent: true },
   });
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('categories_', category.locationId || undefined);
 
   res.json({ success: true, data: category });
 }
@@ -230,6 +242,8 @@ export async function deleteCategoryImage(req: Request<{ id: string }>, res: Res
     data: { image: null },
     include: { parent: true },
   });
+  // Invalidate Cloudflare KV Cache
+  invalidateKVCache('categories_', category.locationId || undefined);
 
   res.json({ success: true, data: category });
 }
