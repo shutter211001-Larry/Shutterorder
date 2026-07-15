@@ -161,3 +161,9 @@ When working on any of these areas, always refer to this architecture to ensure 
 **Rule**: Do NOT use `replace_file_content` to replace massive blocks of code (e.g. replacing an entire component body, or replacing large segments spanning over 20-30 lines) all at once. Doing so is highly prone to dropping closing tags (`</div>`, `</>`), breaking braces, and unintentionally overwriting existing state variables or logic.
 - Instead, you MUST break down your edits and use `multi_replace_file_content` to make multiple small, surgical, and targeted replacements on the exact lines that need to be modified.
 - Keep the `TargetContent` and `ReplacementContent` as minimal as possible while remaining unique.
+
+## 28. AdminFront Architecture & UI Component Standard
+**Trigger**: When creating new pages, routes, or building UI elements in the `adminfront` workspace.
+**Rule**: 
+1. **No Flat Pages**: You MUST NOT place new page components directly in the `src/pages/` root. They MUST be placed within the appropriate functional domain subdirectory (e.g., `src/pages/hr/`, `src/pages/menu/`, `src/pages/settings/`, `src/pages/crm/`, `src/pages/operations/`, `src/pages/design/`).
+2. **Shared UI Components**: Before hardcoding standard UI elements (like standard Buttons, Data Tables, or Status Badges) using raw Tailwind HTML, you MUST check if a unified shared component exists or should be created in `src/components/ui/`. Avoid duplicating raw HTML for standardized interface elements to maintain Design System consistency.
