@@ -58,6 +58,7 @@ import i18nRoutes from './routes/i18n.routes.js';
 import invoiceRoutes from './routes/invoice.routes.js';
 import jobRoleRoutes from './routes/job-role.routes.js';
 import rosterRoutes from './routes/roster.routes.js';
+import marketingRoutes from './routes/marketing.routes.js';
 import payrollRoutes from './routes/payroll.routes.js';
 import platformAdminRoutes from './routes/platform-admin.routes.js';
 import shutterErpRouter from './shutter-erp/index.js';
@@ -236,6 +237,7 @@ export async function createApp() {
   app.use('/api/roster', rosterRoutes);
   app.use('/api/payroll', payrollRoutes);
   app.use('/api/platform-admin', platformAdminRoutes);
+  app.use('/api/marketing', marketingRoutes);
   app.use('/shutter-erp', shutterErpRouter);
 
   // 404 handler

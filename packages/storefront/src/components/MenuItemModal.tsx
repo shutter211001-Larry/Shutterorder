@@ -201,8 +201,15 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
         onClick={(e) => e.stopPropagation()}
       >
         {loading && (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          <div className="flex flex-col">
+            <div className={`${containerClass} bg-gray-200 animate-pulse shrink-0`} />
+            <div className="p-6 space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse" />
+              <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded w-full animate-pulse mt-4" />
+              <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded w-4/6 animate-pulse" />
+            </div>
           </div>
         )}
 

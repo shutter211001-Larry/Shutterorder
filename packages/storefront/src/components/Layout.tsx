@@ -7,7 +7,10 @@ import CartDrawer from './CartDrawer.js';
 import CookieBanner from './CookieBanner.js';
 import GroupOrderDialog from './GroupOrderDialog.js';
 
+import { useUTMTracking } from '../hooks/useUTMTracking.js';
+
 export default function Layout() {
+  useUTMTracking();
   const [searchParams, setSearchParams] = useSearchParams();
   const { tableName, setTableName } = useCart();
 

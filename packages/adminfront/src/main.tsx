@@ -57,6 +57,7 @@ import KitchenDisplay from './pages/operations/KitchenDisplay.js';
 import CounterDisplay from './pages/operations/CounterDisplay.js';
 import AutomationRuleList from './pages/crm/AutomationRuleList.js';
 import AutomationRuleForm from './pages/crm/AutomationRuleForm.js';
+import MarketingDashboard from './pages/crm/MarketingDashboard.js';
 import DeliveryZoneList from './pages/operations/DeliveryZoneList.js';
 import CustomerLoyalty from './pages/crm/CustomerLoyalty.js';
 import LegalPageList from './pages/design/LegalPageList.js';
@@ -164,6 +165,7 @@ function AppRoutes() {
         <Route path="/promotions/loyalty" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CustomerLoyalty /></RequireRole>} />
 
         <Route path="/promotions" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><PromotionsHub /></RequireRole>} />
+        <Route path="/promotions/marketing" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><MarketingDashboard /></RequireRole>} />
         <Route path="/promotions/coupons/new" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CouponForm /></RequireRole>} />
         <Route path="/promotions/coupons/:id" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><CouponForm /></RequireRole>} />
         <Route path="/automation" element={<RequireRole roles={['SUPER_ADMIN', 'MANAGER']}><AutomationRuleList /></RequireRole>} />

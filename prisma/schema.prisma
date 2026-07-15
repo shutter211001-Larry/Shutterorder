@@ -563,6 +563,9 @@ model Order {
   trackingNumber       String?
   logisticsProvider    String?
   frozenDeliveryMethod String?
+  utmSource            String?
+  utmMedium            String?
+  utmCampaign          String?
   loyaltyTransactions  LoyaltyTransaction[]
   items                OrderItem[]
   address              Address?             @relation(fields: [addressId], references: [id])

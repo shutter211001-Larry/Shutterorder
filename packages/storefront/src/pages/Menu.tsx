@@ -264,9 +264,22 @@ export default function Menu() {const { t, i18n } = useTranslation();
       <div>
         {/* Menu items grid */}
         <div className="w-full">
-          {itemsLoading && (
-            <div className="flex justify-center py-12">
-              <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          {itemsLoading && activeItems.length === 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="surface-card rounded-xl shadow-sm overflow-hidden flex flex-col h-[320px]">
+                  <div className={`${imageClass} bg-gray-200 animate-pulse shrink-0`} />
+                  <div className="p-4 flex-1 flex flex-col gap-3">
+                    <div className="h-5 bg-gray-200 rounded w-2/3 animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded w-full animate-pulse mt-1" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
+                    <div className="mt-auto pt-3 border-t border-input/50 flex gap-2">
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -282,9 +295,9 @@ export default function Menu() {const { t, i18n } = useTranslation();
             </div>
           )}
 
-          {!itemsLoading && activeItems.length > 0 && (
+          {(!itemsLoading || activeItems.length > 0) && activeItems.length > 0 && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 transition-opacity duration-300 ${itemsLoading ? 'opacity-50 pointer-events-none' : ''}`}>
                 {activeItems.map((item) => (
                   <button
                     key={item.id}

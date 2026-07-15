@@ -448,6 +448,14 @@ export default function Checkout() {
         body.loyaltyPointsRedeem = loyaltyRedeem;
       }
 
+      // UTM Tracking Parameters
+      const utmSource = sessionStorage.getItem('utmSource');
+      const utmMedium = sessionStorage.getItem('utmMedium');
+      const utmCampaign = sessionStorage.getItem('utmCampaign');
+      if (utmSource) body.utmSource = utmSource;
+      if (utmMedium) body.utmMedium = utmMedium;
+      if (utmCampaign) body.utmCampaign = utmCampaign;
+
       const data = await api.post<any>('/orders', body);
 
       // Sync address and phone to user profile if updated

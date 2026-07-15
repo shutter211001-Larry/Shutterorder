@@ -93,6 +93,7 @@ export const navItems: NavItem[] = [
     children: [
       { path: '/customers', label: 'nav.customers', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/promotions', label: 'nav.promotions', roles: ['SUPER_ADMIN', 'MANAGER'] },
+      { path: '/promotions/marketing', label: 'nav.marketingDashboard', roles: ['SUPER_ADMIN', 'MANAGER'] },
       { path: '/reviews', label: 'nav.reviews', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
     ]
   },

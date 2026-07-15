@@ -10,11 +10,12 @@ export function ProgressiveImage({
   src,
   fallbackSrc,
   className = '',
-  blurClassName = 'blur-md scale-105',
+  blurClassName = 'blur-sm',
   ...props
 }: ProgressiveImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [thumbLoaded, setThumbLoaded] = useState(false);
   const [thumbError, setThumbError] = useState(false);
 
   // Derive thumbnail URL if the src is a webp uploaded by our system
@@ -23,6 +24,7 @@ export function ProgressiveImage({
 
   useEffect(() => {
     setIsLoaded(false);
+    setThumbLoaded(false);
     setError(false);
     setThumbError(false);
 
@@ -49,24 +51,26 @@ export function ProgressiveImage({
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
+      {/* Skeleton Loading Animation */}
+      {!isLoaded && !thumbLoaded && !thumbError && (
+        <div className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse z-10" />
+      )}
+
       {/* Thumbnail / Placeholder */}
-      {!isLoaded && (
-        thumbSrc && !thumbError ? (
-          <img
-            src={thumbSrc}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${blurClassName}`}
-            onError={() => setThumbError(true)}
-            alt={props.alt || ''}
-          />
-        ) : (
-          <div className="absolute inset-0 w-full h-full bg-gray-200 animate-pulse" />
-        )
+      {thumbSrc && !thumbError && (
+        <img
+          src={thumbSrc}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10 ${blurClassName} ${thumbLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setThumbLoaded(true)}
+          onError={() => setThumbError(true)}
+          alt={props.alt || ''}
+        />
       )}
 
       {/* Main High-Res Image */}
       <img
         src={src}
-        className={`w-full h-full object-cover transition-opacity duration-500 ${
+        className={`w-full h-full object-cover transition-opacity duration-500 relative z-20 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
         {...props}
