@@ -65,4 +65,4 @@ export const TRACKING_ROUTES = {
   CAMPAIGN: '/m9x4v'
 } as const;
 
-export * from './geo.js';
+export { calculateDistance } from './geo.js';

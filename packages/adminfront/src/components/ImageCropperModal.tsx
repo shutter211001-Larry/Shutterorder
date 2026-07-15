@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import React, { useState, useRef, useEffect } from 'react';
+import { getFullUrl } from '../utils/url.js';
 
 interface ImageCropperModalProps {
   src: string;
@@ -254,7 +255,7 @@ export default function ImageCropperModal({ src, systemRatio, initialCropData, o
     if (!imgDimensions) return;
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.src = src;
+    img.src = getFullUrl(src) || src;
     
     await new Promise((resolve) => {
       img.onload = resolve;
@@ -296,7 +297,7 @@ export default function ImageCropperModal({ src, systemRatio, initialCropData, o
               className="relative inline-block overflow-hidden rounded-lg shadow-inner max-w-full max-h-[50vh] touch-none"
             >
               <img
-                src={src}
+                src={getFullUrl(src) || src}
                 crossOrigin="anonymous"
                 onLoad={handleImageLoad}
                 className="max-h-[50vh] max-w-full block select-none pointer-events-none"
