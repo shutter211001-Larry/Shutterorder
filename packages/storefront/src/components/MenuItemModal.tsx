@@ -65,14 +65,16 @@ interface MenuItemDetail {
 
 interface Props {
   itemId: string;
+  initialItem?: any;
   onClose: () => void;
 }
 
-export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i18n } = useTranslation();
+export default function MenuItemModal({ itemId, initialItem, onClose }: Props) {
+  const { t, i18n } = useTranslation();
   const { addItem } = useCart();
   const { token } = useAuth();
-  const [item, setItem] = useState<MenuItemDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [item, setItem] = useState<MenuItemDetail | null>(initialItem || null);
+  const [optionsLoading, setOptionsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<Record<string, string[]>>({});
@@ -84,7 +86,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
   const containerClass = `${isFixedHeight ? 'h-48' : imgAspectRatio === 'aspect-auto' ? 'aspect-video' : imgAspectRatio} relative w-full shrink-0`;
 
   useEffect(() => {
-    setLoading(true);
+    setOptionsLoading(true);
     api.get<any>(`${API_BASE}/menu/items/${itemId}`)
       .then((json) => {
         const data = json.data;
@@ -110,7 +112,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
         setSelections(defaults);
       })
       .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      .finally(() => setOptionsLoading(false));
   }, [itemId]);
 
   const handleKeyDown = useCallback(
@@ -147,7 +149,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
   }
 
   function handleAddToCart() {
-    if (!item) return;
+    if (!item || !item.options) return;
     const cartOptions = item.options.flatMap((opt) => {
       const selected = selections[opt.id] || [];
       return opt.values
@@ -180,11 +182,13 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
   function calculateTotal(): number {
     if (!item) return 0;
     let total = item.price;
-    for (const opt of item.options) {
-      const selected = selections[opt.id] || [];
-      for (const val of opt.values) {
-        if (selected.includes(val.id)) {
-          total += val.priceModifier;
+    if (item.options) {
+      for (const opt of item.options) {
+        const selected = selections[opt.id] || [];
+        for (const val of opt.values) {
+          if (selected.includes(val.id)) {
+            total += val.priceModifier;
+          }
         }
       }
     }
@@ -200,7 +204,7 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
         className="surface-card w-full sm:max-w-lg sm:rounded-xl max-h-[90vh] overflow-y-auto rounded-t-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {loading && (
+        {!item && optionsLoading && (
           <div className="flex flex-col">
             <div className={`${containerClass} bg-gray-200 animate-pulse shrink-0`} />
             <div className="p-6 space-y-4">
@@ -270,9 +274,9 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
               </div>
 
               {/* Allergens & Dietary */}
-              {(item.allergens.length > 0 || item.dietaryPreferences?.length > 0) && (
+              {((item.allergens && item.allergens.length > 0) || (item.dietaryPreferences && item.dietaryPreferences.length > 0)) && (
                 <div className="mt-4 flex flex-wrap gap-1.5 opacity-90">
-                  {item.allergens.map((a) => (
+                  {item.allergens?.map((a) => (
                     <span
                       key={a.allergen.id}
                       className="text-[10px] bg-red-100 px-1.5 py-0.5 rounded border border-red-200 font-bold uppercase tracking-tight"
@@ -334,7 +338,19 @@ export default function MenuItemModal({ itemId, onClose }: Props) {const { t, i1
               )}
 
               {/* Options */}
-              {item.options.length > 0 && (
+              {optionsLoading ? (
+                <div className="mt-6 space-y-5 animate-pulse">
+                  {[1, 2].map((n) => (
+                    <div key={n}>
+                      <div className="h-5 bg-gray-200 rounded w-1/3 mb-3" />
+                      <div className="space-y-2">
+                        <div className="h-10 bg-gray-100 rounded w-full border border-gray-200" />
+                        <div className="h-10 bg-gray-100 rounded w-full border border-gray-200" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : item.options && item.options.length > 0 && (
                 <div className="mt-6 space-y-5">
                   {item.options.map((opt) => (
                     <div key={opt.id}>

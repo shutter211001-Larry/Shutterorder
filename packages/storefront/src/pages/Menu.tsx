@@ -412,6 +412,7 @@ export default function Menu() {
       {selectedItemId && (
         <MenuItemModal
           itemId={selectedItemId}
+          initialItem={items.find(i => i.id === selectedItemId)}
           onClose={() => setSelectedItemId(null)}
         />
       )}
