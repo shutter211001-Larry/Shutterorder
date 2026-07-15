@@ -62,7 +62,7 @@ export function ProgressiveImage({
       {thumbSrc && !thumbError && (
         <img
           src={thumbSrc}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10 ${blurClassName} ${thumbLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 w-full h-full object-cover z-10 ${blurClassName}`}
           onLoad={() => setThumbLoaded(true)}
           onError={() => setThumbError(true)}
           alt={props.alt || ''}
