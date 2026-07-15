@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Store, Clock, Truck, Users, Menu, Package, Key, LayoutGrid } from 'lucide-react';
 import { api } from '../../lib/api.js';
 
-import LocationForm from '../LocationForm.js';
-import TableList from '../TableList.js';
-import DeliveryZoneList from '../DeliveryZoneList.js';
+import LocationForm from './LocationForm.js';
+import TableList from '../operations/TableList.js';
+import DeliveryZoneList from '../operations/DeliveryZoneList.js';
 import LocationHoursTab from './tabs/LocationHoursTab.js';
 import LocationHRTab from './tabs/LocationHRTab.js';
 import LocationMenuTab from './tabs/LocationMenuTab.js';

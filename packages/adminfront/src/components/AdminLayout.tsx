@@ -5,145 +5,9 @@ import { useAuth } from '../context/AuthContext.js';
 import { useTenant } from '../context/TenantContext.js';
 import AdminChatWidget from './AdminChatWidget';
 
-import { 
-  LayoutDashboard, 
-  Wallet, 
-  Store, 
-  ChefHat, 
-  ClipboardList, 
-  CalendarDays, 
-  MenuSquare,
-  Tags,
-  MessageSquare,
-  Users,
-  UserCog,
-  Clock,
-  CheckSquare,
-  CalendarCheck,
-  Banknote,
-  Briefcase,
-  History,
-  QrCode,
-  MapPin,
-  Settings,
-  MonitorPlay,
-  Palette,
-  Paintbrush,
-  LayoutTemplate,
-  Scale,
-  Cookie,
-  FileCheck,
-  Activity,
-  ScrollText,
-  ChevronDown,
-  ChevronRight
-} from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api.js';
-
-type Role = 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
-
-interface NavItem {
-  id: string;
-  path?: string;
-  label: string;
-  icon?: React.ReactNode;
-  roles: Role[];
-  children?: {
-    path: string;
-    label: string;
-    roles: Role[];
-    isErp?: boolean;
-  }[];
-}
-
-const navItems: NavItem[] = [
-  { id: 'dashboard', path: '/', label: 'nav.dashboard', icon: <LayoutDashboard size={20} />, roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-  {
-    id: 'store_management',
-    label: 'adminLayout.f277f1',
-    icon: <Store size={20} />,
-    roles: ['SUPER_ADMIN', 'MANAGER'],
-    children: [
-      { path: '/locations', label: 'adminLayout.c35c40', roles: ['SUPER_ADMIN', 'MANAGER'] },
-    ]
-  },
-  {
-    id: 'operations',
-    label: 'adminLayout.0168dd',
-    icon: <Wallet size={20} />,
-    roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
-    children: [
-      { path: '/kitchen', label: 'nav.kitchen', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/orders', label: 'nav.orders', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/reservations', label: 'nav.reservations', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/finance', label: 'nav.finance', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
-      { path: '/menu/stock', label: 'nav.stockOverview', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
-      { path: '/menu/requisitions', label: 'adminLayout.a55fa0', roles: ['SUPER_ADMIN', 'MANAGER'], isErp: true },
-    ]
-  },
-
-  {
-    id: 'crm',
-    label: 'adminLayout.d71865',
-    icon: <Users size={20} />,
-    roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
-    children: [
-      { path: '/customers', label: 'nav.customers', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/promotions', label: 'nav.promotions', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/reviews', label: 'nav.reviews', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-    ]
-  },
-  {
-    id: 'hr',
-    label: 'adminLayout.ab8095',
-    icon: <Briefcase size={20} />,
-    roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'],
-    children: [
-      { path: '/staff', label: 'nav.staff', roles: ['SUPER_ADMIN'] },
-      { path: '/attendance', label: 'nav.checkIn', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/attendance/leave', label: 'attendance.leaveTitle', roles: ['SUPER_ADMIN', 'MANAGER', 'STAFF'] },
-      { path: '/attendance/approvals', label: 'adminLayout.66644a', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/roster', label: 'adminLayout.bb4285', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/payroll', label: 'adminLayout.66a770', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/job-roles', label: 'adminLayout.5806c0', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/records', label: 'nav.attendanceRecords', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/attendance/qr-generator', label: 'adminLayout.d863f2', roles: ['SUPER_ADMIN', 'MANAGER'] },
-    ]
-  },
-  {
-    id: 'system',
-    label: 'adminLayout.af21b0',
-    icon: <Settings size={20} />,
-    roles: ['SUPER_ADMIN'],
-    children: [
-      { path: '/settings', label: 'nav.settings', roles: ['SUPER_ADMIN'] },
-      { path: '/menu/allergens', label: 'nav.allergens', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/menu/dietary', label: 'nav.dietary', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/menu/mealtimes', label: 'nav.mealtimes', roles: ['SUPER_ADMIN', 'MANAGER'] },
-      { path: '/design/landing', label: 'nav.landingPage', roles: ['SUPER_ADMIN'] },
-      { path: '/design/branding', label: 'nav.branding', roles: ['SUPER_ADMIN'] },
-      { path: '/design/theme', label: 'nav.theme', roles: ['SUPER_ADMIN'] },
-      { path: '/design/templates', label: 'nav.templates', roles: ['SUPER_ADMIN'] },
-      { path: '/legal/pages', label: 'nav.legalPages', roles: ['SUPER_ADMIN'] },
-      { path: '/legal/cookies', label: 'nav.cookieCategories', roles: ['SUPER_ADMIN'] },
-      { path: '/legal/consent', label: 'nav.consentLog', roles: ['SUPER_ADMIN'] },
-      { path: '/developer/metrics', label: 'nav.apiMetrics', roles: ['SUPER_ADMIN'] },
-      { path: '/developer/audit-log', label: 'nav.auditLog', roles: ['SUPER_ADMIN'] },
-    ]
-  }
-];
-
-const ROLE_COLORS: Record<Role, string> = {
-  SUPER_ADMIN: 'bg-red-500/20 text-red-300',
-  MANAGER: 'bg-blue-500/20 text-blue-300',
-  STAFF: 'bg-gray-500/20 text-gray-300',
-};
-
-const ROLE_LABELS: Record<Role, string> = {
-  SUPER_ADMIN: 'Super Admin',
-  MANAGER: 'Manager',
-  STAFF: 'Staff',
-};
+import { navItems, ROLE_COLORS, ROLE_LABELS, type Role } from '../config/navigation.js';
 
 export default function AdminLayout({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
   const { t } = useTranslation();
@@ -264,7 +128,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
         aria-label="Main navigation"
       >
         <div className="px-6 py-4 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-primary-400">{t('adminLayout.18c4db') || (t('adminLayout.18c4db') || '夏特點餐系統')}</h1>
+          <h1 className="text-xl font-bold text-primary-400">{t('adminLayout.18c4db') || '夏特點餐系統'}</h1>
           <p className="text-xs text-gray-400 mt-1">{t('common.adminPanel')}</p>
         </div>
         <nav className="flex-1 py-4 overflow-y-auto select-none">
@@ -314,7 +178,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
                               >
                                 {t(child.label) || child.label}
                                 <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-400 group-hover:text-amber-400 group-hover:border-amber-500/50 transition-colors">
-                                  {t('adminLayout.d6ec9f') || (t('adminLayout.d6ec9f') || '🔒 升級解鎖')}</span>
+                                  {t('adminLayout.d6ec9f') || '🔒 升級解鎖'}</span>
                               </div>
                             );
                           }
@@ -469,7 +333,7 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
         {isOffline && (
           <div className="bg-yellow-500 text-white px-4 py-2 text-sm font-bold flex items-center justify-center shadow-md z-40">
-            {t('adminLayout.3cf128') || (t('adminLayout.3cf128') || '⚠️ 網路連線異常，已啟用本地幽靈模式，可繼續點餐與打卡。連線恢復後將自動同步。')}</div>
+            {t('adminLayout.3cf128') || '⚠️ 網路連線異常，已啟用本地幽靈模式，可繼續點餐與打卡。連線恢復後將自動同步。'}</div>
         )}
 
         <main className="flex-1 p-6">{children}</main>
