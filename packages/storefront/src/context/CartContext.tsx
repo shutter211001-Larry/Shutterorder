@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { getFullUrl } from '../utils/url.js';
+import { useAnalytics } from '../hooks/useAnalytics.js';
 import { io, Socket } from 'socket.io-client';
 import { API_BASE, API_URL, api } from '../lib/api';
 
@@ -57,6 +59,7 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
+  const { trackEvent } = useAnalytics();
 
   // Generate or retrieve a persistent client ID for this browser session
   const [clientId] = useState(() => {
@@ -164,6 +167,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addItem = useCallback((item: Omit<CartItem, 'id' | 'clientId'>) => {
+    trackEvent('ADD_TO_CART', { menuItemId: item.menuItemId, name: item.name });
     const randomId = Math.random().toString(36).substring(2, 9);
     const guestName = sessionStorage.getItem('shutter-guest-name') || t('cartContext.customer');
     const newItem = { ...item, id: randomId, clientId, guestName };
@@ -173,7 +177,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return updated;
     });
     setIsOpen(true);
-  }, [clientId, groupSessionId]);
+  }, [clientId, groupSessionId, trackEvent]);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
     setItems((prev) => {

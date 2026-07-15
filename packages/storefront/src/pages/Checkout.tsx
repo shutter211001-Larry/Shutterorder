@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext.js';
 import { getFullUrl } from '../utils/url.js';
 import { getTranslated } from '../utils/translation.js';
 import { useRecentOrders } from '../hooks/useRecentOrders.js';
+import { useAnalytics } from '../hooks/useAnalytics.js';
 import { formatToLocalDate, formatToLocalTime, formatToFullDateTime, getDateFriendlyLabel } from '../utils/date.js';
 import taiwanDistricts from '../lib/taiwan-districts.json';
 import { confirm } from "../lib/confirm.js";
@@ -20,6 +21,12 @@ const DEFAULT_TAX_RATE = 0;
 
 export default function Checkout() {
   const { t, i18n } = useTranslation();
+  const { trackEvent } = useAnalytics();
+  
+  useEffect(() => {
+    trackEvent('BEGIN_CHECKOUT');
+  }, [trackEvent]);
+
   const { items, clear, tableName, setTableName, groupSessionId, groupPin, clientId, setGroupSession, locationId: cartLocationId } = useCart();
   const { user, token } = useAuth();
   const { settings, refreshSettings } = useTheme();

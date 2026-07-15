@@ -15,6 +15,15 @@ export default function MarketingDashboard() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<UTMStats[]>([]);
   const [summary, setSummary] = useState({ totalUTMOrders: 0, totalUTMRevenue: 0 });
+  
+  // Funnel State
+  const [funnel, setFunnel] = useState<Record<string, number>>({
+    VIEW_MENU: 0,
+    ADD_TO_CART: 0,
+    BEGIN_CHECKOUT: 0,
+    PURCHASE: 0
+  });
+
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30d');
 
@@ -54,6 +63,16 @@ export default function MarketingDashboard() {
       const res = await api.get<{ success: boolean; data: { stats: UTMStats[]; summary: any } }>(`/marketing/stats${query}`);
       setStats(res.data.stats);
       setSummary(res.data.summary);
+
+      const funnelRes = await api.get<{ success: boolean; data: Record<string, number> }>(`/analytics/funnel${query}`);
+      if (funnelRes.success && funnelRes.data) {
+        setFunnel({
+          VIEW_MENU: funnelRes.data.VIEW_MENU || 0,
+          ADD_TO_CART: funnelRes.data.ADD_TO_CART || 0,
+          BEGIN_CHECKOUT: funnelRes.data.BEGIN_CHECKOUT || 0,
+          PURCHASE: funnelRes.data.PURCHASE || 0
+        });
+      }
     } catch (err) {
       console.error('Failed to fetch marketing stats', err);
     } finally {
@@ -157,6 +176,48 @@ export default function MarketingDashboard() {
             {copied ? <Check size={18} /> : <Copy size={18} />}
             {copied ? '已複製！' : '複製網址'}
           </button>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">購物漏斗轉換分析 (Shopping Funnel Analysis)</h2>
+        
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {[
+            { label: '瀏覽菜單', value: funnel.VIEW_MENU, color: 'bg-blue-500' },
+            { label: '加入購物車', value: funnel.ADD_TO_CART, color: 'bg-indigo-500' },
+            { label: '開始結帳', value: funnel.BEGIN_CHECKOUT, color: 'bg-purple-500' },
+            { label: '完成購買', value: funnel.PURCHASE, color: 'bg-green-500' }
+          ].map((step, idx, arr) => {
+            const maxVal = Math.max(funnel.VIEW_MENU, 1);
+            const heightPerc = Math.max(10, Math.round((step.value / maxVal) * 100));
+            const prevVal = idx === 0 ? step.value : arr[idx - 1].value;
+            const dropoff = prevVal === 0 ? 0 : Math.round(((prevVal - step.value) / prevVal) * 100);
+
+            return (
+              <React.Fragment key={idx}>
+                <div className="flex flex-col items-center flex-1 w-full">
+                  <div className="h-40 w-full flex items-end justify-center mb-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2">
+                    <div 
+                      className={`${step.color} w-16 md:w-20 rounded-t-md transition-all duration-1000 ease-in-out flex items-start justify-center pt-2`}
+                      style={{ height: `${heightPerc}%` }}
+                    >
+                      <span className="text-white font-bold text-sm drop-shadow-md">{step.value}</span>
+                    </div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{step.label}</span>
+                </div>
+                
+                {idx < arr.length - 1 && (
+                  <div className="flex flex-col items-center justify-center px-2">
+                    <span className="text-xs text-red-500 font-medium mb-1 whitespace-nowrap">流失 {dropoff}%</span>
+                    <div className="hidden md:block w-8 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div className="md:hidden h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 

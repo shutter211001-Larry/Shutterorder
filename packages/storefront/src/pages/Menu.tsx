@@ -47,7 +47,15 @@ interface MenuResponse {
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }
 
-export default function Menu() {const { t, i18n } = useTranslation();
+import { useAnalytics } from '../hooks/useAnalytics.js';
+
+export default function Menu() {
+  const { t, i18n } = useTranslation();
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    trackEvent('VIEW_MENU');
+  }, [trackEvent]);
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Read state directly from URL search parameters (Single Source of Truth)
