@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, TrendingUp, ShoppingBag, Target, Link as LinkIcon, Copy, Check } from 'lucide-react';
+import { BarChart3, TrendingUp, ShoppingBag, Target, Link as LinkIcon, Copy, Check, Info } from 'lucide-react';
 import { api } from '../../lib/api.js';
 
 interface UTMStats {
@@ -133,6 +133,23 @@ export default function MarketingDashboard() {
           <LinkIcon size={20} className="text-gray-400" />
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('marketingDashboard.utmGenerator', '產生行銷追蹤網址 (UTM Generator)')}</h2>
         </div>
+
+        <div className="mb-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-300">
+          <div className="flex gap-2 mb-2">
+            <Info size={18} className="shrink-0 mt-0.5" />
+            <span className="font-semibold">{t('marketingDashboard.utmGuideTitle', '欄位填寫說明與建議')}</span>
+          </div>
+          <ul className="list-disc list-inside space-y-1 ml-6 mb-3">
+            <li><span className="font-medium">{t('marketingDashboard.source', '來源 (Source)')}</span>：{t('marketingDashboard.utmGuideSource', '客流從哪來？ (例如：facebook, google, line)')}</li>
+            <li><span className="font-medium">{t('marketingDashboard.medium', '媒介 (Medium)')}</span>：{t('marketingDashboard.utmGuideMedium', '透過什麼方式？ (例如：cpc 付費廣告, social 社群貼文)')}</li>
+            <li><span className="font-medium">{t('marketingDashboard.campaign', '活動 (Campaign)')}</span>：{t('marketingDashboard.utmGuideCampaign', '因為什麼活動？ (例如：summer_sale, mothers_day)')}</li>
+          </ul>
+          <p className="ml-6 flex items-start gap-1">
+            <span className="shrink-0">💡</span>
+            <span>{t('marketingDashboard.utmGuideNote', '這三個欄位皆為非必填，但若全部留白將無法追蹤成效。強烈建議至少填寫「來源 (Source)」。')}</span>
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('marketingDashboard.sourceLabel', '來源 (Source)')}</label>

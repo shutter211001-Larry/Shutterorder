@@ -2980,6 +2980,11 @@
     "campaign": "活動 (Campaign)",
     "orders": "訂單數 (Orders)",
     "revenue": "營收 (Revenue)",
-    "noData": "No marketing data found for the selected period."
+    "noData": "No marketing data found for the selected period.",
+    "utmGuideTitle": "欄位填寫說明與建議",
+    "utmGuideSource": "客流從哪來？ (例如：facebook, google, line)",
+    "utmGuideMedium": "透過什麼方式？ (例如：cpc 付費廣告, social 社群貼文)",
+    "utmGuideCampaign": "因為什麼活動？ (例如：summer_sale, mothers_day)",
+    "utmGuideNote": "這三個欄位皆為非必填，但若全部留白將無法追蹤成效。強烈建議至少填寫「來源 (Source)」。"
   }
 }
