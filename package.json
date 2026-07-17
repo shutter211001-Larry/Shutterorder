@@ -11,8 +11,8 @@
     "dev:storefront": "npm run dev -w packages/storefront",
     "dev:erpfront": "npm run dev -w packages/erpfront",
     "dev:docs": "npm run dev -w packages/docs",
-    
     "dev:saasfront": "npm run dev -w packages/saasfront",
+    "prebuild": "npx prisma migrate resolve --rolled-back 20260717022535_add_accounting_fields || true",
     "build": "npm run build -w packages/shared && npm run build -w packages/api-server && npm run build -w packages/adminfront && npm run build -w packages/storefront && npm run build -w packages/erpfront && npm run build -w packages/saasfront",
     "build:docs": "npm run build -w packages/docs",
     "lint": "eslint packages/*/src --ext .ts,.tsx",
