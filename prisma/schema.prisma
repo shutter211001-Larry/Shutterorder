@@ -1497,6 +1497,7 @@ model Ingredient {
   id           String  @id @default(cuid())
   name         String
   category     String?
+  itemType     String  @default("INGREDIENT") // INGREDIENT, PACKAGING, CONSUMABLE
   unit         String // g, ml, pcs, etc.
   components   String? // 食材內容物 (例如: "麵粉, 水, 酵母")
   safetyStock  Float?  @default(0)
@@ -1694,14 +1695,26 @@ model InventoryLog {
 }
 
 model Expense {
-  id             String        @id @default(uuid())
-  amount         Float
-  description    String?
-  inventoryLogId String?       @unique
-  inventoryLog   InventoryLog? @relation(fields: [inventoryLogId], references: [id])
-  status         String        @default("PENDING") // PENDING, PAID
-  createdAt      DateTime      @default(now()) @db.Timestamptz
-  updatedAt      DateTime      @updatedAt @db.Timestamptz
+  id              String        @id @default(uuid())
+  amount          Float
+  description     String?
+  
+  category        String?       // 支出類別
+  accountingCode  String?       // 會計科目代碼
+  voucherNumber   String?       // 傳票單號
+  invoiceNumber   String?       // 發票憑證號碼
+  vendorTaxId     String?       // 廠商統編
+  taxAmount       Float         @default(0)
+  isTaxInclusive  Boolean       @default(true)
+  transactionDate DateTime      @default(now()) @db.Timestamptz
+  payee           String?       
+  paymentMethod   String?       
+
+  inventoryLogId  String?       @unique
+  inventoryLog    InventoryLog? @relation(fields: [inventoryLogId], references: [id])
+  status          String        @default("PENDING") // PENDING, PAID
+  createdAt       DateTime      @default(now()) @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @db.Timestamptz
 
   tenantId String?
   tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
