@@ -301,6 +301,21 @@ export default function OrderCreate() {
         title={t('orderCreate.addManualOrder')}
         backUrl="/orders"
         backText={t('orders.backToOrders')}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {locations.length > 0 && (
+              <select
+                value={selectedLocationId}
+                onChange={e => setSelectedLocationId(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-w-[150px]"
+              >
+                {locations.map(loc => (
+                  <option key={loc.id} value={loc.id}>{loc.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        }
       />
 
       <PageContent>
@@ -510,18 +525,7 @@ export default function OrderCreate() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
             <h2 className="text-lg font-semibold mb-4">{t('orderCreate.orderSettings')}</h2>
             <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.serviceBranch')}</label>
-                <select
-                  value={selectedLocationId}
-                  onChange={e => setSelectedLocationId(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none shadow-sm transition-all duration-200"
-                >
-                  {locations.map(loc => (
-                    <option key={loc.id} value={loc.id}>{loc.name}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Location selection moved to PageHeader */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('orderCreate.pickupMethod')}</label>
                 <div className="flex bg-gray-100 rounded-lg p-1">
