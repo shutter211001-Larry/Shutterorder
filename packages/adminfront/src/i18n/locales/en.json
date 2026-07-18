@@ -1493,7 +1493,9 @@
     "ca0536": "處理中...",
     "ae399d": "餐點選項",
     "625fb2": "取消",
-    "c81347": "加入購物車"
+    "c81347": "加入購物車",
+    "comment": "Comment",
+    "commentPlaceholder": "Enter order comment..."
   },
   "orderDetail": {
     "fulfillOrder": "Fulfill Order",

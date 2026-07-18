@@ -14,6 +14,11 @@ interface Category {
   sharedStockThreshold: number;
 }
 
+interface Location {
+  id: string;
+  name: string;
+}
+
 interface OptionValue {
   id: string;
   name: string;
@@ -71,6 +76,8 @@ export default function StockManagement() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -88,13 +95,34 @@ export default function StockManagement() {
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [selectedRecipeForMenu, setSelectedRecipeForMenu] = useState<Record<string, string>>({});
 
+  // Fetch locations
+  const fetchLocations = async () => {
+    try {
+      const res = await api.get<{ data: Location[] }>('/locations');
+      setLocations(res.data);
+      if (res.data.length > 0) {
+        const searchParams = new URLSearchParams(window.location.search);
+        const urlLocationId = searchParams.get('locationId');
+        if (urlLocationId && res.data.find(l => l.id === urlLocationId)) {
+          setSelectedLocationId(urlLocationId);
+        } else {
+          setSelectedLocationId(res.data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load locations', err);
+    }
+  };
+
   // Fetch initial data
   const fetchData = async () => {
+    if (!selectedLocationId && locations.length > 0) return;
     try {
       setLoading(true);
+      const url = selectedLocationId ? `/menu/items?limit=1000&locationId=${selectedLocationId}` : '/menu/items?limit=1000';
       const [catRes, itemRes, recipesRes, mappingsRes] = await Promise.all([
         api.get<{ data: Category[] }>('/menu/categories'),
-        api.get<{ data: MenuItem[] }>('/menu/items?limit=1000'),
+        api.get<{ data: MenuItem[] }>(url),
         api.get<Recipe[]>('/../shutter-erp/api/recipes').catch((err) => {
           console.warn('Failed to load ERP recipes. Server might be offline or shutter-erp route unmounted.', err);
           return [];
@@ -117,8 +145,24 @@ export default function StockManagement() {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchLocations();
   }, []);
+
+  useEffect(() => {
+    if (locations.length === 0 && !selectedLocationId) return; // Wait for initial location load
+    if (locations.length > 0 && !selectedLocationId) return; // Data is loaded but no branch is selected yet
+    
+    // Update URL without reloading page
+    const newUrl = new URL(window.location.href);
+    if (selectedLocationId) {
+      newUrl.searchParams.set('locationId', selectedLocationId);
+    } else {
+      newUrl.searchParams.delete('locationId');
+    }
+    window.history.replaceState({}, '', newUrl.toString());
+    
+    fetchData();
+  }, [selectedLocationId]);
 
   // Instant update handler for MenuItem
   const handleItemUpdate = async (itemId: string, updates: Partial<MenuItem>) => {
@@ -129,13 +173,10 @@ export default function StockManagement() {
       const currentItem = items.find(i => i.id === itemId);
       if (!currentItem) return;
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const contextLocationId = searchParams.get('locationId');
-
       const payload = {
         ...updates,
         stockQty: updates.stockQty !== undefined ? Number(updates.stockQty) : currentItem.stockQty,
-        contextLocationId: contextLocationId
+        contextLocationId: selectedLocationId || undefined
       };
 
       const res = await api.patch<{ data: MenuItem }>(`/menu/items/${itemId}`, payload);
@@ -339,13 +380,26 @@ export default function StockManagement() {
         title={t('stockManagement.doubleStockMatrixPanel')}
         action={
           <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+            {locations.length > 0 && (
+              <select
+                value={selectedLocationId}
+                onChange={(e) => setSelectedLocationId(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-w-[150px]"
+              >
+                {locations.map((loc) => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <button
               onClick={async () => {
                 let url = import.meta.env.VITE_ERP_URL_PUBLIC;
                 if (!url) {
                   try {
                     const res = await api.get('settings/public-env');
-                    const data = res;
+                    const data = res as any;
                     url = data.erpUrl;
                   } catch (e) {
                     console.error('Failed to fetch public env vars', e);

@@ -1,55 +1,43 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-const packages = ['adminfront', 'storefront', 'erpfront', 'kitchenfront', 'posfront'];
-const localesList = ['de.json', 'en.json', 'es.json', 'fr.json', 'id.json', 'it.json', 'ja.json', 'ko.json', 'pt.json', 'th.json', 'tl.json', 'vi.json', 'zh-TW.json'];
+const localesDir = 'c:/Github/kitchenasty/packages/adminfront/src/i18n/locales';
+const files = fs.readdirSync(localesDir).filter(f => f.endsWith('.json'));
 
-function syncObject(base, enBase, target) {
-  const result = {};
-  for (const key of Object.keys(base)) {
-    if (typeof base[key] === 'object' && base[key] !== null && !Array.isArray(base[key])) {
-      result[key] = syncObject(
-        base[key], 
-        (enBase && enBase[key]) || {}, 
-        (target && target[key]) || {}
-      );
-    } else {
-      if (target && target[key] !== undefined && target[key] !== '') {
-        result[key] = target[key];
-      } else if (enBase && enBase[key] !== undefined && enBase[key] !== '') {
-        result[key] = enBase[key];
-      } else {
-        result[key] = base[key];
-      }
+const newKeys = {
+  "zh-TW": {
+    "comment": "備註",
+    "commentPlaceholder": "輸入訂單備註...",
+    "estimatedWaitTime": "預估製作時間",
+    "minutes": "分鐘",
+    "expectedReadyTime": "預計取餐"
+  },
+  "default": {
+    "comment": "Comment",
+    "commentPlaceholder": "Enter order comment...",
+    "estimatedWaitTime": "Estimated Wait Time",
+    "minutes": "minutes",
+    "expectedReadyTime": "Expected Ready Time"
+  }
+};
+
+for (const file of files) {
+  const filePath = path.join(localesDir, file);
+  const lang = file.replace('.json', '');
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+  if (!data.orderCreate) {
+    data.orderCreate = {};
+  }
+
+  const keysToUse = newKeys[lang] || newKeys["default"];
+
+  for (const [k, v] of Object.entries(keysToUse)) {
+    if (!data.orderCreate[k]) {
+      data.orderCreate[k] = v;
     }
   }
-  return result;
+
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+  console.log(`Updated ${file}`);
 }
-
-for (const pkg of packages) {
-  const localesDir = path.join(__dirname, '../packages', pkg, 'src/i18n/locales');
-  if (!fs.existsSync(localesDir)) continue;
-  
-  console.log(`Syncing i18n for ${pkg}...`);
-  const zhPath = path.join(localesDir, 'zh-TW.json');
-  if (!fs.existsSync(zhPath)) continue;
-  
-  const base = JSON.parse(fs.readFileSync(zhPath, 'utf8'));
-  const enPath = path.join(localesDir, 'en.json');
-  const enBase = fs.existsSync(enPath) ? JSON.parse(fs.readFileSync(enPath, 'utf8')) : {};
-
-  // First ensure en.json has all keys
-  const newEn = syncObject(base, base, enBase);
-  fs.writeFileSync(enPath, JSON.stringify(newEn, null, 2) + '\n');
-  
-  for (const loc of localesList) {
-    if (loc === 'zh-TW.json' || loc === 'en.json') continue;
-    const targetPath = path.join(localesDir, loc);
-    const target = fs.existsSync(targetPath) ? JSON.parse(fs.readFileSync(targetPath, 'utf8')) : {};
-    
-    const newTarget = syncObject(base, newEn, target);
-    fs.writeFileSync(targetPath, JSON.stringify(newTarget, null, 2) + '\n');
-  }
-}
-
-console.log('All 13 languages synced successfully!');

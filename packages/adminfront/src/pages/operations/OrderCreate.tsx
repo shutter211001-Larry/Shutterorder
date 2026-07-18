@@ -110,12 +110,15 @@ export default function OrderCreate() {
         setSelectedLocationId(res.data[0].id);
       }
     }).catch(err => setError(err.message)).finally(() => setLoading(false));
+  }, []);
 
-    // Fetch menu items from API
-    api.get<{ data: MenuItem[] }>('/menu/items').then((res) => {
+  useEffect(() => {
+    if (!selectedLocationId) return;
+    // Fetch menu items from API for the specific location
+    api.get<{ data: MenuItem[] }>(`/menu/items?locationId=${selectedLocationId}`).then((res) => {
       setMenuItems(res.data.filter(i => i.isActive));
     }).catch(err => console.error('Failed to load menu items:', err));
-  }, []);
+  }, [selectedLocationId]);
 
   useEffect(() => {
     if (cart.length === 0) {
