@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api.js';
-import { getDatabase } from '../../lib/db/database.js';
 import { useAuth } from '../../context/AuthContext.js';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { PageContent } from '../../components/layout/PageContent';
@@ -254,26 +253,32 @@ export default function OrderCreate() {
     setError('');
 
     try {
-      const db = await getDatabase();
-      const orderId = crypto.randomUUID();
-      const newOrder = {
-        id: orderId,
-        locationId: selectedLocationId,
-        status: 'PENDING', // 預設狀態
-        totalAmount: total,
-        createdAt: new Date().toISOString(),
+      const body: any = {
+        orderType,
         items: cart.map(item => ({
           menuItemId: item.menuItemId,
           quantity: item.quantity,
-          price: item.unitPrice,
-          notes: ''
+          options: item.options,
         })),
-        _isSynced: false
+        locationId: selectedLocationId,
+        couponCode: couponCode || undefined,
+        manualDiscount: manualDiscount || undefined,
+        manualDeliveryFee: manualDeliveryFee !== '' ? manualDeliveryFee : undefined,
+        manualTax: manualTax !== '' ? manualTax : undefined,
+        guestName: guestName || undefined,
+        guestPhone: guestPhone || undefined,
+        guestEmail: guestEmail || undefined,
+        frozenDeliveryMethod: orderType === 'FROZEN_DELIVERY' ? frozenDeliveryMethod : undefined,
+        trackingNumber: trackingNumber || undefined,
+        logisticsProvider: logisticsProvider || undefined,
       };
 
-      await db.orders.insert(newOrder);
-      // 原本是跳轉到線上訂單頁面，這邊直接跳轉或顯示成功
-      navigate(`/orders/${orderId}`);
+      if (orderType === 'DELIVERY' || orderType === 'FROZEN_DELIVERY') {
+        body.address = address;
+      }
+
+      const res = await api.post<{ data: { id: string } }>('/orders', body);
+      navigate(`/orders/${res.data.id}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
