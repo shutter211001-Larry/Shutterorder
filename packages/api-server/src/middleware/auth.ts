@@ -11,6 +11,7 @@ export interface JwtPayload {
   type: 'staff' | 'customer';
   role?: Role;
   tenantId: string | null;
+  locationId?: string | null;
 }
 
 declare global {

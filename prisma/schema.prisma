@@ -9,14 +9,14 @@ datasource db {
 }
 
 model Tenant {
-  id           String   @id @default(cuid())
-  name         String
-  domain       String?  @unique
-  isActive             Boolean   @default(true)
-  hasErpAccess         Boolean   @default(false)
-  subscriptionEndsAt   DateTime? @db.Timestamptz
-  createdAt            DateTime  @default(now()) @db.Timestamptz
-  updatedAt            DateTime  @updatedAt @db.Timestamptz
+  id                 String    @id @default(cuid())
+  name               String
+  domain             String?   @unique
+  isActive           Boolean   @default(true)
+  hasErpAccess       Boolean   @default(false)
+  subscriptionEndsAt DateTime? @db.Timestamptz
+  createdAt          DateTime  @default(now()) @db.Timestamptz
+  updatedAt          DateTime  @updatedAt @db.Timestamptz
 
   users        User[]
   customers    Customer[]
@@ -89,7 +89,7 @@ model AnalyticsEvent {
   id        String   @id @default(cuid())
   tenantId  String
   sessionId String
-  eventType String   // 'VIEW_MENU', 'ADD_TO_CART', 'BEGIN_CHECKOUT'
+  eventType String // 'VIEW_MENU', 'ADD_TO_CART', 'BEGIN_CHECKOUT'
   metadata  Json?
   createdAt DateTime @default(now()) @db.Timestamptz
 
@@ -235,9 +235,9 @@ model Address {
 }
 
 model Location {
-  id                              String                   @id @default(cuid())
+  id                              String              @id @default(cuid())
   name                            String
-  slug                            String                   @unique
+  slug                            String              @unique
   description                     String?
   phone                           String?
   email                           String?
@@ -245,70 +245,70 @@ model Location {
   city                            String
   state                           String?
   postalCode                      String
-  country                         String                   @default("US")
+  country                         String              @default("US")
   lat                             Float?
   lng                             Float?
   image                           String?
-  isActive                        Boolean                  @default(true)
-  deliveryEnabled                 Boolean                  @default(true)
-  pickupEnabled                   Boolean                  @default(true)
-  minOrderDelivery                Float                    @default(0)
-  minOrderPickup                  Float                    @default(0)
-  deliveryLeadTime                Int                      @default(30)
-  pickupLeadTime                  Int                      @default(15)
+  isActive                        Boolean             @default(true)
+  deliveryEnabled                 Boolean             @default(true)
+  pickupEnabled                   Boolean             @default(true)
+  minOrderDelivery                Float               @default(0)
+  minOrderPickup                  Float               @default(0)
+  deliveryLeadTime                Int                 @default(30)
+  pickupLeadTime                  Int                 @default(15)
   tenantId                        String?
   tenant                          Tenant?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt                       DateTime            @default(now()) @db.Timestamptz
   updatedAt                       DateTime            @updatedAt @db.Timestamptz
   locationInventories             LocationInventory[]
   requisitions                    Requisition[]
-  isBusy                          Boolean                  @default(false)
+  isBusy                          Boolean             @default(false)
   busyMessage                     String?
-  owner                           String?                  @default("未指派")
-  isFranchise                     Boolean                  @default(false)
+  owner                           String?             @default("未指派")
+  isFranchise                     Boolean             @default(false)
   franchiseeName                  String?
-  royaltyRate                     Float?                   @default(5.0)
-  hourlyNationalHolidayMultiplier Float                    @default(2.0)
-  monthlyNationalHolidayOvertime  Boolean                  @default(true)
-  enableOvertimePay               Boolean                  @default(true)
-  overtimeMultiplier1             Float                    @default(1.34)
-  overtimeMultiplier2             Float                    @default(1.67)
-  restDayMultiplier               Float                    @default(1.34)
-  regularDayMultiplier            Float                    @default(2.0)
+  royaltyRate                     Float?              @default(5.0)
+  hourlyNationalHolidayMultiplier Float               @default(2.0)
+  monthlyNationalHolidayOvertime  Boolean             @default(true)
+  enableOvertimePay               Boolean             @default(true)
+  overtimeMultiplier1             Float               @default(1.34)
+  overtimeMultiplier2             Float               @default(1.67)
+  restDayMultiplier               Float               @default(1.34)
+  regularDayMultiplier            Float               @default(2.0)
   apiEndpoint                     String?
-  contractStart                   String?                  @default("2025-01-01")
-  contractEnd                     String?                  @default("2028-12-31")
+  contractStart                   String?             @default("2025-01-01")
+  contractEnd                     String?             @default("2028-12-31")
   integrationSettings             Json?
-  
-  isMainStore                     Boolean                  @default(false)
-  parentLocationId                String?
-  syncSettingsWithMain            Boolean                  @default(true)
-  syncOrdersWithMain              Boolean                  @default(false)
-  parentLocation                  Location?                @relation("LocationHierarchy", fields: [parentLocationId], references: [id])
-  childLocations                  Location[]               @relation("LocationHierarchy")
-  
-  menuItemOverrides               MenuItemLocationOverride[]
-  menuOptionValueOverrides        MenuOptionValueLocationOverride[]
 
-  categories                      Category[]
-  deliveryZones                   DeliveryZone[]
-  mealtimes                       Mealtime[]
-  menuItems                       MenuItem[]
-  operatingHours                  OperatingHour[]
-  orders                          Order[]
-  reservations                    Reservation[]
-  reviews                         Review[]
-  tables                          Table[]
-  staff                           User[]
-  coupons                         Coupon[]
-  chatMessages                    ChatMessage[]
-  groupSessions                   GroupOrderSession[]
-  staffAttendances                StaffAttendance[]
-  jobRoles                        JobRole[]
-  shiftRequirements               ShiftRequirement[]
-  weeklyShiftRequirements         WeeklyShiftRequirement[]
-  shifts                          Shift[]
-  payrollPeriods                  PayrollPeriod[]
+  isMainStore          Boolean    @default(false)
+  parentLocationId     String?
+  syncSettingsWithMain Boolean    @default(true)
+  syncOrdersWithMain   Boolean    @default(false)
+  parentLocation       Location?  @relation("LocationHierarchy", fields: [parentLocationId], references: [id])
+  childLocations       Location[] @relation("LocationHierarchy")
+
+  menuItemOverrides        MenuItemLocationOverride[]
+  menuOptionValueOverrides MenuOptionValueLocationOverride[]
+
+  categories              Category[]
+  deliveryZones           DeliveryZone[]
+  mealtimes               Mealtime[]
+  menuItems               MenuItem[]
+  operatingHours          OperatingHour[]
+  orders                  Order[]
+  reservations            Reservation[]
+  reviews                 Review[]
+  tables                  Table[]
+  staff                   User[]
+  coupons                 Coupon[]
+  chatMessages            ChatMessage[]
+  groupSessions           GroupOrderSession[]
+  staffAttendances        StaffAttendance[]
+  jobRoles                JobRole[]
+  shiftRequirements       ShiftRequirement[]
+  weeklyShiftRequirements WeeklyShiftRequirement[]
+  shifts                  Shift[]
+  payrollPeriods          PayrollPeriod[]
 
   @@map("locations")
 }
@@ -432,47 +432,47 @@ model MenuOption {
 }
 
 model MenuOptionValue {
-  id               String            @id @default(cuid())
-  menuOptionId     String
-  name             String
-  priceModifier    Float             @default(0)
-  isDefault        Boolean           @default(false)
-  sortOrder        Int               @default(0)
-  nameTranslations Json?
-  trackStock       Boolean           @default(false)
-  stockQty         Int               @default(0)
-  menuOption       MenuOption        @relation(fields: [menuOptionId], references: [id], onDelete: Cascade)
-  orderItemOptions OrderItemOption[]
+  id                String                            @id @default(cuid())
+  menuOptionId      String
+  name              String
+  priceModifier     Float                             @default(0)
+  isDefault         Boolean                           @default(false)
+  sortOrder         Int                               @default(0)
+  nameTranslations  Json?
+  trackStock        Boolean                           @default(false)
+  stockQty          Int                               @default(0)
+  menuOption        MenuOption                        @relation(fields: [menuOptionId], references: [id], onDelete: Cascade)
+  orderItemOptions  OrderItemOption[]
   locationOverrides MenuOptionValueLocationOverride[]
 
   @@map("menu_option_values")
 }
 
 model MenuItemLocationOverride {
-  id         String   @id @default(cuid())
+  id         String  @id @default(cuid())
   menuItemId String
   locationId String
-  isActive   Boolean  @default(true)
-  trackStock Boolean  @default(false)
-  stockQty   Int      @default(0)
+  isActive   Boolean @default(true)
+  trackStock Boolean @default(false)
+  stockQty   Int     @default(0)
 
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@unique([menuItemId, locationId])
   @@map("menu_item_location_overrides")
 }
 
 model MenuOptionValueLocationOverride {
-  id                String          @id @default(cuid())
+  id                String  @id @default(cuid())
   menuOptionValueId String
   locationId        String
-  isActive          Boolean         @default(true)
-  trackStock        Boolean         @default(false)
-  stockQty          Int             @default(0)
+  isActive          Boolean @default(true)
+  trackStock        Boolean @default(false)
+  stockQty          Int     @default(0)
 
-  menuOptionValue   MenuOptionValue @relation(fields: [menuOptionValueId], references: [id], onDelete: Cascade)
-  location          Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  menuOptionValue MenuOptionValue @relation(fields: [menuOptionValueId], references: [id], onDelete: Cascade)
+  location        Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@unique([menuOptionValueId, locationId])
   @@map("menu_option_value_location_overrides")
@@ -1194,45 +1194,45 @@ model StaffTimeOff {
 // --- BRANCH INVENTORY & REQUISITIONS ---
 
 model LocationInventory {
-  id           String     @id @default(cuid())
+  id           String @id @default(cuid())
   tenantId     String
   locationId   String
   ingredientId String
-  currentStock Float      @default(0)
-  safetyStock  Float      @default(0)
+  currentStock Float  @default(0)
+  safetyStock  Float  @default(0)
 
-  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  location     Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location   Location   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
   @@unique([locationId, ingredientId])
 }
 
 model Requisition {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   tenantId     String
   locationId   String
-  status       String   // PENDING, APPROVED, SHIPPED, RECEIVED, REJECTED
+  status       String // PENDING, APPROVED, SHIPPED, RECEIVED, REJECTED
   totalCost    Float?
   expectedDate DateTime? @db.Timestamptz
-  
-  createdAt    DateTime @default(now()) @db.Timestamptz
-  updatedAt    DateTime @updatedAt @db.Timestamptz
 
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  location     Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  items        RequisitionItem[]
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  items    RequisitionItem[]
 }
 
 model RequisitionItem {
-  id            String   @id @default(cuid())
+  id            String @id @default(cuid())
   requisitionId String
   ingredientId  String
   quantity      Float
-  fulfilledQty  Float    @default(0)
+  fulfilledQty  Float  @default(0)
 
-  requisition   Requisition @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
-  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  requisition Requisition @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+  ingredient  Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 }
 
 enum DayType {
@@ -1508,12 +1508,12 @@ model Ingredient {
   isAllergen   Boolean @default(false)
   allergenType String? // e.g., "Gluten", "Dairy"
 
-  prices          SupplierPrice[]
-  recipeItems     RecipeItem[]
-  inventoryLogs   InventoryLog[]
-  unitConversions UnitConversion[]
-  allergens       Allergen[]
-  recipeOutputs   RecipeOutput[]
+  prices              SupplierPrice[]
+  recipeItems         RecipeItem[]
+  inventoryLogs       InventoryLog[]
+  unitConversions     UnitConversion[]
+  allergens           Allergen[]
+  recipeOutputs       RecipeOutput[]
   locationInventories LocationInventory[]
   requisitionItems    RequisitionItem[]
 
