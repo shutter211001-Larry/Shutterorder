@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import fs from 'fs';
 import prisma from '../lib/db.js';
 import { generateGeminiVisionObject } from '../lib/ai.js';
-import { autoTranslateCategory, autoTranslateMenuItem } from '../lib/translation-helper.js';
+import { SUPPORTED_LANGUAGES, autoTranslateCategory, autoTranslateMenuItem } from '../lib/translation-helper.js';
+import { tenantStorage } from '../middleware/tenantStorage.js';
+import logger from '../lib/logger.js';
 
 export async function detectMenuFromImages(req: Request, res: Response): Promise<void> {
   const files = req.files as Express.Multer.File[];
@@ -106,6 +107,50 @@ async function generateSlug(name: string, model: 'category' | 'menuItem'): Promi
   return `${candidate}-${Math.random().toString(36).substring(2, 6)}`;
 }
 
+async function backgroundMissingTranslations(tenantId: string) {
+  tenantStorage.run({ tenantId }, async () => {
+    try {
+      logger.info(`Starting background menu translation for tenant ${tenantId}`);
+      
+      const categories = await prisma.category.findMany();
+      for (const cat of categories) {
+        const nameTrans = (cat.nameTranslations as Record<string, string>) || {};
+        if (Object.keys(nameTrans).length < SUPPORTED_LANGUAGES.length) {
+          const translatedCatData = await autoTranslateCategory(cat);
+          await prisma.category.update({
+            where: { id: cat.id },
+            data: {
+              nameTranslations: translatedCatData.nameTranslations,
+              descriptionTranslations: translatedCatData.descriptionTranslations
+            }
+          });
+        }
+      }
+
+      const items = await prisma.menuItem.findMany();
+      for (const item of items) {
+        const nameTrans = (item.nameTranslations as Record<string, string>) || {};
+        const descTrans = (item.descriptionTranslations as Record<string, string>) || {};
+        if (Object.keys(nameTrans).length < SUPPORTED_LANGUAGES.length || (item.description && Object.keys(descTrans).length < SUPPORTED_LANGUAGES.length)) {
+          const translatedItemData = await autoTranslateMenuItem(item);
+          await prisma.menuItem.update({
+            where: { id: item.id },
+            data: {
+              nameTranslations: translatedItemData.nameTranslations,
+              descriptionTranslations: translatedItemData.descriptionTranslations,
+              unitTranslations: translatedItemData.unitTranslations
+            }
+          });
+        }
+      }
+
+      logger.info(`Finished background menu translation for tenant ${tenantId}`);
+    } catch (error) {
+      logger.error(error as any, `Background translation failed for tenant ${tenantId}`);
+    }
+  });
+}
+
 export async function importMenuAndTranslate(req: Request, res: Response): Promise<void> {
   const parsed = importSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -115,6 +160,8 @@ export async function importMenuAndTranslate(req: Request, res: Response): Promi
 
   try {
     const { categories } = parsed.data;
+    const store = tenantStorage.getStore();
+    const tenantId = store?.tenantId;
     
     // Process sequentially to avoid DB locks or overwhelming AI translations
     for (const cat of categories) {
@@ -136,11 +183,11 @@ export async function importMenuAndTranslate(req: Request, res: Response): Promi
           slug: await generateSlug(cat.name, 'category'),
           isActive: true,
           sortOrder: 0,
+          nameTranslations: { 'zh-TW': cat.name }
         };
         
-        const translatedCatData = await autoTranslateCategory(catData);
         const createdCategory = await prisma.category.create({
-          data: translatedCatData
+          data: catData
         });
         categoryId = createdCategory.id;
       }
@@ -173,9 +220,10 @@ export async function importMenuAndTranslate(req: Request, res: Response): Promi
           sortOrder: 0,
           categoryId: categoryId,
           unit: '份', // Default unit
+          nameTranslations: { 'zh-TW': item.name },
+          descriptionTranslations: item.description ? { 'zh-TW': item.description } : {},
+          unitTranslations: { 'zh-TW': '份' }
         };
-
-        const translatedItemData = await autoTranslateMenuItem(itemData);
         
         let optionsToCreate: any = undefined;
         if (item.options && item.options.length > 0) {
@@ -204,15 +252,56 @@ export async function importMenuAndTranslate(req: Request, res: Response): Promi
 
         await prisma.menuItem.create({
           data: {
-            ...translatedItemData,
+            ...itemData,
             options: optionsToCreate
           }
         });
       }
     }
 
-    res.json({ success: true });
+    // Trigger background translation job
+    if (tenantId) {
+      backgroundMissingTranslations(tenantId).catch(err => logger.error(err as any, 'Background translation job rejected'));
+    }
+
+    res.json({ success: true, message: 'Menu imported. Translations are running in the background.' });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to import menu' });
+  }
+}
+
+export async function getMissingTranslations(req: Request, res: Response): Promise<void> {
+  try {
+    const categories = await prisma.category.findMany();
+    const missingCats = categories.filter(c => {
+      const trans = (c.nameTranslations as Record<string, string>) || {};
+      return Object.keys(trans).length < SUPPORTED_LANGUAGES.length;
+    }).map(c => ({ id: c.id, name: c.name }));
+
+    const items = await prisma.menuItem.findMany();
+    const missingItems = items.filter(i => {
+      const trans = (i.nameTranslations as Record<string, string>) || {};
+      return Object.keys(trans).length < SUPPORTED_LANGUAGES.length;
+    }).map(i => ({ id: i.id, name: i.name }));
+
+    res.json({ success: true, data: { categories: missingCats, items: missingItems } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+export async function resumeTranslation(req: Request, res: Response): Promise<void> {
+  try {
+    const store = tenantStorage.getStore();
+    const tenantId = store?.tenantId;
+    if (!tenantId) {
+      res.status(400).json({ success: false, error: 'Tenant ID required' });
+      return;
+    }
+
+    backgroundMissingTranslations(tenantId).catch(err => logger.error(err as any, 'Resume translation job rejected'));
+    res.json({ success: true, message: 'Background translation resumed.' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
 }

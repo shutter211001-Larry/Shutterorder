@@ -223,6 +223,24 @@ export default function KitchenDisplay() {
 
   useEffect(() => {
     fetchOrders();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchOrders();
+      }
+    };
+
+    const handleFocus = () => {
+      fetchOrders();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [fetchOrders]);
 
   // Setup Socket.io for real-time updates
@@ -240,6 +258,7 @@ export default function KitchenDisplay() {
       setIsConnected(true);
       setSocketError(null);
       socket.emit('join:kitchen', selectedLocationId ? { locationId: selectedLocationId } : undefined);
+      fetchOrders(); // Fetch orders on connect/reconnect to catch missed events
     });
 
     socket.on('connect_error', (err) => {

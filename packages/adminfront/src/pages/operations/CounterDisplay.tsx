@@ -248,7 +248,20 @@ export default function CounterDisplay() {
 
   useEffect(() => {
     fetchOrders();
-    
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchOrders();
+      }
+    };
+
+    const handleFocus = () => {
+      fetchOrders();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
     // Fetch and cache boardLeadTime locally
     const localLeadTime = localStorage.getItem('cds_boardLeadTime');
     if (localLeadTime !== null) {
@@ -264,6 +277,11 @@ export default function CounterDisplay() {
         })
         .catch(() => {});
     }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [fetchOrders]);
 
   // Setup Socket.io for real-time updates
@@ -281,6 +299,7 @@ export default function CounterDisplay() {
       setIsConnected(true);
       setSocketError(null);
       socket.emit('join:kitchen', selectedLocationId ? { locationId: selectedLocationId } : undefined);
+      fetchOrders(); // Fetch orders on connect/reconnect to catch missed events
     });
 
     socket.on('connect_error', (err) => {

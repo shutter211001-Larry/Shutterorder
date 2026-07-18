@@ -18,7 +18,7 @@ import {
   deleteMenuItemImage,
   getErpProductRecipes,
 } from '../controllers/menu-item.controller.js';
-import { detectMenuFromImages, importMenuAndTranslate } from '../controllers/menu-ai.controller.js';
+import { detectMenuFromImages, importMenuAndTranslate, getMissingTranslations, resumeTranslation } from '../controllers/menu-ai.controller.js';
 import { upload } from '../middleware/upload.js';
 import {
   listAllergens,
@@ -44,6 +44,8 @@ const router = Router();
 // AI Menu Detection - requires Manager+
 router.post('/ai-detect', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), upload.array('images', 10), recoverTenantContext, detectMenuFromImages);
 router.post('/ai-detect/import', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), importMenuAndTranslate);
+router.get('/ai-detect/missing-translations', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), getMissingTranslations);
+router.post('/ai-detect/resume-translation', authenticate, requireStaff, requireRole('SUPER_ADMIN', 'MANAGER'), resumeTranslation);
 
 // Categories - read is open, write requires Manager+
 router.get('/categories', listCategories);
