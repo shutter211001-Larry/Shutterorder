@@ -13,6 +13,7 @@ import { formatToLocalDate, formatToLocalTime, formatToFullDateTime, getDateFrie
 import taiwanDistricts from '../lib/taiwan-districts.json';
 import { confirm } from "../lib/confirm.js";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { useLocations } from '../hooks/useLocations.js';
 
 type OrderType = 'delivery' | 'pickup' | 'frozen_delivery';
 type PaymentMethod = 'cash' | 'stripe' | 'paypal' | 'linepay';
@@ -33,6 +34,7 @@ export default function Checkout() {
   const { settings, refreshSettings } = useTheme();
   const { addOrder } = useRecentOrders();
   const navigate = useNavigate();
+  const { locations } = useLocations();
 
   const orderSettings = settings.orderSettings;
   const paymentSettings = settings.paymentSettings;
@@ -552,9 +554,35 @@ export default function Checkout() {
     }
   }
 
+  const selectedLocation = locations.find(l => l.id === locationId);
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-main mb-8">{t('checkout.title')}</h1>
+      <h1 className="text-3xl font-bold text-main mb-6">{t('checkout.title')}</h1>
+
+      {selectedLocation && (
+        <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800 rounded-xl p-4 mb-8 flex items-start gap-3">
+          <div className="bg-primary-100 dark:bg-primary-800 text-primary-600 dark:text-primary-300 p-2 rounded-lg mt-0.5">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-primary-900 dark:text-primary-100 mb-1">
+              {t('checkout.orderingFrom', '結帳分店')}：{selectedLocation.name}
+            </h2>
+            <p className="text-sm text-primary-700 dark:text-primary-300 mb-1">
+              {selectedLocation.address}
+            </p>
+            {selectedLocation.phone && (
+              <p className="text-xs text-primary-600 dark:text-primary-400">
+                電話：{selectedLocation.phone}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {isBusy && (
         <div className="bg-amber-50 border border-amber-300 text-amber-800 p-4 rounded-lg mb-6">

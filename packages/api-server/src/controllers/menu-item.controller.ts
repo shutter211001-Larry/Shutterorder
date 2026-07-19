@@ -144,7 +144,7 @@ async function enrichRandomDispatchPools(items: any[], locationId?: string) {
 
 export async function listMenuItems(req: Request, res: Response): Promise<void> {
   const page = Math.max(1, parseInt(req.query.page as string) || 1);
-  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const limit = Math.min(1000, Math.max(1, parseInt(req.query.limit as string) || 20));
   const skip = (page - 1) * limit;
   const categoryId = req.query.categoryId as string | undefined;
   const search = req.query.search as string | undefined;

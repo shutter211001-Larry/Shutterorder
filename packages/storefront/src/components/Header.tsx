@@ -9,13 +9,15 @@ import { headerVariants } from '../templates/headers/index.js';
 import type { TemplateId } from '../templates/index.js';
 import { useRecentOrders } from '../hooks/useRecentOrders.js';
 import { ProgressiveImage } from './ui/ProgressiveImage.js';
+import { useLocations } from '../hooks/useLocations.js';
 
 function ClassicHeader() {
   const { t } = useTranslation();
   const { user, logout, isLoading } = useAuth();
-  const { itemCount, setIsOpen: openCart } = useCart();
+  const { itemCount, setIsOpen: openCart, locationId, setLocationModalOpen } = useCart();
   const { settings } = useTheme();
   const { recentOrders } = useRecentOrders();
+  const { locations } = useLocations();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -60,16 +62,39 @@ function ClassicHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            {settings.logo ? (
-              <ProgressiveImage src={settings.logo} alt={settings.siteName} className="w-8 h-8 rounded-lg object-cover" />
-            ) : (
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">{settings.siteName.charAt(0)}</span>
+          <div className="flex items-center gap-3 lg:gap-6">
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+              {settings.logo ? (
+                <ProgressiveImage src={settings.logo} alt={settings.siteName} className="w-8 h-8 rounded-lg object-cover" />
+              ) : (
+                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">{settings.siteName.charAt(0)}</span>
+                </div>
+              )}
+              <span className="text-xl font-bold text-main hidden sm:block">{settings.siteName}</span>
+            </Link>
+
+            {/* Location Display */}
+            {locations.length > 1 && (
+              <div className="flex items-center">
+                <button
+                  onClick={() => setLocationModalOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <svg className="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="font-medium text-gray-700 dark:text-gray-300 max-w-[120px] truncate">
+                    {locations.find(l => l.id === locationId)?.name || '請選擇分店'}
+                  </span>
+                  <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
             )}
-            <span className="text-xl font-bold text-main">{settings.siteName}</span>
-          </Link>
+          </div>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
