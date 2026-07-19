@@ -35,7 +35,7 @@ jobs:
           echo "BACKUP_FILE_1=$BACKUP_FILE" >> $GITHUB_ENV
 
       - name: Upload Backup 1 to Google Drive
-        uses: adityak74/google-drive-upload-action@main
+        uses: adityak74/google-drive-upload-git-action@main
         with:
           filename: ${{ env.BACKUP_FILE_1 }}
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
@@ -59,7 +59,7 @@ jobs:
           echo "BACKUP_FILE_2=$BACKUP_FILE" >> $GITHUB_ENV
 
       - name: Upload Backup 2 to Google Drive
-        uses: adityak74/google-drive-upload-action@main
+        uses: adityak74/google-drive-upload-git-action@main
         with:
           filename: ${{ env.BACKUP_FILE_2 }}
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
