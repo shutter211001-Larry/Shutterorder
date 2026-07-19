@@ -14,6 +14,11 @@ interface User {
   preferredLanguage?: string | null;
   tenantId?: string | null;
   hasErpAccess?: boolean;
+  tenant?: {
+    hasErpAccess?: boolean;
+    scheduledDeletionAt?: string | null;
+    deletionAcknowledgedAt?: string | null;
+  };
 }
 
 interface AuthContextValue {

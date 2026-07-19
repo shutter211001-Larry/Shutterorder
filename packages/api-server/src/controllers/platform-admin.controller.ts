@@ -138,35 +138,76 @@ export const deleteTenant = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
 
-    // Manually delete blocking records to prevent Foreign Key Constraint errors 
-    // due to missing onDelete: Cascade on some cross-relations (like Order -> Location).
-    // We use raw SQL to bypass the Prisma Soft Delete extension which would otherwise skip 'deletedAt IS NOT NULL' records.
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "orders" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "reservations" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "reviews" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "loyalty_transactions" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "chat_messages" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "shifts" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "attendance_correction_requests" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "leave_requests" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "staff_attendance" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "group_order_sessions" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "tables" WHERE "tenantId" = $1`, id);
-    
-    // Some core entities like User and Category are soft-deleted and might reference Location or themselves restrictively.
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "staff_password_reset_tokens" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "users" WHERE "tenantId" = $1`, id);
-    await (prisma as any).$executeRawUnsafe(`DELETE FROM "categories" WHERE "tenantId" = $1`, id);
-    
-    // Now delete the tenant itself (Prisma will cascade the rest like MenuItem, Location, User)
-    await (prisma as any).tenant.delete({
-      where: { id }
+    // Instead of deleting, we schedule it for 30 days later
+    const scheduledDeletionAt = new Date();
+    scheduledDeletionAt.setDate(scheduledDeletionAt.getDate() + 30);
+
+    const tenant = await (prisma as any).tenant.update({
+      where: { id },
+      data: { scheduledDeletionAt }
     });
 
-    res.json({ success: true });
+    // Fetch global mail settings
+    const settings = await (prisma as any).siteSettings.findUnique({
+      where: { id: 'default' }
+    });
+    const mailSettings = typeof settings?.mailSettings === 'string'
+      ? JSON.parse(settings.mailSettings)
+      : (settings?.mailSettings || {});
+
+    // Notify the tenant admin
+    const firstAdmin = await (prisma as any).user.findFirst({
+      where: { tenantId: id, role: 'ADMIN' },
+      orderBy: { createdAt: 'asc' }
+    });
+    
+    const notifyEmail = tenant.adminEmail || firstAdmin?.email;
+    if (notifyEmail) {
+      const { sendEmail } = await import('../lib/email.js');
+      const saasAdminEmail = mailSettings.notificationEmail || 'admin@shutter.com';
+
+      await sendEmail({
+        to: notifyEmail,
+        bcc: saasAdminEmail,
+        subject: '【重要警告】您的夏特點餐系統帳號即將被刪除',
+        html: `
+          <div style="font-family: sans-serif; padding: 20px;">
+            <h2 style="color: #dc2626;">帳號刪除預告</h2>
+            <p>親愛的 ${tenant.name} 管理員您好：</p>
+            <p>您的系統已進入排程刪除狀態。您的夏特點餐系統帳號即將於 <strong>30 天後 (${scheduledDeletionAt.toLocaleDateString()})</strong> 被永久刪除。</p>
+            <p><strong>屆時所有訂單、菜單、排班與顧客資料都會被清空且無法復原。</strong></p>
+            <p>如果您沒有要求刪除，或有任何疑問，請立即與我們聯絡。</p>
+            <br/>
+            <p>夏特點餐系統 團隊</p>
+          </div>
+        `
+      });
+    }
+
+    res.json({ success: true, message: '已排程刪除並寄送通知' });
   } catch (error) {
     logger.error({ err: error }, 'Failed to delete tenant');
     res.status(500).json({ success: false, error: 'Failed to delete tenant' });
+  }
+};
+
+export const cancelTenantDeletion = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+
+    await (prisma as any).tenant.update({
+      where: { id },
+      data: {
+        scheduledDeletionAt: null,
+        deletionAcknowledgedAt: null,
+        deletionAcknowledgedBy: null
+      }
+    });
+
+    res.json({ success: true, message: '已取消排程刪除' });
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to cancel tenant deletion');
+    res.status(500).json({ success: false, error: 'Failed to cancel tenant deletion' });
   }
 };
 

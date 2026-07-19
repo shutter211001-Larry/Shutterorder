@@ -13,6 +13,9 @@ interface Tenant {
   isActive: boolean;
   hasErpAccess: boolean;
   subscriptionEndsAt: string | null;
+  scheduledDeletionAt?: string | null;
+  deletionAcknowledgedAt?: string | null;
+  deletionAcknowledgedBy?: string | null;
   createdAt: string;
   _count?: {
     users: number;
@@ -152,11 +155,22 @@ export default function TenantList() {
     const loadingToast = toast.loading((t('tenantList.28986c') || '正在刪除租戶與所有資料...'));
     try {
       await api.delete(`/platform-admin/tenants/${tenant.id}`);
-      toast.success((t('tenantList.4f12b2') || '租戶已永久刪除'), { id: loadingToast });
+      toast.success('已排程刪除並寄送通知', { id: loadingToast });
       setDeletingId(null);
       fetchTenants();
     } catch (error: any) {
       toast.error(error.message || (t('tenantList.333ca5') || '刪除失敗'), { id: loadingToast });
+    }
+  };
+
+  const handleCancelDeletion = async (tenant: Tenant) => {
+    const loadingToast = toast.loading('正在取消排程...');
+    try {
+      await api.post(`/platform-admin/tenants/${tenant.id}/cancel-deletion`, {});
+      toast.success('已取消排程刪除', { id: loadingToast });
+      fetchTenants();
+    } catch (error: any) {
+      toast.error(error.message || '取消失敗', { id: loadingToast });
     }
   };
 
@@ -572,18 +586,40 @@ export default function TenantList() {
                                 </div>
 
                                 <div className="pt-2 border-t border-gray-800">
-                                  {deletingId === tenant.id ? (
+                                  {tenant.scheduledDeletionAt ? (
+                                    <div className="bg-orange-950/30 border border-orange-500/30 p-3 rounded-lg space-y-2">
+                                      <p className="text-sm font-medium text-orange-400">
+                                        排程刪除中 (預計於 {new Date(tenant.scheduledDeletionAt).toLocaleDateString()} 執行)
+                                      </p>
+                                      {tenant.deletionAcknowledgedAt ? (
+                                        <p className="text-xs text-emerald-400 font-medium bg-emerald-950/30 px-2 py-1 rounded inline-block">
+                                          已簽收警告信函 ({new Date(tenant.deletionAcknowledgedAt).toLocaleString()})
+                                        </p>
+                                      ) : (
+                                        <p className="text-xs text-red-400 font-medium bg-red-950/30 px-2 py-1 rounded inline-block animate-pulse">
+                                          未簽收！(租戶登入時將強制要求簽收)
+                                        </p>
+                                      )}
+                                      <div className="pt-2">
+                                        <button onClick={() => handleCancelDeletion(tenant)} className="w-full bg-gray-700 hover:bg-gray-600 text-white text-xs py-1.5 rounded font-medium transition-colors">
+                                          取消排程刪除
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : deletingId === tenant.id ? (
                                     <div className="bg-red-900/20 border border-red-500/30 p-2.5 rounded-lg space-y-2">
-                                      <p className="text-[10px] text-red-400">{t('tenantList.bd438c') || (t('tenantList.bd438c') || '請輸入')}<span className="font-bold text-white select-all">{tenant.name}</span> {t('tenantList.af2a16') || (t('tenantList.af2a16') || '以確認刪除：')}</p>
+                                      <p className="text-[10px] text-red-400">{t('tenantList.bd438c') || (t('tenantList.bd438c') || '請輸入')}<span className="font-bold text-white select-all">{tenant.name}</span> 以確認排程刪除：</p>
+                                      <p className="text-[10px] text-gray-400">系統將寄發警告信，並於 30 天後永久清空資料。</p>
                                       <input type="text" value={deleteConfirmName} onChange={(e) => setDeleteConfirmName(e.target.value)} placeholder={tenant.name} className="w-full bg-gray-950 border border-red-500/50 text-white text-xs rounded px-2 py-1.5 focus:outline-none focus:border-red-400" />
                                       <div className="flex gap-1">
-                                        <button onClick={() => confirmDeleteTenant(tenant)} className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs py-1 rounded font-medium">{t('tenantList.772af1') || (t('tenantList.772af1') || '確認刪除')}</button>
+                                        <button onClick={() => confirmDeleteTenant(tenant)} className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs py-1 rounded font-medium">{t('tenantList.772af1') || (t('tenantList.772af1') || '確認排程刪除')}</button>
                                         <button onClick={() => { setDeletingId(null); setDeleteConfirmName(''); }} className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-xs py-1 rounded font-medium">{t('tenantList.625fb2') || (t('tenantList.625fb2') || '取消')}</button>
                                       </div>
                                     </div>
                                   ) : (
                                     <button onClick={() => { setDeletingId(tenant.id); setDeleteConfirmName(''); }} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-950/30 hover:bg-red-900/50 text-red-400 border border-red-500/10 rounded-lg text-xs transition-colors">
-                                      <Trash2 className="w-3.5 h-3.5" /> {t('tenantList.e5327c') || (t('tenantList.e5327c') || '永久刪除資料')}</button>
+                                      <Trash2 className="w-3.5 h-3.5" /> 啟動排程刪除
+                                    </button>
                                   )}
                                 </div>
                               </div>

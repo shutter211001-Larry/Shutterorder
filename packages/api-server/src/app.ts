@@ -77,8 +77,9 @@ import { tenantMiddleware } from './middleware/tenantMiddleware.js';
 
 // Initialize automation event listeners
 import './lib/events.js';
-import { scheduleImageCleanup } from './cron/image-cleanup.cron.js';
-import { scheduleMenuTranslationResume } from './cron/menu-translation.cron.js';
+import { startMenuTranslationCron } from './cron/menu-translation.cron.js';
+import { startImageCleanupCron } from './cron/image-cleanup.cron.js';
+import { startTenantCleanupCron } from './cron/tenant-cleanup.cron.js';
 
 import { initSentry } from './lib/sentry.js';
 
@@ -114,10 +115,10 @@ export async function createApp() {
       }
     }, 60 * 1000); // Check every minute
     
-    // Start image cleanup cron job
-    scheduleImageCleanup();
-    // Start menu translation resume cron job
-    scheduleMenuTranslationResume();
+    // Start cron jobs
+    startMenuTranslationCron();
+    startImageCleanupCron();
+    startTenantCleanupCron();
   }
   // -------------------------------------
 

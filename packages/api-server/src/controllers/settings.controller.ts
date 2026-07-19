@@ -592,6 +592,31 @@ export const getGeneralSettings = async (req: Request, res: Response) => {
   }
 }
 
+export const acknowledgeDeletion = async (req: Request, res: Response) => {
+  try {
+    const store = tenantStorage.getStore();
+    const tenantId = store?.tenantId;
+    const userId = (req as any).user?.id;
+
+    if (!tenantId || !userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    await (prisma as any).tenant.update({
+      where: { id: tenantId },
+      data: {
+        deletionAcknowledgedAt: new Date(),
+        deletionAcknowledgedBy: userId
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error acknowledging deletion:', error);
+    res.status(500).json({ success: false, error: 'Failed to acknowledge deletion' });
+  }
+};
+
 export const updateGeneralSettings = async (req: Request, res: Response) => {
   try {
     const { domain, ...generalData } = req.body;

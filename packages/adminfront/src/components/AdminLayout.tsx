@@ -24,6 +24,25 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
     operations: true,
   });
 
+  const [ackChecked, setAckChecked] = useState(false);
+  const [acknowledging, setAcknowledging] = useState(false);
+  const showDeletionOverlay = user?.tenant?.scheduledDeletionAt && !user?.tenant?.deletionAcknowledgedAt;
+
+  const handleAcknowledge = async () => {
+    if (!ackChecked) return;
+    setAcknowledging(true);
+    try {
+      await api.post('/settings/acknowledge-deletion', {});
+      // Refresh user context to clear the overlay
+      if (typeof window !== 'undefined') {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error(err);
+      setAcknowledging(false);
+    }
+  };
+
   const toggleExpand = (id: string) => {
     setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
@@ -109,6 +128,43 @@ export default function AdminLayout({ children, onLogout }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Deletion Acknowledgment Overlay */}
+      {showDeletionOverlay && (
+        <div className="fixed inset-0 z-[9999] bg-black/90 flex flex-col items-center justify-center p-6 backdrop-blur-md">
+          <div className="max-w-md w-full bg-red-950/40 border border-red-500/50 rounded-2xl p-8 shadow-2xl text-center space-y-6">
+            <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </div>
+            <h2 className="text-2xl font-bold text-red-400">系統即將永久關閉與刪除</h2>
+            <div className="text-gray-300 text-sm space-y-3 leading-relaxed text-left">
+              <p>親愛的管理員，</p>
+              <p>您的系統已進入排程刪除狀態，並將於 <strong className="text-white text-base bg-red-900/50 px-2 py-0.5 rounded">{new Date(user.tenant!.scheduledDeletionAt!).toLocaleDateString()}</strong> 被永久清空。</p>
+              <p className="text-red-300 font-medium border-l-4 border-red-500 pl-3">屆時所有訂單、菜單、排班與顧客資料都會被永久清空且無法復原。</p>
+              <p>如果您有任何疑慮，請立即聯繫您的系統專員。</p>
+            </div>
+            <div className="bg-black/40 p-4 rounded-lg flex items-start gap-3 mt-4 text-left">
+              <input 
+                type="checkbox" 
+                id="ackCheck" 
+                checked={ackChecked} 
+                onChange={e => setAckChecked(e.target.checked)}
+                className="mt-1 shrink-0 w-5 h-5 rounded border-red-500/50 bg-gray-900 text-red-500 focus:ring-red-500 focus:ring-offset-gray-900" 
+              />
+              <label htmlFor="ackCheck" className="text-sm text-gray-300 cursor-pointer select-none">
+                我已閱讀並了解系統資料即將被永久清空。我同意在此留下數位簽收紀錄。
+              </label>
+            </div>
+            <button 
+              disabled={!ackChecked || acknowledging}
+              onClick={handleAcknowledge}
+              className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:hover:bg-red-600 text-white font-bold rounded-xl transition-all active:scale-[0.98]"
+            >
+              {acknowledging ? '處理中...' : '確認簽收並進入系統'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar Backdrop Overlay on mobile */}
       {sidebarOpen && (
         <div

@@ -684,7 +684,7 @@ export async function getMe(req: Request, res: Response): Promise<void> {
     const user = await tenantStorage.run({ tenantId: null }, async () => {
       return await prisma.user.findUnique({
         where: { id: req.user!.id },
-        select: { id: true, email: true, name: true, role: true, phone: true, avatar: true, lineUserId: true, lineDisplayName: true, locationId: true, preferredLanguage: true, tenantId: true, tenant: { select: { hasErpAccess: true } } },
+        select: { id: true, email: true, name: true, role: true, phone: true, avatar: true, lineUserId: true, lineDisplayName: true, locationId: true, preferredLanguage: true, tenantId: true, tenant: { select: { hasErpAccess: true, scheduledDeletionAt: true, deletionAcknowledgedAt: true } } },
       });
     });
     

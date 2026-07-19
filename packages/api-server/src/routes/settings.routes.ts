@@ -32,6 +32,7 @@ import {
   updateGoogleSettings,
   debugSettings,
   approvePendingIntegrations,
+  acknowledgeDeletion,
 } from '../controllers/settings.controller.js';
 
 const router = Router();
@@ -81,6 +82,8 @@ router.get('/public', async (req, res) => {
 
 // Debug raw data
 router.get('/debug', debugSettings);
+
+router.post('/acknowledge-deletion', acknowledgeDeletion);
 
 // Existing branding/design routes
 router.get('/', getSettings);
