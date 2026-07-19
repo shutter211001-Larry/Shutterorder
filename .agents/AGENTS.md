@@ -167,3 +167,11 @@ When working on any of these areas, always refer to this architecture to ensure 
 **Rule**: 
 1. **No Flat Pages**: You MUST NOT place new page components directly in the `src/pages/` root. They MUST be placed within the appropriate functional domain subdirectory (e.g., `src/pages/hr/`, `src/pages/menu/`, `src/pages/settings/`, `src/pages/crm/`, `src/pages/operations/`, `src/pages/design/`).
 2. **Shared UI Components**: Before hardcoding standard UI elements (like standard Buttons, Data Tables, or Status Badges) using raw Tailwind HTML, you MUST check if a unified shared component exists or should be created in `src/components/ui/`. Avoid duplicating raw HTML for standardized interface elements to maintain Design System consistency.
+
+## 29. 測試與機密檔案集中管理 (Test and Secret Files Management)
+**Trigger**: When writing ad-hoc test scripts, experimenting with APIs, or handling files containing sensitive keys/secrets.
+**Rule**: 
+- All ad-hoc test scripts (e.g., test-*.js) and files containing API keys or secrets MUST be placed exclusively in the `scratch/` directory at the root of the workspace.
+- Do NOT place them in package directories (like `packages/api-server/`).
+- NEVER push these files to Git.
+- After using a file with keys/secrets, you MUST ensure it is moved to or saved in the `scratch/` folder.

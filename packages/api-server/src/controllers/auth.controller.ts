@@ -475,6 +475,171 @@ export async function customerLogin(req: Request, res: Response): Promise<void> 
   });
 }
 
+export async function verifyGoogleToken(req: Request, res: Response): Promise<void> {
+  const { token, action } = req.body;
+  if (!token) {
+    res.status(400).json({ success: false, error: 'Token is required' });
+    return;
+  }
+
+  const { OAuth2Client } = await import('google-auth-library');
+  const requestTenantId = tenantStorage.getStore()?.tenantId || null;
+  
+  try {
+    // 1. Fetch Tenant's Google Settings
+    let settings = null;
+    if (requestTenantId) {
+      settings = await prisma.siteSettings.findUnique({ where: { tenantId: requestTenantId } });
+    } else {
+      settings = await prisma.siteSettings.findUnique({ where: { id: 'default' } });
+    }
+    
+    let googleSettings: any = {};
+    if (settings?.googleSettings) {
+      googleSettings = typeof settings.googleSettings === 'string' 
+        ? JSON.parse(settings.googleSettings) 
+        : settings.googleSettings;
+    }
+    
+    const clientId = googleSettings.googleLoginClientId;
+    if (!clientId) {
+      res.status(400).json({ success: false, error: '此商店尚未設定 Google SSO' });
+      return;
+    }
+
+    // 2. Verify Token
+    const client = new OAuth2Client(clientId);
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: clientId,
+    });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      res.status(400).json({ success: false, error: '無效的 Google Token' });
+      return;
+    }
+
+    const { email, sub: googleId, name } = payload;
+
+    // Manual Auth Check for linking
+    let loggedInUserId: string | null = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const jwtToken = authHeader.split(' ')[1];
+      try {
+        const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET || 'fallback_secret') as any;
+        if (decoded && decoded.id && decoded.type === 'customer') {
+          loggedInUserId = decoded.id;
+        }
+      } catch(e) {}
+    }
+
+    if (loggedInUserId && action === 'link') {
+      const existingLink = await prisma.customer.findFirst({
+        where: { googleId, tenantId: requestTenantId }
+      });
+
+      if (existingLink && existingLink.id !== loggedInUserId) {
+        res.status(409).json({ success: false, error: '此 Google 帳號已被其他會員連結', conflictSocialId: googleId });
+        return;
+      }
+
+      const existingCustomer = await prisma.customer.findUnique({ where: { id: loggedInUserId } });
+      const customer = await prisma.customer.update({
+        where: { id: loggedInUserId },
+        data: {
+          googleId,
+          googleEmail: email,
+          ...(!existingCustomer?.email ? { email: email } : {})
+        },
+      });
+
+      const authToken = generateToken({
+        id: customer.id,
+        email: customer.email,
+        type: 'customer',
+        tenantId: requestTenantId,
+      });
+
+      res.json({
+        success: true,
+        data: { token: authToken, customer: { ...customer, hasPassword: !!customer.password } }
+      });
+      return;
+    }
+    
+    // 3. Find or Create Customer (Login/Register Flow)
+    let customer = await prisma.customer.findFirst({
+      where: {
+        OR: [
+          { googleId: googleId },
+          { email: email }
+        ],
+        tenantId: requestTenantId
+      }
+    });
+
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          email,
+          name: name || email,
+          password: null,
+          googleId: googleId,
+          googleEmail: email,
+          isGuest: false,
+          tenantId: requestTenantId
+        },
+      });
+      // Grant registration bonus
+      await grantRegistrationBonus(customer.id, 'google', googleId);
+    } else {
+      // Update existing
+      customer = await prisma.customer.update({
+        where: { id: customer.id },
+        data: {
+          googleId: customer.googleId || googleId,
+          googleEmail: customer.googleEmail || email,
+          ...(!customer.email ? { email: email } : {}),
+          isGuest: false,
+          name: customer.name || name || email,
+        },
+      });
+    }
+
+    // 4. Issue JWT
+    const authToken = generateToken({
+      id: customer.id,
+      email: customer.email,
+      type: 'customer',
+      tenantId: requestTenantId,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        token: authToken,
+        customer: {
+          id: customer.id,
+          email: customer.email,
+          name: customer.name,
+          phone: customer.phone,
+          address: customer.address,
+          lineUserId: customer.lineUserId,
+          lineDisplayName: customer.lineDisplayName,
+          googleId: customer.googleId,
+          googleEmail: customer.googleEmail,
+          isEmployee: customer.isEmployee,
+          hasPassword: !!customer.password,
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('[Google Verify] Error:', error);
+    res.status(401).json({ success: false, error: 'Google 驗證失敗' });
+  }
+}
+
 // ============================================================
 // SHARED
 // ============================================================

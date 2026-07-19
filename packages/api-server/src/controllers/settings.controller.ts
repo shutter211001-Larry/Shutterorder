@@ -149,6 +149,9 @@ function toPublicSettings(settings: Awaited<ReturnType<typeof getOrCreateSetting
       enabled: isTrue(reservation.enabled, true),
     } : undefined,
     lineSettings: getJson(settings.lineSettings),
+    googleSettings: {
+      googleLoginClientId: ((settings.googleSettings as any) || {}).googleLoginClientId || undefined,
+    },
     storefrontUrl: process.env.VITE_STORE_URL_PUBLIC || process.env.STORE_URL_PUBLIC || 'http://localhost:5174',
     createdAt: settings.createdAt,
     updatedAt: settings.updatedAt,

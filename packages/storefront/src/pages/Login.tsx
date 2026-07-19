@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 import { useTheme } from '../context/ThemeContext.js';
 import { API_BASE } from '../lib/api.js';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const { t } = useTranslation();
@@ -78,6 +79,31 @@ export default function Login() {
     } catch (err: any) {
       console.error('LINE Login error:', err);
       setError('LINE Login error: ' + (err.message || 'Unknown error'));
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleSuccess(token: string | undefined) {
+    if (!token) return;
+    setLoading(true);
+    setError('');
+    try {
+      console.log('[Login] Verifying Google token...');
+      const data = await api.post<any>('/auth/google/verify', { token });
+      if (data.success) {
+        console.log('[Login] Google Login successful!');
+        setSuccess(true);
+        localStorage.setItem('token', data.data.token);
+        setTimeout(() => {
+          window.location.replace(redirectPath);
+        }, 800);
+      } else {
+        setError(data.error || 'Google Login failed');
+      }
+    } catch (err: any) {
+      console.error('Google Login error:', err);
+      setError(err.message || 'Google Login failed');
+    } finally {
       setLoading(false);
     }
   }
@@ -182,13 +208,19 @@ export default function Login() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <a
-              href={`${API_BASE}/auth/google?state=${encodeURIComponent(JSON.stringify({ redirect: redirectPath }))}`}
-              className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-sub hover:bg-gray-50 transition-colors"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-              {t('auth.googleSignIn')}
-            </a>
+            {settings.googleSettings?.googleLoginClientId && (
+              <div className="w-full flex justify-center">
+                <GoogleOAuthProvider clientId={settings.googleSettings.googleLoginClientId}>
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => handleGoogleSuccess(credentialResponse.credential)}
+                    onError={() => setError('Google Login Failed')}
+                    useOneTap
+                    width="100%"
+                    shape="rectangular"
+                  />
+                </GoogleOAuthProvider>
+              </div>
+            )}
             
             {settings.lineSettings?.liffId && (
               <button

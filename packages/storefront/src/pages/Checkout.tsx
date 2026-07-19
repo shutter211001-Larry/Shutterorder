@@ -12,6 +12,7 @@ import { useAnalytics } from '../hooks/useAnalytics.js';
 import { formatToLocalDate, formatToLocalTime, formatToFullDateTime, getDateFriendlyLabel } from '../utils/date.js';
 import taiwanDistricts from '../lib/taiwan-districts.json';
 import { confirm } from "../lib/confirm.js";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 type OrderType = 'delivery' | 'pickup' | 'frozen_delivery';
 type PaymentMethod = 'cash' | 'stripe' | 'paypal' | 'linepay';
@@ -525,6 +526,29 @@ export default function Checkout() {
       if (!redirecting) {
         setLoading(false);
       }
+    }
+  }
+
+  async function handleGoogleSuccess(token: string | undefined) {
+    if (!token) return;
+    setLoading(true);
+    setError('');
+    try {
+      console.log('[Checkout] Verifying Google token...');
+      const data = await api.post<any>('/auth/google/verify', { token });
+      if (data.success) {
+        console.log('[Checkout] Google Login successful!');
+        localStorage.setItem('token', data.data.token);
+        // Reload page to reflect logged-in state
+        window.location.reload();
+      } else {
+        setError(data.error || 'Google Login failed');
+      }
+    } catch (err: any) {
+      console.error('Google Login error:', err);
+      setError(err.message || 'Google Login failed');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -1239,13 +1263,18 @@ export default function Checkout() {
                       {t('checkout.loginBenefit')}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      <a
-                        href={`${API_BASE}/auth/google?state=${encodeURIComponent('redirectUri=/checkout')}`}
-                        className="flex items-center gap-2 px-4 py-2 bg-surface border border-input rounded-lg text-sm font-medium text-sub hover:bg-surface/80 transition-colors shadow-sm"
-                      >
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
-                        {t('checkout.googleLogin')}
-                      </a>
+                      {settings.googleSettings?.googleLoginClientId && (
+                        <div className="flex items-center">
+                          <GoogleOAuthProvider clientId={settings.googleSettings.googleLoginClientId}>
+                            <GoogleLogin
+                              onSuccess={(credentialResponse) => handleGoogleSuccess(credentialResponse.credential)}
+                              onError={() => setError('Google Login Failed')}
+                              useOneTap
+                              shape="rectangular"
+                            />
+                          </GoogleOAuthProvider>
+                        </div>
+                      )}
                       
                       {settings.lineSettings?.liffId && (
                         <button
