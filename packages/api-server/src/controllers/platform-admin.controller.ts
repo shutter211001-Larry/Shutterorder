@@ -139,16 +139,24 @@ export const deleteTenant = async (req: Request, res: Response) => {
     const id = req.params.id as string;
 
     // Manually delete blocking records to prevent Foreign Key Constraint errors 
-    // due to missing onDelete: Cascade on some cross-relations (like Order -> Location)
-    await (prisma as any).order.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).reservation.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).review.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).loyaltyTransaction.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).chatMessage.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).shift.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).attendanceCorrectionRequest.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).leaveRequest.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).staffAttendance.deleteMany({ where: { tenantId: id } });
+    // due to missing onDelete: Cascade on some cross-relations (like Order -> Location).
+    // We use raw SQL to bypass the Prisma Soft Delete extension which would otherwise skip 'deletedAt IS NOT NULL' records.
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "orders" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "reservations" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "reviews" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "loyalty_transactions" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "chat_messages" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "shifts" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "attendance_correction_requests" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "leave_requests" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "staff_attendance" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "group_order_sessions" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "tables" WHERE "tenantId" = $1`, id);
+    
+    // Some core entities like User and Category are soft-deleted and might reference Location or themselves restrictively.
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "staff_password_reset_tokens" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "users" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "categories" WHERE "tenantId" = $1`, id);
     
     // Now delete the tenant itself (Prisma will cascade the rest like MenuItem, Location, User)
     await (prisma as any).tenant.delete({
@@ -174,15 +182,21 @@ export const resetDemoTenant = async (req: Request, res: Response) => {
     const id = 'demo-tenant-id';
     
     // Manually delete blocking records to prevent Foreign Key Constraint errors
-    await (prisma as any).order.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).reservation.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).review.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).loyaltyTransaction.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).chatMessage.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).shift.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).attendanceCorrectionRequest.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).leaveRequest.deleteMany({ where: { tenantId: id } });
-    await (prisma as any).staffAttendance.deleteMany({ where: { tenantId: id } });
+    // We use raw SQL to bypass the Prisma Soft Delete extension.
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "orders" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "reservations" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "reviews" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "loyalty_transactions" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "chat_messages" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "shifts" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "attendance_correction_requests" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "leave_requests" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "staff_attendance" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "group_order_sessions" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "tables" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "staff_password_reset_tokens" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "users" WHERE "tenantId" = $1`, id);
+    await (prisma as any).$executeRawUnsafe(`DELETE FROM "categories" WHERE "tenantId" = $1`, id);
 
     // Delete the demo tenant to cascade wipe everything
     await (prisma as any).tenant.deleteMany({

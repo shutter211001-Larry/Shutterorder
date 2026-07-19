@@ -14,9 +14,12 @@ model Tenant {
   domain             String?   @unique
   isActive           Boolean   @default(true)
   hasErpAccess       Boolean   @default(false)
-  subscriptionEndsAt DateTime? @db.Timestamptz
-  createdAt          DateTime  @default(now()) @db.Timestamptz
-  updatedAt          DateTime  @updatedAt @db.Timestamptz
+  subscriptionEndsAt     DateTime? @db.Timestamptz
+  scheduledDeletionAt    DateTime? @db.Timestamptz
+  deletionAcknowledgedAt DateTime? @db.Timestamptz
+  deletionAcknowledgedBy String?
+  createdAt              DateTime  @default(now()) @db.Timestamptz
+  updatedAt              DateTime  @updatedAt @db.Timestamptz
 
   users        User[]
   customers    Customer[]

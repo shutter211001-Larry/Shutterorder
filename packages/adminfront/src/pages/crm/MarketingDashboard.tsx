@@ -334,9 +334,15 @@ export default function MarketingDashboard() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
-          <Target size={20} className="text-gray-400" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('marketingDashboard.campaignPerformance', 'Campaign Performance')}</h2>
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Target size={20} className="text-gray-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('marketingDashboard.campaignPerformance', 'Campaign Performance')}</h2>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 dark:bg-gray-700/50 px-2 py-1.5 rounded-md border border-gray-100 dark:border-gray-600">
+            <Info size={14} className="text-gray-400" />
+            <span>{t('marketingDashboard.onlyPaidOrdersNote', '此表格僅顯示成功結帳的訂單 (Only shows completed orders)')}</span>
+          </div>
         </div>
         
         <div className="overflow-x-auto">

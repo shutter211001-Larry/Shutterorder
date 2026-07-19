@@ -1,0 +1,66 @@
+name: Daily PostgreSQL Backup to Google Drive
+
+on:
+  schedule:
+    # 每天凌晨 3:00 (UTC) 執行，相當於台灣時間早上 11:00
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      # ==========================================
+      # 備份第一個資料庫 (例如：正式機 Production)
+      # ==========================================
+      - name: Create Backup File (Database 1)
+        env:
+          # 注意這裡的 Secret 名稱改為 DATABASE_URL_1
+          DATABASE_URL: ${{ secrets.DATABASE_URL_1 }}
+        run: |
+          TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+          BACKUP_FILE="db1_backup_$TIMESTAMP.sql"
+          
+          echo "Starting pg_dump for DB 1..."
+          pg_dump $DATABASE_URL > $BACKUP_FILE
+          echo "BACKUP_FILE_1=$BACKUP_FILE" >> $GITHUB_ENV
+
+      - name: Upload Backup 1 to Google Drive
+        uses: adityak74/google-drive-upload-action@main
+        with:
+          filename: ${{ env.BACKUP_FILE_1 }}
+          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+
+
+      # ==========================================
+      # 備份第二個資料庫 (例如：測試機 Staging)
+      # ==========================================
+      - name: Create Backup File (Database 2)
+        env:
+          # 注意這裡的 Secret 名稱改為 DATABASE_URL_2
+          DATABASE_URL: ${{ secrets.DATABASE_URL_2 }}
+        run: |
+          TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+          # 檔名前面加上 db2 區分
+          BACKUP_FILE="db2_backup_$TIMESTAMP.sql"
+          
+          echo "Starting pg_dump for DB 2..."
+          pg_dump $DATABASE_URL > $BACKUP_FILE
+          echo "BACKUP_FILE_2=$BACKUP_FILE" >> $GITHUB_ENV
+
+      - name: Upload Backup 2 to Google Drive
+        uses: adityak74/google-drive-upload-action@main
+        with:
+          filename: ${{ env.BACKUP_FILE_2 }}
+          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
